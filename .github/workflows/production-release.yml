@@ -21,11 +21,16 @@ jobs:
     # Only run if validation passed or force release is enabled
     if: github.event.workflow_run.conclusion == 'success' || github.event.inputs.force_release == 'true'
     
+    permissions:
+      contents: write
+      pull-requests: read
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
