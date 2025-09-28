@@ -22,9 +22,18 @@ resource "null_resource" "state_validation" {
   triggers = {
     # Trigger on any infrastructure changes
     infrastructure_hash = md5(jsonencode({
-      s3_buckets     = [for bucket in aws_s3_bucket.all : bucket.id]
-      cloudfront_ids = [for dist in aws_cloudfront_distribution.all : dist.id]
-      dynamodb_tables = [for table in aws_dynamodb_table.all : table.id]
+      s3_buckets     = [
+        aws_s3_bucket.website_bucket.id,
+        aws_s3_bucket.testing_site.id,
+        aws_s3_bucket.terraform_state.id
+      ]
+      cloudfront_ids = [
+        aws_cloudfront_distribution.website.id,
+        aws_cloudfront_distribution.testing_site.id
+      ]
+      dynamodb_tables = [
+        aws_dynamodb_table.terraform_state_lock.id
+      ]
     }))
   }
   
