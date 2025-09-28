@@ -20,6 +20,104 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
         
+    - name: Setup Node.js for Security Scanning
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: website/package-lock.json
+        
+    - name: Install Security Scanning Tools
+      run: |
+        echo "🔧 Installing security scanning tools..."
+        npm install -g npm-audit-ci-wrapper
+        npm install -g snyk
+        
+    - name: Run Comprehensive Security Scan
+      run: |
+        echo "🔍 Running comprehensive security scan..."
+        
+        # Initialize security variables
+        SECURITY_STATUS="secure"
+        DEPENDENCIES_STATUS="up-to-date"
+        VULNERABILITIES_COUNT="0"
+        HIGH_VULNERABILITIES="0"
+        MEDIUM_VULNERABILITIES="0"
+        LOW_VULNERABILITIES="0"
+        CRITICAL_VULNERABILITIES="0"
+        SECURITY_LAST_SCAN=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        
+        # Scan website directory for vulnerabilities
+        if [ -f "website/package.json" ]; then
+          echo "📦 Scanning npm dependencies..."
+          cd website
+          
+          # Run npm audit
+          npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null || true
+          
+          if [ -f "audit-results.json" ]; then
+            # Parse audit results
+            VULNERABILITIES_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0' 2>/dev/null || echo "0")
+            HIGH_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.high // 0' 2>/dev/null || echo "0")
+            MEDIUM_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.moderate // 0' 2>/dev/null || echo "0")
+            LOW_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.low // 0' 2>/dev/null || echo "0")
+            CRITICAL_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.critical // 0' 2>/dev/null || echo "0")
+            
+            # Determine security status
+            if [ "$CRITICAL_VULNERABILITIES" -gt 0 ]; then
+              SECURITY_STATUS="critical-vulnerabilities"
+              DEPENDENCIES_STATUS="critical-updates-needed"
+            elif [ "$HIGH_VULNERABILITIES" -gt 0 ]; then
+              SECURITY_STATUS="high-vulnerabilities"
+              DEPENDENCIES_STATUS="high-priority-updates"
+            elif [ "$MEDIUM_VULNERABILITIES" -gt 0 ]; then
+              SECURITY_STATUS="medium-vulnerabilities"
+              DEPENDENCIES_STATUS="recommended-updates"
+            elif [ "$LOW_VULNERABILITIES" -gt 0 ]; then
+              SECURITY_STATUS="low-vulnerabilities"
+              DEPENDENCIES_STATUS="minor-updates"
+            else
+              SECURITY_STATUS="secure"
+              DEPENDENCIES_STATUS="up-to-date"
+            fi
+          fi
+          
+          cd ..
+        fi
+        
+        # Scan for common security issues in static files
+        echo "🔍 Scanning static files for security issues..."
+        
+        # Check for hardcoded secrets (basic scan)
+        SECRETS_FOUND=0
+        if grep -r -i "password\|secret\|key\|token" website/ --exclude-dir=node_modules --exclude="*.json" 2>/dev/null | grep -v "example\|placeholder\|TODO" | wc -l | grep -q "[1-9]"; then
+          SECRETS_FOUND=1
+          echo "⚠️ Potential secrets found in static files"
+        fi
+        
+        # Check for outdated CDN links
+        CDN_ISSUES=0
+        if grep -r "http://" website/ --exclude-dir=node_modules 2>/dev/null | wc -l | grep -q "[1-9]"; then
+          CDN_ISSUES=1
+          echo "⚠️ HTTP links found (should use HTTPS)"
+        fi
+        
+        # Update security status based on findings
+        if [ "$SECRETS_FOUND" -eq 1 ] || [ "$CDN_ISSUES" -eq 1 ]; then
+          if [ "$SECURITY_STATUS" = "secure" ]; then
+            SECURITY_STATUS="security-issues-detected"
+            DEPENDENCIES_STATUS="code-review-needed"
+          fi
+        fi
+        
+        echo "✅ Security scan completed:"
+        echo "  Status: $SECURITY_STATUS"
+        echo "  Total Vulnerabilities: $VULNERABILITIES_COUNT"
+        echo "  Critical: $CRITICAL_VULNERABILITIES"
+        echo "  High: $HIGH_VULNERABILITIES"
+        echo "  Medium: $MEDIUM_VULNERABILITIES"
+        echo "  Low: $LOW_VULNERABILITIES"
+        
     - name: Generate Dynamic Version Information
       run: |
         echo "📝 Generating dynamic version information..."
@@ -37,32 +135,6 @@ jobs:
           RELEASE_STATUS="development"
         fi
         
-        # Check for security vulnerabilities
-        SECURITY_STATUS="secure"
-        DEPENDENCIES_STATUS="up-to-date"
-        VULNERABILITIES_COUNT="0"
-        SECURITY_LAST_SCAN="$BUILD_DATE"
-        
-        # Run security checks if package.json exists
-        if [ -f "website/package.json" ]; then
-          echo "🔍 Running security checks..."
-          cd website
-          
-          # Check for known vulnerabilities (if npm is available)
-          if command -v npm &> /dev/null; then
-            npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null || true
-            if [ -f "audit-results.json" ]; then
-              VULNERABILITIES_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0' 2>/dev/null || echo "0")
-              if [ "$VULNERABILITIES_COUNT" -gt 0 ]; then
-                SECURITY_STATUS="vulnerabilities-detected"
-                DEPENDENCIES_STATUS="needs-update"
-              fi
-            fi
-          fi
-          
-          cd ..
-        fi
-        
         # Replace placeholders in version.json
         sed -i "s/{{GITHUB_VERSION}}/$VERSION/g" website/version.json
         sed -i "s/{{GITHUB_BUILD_DATE}}/$BUILD_DATE/g" website/version.json
@@ -78,7 +150,14 @@ jobs:
         sed -i "s/{{GITHUB_SECURITY_STATUS}}/$SECURITY_STATUS/g" website/version.json
         sed -i "s/{{GITHUB_DEPENDENCIES_STATUS}}/$DEPENDENCIES_STATUS/g" website/version.json
         sed -i "s/{{GITHUB_VULNERABILITIES_COUNT}}/$VULNERABILITIES_COUNT/g" website/version.json
+        sed -i "s/{{GITHUB_CRITICAL_VULNERABILITIES}}/$CRITICAL_VULNERABILITIES/g" website/version.json
+        sed -i "s/{{GITHUB_HIGH_VULNERABILITIES}}/$HIGH_VULNERABILITIES/g" website/version.json
+        sed -i "s/{{GITHUB_MEDIUM_VULNERABILITIES}}/$MEDIUM_VULNERABILITIES/g" website/version.json
+        sed -i "s/{{GITHUB_LOW_VULNERABILITIES}}/$LOW_VULNERABILITIES/g" website/version.json
         sed -i "s/{{GITHUB_SECURITY_LAST_SCAN}}/$SECURITY_LAST_SCAN/g" website/version.json
+        sed -i "s/{{GITHUB_SCAN_DURATION}}/$(date -u +%s)/g" website/version.json
+        sed -i "s/{{GITHUB_SECRETS_FOUND}}/$SECRETS_FOUND/g" website/version.json
+        sed -i "s/{{GITHUB_CDN_ISSUES}}/$CDN_ISSUES/g" website/version.json
         
         echo "✅ Version information generated:"
         echo "  Version: $VERSION"

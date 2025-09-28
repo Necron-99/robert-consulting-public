@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status - Robert Consulting</title>
+    <meta name="description" content="Real-time system status, security monitoring, and performance metrics for Robert Consulting website.">
+    <meta name="keywords" content="status, monitoring, security, uptime, performance, Robert Consulting">
+    <meta name="author" content="Robert Consulting">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="status-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">System Status</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="status.html" class="nav-link active">Status</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Status Header -->
+    <section id="status-header" class="status-header">
+        <div class="container">
+            <h1>System Status</h1>
+            <p class="status-subtitle">Real-time monitoring of Robert Consulting infrastructure</p>
+            <div class="overall-status" id="overall-status">
+                <div class="status-indicator" id="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Loading...</span>
+                </div>
+                <div class="last-updated" id="last-updated">
+                    Last updated: <span id="last-updated-time">--</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status Grid -->
+    <section id="status-grid" class="status-section">
+        <div class="container">
+            <div class="status-grid">
+                <!-- Website Status -->
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <h3>Website</h3>
+                        <div class="status-badge" id="website-status">Operational</div>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value" id="website-uptime">99.9%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Response Time</span>
+                            <span class="metric-value" id="website-response">120ms</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Last Incident</span>
+                            <span class="metric-value" id="website-incident">None</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Status -->
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <h3>Security</h3>
+                        <div class="status-badge" id="security-status">Secure</div>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Vulnerabilities</span>
+                            <span class="metric-value" id="security-vulnerabilities">0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Critical Issues</span>
+                            <span class="metric-value" id="security-critical">0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Last Scan</span>
+                            <span class="metric-value" id="security-last-scan">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Status -->
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <h3>Performance</h3>
+                        <div class="status-badge" id="performance-status">Good</div>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Load Time</span>
+                            <span class="metric-value" id="performance-load">1.2s</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Cache Hit Rate</span>
+                            <span class="metric-value" id="performance-cache">95%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">CDN Status</span>
+                            <span class="metric-value" id="performance-cdn">Operational</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Infrastructure Status -->
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <h3>Infrastructure</h3>
+                        <div class="status-badge" id="infrastructure-status">Healthy</div>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="metric">
+                            <span class="metric-label">S3 Storage</span>
+                            <span class="metric-value" id="infrastructure-s3">Operational</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">CloudFront</span>
+                            <span class="metric-value" id="infrastructure-cloudfront">Operational</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">SSL Certificate</span>
+                            <span class="metric-value" id="infrastructure-ssl">Valid</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Details -->
+    <section id="security-details" class="status-section">
+        <div class="container">
+            <h2>Security Monitoring</h2>
+            <div class="security-grid">
+                <div class="security-card">
+                    <h3>Vulnerability Scan Results</h3>
+                    <div class="vulnerability-stats" id="vulnerability-stats">
+                        <div class="vuln-stat critical">
+                            <span class="vuln-count" id="critical-count">0</span>
+                            <span class="vuln-label">Critical</span>
+                        </div>
+                        <div class="vuln-stat high">
+                            <span class="vuln-count" id="high-count">0</span>
+                            <span class="vuln-label">High</span>
+                        </div>
+                        <div class="vuln-stat medium">
+                            <span class="vuln-count" id="medium-count">0</span>
+                            <span class="vuln-label">Medium</span>
+                        </div>
+                        <div class="vuln-stat low">
+                            <span class="vuln-count" id="low-count">0</span>
+                            <span class="vuln-label">Low</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <h3>Security Checks</h3>
+                    <div class="security-checks" id="security-checks">
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-label">Dependencies</span>
+                            <span class="check-status" id="check-dependencies">Up to date</span>
+                        </div>
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-label">Secrets</span>
+                            <span class="check-status" id="check-secrets">No secrets found</span>
+                        </div>
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-label">HTTPS</span>
+                            <span class="check-status" id="check-https">All links secure</span>
+                        </div>
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-label">Headers</span>
+                            <span class="check-status" id="check-headers">Security headers present</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section id="recent-activity" class="status-section">
+        <div class="container">
+            <h2>Recent Activity</h2>
+            <div class="activity-timeline" id="activity-timeline">
+                <div class="activity-item">
+                    <div class="activity-time">Just now</div>
+                    <div class="activity-icon">🔄</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Security scan completed</div>
+                        <div class="activity-description">All systems secure, 0 vulnerabilities found</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-time">5 minutes ago</div>
+                    <div class="activity-icon">🚀</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Deployment successful</div>
+                        <div class="activity-description">Version 1.0.1 deployed to production</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-time">1 hour ago</div>
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Health check passed</div>
+                        <div class="activity-description">All services operational</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Robert Consulting</h4>
+                <p>Strategic Business Advisory for Enterprise Growth</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+                <div class="version-info">
+                    <span class="version-badge" id="version-display">v1.0.0</span>
+                    <span class="build-info" id="build-display">Build 2025-09-28</span>
+                    <span class="security-status" id="security-status-footer">🔒 secure</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="index.html#services">DevSecOps Transformation</a></li>
+                    <li><a href="index.html#services">Cloud Engineering</a></li>
+                    <li><a href="index.html#services">Infrastructure Automation</a></li>
+                    <li><a href="index.html#services">Compliance & Security</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#about">About Us</a></li>
+                    <li><a href="learning.html">Learning Journey</a></li>
+                    <li><a href="status.html">System Status</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p>Email: info@robertconsulting.net</p>
+                <p>Phone: +1 (555) 123-4567</p>
+                <p>Hours: Mon - Fri, 9 AM - 5 PM EST</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Robert Consulting. All rights reserved. | DevSecOps & Cloud Engineering Solutions</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="status-script.js"></script>
+    <script src="version-manager.js"></script>
+    <script src="security-config.js"></script>
+</body>
+</html>

@@ -14,7 +14,14 @@
     "status": "{{GITHUB_SECURITY_STATUS}}",
     "dependencies": "{{GITHUB_DEPENDENCIES_STATUS}}",
     "vulnerabilities": "{{GITHUB_VULNERABILITIES_COUNT}}",
-    "last_scan": "{{GITHUB_SECURITY_LAST_SCAN}}"
+    "critical": "{{GITHUB_CRITICAL_VULNERABILITIES}}",
+    "high": "{{GITHUB_HIGH_VULNERABILITIES}}",
+    "medium": "{{GITHUB_MEDIUM_VULNERABILITIES}}",
+    "low": "{{GITHUB_LOW_VULNERABILITIES}}",
+    "last_scan": "{{GITHUB_SECURITY_LAST_SCAN}}",
+    "scan_duration": "{{GITHUB_SCAN_DURATION}}",
+    "secrets_found": "{{GITHUB_SECRETS_FOUND}}",
+    "cdn_issues": "{{GITHUB_CDN_ISSUES}}"
   },
   "changelog": [
     {
