@@ -146,5 +146,4 @@ output "testing_cloudfront_url" {
   value       = "https://${aws_cloudfront_distribution.testing_site.domain_name}"
 }
 
-# Data source for current region
-data "aws_region" "current" {}
+# Data source for current region is defined in state-management.tf
