@@ -145,28 +145,28 @@ jobs:
         fi
         
         # Replace placeholders in version.json
-        sed -i "s/{{GITHUB_VERSION}}/$VERSION/g" website/version.json
-        sed -i "s/{{GITHUB_BUILD_DATE}}/$BUILD_DATE/g" website/version.json
-        sed -i "s/{{GITHUB_RELEASE_STATUS}}/$RELEASE_STATUS/g" website/version.json
-        sed -i "s/{{GITHUB_SHA}}/${{ github.sha }}/g" website/version.json
-        sed -i "s/{{GITHUB_REF_NAME}}/${{ github.ref_name }}/g" website/version.json
-        sed -i "s/{{GITHUB_WORKFLOW}}/${{ github.workflow }}/g" website/version.json
-        sed -i "s/{{GITHUB_RUN_ID}}/${{ github.run_id }}/g" website/version.json
-        sed -i "s/{{GITHUB_RUN_NUMBER}}/${{ github.run_number }}/g" website/version.json
-        sed -i "s/{{GITHUB_ACTOR}}/${{ github.actor }}/g" website/version.json
-        sed -i "s/{{GITHUB_REPOSITORY}}/${{ github.repository }}/g" website/version.json
-        sed -i "s/{{GITHUB_EVENT_NAME}}/${{ github.event_name }}/g" website/version.json
-        sed -i "s/{{GITHUB_SECURITY_STATUS}}/$SECURITY_STATUS/g" website/version.json
-        sed -i "s/{{GITHUB_DEPENDENCIES_STATUS}}/$DEPENDENCIES_STATUS/g" website/version.json
-        sed -i "s/{{GITHUB_VULNERABILITIES_COUNT}}/$VULNERABILITIES_COUNT/g" website/version.json
-        sed -i "s/{{GITHUB_CRITICAL_VULNERABILITIES}}/$CRITICAL_VULNERABILITIES/g" website/version.json
-        sed -i "s/{{GITHUB_HIGH_VULNERABILITIES}}/$HIGH_VULNERABILITIES/g" website/version.json
-        sed -i "s/{{GITHUB_MEDIUM_VULNERABILITIES}}/$MEDIUM_VULNERABILITIES/g" website/version.json
-        sed -i "s/{{GITHUB_LOW_VULNERABILITIES}}/$LOW_VULNERABILITIES/g" website/version.json
-        sed -i "s/{{GITHUB_SECURITY_LAST_SCAN}}/$SECURITY_LAST_SCAN/g" website/version.json
-        sed -i "s/{{GITHUB_SCAN_DURATION}}/$(date -u +%s)/g" website/version.json
-        sed -i "s/{{GITHUB_SECRETS_FOUND}}/$SECRETS_FOUND/g" website/version.json
-        sed -i "s/{{GITHUB_CDN_ISSUES}}/$CDN_ISSUES/g" website/version.json
+        sed -i "s/\{\{GITHUB_VERSION\}\}/$VERSION/g" website/version.json
+        sed -i "s/\{\{GITHUB_BUILD_DATE\}\}/$BUILD_DATE/g" website/version.json
+        sed -i "s/\{\{GITHUB_RELEASE_STATUS\}\}/$RELEASE_STATUS/g" website/version.json
+        sed -i "s/\{\{GITHUB_SHA\}\}/${{ github.sha }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_REF_NAME\}\}/${{ github.ref_name }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_WORKFLOW\}\}/${{ github.workflow }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_RUN_ID\}\}/${{ github.run_id }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_RUN_NUMBER\}\}/${{ github.run_number }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_ACTOR\}\}/${{ github.actor }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_REPOSITORY\}\}/${{ github.repository }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_EVENT_NAME\}\}/${{ github.event_name }}/g" website/version.json
+        sed -i "s/\{\{GITHUB_SECURITY_STATUS\}\}/$SECURITY_STATUS/g" website/version.json
+        sed -i "s/\{\{GITHUB_DEPENDENCIES_STATUS\}\}/$DEPENDENCIES_STATUS/g" website/version.json
+        sed -i "s/\{\{GITHUB_VULNERABILITIES_COUNT\}\}/$VULNERABILITIES_COUNT/g" website/version.json
+        sed -i "s/\{\{GITHUB_CRITICAL_VULNERABILITIES\}\}/$CRITICAL_VULNERABILITIES/g" website/version.json
+        sed -i "s/\{\{GITHUB_HIGH_VULNERABILITIES\}\}/$HIGH_VULNERABILITIES/g" website/version.json
+        sed -i "s/\{\{GITHUB_MEDIUM_VULNERABILITIES\}\}/$MEDIUM_VULNERABILITIES/g" website/version.json
+        sed -i "s/\{\{GITHUB_LOW_VULNERABILITIES\}\}/$LOW_VULNERABILITIES/g" website/version.json
+        sed -i "s/\{\{GITHUB_SECURITY_LAST_SCAN\}\}/$SECURITY_LAST_SCAN/g" website/version.json
+        sed -i "s/\{\{GITHUB_SCAN_DURATION\}\}/$(date -u +%s)/g" website/version.json
+        sed -i "s/\{\{GITHUB_SECRETS_FOUND\}\}/$SECRETS_FOUND/g" website/version.json
+        sed -i "s/\{\{GITHUB_CDN_ISSUES\}\}/$CDN_ISSUES/g" website/version.json
         
         echo "✅ Version information generated:"
         echo "  Version: $VERSION"
