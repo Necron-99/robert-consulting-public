@@ -191,50 +191,19 @@ jobs:
             
       - name: Create Release
         if: github.ref == 'refs/heads/main' && steps.run-tests.outputs.failed_tests == 0
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           echo "📦 Creating release..."
           
           # Get version from version.json
           VERSION=$(jq -r '.version' website/version.json)
-          BUILD_DATE=$(jq -r '.build' website/version.json)
           
-          # Create release notes
-          cat > release-notes.md << EOF
-          ## Release $VERSION
-          
-          **Build Date:** $BUILD_DATE
-          **Commit:** ${{ github.sha }}
-          **Branch:** ${{ github.ref_name }}
-          
-          ### 🧪 Testing Results
-          - Total Tests: ${{ steps.run-tests.outputs.total_tests }}
-          - Failed Tests: ${{ steps.run-tests.outputs.failed_tests }}
-          - Pass Rate: $(( ({{ steps.run-tests.outputs.total_tests }} - {{ steps.run-tests.outputs.failed_tests }}) * 100 / {{ steps.run-tests.outputs.total_tests }} ))%
-          
-          ### 🚀 Features
-          - Automated testing and deployment
-          - Cost-optimized testing environment
-          - Security validation
-          - Performance optimization
-          - Accessibility compliance
-          
-          ### 📊 Quality Metrics
-          - HTML Validation: ✅ Passed
-          - Accessibility: ✅ Passed
-          - Performance: ✅ Passed
-          - Security Headers: ✅ Passed
-          - Cost Optimization: ✅ Passed
-          EOF
-          
-          # Create GitHub release
-          gh release create "v$VERSION" \
-            --title "Release $VERSION" \
-            --notes-file release-notes.md \
-            --target main
+          # Create a simple tag instead of a full release
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v$VERSION" -m "Testing Release $VERSION"
+          git push origin "v$VERSION"
             
-          echo "✅ Release created: v$VERSION"
+          echo "✅ Testing tag created: v$VERSION"
           
       - name: Notify on Failure
         if: failure()

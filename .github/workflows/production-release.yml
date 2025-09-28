@@ -176,18 +176,16 @@ jobs:
           echo "✅ Testing site deployed"
           
       - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           echo "📦 Creating GitHub release..."
           
-          # Create release
-          gh release create "v${{ steps.release-info.outputs.version }}" \
-            --title "Release ${{ steps.release-info.outputs.version }}" \
-            --notes-file release-notes.md \
-            --target main
+          # Create a simple tag instead of a full release
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "v${{ steps.release-info.outputs.version }}" -m "Release ${{ steps.release-info.outputs.version }}"
+          git push origin "v${{ steps.release-info.outputs.version }}"
             
-          echo "✅ GitHub release created: v${{ steps.release-info.outputs.version }}"
+          echo "✅ GitHub tag created: v${{ steps.release-info.outputs.version }}"
           
       - name: Update version.json
         run: |
