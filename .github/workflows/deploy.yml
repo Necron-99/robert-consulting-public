@@ -1,0 +1,86 @@
+name: Deploy Website with Cache Invalidation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        
+    - name: Deploy to S3
+      run: |
+        echo "🚀 Deploying files to S3..."
+        aws s3 sync website/ s3://robert-consulting-website-2024-bd900b02/ --delete
+        
+    - name: Invalidate CloudFront Cache
+      run: |
+        echo "🔄 Invalidating CloudFront cache..."
+        INVALIDATION_ID=$(aws cloudfront create-invalidation \
+          --distribution-id E3HUVB85SPZFHO \
+          --paths "/*" \
+          --query 'Invalidation.Id' \
+          --output text)
+        
+        echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
+        echo "⏱️ Cache invalidation is in progress..."
+        echo "🌍 Changes will be visible globally in 5-15 minutes"
+        
+    - name: Wait for Invalidation (Optional)
+      if: ${{ github.event.inputs.wait_for_completion == 'true' }}
+      run: |
+        echo "⏳ Waiting for CloudFront invalidation to complete..."
+        
+        while true; do
+          STATUS=$(aws cloudfront get-invalidation \
+            --distribution-id E3HUVB85SPZFHO \
+            --id $INVALIDATION_ID \
+            --query 'Invalidation.Status' \
+            --output text)
+          
+          case $STATUS in
+            "Completed")
+              echo "✅ Cache invalidation completed!"
+              break
+              ;;
+            "InProgress")
+              echo "⏳ Invalidation in progress... (Status: $STATUS)"
+              sleep 30
+              ;;
+            *)
+              echo "⚠️ Invalidation status: $STATUS"
+              sleep 30
+              ;;
+          esac
+        done
+        
+    - name: Deployment Summary
+      run: |
+        echo "🎉 Deployment completed successfully!"
+        echo ""
+        echo "🌐 Website URLs:"
+        echo "  Main Site: https://robert-consulting.net/index.html"
+        echo "  Learning: https://robert-consulting.net/learning.html"
+        echo "  Stats: https://robert-consulting.net/stats.html"
+        echo "  Dashboard: https://robert-consulting.net/dashboard.html"
+        echo ""
+        echo "📊 CloudFront Distribution:"
+        echo "  Domain: d24d7iql53878z.cloudfront.net"
+        echo "  Status: Cache invalidation in progress"
+        echo ""
+        echo "💡 Tips:"
+        echo "  - Use Ctrl+F5 or Cmd+Shift+R to force refresh"
+        echo "  - Try incognito/private mode if changes aren't visible"
+        echo "  - Changes may take 5-15 minutes to appear globally"
