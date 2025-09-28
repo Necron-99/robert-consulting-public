@@ -63,6 +63,10 @@ create_testing_bucket() {
     # Configure bucket for website hosting
     aws s3 website s3://$TESTING_BUCKET --index-document index.html --error-document error.html
     
+    # Configure public access block to allow public policies (for testing only)
+    aws s3api put-public-access-block --bucket $TESTING_BUCKET \
+        --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+    
     # Set bucket policy for public read access (testing only)
     cat > bucket-policy.json << EOF
 {
