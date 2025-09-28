@@ -1,0 +1,135 @@
+name: Terraform Drift Detection
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      generate_report:
+        description: 'Generate detailed drift report'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  drift-detection:
+    name: Check for Infrastructure Drift
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+      
+      - name: Setup AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+      
+      - name: Make drift detection script executable
+        run: chmod +x terraform/drift-detection.sh
+      
+      - name: Run drift detection
+        id: drift-check
+        run: |
+          cd terraform
+          if ./drift-detection.sh check; then
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+            echo "✅ No infrastructure drift detected"
+          else
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+            echo "❌ Infrastructure drift detected"
+            exit 1
+          fi
+      
+      - name: Generate drift report
+        if: failure() || github.event.inputs.generate_report == 'true'
+        run: |
+          cd terraform
+          ./drift-detection.sh report
+      
+      - name: Upload drift report
+        if: failure() || github.event.inputs.generate_report == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-${{ github.run_number }}
+          path: terraform/drift-report-*.txt
+          retention-days: 30
+      
+      - name: Comment on PR (if drift detected)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Find drift report
+            const reportFiles = fs.readdirSync('terraform').filter(f => f.startsWith('drift-report-'));
+            if (reportFiles.length > 0) {
+              const reportPath = path.join('terraform', reportFiles[0]);
+              const reportContent = fs.readFileSync(reportPath, 'utf8');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🚨 Infrastructure Drift Detected\n\n\`\`\`\n${reportContent}\n\`\`\`\n\nPlease review and resolve the drift before merging.`
+              });
+            }
+      
+      - name: Create issue for drift
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Find drift report
+            const reportFiles = fs.readdirSync('terraform').filter(f => f.startsWith('drift-report-'));
+            if (reportFiles.length > 0) {
+              const reportPath = path.join('terraform', reportFiles[0]);
+              const reportContent = fs.readFileSync(reportPath, 'utf8');
+              
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Infrastructure Drift Detected - ' + new Date().toISOString().split('T')[0],
+                body: `## Infrastructure Drift Detected\n\n**Date**: ${new Date().toISOString()}\n**Workflow**: ${context.workflow}\n**Run ID**: ${context.runId}\n\n### Drift Report:\n\`\`\`\n${reportContent}\n\`\`\`\n\n### Next Steps:\n1. Review the drift report\n2. Investigate the changes\n3. Apply fixes if needed\n4. Close this issue when resolved`,
+                labels: ['drift', 'infrastructure', 'urgent']
+              });
+            }
+      
+      - name: Send notification
+        if: failure()
+        run: |
+          echo "🚨 Infrastructure drift detected in ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run: ${{ github.run_id }}"
+          echo "Date: $(date)"
+          echo ""
+          echo "Please check the drift report and resolve any issues."
+      
+      - name: Success notification
+        if: success()
+        run: |
+          echo "✅ No infrastructure drift detected"
+          echo "All resources are in sync with Terraform state"

@@ -1,20 +1,30 @@
-name: Deploy Website with Cache Invalidation
+name: Deploy Website (Decoupled from Infrastructure)
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
+    inputs:
+      skip_terraform:
+        description: 'Skip Terraform infrastructure checks'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   deploy:
+    name: Deploy Website Content
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -166,23 +176,14 @@ jobs:
         echo "  Commit: ${{ github.sha }}"
         echo "  Security Status: $SECURITY_STATUS"
         
-    - name: Deploy to S3
+    - name: Make deployment script executable
+      run: chmod +x website/deploy-website.sh
+      
+    - name: Deploy Website (Decoupled)
       run: |
-        echo "🚀 Deploying files to S3..."
-        aws s3 sync website/ s3://robert-consulting-website-2024-bd900b02/ --delete
-        
-    - name: Invalidate CloudFront Cache
-      run: |
-        echo "🔄 Invalidating CloudFront cache..."
-        INVALIDATION_ID=$(aws cloudfront create-invalidation \
-          --distribution-id E3HUVB85SPZFHO \
-          --paths "/*" \
-          --query 'Invalidation.Id' \
-          --output text)
-        
-        echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
-        echo "⏱️ Cache invalidation is in progress..."
-        echo "🌍 Changes will be visible globally in 5-15 minutes"
+        cd website
+        export CLOUDFRONT_DISTRIBUTION_ID=E3HUVB85SPZFHO
+        ./deploy-website.sh deploy
         
     - name: Wait for Invalidation (Optional)
       if: ${{ github.event.inputs.wait_for_completion == 'true' }}
