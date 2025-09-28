@@ -191,6 +191,8 @@ jobs:
             
       - name: Create Release
         if: github.ref == 'refs/heads/main' && steps.run-tests.outputs.failed_tests == 0
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "📦 Creating release..."
           

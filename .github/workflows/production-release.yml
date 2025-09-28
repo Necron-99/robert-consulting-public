@@ -176,6 +176,8 @@ jobs:
           echo "✅ Testing site deployed"
           
       - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "📦 Creating GitHub release..."
           
