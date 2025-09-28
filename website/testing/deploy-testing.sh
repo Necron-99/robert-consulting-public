@@ -85,6 +85,22 @@ EOF
     log_success "S3 bucket created: $TESTING_BUCKET"
 }
 
+# Run automated tests
+run_automated_tests() {
+    log_info "Running automated tests..."
+    
+    # Make test script executable
+    chmod +x run-tests.sh
+    
+    # Run comprehensive tests
+    if ./run-tests.sh; then
+        log_success "All tests passed"
+    else
+        log_error "Some tests failed"
+        exit 1
+    fi
+}
+
 # Deploy testing site files
 deploy_files() {
     log_info "Deploying testing site files..."
@@ -228,6 +244,7 @@ main() {
     log_info "Starting testing site deployment..."
     
     check_prerequisites
+    run_automated_tests
     create_testing_bucket
     deploy_files
     create_cloudfront_distribution

@@ -191,6 +191,85 @@
     left: 0;
 }
 
+/* Latest Features Section */
+.latest-features-section {
+    padding: 6rem 0;
+    background: #f8fafc;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.feature-category {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.feature-category:hover {
+    transform: translateY(-5px);
+}
+
+.feature-category h3 {
+    color: #1a365d;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.feature-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.feature-item {
+    padding: 1.5rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 4px solid #68d391;
+    transition: background 0.3s ease;
+}
+
+.feature-item:hover {
+    background: #edf2f7;
+}
+
+.feature-item h4 {
+    color: #2d3748;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-item p {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.feature-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.badge {
+    background: #e6fffa;
+    color: #234e52;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid #b2f5ea;
+}
+
 /* Lessons Section */
 .lessons-section {
     padding: 6rem 0;
@@ -434,6 +513,7 @@
     
     .tech-grid,
     .methodology-grid,
+    .features-grid,
     .lessons-grid,
     .future-grid,
     .resources-grid {
@@ -466,6 +546,7 @@
     
     .tech-category,
     .methodology-card,
+    .feature-category,
     .lesson-category,
     .future-card,
     .resource-category {
