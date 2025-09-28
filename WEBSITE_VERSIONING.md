@@ -1,6 +1,6 @@
 # Website Versioning System
 
-This document describes the versioning system implemented for the Robert Bailey Consulting website.
+This document describes the versioning system implemented for the Robert Consulting website.
 
 ## Overview
 
@@ -157,7 +157,7 @@ Potential future versioning features:
 
 When the website loads, the console will display:
 ```
-Robert Bailey Consulting Website
+Robert Consulting Website
 Version: 1.0.0
 Build: 2024-12-19
 Release: stable

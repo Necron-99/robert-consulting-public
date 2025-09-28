@@ -1,5 +1,5 @@
 /**
- * Version Management System for Robert Bailey Consulting Website
+ * Version Management System for Robert Consulting Website
  * Handles version updates, changelog management, and deployment tracking
  */
 
@@ -68,7 +68,7 @@ class VersionManager {
      */
     displayVersionInfo() {
         if (this.versionData) {
-            console.log(`%cRobert Bailey Consulting Website`, 'color: #1a365d; font-weight: bold; font-size: 16px;');
+            console.log(`%cRobert Consulting Website`, 'color: #1a365d; font-weight: bold; font-size: 16px;');
             console.log(`%cVersion: ${this.versionData.version}`, 'color: #38a169; font-weight: bold;');
             console.log(`%cBuild: ${this.versionData.build}`, 'color: #2c5282;');
             console.log(`%cRelease: ${this.versionData.release}`, 'color: #d69e2e;');

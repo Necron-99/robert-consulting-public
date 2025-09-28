@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Add version info to console for debugging
-            console.log(`Robert Bailey Consulting Website v${data.version} (${data.build})`);
+            console.log(`Robert Consulting Website v${data.version} (${data.build})`);
         })
         .catch(error => {
             console.warn('Could not load version information:', error);

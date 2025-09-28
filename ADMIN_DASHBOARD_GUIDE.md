@@ -1,6 +1,6 @@
 # Admin Dashboard Guide
 
-This guide explains how to access and use the protected site statistics dashboard for the Robert Bailey Consulting website.
+This guide explains how to access and use the protected site statistics dashboard for the Robert Consulting website.
 
 ## Overview
 
@@ -14,8 +14,8 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 - **Main Site**: `https://robert-consulting.net/index.html`
 
 ### Authentication
-- **Username**: `admin`
-- **Password**: `CHEQZvqKHsh9EyKv4ict`
+- **Access**: Authorized users only
+- **Credentials**: Contact administrator
 
 ## Features
 
@@ -95,9 +95,8 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 
 ### 1. Accessing the Dashboard
 1. Navigate to `https://robert-consulting.net/stats.html` (simple) or `https://robert-consulting.net/dashboard.html` (full-featured)
-2. Enter username: `admin`
-3. Enter password: `CHEQZvqKHsh9EyKv4ict`
-4. Click "Login"
+2. Enter authorized credentials
+3. Click "Login"
 
 ### 2. Viewing Statistics
 - **Site Overview**: Main metrics at the top
@@ -134,7 +133,8 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 
 1. **Cannot Access Dashboard**
    - Check URL: `https://robert-consulting.net/stats.html` or `https://robert-consulting.net/dashboard.html`
-   - Verify credentials: `admin` / `CHEQZvqKHsh9EyKv4ict`
+   - Verify you have authorized credentials
+   - Contact administrator if access is needed
    - Clear browser cache and try again
 
 2. **Statistics Not Updating**

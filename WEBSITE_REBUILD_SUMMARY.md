@@ -1,7 +1,7 @@
 # Website Rebuild Summary - Based on Actual Resume
 
 ## Overview
-Rebuilt the Robert Bailey Consulting website using your actual professional background while carefully protecting PII (Personally Identifiable Information). The website now accurately reflects your DevSecOps and cloud engineering expertise.
+Rebuilt the Robert Consulting website using your actual professional background while carefully protecting PII (Personally Identifiable Information). The website now accurately reflects your DevSecOps and cloud engineering expertise.
 
 ## PII Protection Measures
 
