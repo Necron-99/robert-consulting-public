@@ -229,10 +229,10 @@
             }
             
             checkAuthentication() {
-                const token = localStorage.getItem('stats_token');
-                if (token === 'authenticated_robert2024') {
+                if (window.secureAuth && window.secureAuth.isAuthenticated()) {
                     this.isAuthenticated = true;
                     this.showDashboard();
+                    this.startSessionTimer();
                 } else {
                     this.showLogin();
                 }
@@ -249,25 +249,33 @@
                 });
             }
             
-            handleLogin() {
+            async handleLogin() {
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 const messageDiv = document.getElementById('login-message');
                 
-                if (username === 'admin' && password === 'CHEQZvqKHsh9EyKv4ict') {
-                    localStorage.setItem('stats_token', 'authenticated_robert2024');
-                    this.isAuthenticated = true;
-                    messageDiv.innerHTML = '<div class="success-message">✓ Access granted!</div>';
-                    setTimeout(() => {
-                        this.showDashboard();
-                    }, 1000);
-                } else {
-                    messageDiv.innerHTML = '<div class="error-message">✗ Invalid credentials. Please try again.</div>';
+                try {
+                    if (window.secureAuth) {
+                        const result = await window.secureAuth.login(username, password);
+                        if (result.success) {
+                            this.isAuthenticated = true;
+                            messageDiv.innerHTML = '<div class="success-message">✓ Access granted!</div>';
+                            setTimeout(() => {
+                                this.showDashboard();
+                            }, 1000);
+                        }
+                    } else {
+                        throw new Error('Authentication system not available');
+                    }
+                } catch (error) {
+                    messageDiv.innerHTML = `<div class="error-message">✗ ${error.message}</div>`;
                 }
             }
             
             handleLogout() {
-                localStorage.removeItem('stats_token');
+                if (window.secureAuth) {
+                    window.secureAuth.logout();
+                }
                 this.isAuthenticated = false;
                 this.showLogin();
             }
@@ -304,6 +312,18 @@
                 document.getElementById('pageviews').textContent = pageViews.length.toLocaleString();
                 document.getElementById('forms').textContent = formSubmissions.length;
             }
+
+            startSessionTimer() {
+                if (!this.isAuthenticated) return;
+
+                // Check session every minute
+                this.sessionTimer = setInterval(() => {
+                    if (window.secureAuth && !window.secureAuth.isAuthenticated()) {
+                        this.handleLogout();
+                        alert('Session expired. Please log in again.');
+                    }
+                }, 60000);
+            }
         }
         
         // Initialize dashboard
@@ -311,5 +331,6 @@
             new StatsDashboard();
         });
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

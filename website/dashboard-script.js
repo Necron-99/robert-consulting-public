@@ -26,10 +26,10 @@ class Dashboard {
     }
 
     checkAuthentication() {
-        const token = localStorage.getItem('dashboard_token');
-        if (token === 'authenticated_robert2024') {
+        if (window.secureAuth && window.secureAuth.isAuthenticated()) {
             this.isAuthenticated = true;
             this.showDashboard();
+            this.startSessionTimer();
         } else {
             this.showLoginModal();
         }
@@ -49,25 +49,34 @@ class Dashboard {
         }
     }
 
-    handleLogin(e) {
+    async handleLogin(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         const username = formData.get('username');
         const password = formData.get('password');
 
-        // Simple authentication (in production, use proper authentication)
-        if (username === 'admin' && password === 'CHEQZvqKHsh9EyKv4ict') {
-            localStorage.setItem('dashboard_token', 'authenticated_robert2024');
-            this.isAuthenticated = true;
-            this.hideLoginModal();
-            this.showDashboard();
-        } else {
-            alert('Invalid credentials. Please try again.');
+        try {
+            // Use secure authentication
+            if (window.secureAuth) {
+                const result = await window.secureAuth.login(username, password);
+                if (result.success) {
+                    this.isAuthenticated = true;
+                    this.hideLoginModal();
+                    this.showDashboard();
+                    this.startSessionTimer();
+                }
+            } else {
+                throw new Error('Authentication system not available');
+            }
+        } catch (error) {
+            alert(`Login failed: ${error.message}`);
         }
     }
 
     handleLogout() {
-        localStorage.removeItem('dashboard_token');
+        if (window.secureAuth) {
+            window.secureAuth.logout();
+        }
         this.isAuthenticated = false;
         this.showLoginModal();
     }
@@ -181,6 +190,29 @@ class Dashboard {
 
         // Initial update
         this.updateRealTimeStats();
+    }
+
+    startSessionTimer() {
+        if (!this.isAuthenticated) return;
+
+        // Check session every minute
+        this.sessionTimer = setInterval(() => {
+            if (window.secureAuth && !window.secureAuth.isAuthenticated()) {
+                this.handleLogout();
+                alert('Session expired. Please log in again.');
+            }
+        }, 60000);
+
+        // Show session timeout warning
+        const warningTime = 5 * 60 * 1000; // 5 minutes before expiry
+        setTimeout(() => {
+            if (this.isAuthenticated) {
+                const extend = confirm('Your session will expire in 5 minutes. Extend session?');
+                if (extend && window.secureAuth) {
+                    window.secureAuth.extendSession();
+                }
+            }
+        }, window.secureAuth ? window.secureAuth.getSessionTimeRemaining() - warningTime : 0);
     }
 
     updateRealTimeStats() {
