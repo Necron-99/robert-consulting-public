@@ -1,4 +1,4 @@
-name: Deploy Website (Decoupled from Infrastructure)
+name: Staging Deployment (Automatic)
 
 on:
   push:
@@ -8,20 +8,37 @@ on:
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
     inputs:
-      skip_terraform:
-        description: 'Skip Terraform infrastructure checks'
+      skip_security_scan:
+        description: 'Skip security scanning (not recommended)'
         required: false
         default: 'false'
         type: boolean
 
 jobs:
   deploy:
-    name: Deploy Website Content
+    name: Deploy Website Content to Staging
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      
+    - name: Verify IP Address Access
+      run: |
+        echo "🔒 Verifying IP address access for staging deployment..."
+        CURRENT_IP=$(curl -s https://api.ipify.org)
+        echo "Current IP: $CURRENT_IP"
+        echo "Allowed IP: ${{ secrets.ALLOWED_IP_ADDRESS }}"
+        
+        if [ "$CURRENT_IP" != "${{ secrets.ALLOWED_IP_ADDRESS }}" ]; then
+          echo "❌ IP address verification failed!"
+          echo "Current IP: $CURRENT_IP"
+          echo "Expected IP: ${{ secrets.ALLOWED_IP_ADDRESS }}"
+          echo "Staging deployment blocked for security reasons."
+          exit 1
+        fi
+        
+        echo "✅ IP address verification passed for staging"
       
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
