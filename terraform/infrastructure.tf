@@ -36,15 +36,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "website_bucket" {
   }
 }
 
-# S3 bucket public access block
+# S3 bucket public access block (allow public policies for website)
 resource "aws_s3_bucket_public_access_block" "website_bucket" {
   bucket = aws_s3_bucket.website_bucket.id
 
   block_public_acls       = false
   block_public_policy     = false
   ignore_public_acls      = false
-  restrict_public_buckets  = false
+  restrict_public_buckets = false
 }
+
 
 # S3 bucket website configuration
 resource "aws_s3_bucket_website_configuration" "website_bucket" {

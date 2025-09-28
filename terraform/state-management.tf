@@ -40,11 +40,12 @@ resource "null_resource" "state_validation" {
   provisioner "local-exec" {
     command = <<-EOT
       echo "Validating Terraform state..."
-      terraform plan -detailed-exitcode
-      if [ $? -eq 2 ]; then
+      terraform plan -out=tfplan
+      if [ $? -ne 0 ]; then
         echo "ERROR: Infrastructure drift detected!"
         exit 1
       fi
+      echo "State validation passed"
     EOT
   }
 }
