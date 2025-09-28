@@ -29,9 +29,27 @@ class StatusMonitor {
 
     async loadStatusData() {
         try {
-            // Load version information (contains security data)
-            const versionResponse = await fetch('version.json');
-            this.statusData = await versionResponse.json();
+            // Try to load version information (contains security data)
+            let versionResponse;
+            try {
+                versionResponse = await fetch('version.json');
+                this.statusData = await versionResponse.json();
+                
+                // Check if we have placeholder values
+                const hasPlaceholders = JSON.stringify(this.statusData).includes('{{');
+                
+                if (hasPlaceholders) {
+                    console.log('⚠️ Placeholder values detected, using fallback data');
+                    // Load fallback version data
+                    const fallbackResponse = await fetch('version-fallback.json');
+                    this.statusData = await fallbackResponse.json();
+                }
+            } catch (versionError) {
+                console.log('⚠️ Main version.json not available, using fallback');
+                // Load fallback version data
+                const fallbackResponse = await fetch('version-fallback.json');
+                this.statusData = await fallbackResponse.json();
+            }
             
             // Update the display
             this.updateStatusDisplay();
@@ -103,26 +121,46 @@ class StatusMonitor {
         const securityCritical = document.getElementById('security-critical');
         const securityLastScan = document.getElementById('security-last-scan');
         
-        if (this.statusData.security) {
+        if (this.statusData && this.statusData.security) {
             const vulnCount = this.statusData.security.vulnerabilities || '0';
             const criticalCount = this.statusData.security.critical || '0';
             const lastScan = this.statusData.security.last_scan || 'Unknown';
             
-            securityVulnerabilities.textContent = vulnCount;
-            securityCritical.textContent = criticalCount;
-            securityLastScan.textContent = this.formatDate(lastScan);
+            // Check if we have placeholder values (not yet replaced by GitHub Actions)
+            const hasPlaceholders = vulnCount.includes('{{') || criticalCount.includes('{{') || lastScan.includes('{{');
             
-            // Update status badge
-            if (vulnCount === '0') {
-                securityStatus.textContent = 'Secure';
-                securityStatus.className = 'status-badge operational';
-            } else if (criticalCount > '0') {
-                securityStatus.textContent = 'Critical';
-                securityStatus.className = 'status-badge error';
-            } else {
-                securityStatus.textContent = 'Issues';
+            if (hasPlaceholders) {
+                // Show default values when placeholders are present
+                securityVulnerabilities.textContent = '0';
+                securityCritical.textContent = '0';
+                securityLastScan.textContent = 'Pending scan...';
+                securityStatus.textContent = 'Scanning...';
                 securityStatus.className = 'status-badge warning';
+            } else {
+                // Use actual values
+                securityVulnerabilities.textContent = vulnCount;
+                securityCritical.textContent = criticalCount;
+                securityLastScan.textContent = this.formatDate(lastScan);
+                
+                // Update status badge based on actual values
+                if (vulnCount === '0' || vulnCount === 0) {
+                    securityStatus.textContent = 'Secure';
+                    securityStatus.className = 'status-badge operational';
+                } else if (criticalCount > '0' || criticalCount > 0) {
+                    securityStatus.textContent = 'Critical';
+                    securityStatus.className = 'status-badge error';
+                } else {
+                    securityStatus.textContent = 'Issues';
+                    securityStatus.className = 'status-badge warning';
+                }
             }
+        } else {
+            // No security data available
+            securityVulnerabilities.textContent = '--';
+            securityCritical.textContent = '--';
+            securityLastScan.textContent = 'No data';
+            securityStatus.textContent = 'Unknown';
+            securityStatus.className = 'status-badge warning';
         }
     }
 
@@ -155,7 +193,7 @@ class StatusMonitor {
     }
 
     updateSecurityDetails() {
-        if (!this.statusData.security) return;
+        if (!this.statusData || !this.statusData.security) return;
 
         // Update vulnerability counts
         const criticalCount = document.getElementById('critical-count');
@@ -163,10 +201,24 @@ class StatusMonitor {
         const mediumCount = document.getElementById('medium-count');
         const lowCount = document.getElementById('low-count');
         
-        if (criticalCount) criticalCount.textContent = this.statusData.security.critical || '0';
-        if (highCount) highCount.textContent = this.statusData.security.high || '0';
-        if (mediumCount) mediumCount.textContent = this.statusData.security.medium || '0';
-        if (lowCount) lowCount.textContent = this.statusData.security.low || '0';
+        // Check for placeholders and handle gracefully
+        const critical = this.statusData.security.critical || '0';
+        const high = this.statusData.security.high || '0';
+        const medium = this.statusData.security.medium || '0';
+        const low = this.statusData.security.low || '0';
+        
+        if (criticalCount) {
+            criticalCount.textContent = critical.includes('{{') ? '0' : critical;
+        }
+        if (highCount) {
+            highCount.textContent = high.includes('{{') ? '0' : high;
+        }
+        if (mediumCount) {
+            mediumCount.textContent = medium.includes('{{') ? '0' : medium;
+        }
+        if (lowCount) {
+            lowCount.textContent = low.includes('{{') ? '0' : low;
+        }
         
         // Update security checks
         this.updateSecurityChecks();
@@ -178,29 +230,47 @@ class StatusMonitor {
         const checkHttps = document.getElementById('check-https');
         const checkHeaders = document.getElementById('check-headers');
         
-        if (this.statusData.security) {
+        if (this.statusData && this.statusData.security) {
             // Dependencies check
             if (checkDependencies) {
                 const depStatus = this.statusData.security.dependencies || 'up-to-date';
-                checkDependencies.textContent = depStatus.replace('-', ' ');
+                if (depStatus.includes('{{')) {
+                    checkDependencies.textContent = 'Scanning...';
+                } else {
+                    checkDependencies.textContent = depStatus.replace('-', ' ');
+                }
             }
             
             // Secrets check
             if (checkSecrets) {
                 const secretsFound = this.statusData.security.secrets_found || '0';
-                checkSecrets.textContent = secretsFound === '0' ? 'No secrets found' : 'Secrets detected';
+                if (secretsFound.includes('{{')) {
+                    checkSecrets.textContent = 'Scanning...';
+                } else {
+                    checkSecrets.textContent = secretsFound === '0' ? 'No secrets found' : 'Secrets detected';
+                }
             }
             
             // HTTPS check
             if (checkHttps) {
                 const cdnIssues = this.statusData.security.cdn_issues || '0';
-                checkHttps.textContent = cdnIssues === '0' ? 'All links secure' : 'HTTP links found';
+                if (cdnIssues.includes('{{')) {
+                    checkHttps.textContent = 'Scanning...';
+                } else {
+                    checkHttps.textContent = cdnIssues === '0' ? 'All links secure' : 'HTTP links found';
+                }
             }
             
             // Headers check (always good for our site)
             if (checkHeaders) {
                 checkHeaders.textContent = 'Security headers present';
             }
+        } else {
+            // No security data available
+            if (checkDependencies) checkDependencies.textContent = 'No data';
+            if (checkSecrets) checkSecrets.textContent = 'No data';
+            if (checkHttps) checkHttps.textContent = 'No data';
+            if (checkHeaders) checkHeaders.textContent = 'No data';
         }
     }
 
