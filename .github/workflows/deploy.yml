@@ -51,8 +51,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: website/package-lock.json
         
     - name: Install Security Scanning Tools
       run: |
@@ -80,7 +78,8 @@ jobs:
           cd website
           
           # Run npm audit
-          npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null || true
+          npm audit --audit-level=moderate --json > ../audit-results.json 2>/dev/null || true
+          cd ..
           
           if [ -f "audit-results.json" ]; then
             # Parse audit results
@@ -108,8 +107,8 @@ jobs:
               DEPENDENCIES_STATUS="up-to-date"
             fi
           fi
-          
-          cd ..
+        else
+          echo "📦 No package.json found, skipping npm audit..."
         fi
         
         # Scan for common security issues in static files

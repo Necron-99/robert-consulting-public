@@ -64,8 +64,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: website/package-lock.json
         
     - name: Install Security Scanning Tools
       if: github.event.inputs.skip_security_scan != 'true'
@@ -93,7 +91,9 @@ jobs:
         # Run npm audit if package.json exists
         if [ -f "website/package.json" ]; then
           echo "📦 Running npm audit..."
-          npm audit --audit-level=moderate --json > audit-results.json || true
+          cd website
+          npm audit --audit-level=moderate --json > ../audit-results.json || true
+          cd ..
           
           # Parse audit results
           if [ -f "audit-results.json" ]; then
@@ -103,6 +103,8 @@ jobs:
             MEDIUM_VULNERABILITIES=$(jq -r '.metadata.vulnerabilities.moderate // 0' audit-results.json)
             LOW_VULNERABILITIES=$(jq -r '.metadata.vulnerabilities.low // 0' audit-results.json)
           fi
+        else
+          echo "📦 No package.json found, skipping npm audit..."
         fi
         
         # Check for secrets in files
