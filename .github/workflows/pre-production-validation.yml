@@ -183,6 +183,10 @@ jobs:
           echo "failed_validations=$FAILED_VALIDATIONS" >> $GITHUB_OUTPUT
           echo "total_validations=$TOTAL_VALIDATIONS" >> $GITHUB_OUTPUT
           
+          # Calculate pass rate
+          PASS_RATE=$(( (TOTAL_VALIDATIONS - FAILED_VALIDATIONS) * 100 / TOTAL_VALIDATIONS ))
+          echo "pass_rate=$PASS_RATE" >> $GITHUB_OUTPUT
+          
           echo "📊 Validation Summary:"
           echo "  Total Validations: $TOTAL_VALIDATIONS"
           echo "  Failed Validations: $FAILED_VALIDATIONS"
@@ -207,7 +211,7 @@ jobs:
           |--------|-------|
           | Total Validations | ${{ steps.validation.outputs.total_validations }} |
           | Failed Validations | ${{ steps.validation.outputs.failed_validations }} |
-          | Pass Rate | $(( ({{ steps.validation.outputs.total_validations }} - {{ steps.validation.outputs.failed_validations }}) * 100 / {{ steps.validation.outputs.total_validations }} ))% |
+          | Pass Rate | ${{ steps.validation.outputs.pass_rate }}% |
           
           ## Validation Results
           
