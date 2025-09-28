@@ -1,0 +1,383 @@
+name: Automated Code Review with Copilot
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  automated-code-review:
+    runs-on: ubuntu-latest
+    name: Automated Code Review
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for better analysis
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          if [ -f "website/package.json" ]; then
+            cd website
+            npm install
+            cd ..
+          fi
+          
+      - name: Run Security Scan
+        id: security-scan
+        run: |
+          echo "🔒 Running security scan..."
+          
+          # Initialize security variables
+          SECURITY_ISSUES=0
+          CRITICAL_ISSUES=0
+          HIGH_ISSUES=0
+          MEDIUM_ISSUES=0
+          LOW_ISSUES=0
+          
+          # Check for hardcoded secrets
+          if grep -r -i "password\|secret\|key\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" | grep -v "example\|placeholder\|TODO" | head -5; then
+            echo "⚠️ Potential hardcoded secrets found"
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
+            HIGH_ISSUES=$((HIGH_ISSUES + 1))
+          fi
+          
+          # Check for SQL injection vulnerabilities
+          if grep -r "SELECT\|INSERT\|UPDATE\|DELETE" . --include="*.js" --include="*.ts" | grep -v "//" | head -5; then
+            echo "⚠️ Potential SQL injection vulnerabilities found"
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
+            HIGH_ISSUES=$((HIGH_ISSUES + 1))
+          fi
+          
+          # Check for XSS vulnerabilities
+          if grep -r "innerHTML\|outerHTML\|document\.write" . --include="*.js" --include="*.ts" | grep -v "//" | head -5; then
+            echo "⚠️ Potential XSS vulnerabilities found"
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
+            HIGH_ISSUES=$((HIGH_ISSUES + 1))
+          fi
+          
+          # Check for HTTP links (should use HTTPS)
+          if grep -r "http://" . --exclude-dir=.git --exclude-dir=node_modules | head -5; then
+            echo "⚠️ HTTP links found (should use HTTPS)"
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
+            MEDIUM_ISSUES=$((MEDIUM_ISSUES + 1))
+          fi
+          
+          # Check for missing security headers
+          if ! grep -r "Content-Security-Policy\|X-Content-Type-Options\|X-Frame-Options" . --include="*.html" | head -5; then
+            echo "⚠️ Security headers missing"
+            SECURITY_ISSUES=$((SECURITY_ISSUES + 1))
+            MEDIUM_ISSUES=$((MEDIUM_ISSUES + 1))
+          fi
+          
+          # Output results
+          echo "security_issues=$SECURITY_ISSUES" >> $GITHUB_OUTPUT
+          echo "critical_issues=$CRITICAL_ISSUES" >> $GITHUB_OUTPUT
+          echo "high_issues=$HIGH_ISSUES" >> $GITHUB_OUTPUT
+          echo "medium_issues=$MEDIUM_ISSUES" >> $GITHUB_OUTPUT
+          echo "low_issues=$LOW_ISSUES" >> $GITHUB_OUTPUT
+          
+          echo "✅ Security scan completed: $SECURITY_ISSUES issues found"
+          
+      - name: Run Performance Analysis
+        id: performance-analysis
+        run: |
+          echo "⚡ Running performance analysis..."
+          
+          # Initialize performance variables
+          PERFORMANCE_ISSUES=0
+          BUNDLE_SIZE_ISSUES=0
+          IMAGE_ISSUES=0
+          CSS_ISSUES=0
+          JS_ISSUES=0
+          
+          # Check for large files
+          if find . -name "*.js" -size +100k | head -5; then
+            echo "⚠️ Large JavaScript files found"
+            PERFORMANCE_ISSUES=$((PERFORMANCE_ISSUES + 1))
+            BUNDLE_SIZE_ISSUES=$((BUNDLE_SIZE_ISSUES + 1))
+          fi
+          
+          # Check for unoptimized images
+          if find . -name "*.jpg" -o -name "*.png" -o -name "*.gif" | xargs ls -la | awk '$5 > 500000' | head -5; then
+            echo "⚠️ Large image files found"
+            PERFORMANCE_ISSUES=$((PERFORMANCE_ISSUES + 1))
+            IMAGE_ISSUES=$((IMAGE_ISSUES + 1))
+          fi
+          
+          # Check for missing lazy loading
+          if grep -r "<img" . --include="*.html" | grep -v "loading=" | head -5; then
+            echo "⚠️ Images without lazy loading found"
+            PERFORMANCE_ISSUES=$((PERFORMANCE_ISSUES + 1))
+            IMAGE_ISSUES=$((IMAGE_ISSUES + 1))
+          fi
+          
+          # Check for render-blocking resources
+          if grep -r "script.*src" . --include="*.html" | grep -v "async\|defer" | head -5; then
+            echo "⚠️ Render-blocking scripts found"
+            PERFORMANCE_ISSUES=$((PERFORMANCE_ISSUES + 1))
+            JS_ISSUES=$((JS_ISSUES + 1))
+          fi
+          
+          # Check for inefficient CSS selectors
+          if grep -r "\.\*\|#\*" . --include="*.css" | head -5; then
+            echo "⚠️ Inefficient CSS selectors found"
+            PERFORMANCE_ISSUES=$((PERFORMANCE_ISSUES + 1))
+            CSS_ISSUES=$((CSS_ISSUES + 1))
+          fi
+          
+          # Output results
+          echo "performance_issues=$PERFORMANCE_ISSUES" >> $GITHUB_OUTPUT
+          echo "bundle_size_issues=$BUNDLE_SIZE_ISSUES" >> $GITHUB_OUTPUT
+          echo "image_issues=$IMAGE_ISSUES" >> $GITHUB_OUTPUT
+          echo "css_issues=$CSS_ISSUES" >> $GITHUB_OUTPUT
+          echo "js_issues=$JS_ISSUES" >> $GITHUB_OUTPUT
+          
+          echo "✅ Performance analysis completed: $PERFORMANCE_ISSUES issues found"
+          
+      - name: Run Accessibility Check
+        id: accessibility-check
+        run: |
+          echo "♿ Running accessibility check..."
+          
+          # Initialize accessibility variables
+          A11Y_ISSUES=0
+          ARIA_ISSUES=0
+          SEMANTIC_ISSUES=0
+          CONTRAST_ISSUES=0
+          KEYBOARD_ISSUES=0
+          
+          # Check for missing alt text
+          if grep -r "<img" . --include="*.html" | grep -v "alt=" | head -5; then
+            echo "⚠️ Images without alt text found"
+            A11Y_ISSUES=$((A11Y_ISSUES + 1))
+            ARIA_ISSUES=$((ARIA_ISSUES + 1))
+          fi
+          
+          # Check for missing ARIA labels
+          if grep -r "<button\|<input\|<select" . --include="*.html" | grep -v "aria-label\|aria-labelledby" | head -5; then
+            echo "⚠️ Interactive elements without ARIA labels found"
+            A11Y_ISSUES=$((A11Y_ISSUES + 1))
+            ARIA_ISSUES=$((ARIA_ISSUES + 1))
+          fi
+          
+          # Check for proper heading hierarchy
+          if ! grep -r "<h1" . --include="*.html" | head -1; then
+            echo "⚠️ Missing h1 heading found"
+            A11Y_ISSUES=$((A11Y_ISSUES + 1))
+            SEMANTIC_ISSUES=$((SEMANTIC_ISSUES + 1))
+          fi
+          
+          # Check for semantic HTML usage
+          if grep -r "<div.*onclick" . --include="*.html" | head -5; then
+            echo "⚠️ Div elements with onclick (should use button) found"
+            A11Y_ISSUES=$((A11Y_ISSUES + 1))
+            SEMANTIC_ISSUES=$((SEMANTIC_ISSUES + 1))
+          fi
+          
+          # Check for missing form labels
+          if grep -r "<input" . --include="*.html" | grep -v "label\|aria-label" | head -5; then
+            echo "⚠️ Form inputs without labels found"
+            A11Y_ISSUES=$((A11Y_ISSUES + 1))
+            ARIA_ISSUES=$((ARIA_ISSUES + 1))
+          fi
+          
+          # Output results
+          echo "a11y_issues=$A11Y_ISSUES" >> $GITHUB_OUTPUT
+          echo "aria_issues=$ARIA_ISSUES" >> $GITHUB_OUTPUT
+          echo "semantic_issues=$SEMANTIC_ISSUES" >> $GITHUB_OUTPUT
+          echo "contrast_issues=$CONTRAST_ISSUES" >> $GITHUB_OUTPUT
+          echo "keyboard_issues=$KEYBOARD_ISSUES" >> $GITHUB_OUTPUT
+          
+          echo "✅ Accessibility check completed: $A11Y_ISSUES issues found"
+          
+      - name: Run Code Quality Analysis
+        id: code-quality
+        run: |
+          echo "📝 Running code quality analysis..."
+          
+          # Initialize quality variables
+          QUALITY_ISSUES=0
+          DOCUMENTATION_ISSUES=0
+          COMPLEXITY_ISSUES=0
+          DUPLICATION_ISSUES=0
+          TESTING_ISSUES=0
+          
+          # Check for missing JSDoc comments
+          if find . -name "*.js" -exec grep -L "/\*\*" {} \; | head -5; then
+            echo "⚠️ JavaScript files without JSDoc comments found"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+            DOCUMENTATION_ISSUES=$((DOCUMENTATION_ISSUES + 1))
+          fi
+          
+          # Check for complex functions (basic check)
+          if grep -r "function.*{" . --include="*.js" | wc -l | awk '$1 > 20'; then
+            echo "⚠️ High number of functions found (potential complexity)"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+            COMPLEXITY_ISSUES=$((COMPLEXITY_ISSUES + 1))
+          fi
+          
+          # Check for code duplication (basic check)
+          if find . -name "*.js" -exec grep -l "function.*{" {} \; | wc -l | awk '$1 > 10'; then
+            echo "⚠️ Potential code duplication found"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+            DUPLICATION_ISSUES=$((DUPLICATION_ISSUES + 1))
+          fi
+          
+          # Check for missing tests
+          if ! find . -name "*.test.js" -o -name "*.spec.js" | head -1; then
+            echo "⚠️ No test files found"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+            TESTING_ISSUES=$((TESTING_ISSUES + 1))
+          fi
+          
+          # Check for console.log statements (should be removed in production)
+          if grep -r "console\.log" . --include="*.js" --include="*.ts" | head -5; then
+            echo "⚠️ Console.log statements found (should be removed in production)"
+            QUALITY_ISSUES=$((QUALITY_ISSUES + 1))
+            DOCUMENTATION_ISSUES=$((DOCUMENTATION_ISSUES + 1))
+          fi
+          
+          # Output results
+          echo "quality_issues=$QUALITY_ISSUES" >> $GITHUB_OUTPUT
+          echo "documentation_issues=$DOCUMENTATION_ISSUES" >> $GITHUB_OUTPUT
+          echo "complexity_issues=$COMPLEXITY_ISSUES" >> $GITHUB_OUTPUT
+          echo "duplication_issues=$DUPLICATION_ISSUES" >> $GITHUB_OUTPUT
+          echo "testing_issues=$TESTING_ISSUES" >> $GITHUB_OUTPUT
+          
+          echo "✅ Code quality analysis completed: $QUALITY_ISSUES issues found"
+          
+      - name: Generate Review Report
+        id: generate-report
+        run: |
+          echo "📊 Generating automated review report..."
+          
+          # Get results from previous steps
+          SECURITY_ISSUES="${{ steps.security-scan.outputs.security_issues }}"
+          PERFORMANCE_ISSUES="${{ steps.performance-analysis.outputs.performance_issues }}"
+          A11Y_ISSUES="${{ steps.accessibility-check.outputs.a11y_issues }}"
+          QUALITY_ISSUES="${{ steps.code-quality.outputs.quality_issues }}"
+          
+          # Calculate total issues
+          TOTAL_ISSUES=$((SECURITY_ISSUES + PERFORMANCE_ISSUES + A11Y_ISSUES + QUALITY_ISSUES))
+          
+          # Determine review status
+          if [ "$TOTAL_ISSUES" -eq 0 ]; then
+            REVIEW_STATUS="✅ PASSED"
+            REVIEW_COLOR="green"
+          elif [ "$TOTAL_ISSUES" -le 5 ]; then
+            REVIEW_STATUS="⚠️ WARNING"
+            REVIEW_COLOR="yellow"
+          else
+            REVIEW_STATUS="❌ FAILED"
+            REVIEW_COLOR="red"
+          fi
+          
+          # Create review report
+          cat > review-report.md << EOF
+          # 🤖 Automated Code Review Report
+          
+          **Review Status:** $REVIEW_STATUS
+          **Total Issues:** $TOTAL_ISSUES
+          
+          ## 📊 Review Summary
+          
+          | Category | Issues Found | Status |
+          |----------|--------------|--------|
+          | 🔒 Security | $SECURITY_ISSUES | $([ "$SECURITY_ISSUES" -eq 0 ] && echo "✅" || echo "⚠️") |
+          | ⚡ Performance | $PERFORMANCE_ISSUES | $([ "$PERFORMANCE_ISSUES" -eq 0 ] && echo "✅" || echo "⚠️") |
+          | ♿ Accessibility | $A11Y_ISSUES | $([ "$A11Y_ISSUES" -eq 0 ] && echo "✅" || echo "⚠️") |
+          | 📝 Code Quality | $QUALITY_ISSUES | $([ "$QUALITY_ISSUES" -eq 0 ] && echo "✅" || echo "⚠️") |
+          
+          ## 🔍 Detailed Findings
+          
+          ### 🔒 Security Issues
+          - **Critical Issues:** ${{ steps.security-scan.outputs.critical_issues }}
+          - **High Issues:** ${{ steps.security-scan.outputs.high_issues }}
+          - **Medium Issues:** ${{ steps.security-scan.outputs.medium_issues }}
+          - **Low Issues:** ${{ steps.security-scan.outputs.low_issues }}
+          
+          ### ⚡ Performance Issues
+          - **Bundle Size Issues:** ${{ steps.performance-analysis.outputs.bundle_size_issues }}
+          - **Image Issues:** ${{ steps.performance-analysis.outputs.image_issues }}
+          - **CSS Issues:** ${{ steps.performance-analysis.outputs.css_issues }}
+          - **JavaScript Issues:** ${{ steps.performance-analysis.outputs.js_issues }}
+          
+          ### ♿ Accessibility Issues
+          - **ARIA Issues:** ${{ steps.accessibility-check.outputs.aria_issues }}
+          - **Semantic Issues:** ${{ steps.accessibility-check.outputs.semantic_issues }}
+          - **Contrast Issues:** ${{ steps.accessibility-check.outputs.contrast_issues }}
+          - **Keyboard Issues:** ${{ steps.accessibility-check.outputs.keyboard_issues }}
+          
+          ### 📝 Code Quality Issues
+          - **Documentation Issues:** ${{ steps.code-quality.outputs.documentation_issues }}
+          - **Complexity Issues:** ${{ steps.code-quality.outputs.complexity_issues }}
+          - **Duplication Issues:** ${{ steps.code-quality.outputs.duplication_issues }}
+          - **Testing Issues:** ${{ steps.code-quality.outputs.testing_issues }}
+          
+          ## 🎯 Recommendations
+          
+          $([ "$SECURITY_ISSUES" -gt 0 ] && echo "- 🔒 **Security:** Address security vulnerabilities before merging")
+          $([ "$PERFORMANCE_ISSUES" -gt 0 ] && echo "- ⚡ **Performance:** Optimize performance issues for better user experience")
+          $([ "$A11Y_ISSUES" -gt 0 ] && echo "- ♿ **Accessibility:** Improve accessibility for better user inclusion")
+          $([ "$QUALITY_ISSUES" -gt 0 ] && echo "- 📝 **Code Quality:** Enhance code quality and documentation")
+          
+          ## 📚 Resources
+          
+          - [Security Best Practices](https://owasp.org/www-project-top-ten/)
+          - [Performance Optimization](https://web.dev/performance/)
+          - [Accessibility Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+          - [Code Quality Standards](https://github.com/airbnb/javascript)
+          
+          ---
+          *This report was generated automatically by GitHub Copilot Code Review.*
+          EOF
+          
+          # Output results
+          echo "total_issues=$TOTAL_ISSUES" >> $GITHUB_OUTPUT
+          echo "review_status=$REVIEW_STATUS" >> $GITHUB_OUTPUT
+          echo "review_color=$REVIEW_COLOR" >> $GITHUB_OUTPUT
+          
+          echo "✅ Review report generated"
+          
+      - name: Comment on Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('review-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+            
+      - name: Set Review Status
+        run: |
+          echo "🎯 Setting review status..."
+          
+          TOTAL_ISSUES="${{ steps.generate-report.outputs.total_issues }}"
+          REVIEW_STATUS="${{ steps.generate-report.outputs.review_status }}"
+          
+          if [ "$TOTAL_ISSUES" -eq 0 ]; then
+            echo "✅ All automated checks passed!"
+            exit 0
+          elif [ "$TOTAL_ISSUES" -le 5 ]; then
+            echo "⚠️ Some issues found, but within acceptable limits"
+            exit 0
+          else
+            echo "❌ Too many issues found, review required"
+            exit 1
+          fi

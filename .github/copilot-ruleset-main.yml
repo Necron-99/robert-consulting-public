@@ -1,0 +1,366 @@
+# GitHub Copilot Ruleset for Main Branch Code Reviews
+# This file defines rules for automated code review assistance
+
+version: 1
+rules:
+  # Code Review Automation Rules
+  - name: "automated-code-review"
+    description: "Automate code review processes with intelligent suggestions"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+      - "*.json"
+      - "*.yml"
+      - "*.yaml"
+      - "*.tf"
+      - "*.md"
+    suggestions:
+      - "Review code for security vulnerabilities"
+      - "Check for performance optimizations"
+      - "Verify accessibility compliance"
+      - "Ensure proper error handling"
+      - "Validate input sanitization"
+      - "Check for hardcoded secrets"
+      - "Review authentication logic"
+      - "Verify authorization checks"
+      - "Check for SQL injection vulnerabilities"
+      - "Review XSS prevention measures"
+      - "Validate CSRF protection"
+      - "Check for rate limiting implementation"
+      - "Review logging and monitoring"
+      - "Verify proper documentation"
+      - "Check for test coverage"
+
+  # Security Review Rules
+  - name: "security-review"
+    description: "Automated security code review"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.json"
+      - "*.yml"
+      - "*.yaml"
+    suggestions:
+      - "🔒 SECURITY: Check for input validation and sanitization"
+      - "🔒 SECURITY: Verify no hardcoded secrets or credentials"
+      - "🔒 SECURITY: Review authentication and authorization logic"
+      - "🔒 SECURITY: Check for SQL injection vulnerabilities"
+      - "🔒 SECURITY: Verify XSS prevention measures"
+      - "🔒 SECURITY: Review CSRF protection implementation"
+      - "🔒 SECURITY: Check for rate limiting on API endpoints"
+      - "🔒 SECURITY: Verify secure communication (HTTPS)"
+      - "🔒 SECURITY: Review error handling for information disclosure"
+      - "🔒 SECURITY: Check for proper session management"
+      - "🔒 SECURITY: Verify security headers implementation"
+      - "🔒 SECURITY: Review file upload security"
+      - "🔒 SECURITY: Check for dependency vulnerabilities"
+      - "🔒 SECURITY: Verify secure configuration management"
+
+  # Performance Review Rules
+  - name: "performance-review"
+    description: "Automated performance code review"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+    suggestions:
+      - "⚡ PERFORMANCE: Check for Core Web Vitals optimization"
+      - "⚡ PERFORMANCE: Review bundle size and asset optimization"
+      - "⚡ PERFORMANCE: Verify lazy loading implementation"
+      - "⚡ PERFORMANCE: Check for efficient caching strategies"
+      - "⚡ PERFORMANCE: Review DOM manipulation efficiency"
+      - "⚡ PERFORMANCE: Check for memory leaks"
+      - "⚡ PERFORMANCE: Verify image optimization"
+      - "⚡ PERFORMANCE: Review database query efficiency"
+      - "⚡ PERFORMANCE: Check for unnecessary API calls"
+      - "⚡ PERFORMANCE: Verify code splitting implementation"
+      - "⚡ PERFORMANCE: Review CSS selector efficiency"
+      - "⚡ PERFORMANCE: Check for render-blocking resources"
+
+  # Accessibility Review Rules
+  - name: "accessibility-review"
+    description: "Automated accessibility code review"
+    patterns:
+      - "*.html"
+      - "*.js"
+      - "*.ts"
+      - "*.css"
+    suggestions:
+      - "♿ ACCESSIBILITY: Check for proper ARIA labels and descriptions"
+      - "♿ ACCESSIBILITY: Verify semantic HTML usage"
+      - "♿ ACCESSIBILITY: Review keyboard navigation support"
+      - "♿ ACCESSIBILITY: Check color contrast ratios"
+      - "♿ ACCESSIBILITY: Verify alternative text for images"
+      - "♿ ACCESSIBILITY: Review heading hierarchy (h1, h2, h3)"
+      - "♿ ACCESSIBILITY: Check for focus indicators"
+      - "♿ ACCESSIBILITY: Verify screen reader compatibility"
+      - "♿ ACCESSIBILITY: Review form accessibility"
+      - "♿ ACCESSIBILITY: Check for proper button labels"
+      - "♿ ACCESSIBILITY: Verify table accessibility"
+      - "♿ ACCESSIBILITY: Review link accessibility"
+
+  # Code Quality Review Rules
+  - name: "code-quality-review"
+    description: "Automated code quality review"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+    suggestions:
+      - "📝 QUALITY: Check for meaningful variable and function names"
+      - "📝 QUALITY: Verify proper documentation and comments"
+      - "📝 QUALITY: Review code formatting and consistency"
+      - "📝 QUALITY: Check for TypeScript usage and type safety"
+      - "📝 QUALITY: Verify proper error handling"
+      - "📝 QUALITY: Review code organization and structure"
+      - "📝 QUALITY: Check for code duplication (DRY principle)"
+      - "📝 QUALITY: Verify proper logging and debugging"
+      - "📝 QUALITY: Review code complexity and maintainability"
+      - "📝 QUALITY: Check for proper testing coverage"
+      - "📝 QUALITY: Verify consistent coding patterns"
+      - "📝 QUALITY: Review code readability and clarity"
+
+  # Infrastructure Review Rules
+  - name: "infrastructure-review"
+    description: "Automated infrastructure code review"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+      - "*.tf"
+      - "*.json"
+    suggestions:
+      - "🏗️ INFRASTRUCTURE: Check for environment variable usage"
+      - "🏗️ INFRASTRUCTURE: Verify proper secrets management"
+      - "🏗️ INFRASTRUCTURE: Review logging and monitoring setup"
+      - "🏗️ INFRASTRUCTURE: Check for health checks implementation"
+      - "🏗️ INFRASTRUCTURE: Verify proper error handling and recovery"
+      - "🏗️ INFRASTRUCTURE: Review CI/CD pipeline configuration"
+      - "🏗️ INFRASTRUCTURE: Check for proper resource tagging"
+      - "🏗️ INFRASTRUCTURE: Verify backup and disaster recovery"
+      - "🏗️ INFRASTRUCTURE: Review security group configurations"
+      - "🏗️ INFRASTRUCTURE: Check for proper IAM permissions"
+      - "🏗️ INFRASTRUCTURE: Verify network security configurations"
+      - "🏗️ INFRASTRUCTURE: Review cost optimization measures"
+
+  # Documentation Review Rules
+  - name: "documentation-review"
+    description: "Automated documentation review"
+    patterns:
+      - "*.md"
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+    suggestions:
+      - "📚 DOCUMENTATION: Check for JSDoc comments on functions"
+      - "📚 DOCUMENTATION: Verify README files are up to date"
+      - "📚 DOCUMENTATION: Review inline comments for complex logic"
+      - "📚 DOCUMENTATION: Check for API documentation"
+      - "📚 DOCUMENTATION: Verify setup and installation instructions"
+      - "📚 DOCUMENTATION: Review troubleshooting guides"
+      - "📚 DOCUMENTATION: Check for code examples and usage"
+      - "📚 DOCUMENTATION: Verify configuration documentation"
+      - "📚 DOCUMENTATION: Review change logs and version history"
+      - "📚 DOCUMENTATION: Check for architectural documentation"
+      - "📚 DOCUMENTATION: Verify security documentation"
+      - "📚 DOCUMENTATION: Review deployment documentation"
+
+  # Testing Review Rules
+  - name: "testing-review"
+    description: "Automated testing code review"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.test.js"
+      - "*.spec.js"
+    suggestions:
+      - "🧪 TESTING: Check for unit test coverage"
+      - "🧪 TESTING: Verify integration test implementation"
+      - "🧪 TESTING: Review test data and fixtures"
+      - "🧪 TESTING: Check for edge case testing"
+      - "🧪 TESTING: Verify error scenario testing"
+      - "🧪 TESTING: Review test organization and structure"
+      - "🧪 TESTING: Check for test performance and efficiency"
+      - "🧪 TESTING: Verify test documentation"
+      - "🧪 TESTING: Review test maintenance and updates"
+      - "🧪 TESTING: Check for test isolation and independence"
+      - "🧪 TESTING: Verify test data cleanup"
+      - "🧪 TESTING: Review test reporting and coverage"
+
+  # SEO Review Rules
+  - name: "seo-review"
+    description: "Automated SEO code review"
+    patterns:
+      - "*.html"
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "🔍 SEO: Check for proper meta tags (title, description, keywords)"
+      - "🔍 SEO: Verify structured data markup (JSON-LD)"
+      - "🔍 SEO: Review heading hierarchy and structure"
+      - "🔍 SEO: Check for alt text on images"
+      - "🔍 SEO: Verify canonical URLs"
+      - "🔍 SEO: Review Open Graph tags"
+      - "🔍 SEO: Check for proper URL structure"
+      - "🔍 SEO: Verify sitemap implementation"
+      - "🔍 SEO: Review internal linking structure"
+      - "🔍 SEO: Check for page load speed optimization"
+      - "🔍 SEO: Verify mobile responsiveness"
+      - "🔍 SEO: Review content optimization"
+
+  # Compliance Review Rules
+  - name: "compliance-review"
+    description: "Automated compliance code review"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+      - "*.yml"
+      - "*.yaml"
+    suggestions:
+      - "📋 COMPLIANCE: Check for GDPR compliance measures"
+      - "📋 COMPLIANCE: Verify data privacy protection"
+      - "📋 COMPLIANCE: Review consent management"
+      - "📋 COMPLIANCE: Check for data retention policies"
+      - "📋 COMPLIANCE: Verify audit logging"
+      - "📋 COMPLIANCE: Review data encryption"
+      - "📋 COMPLIANCE: Check for access controls"
+      - "📋 COMPLIANCE: Verify compliance documentation"
+      - "📋 COMPLIANCE: Review data processing procedures"
+      - "📋 COMPLIANCE: Check for regulatory requirements"
+      - "📋 COMPLIANCE: Verify compliance monitoring"
+      - "📋 COMPLIANCE: Review compliance reporting"
+
+# Code Review Automation Preferences
+preferences:
+  # Review priorities
+  review_priorities:
+    - "security"
+    - "performance"
+    - "accessibility"
+    - "code-quality"
+    - "documentation"
+    - "testing"
+    - "seo"
+    - "compliance"
+
+  # Review severity levels
+  severity_levels:
+    critical:
+      - "security-vulnerabilities"
+      - "data-exposure"
+      - "authentication-bypass"
+      - "injection-attacks"
+    
+    high:
+      - "performance-issues"
+      - "accessibility-violations"
+      - "code-quality-issues"
+      - "missing-tests"
+    
+    medium:
+      - "documentation-gaps"
+      - "seo-optimization"
+      - "compliance-issues"
+      - "infrastructure-concerns"
+    
+    low:
+      - "code-style"
+      - "minor-optimizations"
+      - "cosmetic-improvements"
+
+  # Automated review triggers
+  triggers:
+    pull_request:
+      - "security-scan"
+      - "performance-check"
+      - "accessibility-audit"
+      - "code-quality-analysis"
+      - "dependency-scan"
+      - "vulnerability-check"
+    
+    commit:
+      - "security-validation"
+      - "performance-validation"
+      - "accessibility-validation"
+      - "code-quality-validation"
+    
+    merge:
+      - "final-security-check"
+      - "final-performance-check"
+      - "final-accessibility-check"
+      - "final-quality-check"
+
+  # Review automation settings
+  automation:
+    auto_approve:
+      - "minor-typos"
+      - "documentation-updates"
+      - "test-additions"
+      - "dependency-updates"
+    
+    require_manual_review:
+      - "security-changes"
+      - "authentication-changes"
+      - "database-changes"
+      - "infrastructure-changes"
+      - "configuration-changes"
+    
+    auto_comment:
+      - "security-suggestions"
+      - "performance-suggestions"
+      - "accessibility-suggestions"
+      - "quality-suggestions"
+      - "documentation-suggestions"
+
+  # Review templates
+  templates:
+    security_review:
+      title: "🔒 Security Review"
+      template: |
+        ## Security Review Checklist
+        - [ ] Input validation implemented
+        - [ ] Output sanitization applied
+        - [ ] Authentication checks present
+        - [ ] Authorization verified
+        - [ ] No hardcoded secrets
+        - [ ] SQL injection prevention
+        - [ ] XSS protection implemented
+        - [ ] CSRF protection added
+        - [ ] Rate limiting configured
+        - [ ] Security headers set
+    
+    performance_review:
+      title: "⚡ Performance Review"
+      template: |
+        ## Performance Review Checklist
+        - [ ] Core Web Vitals optimized
+        - [ ] Bundle size minimized
+        - [ ] Images optimized
+        - [ ] Caching implemented
+        - [ ] Lazy loading added
+        - [ ] Code splitting applied
+        - [ ] Database queries optimized
+        - [ ] API calls minimized
+        - [ ] CSS optimized
+        - [ ] JavaScript optimized
+    
+    accessibility_review:
+      title: "♿ Accessibility Review"
+      template: |
+        ## Accessibility Review Checklist
+        - [ ] ARIA labels added
+        - [ ] Semantic HTML used
+        - [ ] Keyboard navigation works
+        - [ ] Color contrast sufficient
+        - [ ] Alt text provided
+        - [ ] Heading hierarchy correct
+        - [ ] Focus indicators visible
+        - [ ] Screen reader compatible
+        - [ ] Form accessibility
+        - [ ] Link accessibility
