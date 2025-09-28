@@ -130,8 +130,13 @@ jobs:
           aws s3 website s3://$TESTING_BUCKET --index-document index.html --error-document error.html
           
           # Configure public access block to allow public policies (for testing only)
+          echo "🔧 Configuring public access block for bucket: $TESTING_BUCKET"
           aws s3api put-public-access-block --bucket $TESTING_BUCKET \
               --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+          
+          # Verify the public access block configuration
+          echo "🔍 Verifying public access block configuration..."
+          aws s3api get-public-access-block --bucket $TESTING_BUCKET
           
           # Set bucket policy for public read access
           cat > bucket-policy.json << EOF
@@ -149,7 +154,12 @@ jobs:
           }
           EOF
           
+          echo "🔧 Applying bucket policy..."
           aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json
+          
+          # Verify the bucket policy was applied
+          echo "🔍 Verifying bucket policy..."
+          aws s3api get-bucket-policy --bucket $TESTING_BUCKET
           rm bucket-policy.json
           
           # Sync testing files to S3
