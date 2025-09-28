@@ -1,11 +1,11 @@
 {
   "version": "1.0.0",
-  "build": "2024-12-19",
+  "build": "2025-09-28",
   "release": "stable",
   "changelog": [
     {
       "version": "1.0.0",
-      "date": "2024-12-19",
+      "date": "2025-09-28",
       "changes": [
         "Initial release of Robert Bailey Consulting website",
         "Added comprehensive DevSecOps and cloud engineering services",
