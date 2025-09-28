@@ -259,47 +259,6 @@
             </div>
         </section>
 
-        <!-- Setup Instructions Section -->
-        <section class="setup-section">
-            <div class="section-header">
-                <h3>🛠️ CloudWatch Dashboard Setup</h3>
-            </div>
-            
-            <div class="setup-content">
-                <div class="setup-card">
-                    <h4>Create CloudWatch Dashboards</h4>
-                    <p>To access the full CloudWatch monitoring capabilities, you need to create the dashboards in AWS Console:</p>
-                    <ol>
-                        <li>Go to <a href="https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:" target="_blank">AWS CloudWatch Dashboards</a></li>
-                        <li>Click "Create dashboard"</li>
-                        <li>Name it "robert-consulting-cost-monitoring"</li>
-                        <li>Add widgets for AWS Billing metrics</li>
-                        <li>Configure S3, CloudFront, and Route53 metrics</li>
-                    </ol>
-                </div>
-                
-                <div class="setup-card">
-                    <h4>Cost Monitoring Widgets</h4>
-                    <p>Add these widgets to your cost dashboard:</p>
-                    <ul>
-                        <li><strong>AWS/Billing</strong> - EstimatedCharges (Currency: USD)</li>
-                        <li><strong>AWS/S3</strong> - BucketSizeBytes, NumberOfObjects</li>
-                        <li><strong>AWS/CloudFront</strong> - Requests, BytesDownloaded</li>
-                        <li><strong>AWS/Route53</strong> - DNS queries and health checks</li>
-                    </ul>
-                </div>
-                
-                <div class="setup-card">
-                    <h4>Service Health Widgets</h4>
-                    <p>Create a service status dashboard with:</p>
-                    <ul>
-                        <li><strong>S3 Health</strong> - 4xxErrors, 5xxErrors, TotalRequestTime</li>
-                        <li><strong>CloudFront Health</strong> - 4xxErrorRate, 5xxErrorRate, CacheHitRate</li>
-                        <li><strong>Performance</strong> - OriginLatency, Request volume</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
 
         <!-- Alerts Section -->
         <section class="alerts-section">

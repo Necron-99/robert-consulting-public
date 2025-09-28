@@ -430,56 +430,6 @@ body {
     gap: 1rem;
 }
 
-/* Setup Section */
-.setup-section {
-    margin-bottom: 3rem;
-}
-
-.setup-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.setup-card {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1.5rem;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.setup-card h4 {
-    color: #2c3e50;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
-}
-
-.setup-card p {
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.setup-card ol,
-.setup-card ul {
-    color: #666;
-    padding-left: 1.5rem;
-}
-
-.setup-card li {
-    margin-bottom: 0.5rem;
-}
-
-.setup-card a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.setup-card a:hover {
-    text-decoration: underline;
-}
 
 /* Alerts Section */
 .alerts-section {
