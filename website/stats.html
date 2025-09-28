@@ -142,6 +142,107 @@
         .logout-btn:hover {
             background: #c53030;
         }
+        
+        /* Visitors List Styles */
+        .visitors-section {
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .visitors-section h3 {
+            color: #1a365d;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .visitors-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        .visitor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+        
+        .visitor-item:hover {
+            background: #f8fafc;
+        }
+        
+        .visitor-item:last-child {
+            border-bottom: none;
+        }
+        
+        .visitor-info {
+            flex: 1;
+        }
+        
+        .visitor-ip {
+            font-weight: 600;
+            color: #1a365d;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .visitor-location {
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
+        }
+        
+        .visitor-time {
+            color: #718096;
+            font-size: 0.8rem;
+        }
+        
+        .visitor-details {
+            text-align: right;
+            font-size: 0.85rem;
+        }
+        
+        .visitor-browser {
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+        
+        .visitor-pages {
+            color: #4a5568;
+        }
+        
+        .visitors-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-small:hover {
+            background: #2d3748;
+        }
+        
+        .btn-small:active {
+            background: #1a202c;
+        }
     </style>
 </head>
 <body>
@@ -192,6 +293,50 @@
                 <div class="stat-card">
                     <div class="stat-number" id="uptime">99.9%</div>
                     <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+            
+            <!-- Unique Visitors List -->
+            <div class="visitors-section">
+                <h3>Recent Visitors</h3>
+                <div class="visitors-list" id="visitors-list">
+                    <div class="visitor-item">
+                        <div class="visitor-info">
+                            <div class="visitor-ip">192.168.1.100</div>
+                            <div class="visitor-location">United States</div>
+                            <div class="visitor-time">2 minutes ago</div>
+                        </div>
+                        <div class="visitor-details">
+                            <div class="visitor-browser">Chrome 120.0</div>
+                            <div class="visitor-pages">3 pages viewed</div>
+                        </div>
+                    </div>
+                    <div class="visitor-item">
+                        <div class="visitor-info">
+                            <div class="visitor-ip">10.0.0.50</div>
+                            <div class="visitor-location">Canada</div>
+                            <div class="visitor-time">15 minutes ago</div>
+                        </div>
+                        <div class="visitor-details">
+                            <div class="visitor-browser">Firefox 119.0</div>
+                            <div class="visitor-pages">1 page viewed</div>
+                        </div>
+                    </div>
+                    <div class="visitor-item">
+                        <div class="visitor-info">
+                            <div class="visitor-ip">172.16.0.25</div>
+                            <div class="visitor-location">United Kingdom</div>
+                            <div class="visitor-time">1 hour ago</div>
+                        </div>
+                        <div class="visitor-details">
+                            <div class="visitor-browser">Safari 17.0</div>
+                            <div class="visitor-pages">5 pages viewed</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="visitors-controls">
+                    <button id="refresh-visitors" class="btn btn-small">Refresh</button>
+                    <button id="export-visitors" class="btn btn-small">Export CSV</button>
                 </div>
             </div>
             
@@ -247,6 +392,22 @@
                 document.getElementById('logout-btn').addEventListener('click', () => {
                     this.handleLogout();
                 });
+                
+                // Visitors list controls
+                const refreshBtn = document.getElementById('refresh-visitors');
+                const exportBtn = document.getElementById('export-visitors');
+                
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => {
+                        this.loadVisitorsList();
+                    });
+                }
+                
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', () => {
+                        this.exportVisitorsCSV();
+                    });
+                }
             }
             
             async handleLogin() {
@@ -311,6 +472,113 @@
                 document.getElementById('visitors').textContent = pageViews.length.toLocaleString();
                 document.getElementById('pageviews').textContent = pageViews.length.toLocaleString();
                 document.getElementById('forms').textContent = formSubmissions.length;
+                
+                // Load visitors list
+                this.loadVisitorsList();
+            }
+            
+            loadVisitorsList() {
+                const pageViews = JSON.parse(localStorage.getItem('page_views') || '[]');
+                const visitorsList = document.getElementById('visitors-list');
+                
+                if (!visitorsList) return;
+                
+                // Group page views by unique visitors (using user agent + timestamp as identifier)
+                const uniqueVisitors = this.getUniqueVisitors(pageViews);
+                
+                // Clear existing content
+                visitorsList.innerHTML = '';
+                
+                if (uniqueVisitors.length === 0) {
+                    visitorsList.innerHTML = '<div class="visitor-item"><div class="visitor-info"><div style="text-align: center; color: #718096; padding: 2rem;">No visitors yet</div></div></div>';
+                    return;
+                }
+                
+                // Display visitors (limit to 20 most recent)
+                uniqueVisitors.slice(0, 20).forEach(visitor => {
+                    const visitorItem = document.createElement('div');
+                    visitorItem.className = 'visitor-item';
+                    
+                    visitorItem.innerHTML = `
+                        <div class="visitor-info">
+                            <div class="visitor-ip">${this.anonymizeIP(visitor.ip)}</div>
+                            <div class="visitor-location">${visitor.location}</div>
+                            <div class="visitor-time">${this.getTimeAgo(visitor.timestamp)}</div>
+                        </div>
+                        <div class="visitor-details">
+                            <div class="visitor-browser">${visitor.browser}</div>
+                            <div class="visitor-pages">${visitor.pageCount} page${visitor.pageCount > 1 ? 's' : ''} viewed</div>
+                        </div>
+                    `;
+                    
+                    visitorsList.appendChild(visitorItem);
+                });
+            }
+            
+            getUniqueVisitors(pageViews) {
+                // Group by user agent + screen resolution (as a proxy for unique visitors)
+                const visitorMap = new Map();
+                
+                pageViews.forEach(view => {
+                    const key = `${view.userAgent}-${view.screenResolution}`;
+                    const timestamp = new Date(view.timestamp).getTime();
+                    
+                    if (!visitorMap.has(key) || visitorMap.get(key).timestamp < timestamp) {
+                        visitorMap.set(key, {
+                            ...view,
+                            timestamp: timestamp,
+                            pageCount: 1
+                        });
+                    } else {
+                        visitorMap.get(key).pageCount++;
+                    }
+                });
+                
+                // Convert to array and sort by timestamp (newest first)
+                return Array.from(visitorMap.values())
+                    .sort((a, b) => b.timestamp - a.timestamp);
+            }
+            
+            anonymizeIP(ip) {
+                // Simple IP anonymization (in production, use proper anonymization)
+                if (!ip) return 'Unknown';
+                const parts = ip.split('.');
+                if (parts.length === 4) {
+                    return `${parts[0]}.${parts[1]}.xxx.xxx`;
+                }
+                return ip;
+            }
+            
+            getTimeAgo(timestamp) {
+                const now = Date.now();
+                const diff = now - timestamp;
+                const minutes = Math.floor(diff / 60000);
+                const hours = Math.floor(diff / 3600000);
+                const days = Math.floor(diff / 86400000);
+                
+                if (minutes < 1) return 'Just now';
+                if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                return `${days} day${days > 1 ? 's' : ''} ago`;
+            }
+            
+            exportVisitorsCSV() {
+                const pageViews = JSON.parse(localStorage.getItem('page_views') || '[]');
+                const uniqueVisitors = this.getUniqueVisitors(pageViews);
+                
+                let csv = 'IP Address,Location,Browser,Pages Viewed,Last Visit\n';
+                uniqueVisitors.forEach(visitor => {
+                    csv += `${this.anonymizeIP(visitor.ip)},${visitor.location},${visitor.browser},${visitor.pageCount},${new Date(visitor.timestamp).toLocaleString()}\n`;
+                });
+                
+                // Download CSV
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `visitors-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
             }
 
             startSessionTimer() {

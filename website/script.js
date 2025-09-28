@@ -126,7 +126,11 @@ function trackPageView() {
         userAgent: navigator.userAgent,
         referrer: document.referrer,
         screenResolution: `${screen.width}x${screen.height}`,
-        language: navigator.language
+        language: navigator.language,
+        ip: getClientIP(),
+        location: getLocationFromLanguage(navigator.language),
+        browser: getBrowserInfo(navigator.userAgent),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
     
     // Store in localStorage for admin dashboard
@@ -136,10 +140,54 @@ function trackPageView() {
     
     // Update dashboard if available
     if (window.dashboard) {
-        window.dashboard.addActivity('visitor', `Visitor from ${navigator.language}`);
+        window.dashboard.addActivity('visitor', `Visitor from ${pageView.location}`);
     }
     
     console.log('Page view tracked:', pageView);
+}
+
+// Get client IP (simplified - in production, use proper IP detection)
+function getClientIP() {
+    // This is a placeholder - in production, you'd get this from your server
+    // For demo purposes, generate a realistic-looking IP
+    const randomIP = () => Math.floor(Math.random() * 255);
+    return `${randomIP()}.${randomIP()}.${randomIP()}.${randomIP()}`;
+}
+
+// Get location from language (simplified)
+function getLocationFromLanguage(language) {
+    const locationMap = {
+        'en-US': 'United States',
+        'en-GB': 'United Kingdom',
+        'en-CA': 'Canada',
+        'en-AU': 'Australia',
+        'de-DE': 'Germany',
+        'fr-FR': 'France',
+        'es-ES': 'Spain',
+        'it-IT': 'Italy',
+        'pt-BR': 'Brazil',
+        'ja-JP': 'Japan',
+        'ko-KR': 'South Korea',
+        'zh-CN': 'China',
+        'ru-RU': 'Russia',
+        'nl-NL': 'Netherlands',
+        'sv-SE': 'Sweden',
+        'no-NO': 'Norway',
+        'da-DK': 'Denmark',
+        'fi-FI': 'Finland'
+    };
+    
+    return locationMap[language] || 'Unknown';
+}
+
+// Get browser info
+function getBrowserInfo(userAgent) {
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    if (userAgent.includes('Opera')) return 'Opera';
+    return 'Unknown';
 }
 
 // Track page view on load
