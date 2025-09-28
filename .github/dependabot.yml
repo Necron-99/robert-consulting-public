@@ -1,0 +1,122 @@
+# Dependabot configuration for Robert Consulting website
+# This file enables automatic dependency updates and security alerts
+
+version: 2
+updates:
+  # Monitor npm dependencies in the website directory
+  - package-ecosystem: "npm"
+    directory: "/website"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "security"
+    ignore:
+      # Ignore major version updates for now (can be enabled later)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Enable security updates
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Group updates by dependency type
+    groups:
+      # Group all npm dependencies together
+      npm-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+
+  # Monitor GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "automated"
+      - "ci-cd"
+    # Group GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+
+  # Monitor Terraform dependencies
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "terraform"
+      include: "scope"
+    labels:
+      - "terraform"
+      - "infrastructure"
+      - "automated"
+      - "iac"
+    # Group Terraform updates
+    groups:
+      terraform-providers:
+        patterns:
+          - "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+
+  # Monitor Docker dependencies (if any Dockerfiles exist)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "docker"
+      - "automated"
+      - "containers"
