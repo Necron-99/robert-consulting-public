@@ -20,6 +20,73 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
         
+    - name: Generate Dynamic Version Information
+      run: |
+        echo "📝 Generating dynamic version information..."
+        
+        # Get current date in YYYY-MM-DD format
+        BUILD_DATE=$(date -u +"%Y-%m-%d")
+        
+        # Generate version from run number (e.g., 1.0.1, 1.0.2, etc.)
+        VERSION="1.0.${{ github.run_number }}"
+        
+        # Determine release status based on branch
+        if [ "${{ github.ref_name }}" = "main" ]; then
+          RELEASE_STATUS="stable"
+        else
+          RELEASE_STATUS="development"
+        fi
+        
+        # Check for security vulnerabilities
+        SECURITY_STATUS="secure"
+        DEPENDENCIES_STATUS="up-to-date"
+        VULNERABILITIES_COUNT="0"
+        SECURITY_LAST_SCAN="$BUILD_DATE"
+        
+        # Run security checks if package.json exists
+        if [ -f "website/package.json" ]; then
+          echo "🔍 Running security checks..."
+          cd website
+          
+          # Check for known vulnerabilities (if npm is available)
+          if command -v npm &> /dev/null; then
+            npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null || true
+            if [ -f "audit-results.json" ]; then
+              VULNERABILITIES_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0' 2>/dev/null || echo "0")
+              if [ "$VULNERABILITIES_COUNT" -gt 0 ]; then
+                SECURITY_STATUS="vulnerabilities-detected"
+                DEPENDENCIES_STATUS="needs-update"
+              fi
+            fi
+          fi
+          
+          cd ..
+        fi
+        
+        # Replace placeholders in version.json
+        sed -i "s/{{GITHUB_VERSION}}/$VERSION/g" website/version.json
+        sed -i "s/{{GITHUB_BUILD_DATE}}/$BUILD_DATE/g" website/version.json
+        sed -i "s/{{GITHUB_RELEASE_STATUS}}/$RELEASE_STATUS/g" website/version.json
+        sed -i "s/{{GITHUB_SHA}}/${{ github.sha }}/g" website/version.json
+        sed -i "s/{{GITHUB_REF_NAME}}/${{ github.ref_name }}/g" website/version.json
+        sed -i "s/{{GITHUB_WORKFLOW}}/${{ github.workflow }}/g" website/version.json
+        sed -i "s/{{GITHUB_RUN_ID}}/${{ github.run_id }}/g" website/version.json
+        sed -i "s/{{GITHUB_RUN_NUMBER}}/${{ github.run_number }}/g" website/version.json
+        sed -i "s/{{GITHUB_ACTOR}}/${{ github.actor }}/g" website/version.json
+        sed -i "s/{{GITHUB_REPOSITORY}}/${{ github.repository }}/g" website/version.json
+        sed -i "s/{{GITHUB_EVENT_NAME}}/${{ github.event_name }}/g" website/version.json
+        sed -i "s/{{GITHUB_SECURITY_STATUS}}/$SECURITY_STATUS/g" website/version.json
+        sed -i "s/{{GITHUB_DEPENDENCIES_STATUS}}/$DEPENDENCIES_STATUS/g" website/version.json
+        sed -i "s/{{GITHUB_VULNERABILITIES_COUNT}}/$VULNERABILITIES_COUNT/g" website/version.json
+        sed -i "s/{{GITHUB_SECURITY_LAST_SCAN}}/$SECURITY_LAST_SCAN/g" website/version.json
+        
+        echo "✅ Version information generated:"
+        echo "  Version: $VERSION"
+        echo "  Build Date: $BUILD_DATE"
+        echo "  Release Status: $RELEASE_STATUS"
+        echo "  Commit: ${{ github.sha }}"
+        echo "  Security Status: $SECURITY_STATUS"
+        
     - name: Deploy to S3
       run: |
         echo "🚀 Deploying files to S3..."

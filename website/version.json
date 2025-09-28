@@ -1,17 +1,32 @@
 {
-  "version": "1.0.0",
-  "build": "2025-09-28",
-  "release": "stable",
+  "version": "{{GITHUB_VERSION}}",
+  "build": "{{GITHUB_BUILD_DATE}}",
+  "release": "{{GITHUB_RELEASE_STATUS}}",
+  "commit": "{{GITHUB_SHA}}",
+  "branch": "{{GITHUB_REF_NAME}}",
+  "workflow": "{{GITHUB_WORKFLOW}}",
+  "run_id": "{{GITHUB_RUN_ID}}",
+  "run_number": "{{GITHUB_RUN_NUMBER}}",
+  "actor": "{{GITHUB_ACTOR}}",
+  "repository": "{{GITHUB_REPOSITORY}}",
+  "event_name": "{{GITHUB_EVENT_NAME}}",
+  "security": {
+    "status": "{{GITHUB_SECURITY_STATUS}}",
+    "dependencies": "{{GITHUB_DEPENDENCIES_STATUS}}",
+    "vulnerabilities": "{{GITHUB_VULNERABILITIES_COUNT}}",
+    "last_scan": "{{GITHUB_SECURITY_LAST_SCAN}}"
+  },
   "changelog": [
     {
-      "version": "1.0.0",
-      "date": "2025-09-28",
+      "version": "{{GITHUB_VERSION}}",
+      "date": "{{GITHUB_BUILD_DATE}}",
+      "commit": "{{GITHUB_SHA}}",
       "changes": [
-        "Initial release of Robert Consulting website",
-        "Added comprehensive DevSecOps and cloud engineering services",
-        "Implemented responsive design with modern UI/UX",
-        "Added contact form and professional experience timeline",
-        "Optimized for performance and SEO"
+        "Automated deployment with GitHub Actions",
+        "Dynamic version information from CI/CD pipeline",
+        "Enhanced security monitoring and reporting",
+        "Automated CloudFront cache invalidation",
+        "Continuous integration and deployment"
       ]
     }
   ],
@@ -21,12 +36,18 @@
     "Contact form",
     "Professional experience timeline",
     "Service portfolio",
-    "Performance optimized"
+    "Performance optimized",
+    "Automated deployments",
+    "Security monitoring",
+    "Cache invalidation"
   ],
   "technical": {
     "framework": "Vanilla HTML/CSS/JS",
     "responsive": true,
     "seo_optimized": true,
-    "performance_optimized": true
+    "performance_optimized": true,
+    "ci_cd": "GitHub Actions",
+    "deployment": "Automated",
+    "security": "Monitored"
   }
 }

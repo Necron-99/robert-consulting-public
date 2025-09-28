@@ -265,8 +265,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 buildDisplay.textContent = `Build ${data.build}`;
             }
             
-            // Add version info to console for debugging
-            console.log(`Robert Consulting Website v${data.version} (${data.build})`);
+            // Enhanced version info with security status
+            console.log(`%cRobert Consulting Website`, 'color: #1a365d; font-weight: bold; font-size: 16px;');
+            console.log(`%cVersion: ${data.version}`, 'color: #38a169; font-weight: bold;');
+            console.log(`%cBuild: ${data.build}`, 'color: #2c5282;');
+            console.log(`%cRelease: ${data.release}`, 'color: #d69e2e;');
+            console.log(`%cCommit: ${data.commit}`, 'color: #4a5568;');
+            console.log(`%cBranch: ${data.branch}`, 'color: #4a5568;');
+            console.log(`%cSecurity: ${data.security.status}`, 'color: #38a169;');
+            console.log(`%cVulnerabilities: ${data.security.vulnerabilities}`, 'color: #e53e3e;');
+            console.log(`%cActor: ${data.actor}`, 'color: #4a5568;');
+            console.log(`%cWorkflow: ${data.workflow}`, 'color: #4a5568;');
+            
+            // Display security status in footer if available
+            const securityStatus = document.getElementById('security-status');
+            if (securityStatus && data.security) {
+                const statusColor = data.security.status === 'secure' ? '#38a169' : '#e53e3e';
+                securityStatus.innerHTML = `<span style="color: ${statusColor};">🔒 ${data.security.status}</span>`;
+            }
         })
         .catch(error => {
             console.warn('Could not load version information:', error);

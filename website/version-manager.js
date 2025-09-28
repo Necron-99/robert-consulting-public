@@ -72,8 +72,43 @@ class VersionManager {
             console.log(`%cVersion: ${this.versionData.version}`, 'color: #38a169; font-weight: bold;');
             console.log(`%cBuild: ${this.versionData.build}`, 'color: #2c5282;');
             console.log(`%cRelease: ${this.versionData.release}`, 'color: #d69e2e;');
+            console.log(`%cCommit: ${this.versionData.commit}`, 'color: #4a5568;');
+            console.log(`%cBranch: ${this.versionData.branch}`, 'color: #4a5568;');
+            console.log(`%cSecurity: ${this.versionData.security.status}`, 'color: #38a169;');
+            console.log(`%cVulnerabilities: ${this.versionData.security.vulnerabilities}`, 'color: #e53e3e;');
             console.log(`%cFeatures: ${this.versionData.features.join(', ')}`, 'color: #4a5568;');
         }
+    }
+
+    /**
+     * Get security information
+     */
+    getSecurityInfo() {
+        return this.versionData ? this.versionData.security : null;
+    }
+
+    /**
+     * Get build information
+     */
+    getBuildInfo() {
+        return this.versionData ? {
+            version: this.versionData.version,
+            build: this.versionData.build,
+            commit: this.versionData.commit,
+            branch: this.versionData.branch,
+            actor: this.versionData.actor,
+            runNumber: this.versionData.run_number,
+            workflow: this.versionData.workflow
+        } : null;
+    }
+
+    /**
+     * Check if security is up to date
+     */
+    isSecurityUpToDate() {
+        if (!this.versionData || !this.versionData.security) return false;
+        return this.versionData.security.status === 'secure' && 
+               this.versionData.security.vulnerabilities === '0';
     }
 
     /**
