@@ -274,3 +274,29 @@ EOF
         echo "  - Use Ctrl+F5 or Cmd+Shift+R to force refresh"
         echo "  - Try incognito/private mode if changes aren't visible"
         echo "  - Changes may take 5-15 minutes to appear globally"
+        
+    - name: Deploy to Testing Site
+      run: |
+        echo "🧪 Deploying to testing site..."
+        
+        # Use the pre-configured testing bucket
+        TESTING_BUCKET="robert-consulting-testing-site"
+        echo "🔧 Using pre-configured testing bucket: $TESTING_BUCKET"
+        
+        # Verify the bucket exists and is properly configured
+        echo "🔍 Verifying bucket configuration..."
+        if aws s3api head-bucket --bucket $TESTING_BUCKET 2>/dev/null; then
+          echo "✅ Testing bucket exists and is accessible"
+        else
+          echo "❌ Testing bucket does not exist or is not accessible"
+          echo "🔧 Please run the manual setup to create the testing infrastructure first"
+          exit 1
+        fi
+        
+        # Sync testing files to S3
+        echo "📁 Syncing testing files to S3..."
+        aws s3 sync website/testing/ s3://$TESTING_BUCKET --delete
+        
+        echo "✅ Testing site deployed successfully!"
+        echo "  S3 Bucket: $TESTING_BUCKET"
+        echo "  Website URL: http://$TESTING_BUCKET.s3-website-us-east-1.amazonaws.com"
