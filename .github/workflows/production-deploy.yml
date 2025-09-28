@@ -61,7 +61,7 @@ jobs:
         
     - name: Setup Node.js for Security Scanning
       if: github.event.inputs.skip_security_scan != 'true'
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         
