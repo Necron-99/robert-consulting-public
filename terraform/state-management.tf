@@ -1,33 +1,6 @@
 # Terraform State Management and Drift Prevention
 # Ensures state consistency and prevents configuration drift
 
-terraform {
-  required_version = ">= 1.0"
-  
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-# Configure the AWS Provider with strict settings
-provider "aws" {
-  region = "us-east-1"
-  
-  # Prevent accidental resource deletion
-  default_tags {
-    tags = {
-      ManagedBy     = "Terraform"
-      Environment  = "Production"
-      Project      = "Robert Consulting"
-      Owner        = "rsbailey@necron99.org"
-      CostCenter   = "Infrastructure"
-    }
-  }
-}
-
 # Data sources for existing resources (prevents drift)
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
@@ -74,12 +47,6 @@ variable "enable_state_validation" {
   default     = true
 }
 
-variable "prevent_destroy" {
-  description = "Prevent destruction of critical resources"
-  type        = bool
-  default     = true
-}
-
 # Outputs for state management
 output "state_management_info" {
   description = "State management configuration information"
@@ -88,6 +55,6 @@ output "state_management_info" {
     lock_table       = "terraform-state-lock"
     region          = "us-east-1"
     state_validation = var.enable_state_validation
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 }

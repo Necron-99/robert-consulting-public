@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "website_bucket" {
   }
   
   lifecycle {
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 }
 
@@ -134,7 +134,7 @@ resource "aws_cloudfront_distribution" "website" {
   }
   
   lifecycle {
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 }
 
