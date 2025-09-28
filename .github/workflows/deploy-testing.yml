@@ -122,108 +122,28 @@ jobs:
         run: |
           echo "🚀 Deploying to testing site..."
           
-          # Create testing bucket if it doesn't exist
-          TESTING_BUCKET="robert-consulting-testing-$(date +%s)"
-          echo "🔧 Creating S3 bucket: $TESTING_BUCKET"
-          aws s3 mb s3://$TESTING_BUCKET --region us-east-1 || echo "Bucket may already exist"
+          # Use the pre-configured testing bucket
+          TESTING_BUCKET="robert-consulting-testing-site"
+          echo "🔧 Using pre-configured testing bucket: $TESTING_BUCKET"
           
-          # Configure bucket for website hosting
-          echo "🔧 Configuring bucket for website hosting..."
-          aws s3 website s3://$TESTING_BUCKET --index-document index.html --error-document error.html
-          
-          # Note: Public access block configuration requires s3:PutPublicAccessBlock permission
-          # The terraform-user may not have this permission, so we'll try a different approach
-          echo "🔧 Attempting to configure public access block..."
-          if aws s3api put-public-access-block --bucket $TESTING_BUCKET \
-              --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false" 2>/dev/null; then
-            echo "✅ Public access block configuration successful"
+          # Verify the bucket exists and is properly configured
+          echo "🔍 Verifying bucket configuration..."
+          if aws s3api head-bucket --bucket $TESTING_BUCKET 2>/dev/null; then
+            echo "✅ Testing bucket exists and is accessible"
           else
-            echo "⚠️ Public access block configuration failed - trying alternative approach"
-            echo "🔧 This may be due to insufficient IAM permissions for s3:PutPublicAccessBlock"
+            echo "❌ Testing bucket does not exist or is not accessible"
+            echo "🔧 Please run 'terraform apply' to create the testing infrastructure first"
+            exit 1
           fi
-          
-          # Set bucket policy for public read access
-          cat > bucket-policy.json << EOF
-          {
-              "Version": "2012-10-17",
-              "Statement": [
-                  {
-                      "Sid": "PublicReadGetObject",
-                      "Effect": "Allow",
-                      "Principal": "*",
-                      "Action": "s3:GetObject",
-                      "Resource": "arn:aws:s3:::$TESTING_BUCKET/*"
-                  }
-              ]
-          }
-          EOF
-          
-          echo "🔧 Applying bucket policy..."
-          if aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json; then
-            echo "✅ Bucket policy applied successfully"
-          else
-            echo "❌ Bucket policy application failed"
-            echo "🔧 This is likely because the bucket has restrictive public access block settings"
-            echo "🔧 The terraform-user needs s3:PutPublicAccessBlock permission to fix this"
-            echo "🔧 For now, the testing site will be created but may not be publicly accessible"
-            echo "⚠️ Testing site deployment completed with limitations"
-          fi
-          
-          # Verify the bucket policy was applied
-          echo "🔍 Verifying bucket policy..."
-          aws s3api get-bucket-policy --bucket $TESTING_BUCKET
-          rm bucket-policy.json
           
           # Sync testing files to S3
+          echo "📁 Syncing testing files to S3..."
           aws s3 sync website/testing/ s3://$TESTING_BUCKET --delete
-          
-          # Create CloudFront distribution
-          cat > cloudfront-config.json << EOF
-          {
-              "CallerReference": "testing-site-$(date +%s)",
-              "Comment": "Testing Site Distribution",
-              "DefaultRootObject": "index.html",
-              "Origins": {
-                  "Quantity": 1,
-                  "Items": [
-                      {
-                          "Id": "S3-$TESTING_BUCKET",
-                          "DomainName": "$TESTING_BUCKET.s3-website-us-east-1.amazonaws.com",
-                          "CustomOriginConfig": {
-                              "HTTPPort": 80,
-                              "HTTPSPort": 443,
-                              "OriginProtocolPolicy": "http-only"
-                          }
-                      }
-                  ]
-              },
-              "DefaultCacheBehavior": {
-                  "TargetOriginId": "S3-$TESTING_BUCKET",
-                  "ViewerProtocolPolicy": "redirect-to-https",
-                  "MinTTL": 0,
-                  "DefaultTTL": 300,
-                  "MaxTTL": 3600,
-                  "Compress": true,
-                  "ForwardedValues": {
-                      "QueryString": false,
-                      "Cookies": {
-                          "Forward": "none"
-                      }
-                  }
-              },
-              "Enabled": true,
-              "PriceClass": "PriceClass_100"
-          }
-          EOF
-          
-          DISTRIBUTION_ID=$(aws cloudfront create-distribution --distribution-config file://cloudfront-config.json --query 'Distribution.Id' --output text)
-          rm cloudfront-config.json
           
           echo "✅ Testing site deployed successfully!"
           echo "  S3 Bucket: $TESTING_BUCKET"
-          echo "  CloudFront Distribution: $DISTRIBUTION_ID"
           echo "  Website URL: http://$TESTING_BUCKET.s3-website-us-east-1.amazonaws.com"
-          echo "  CloudFront URL: https://$(aws cloudfront get-distribution --id $DISTRIBUTION_ID --query 'Distribution.DomainName' --output text)"
+          echo "  CloudFront URL: Check Terraform outputs for the CloudFront distribution URL"
           
       - name: Deploy to Production S3
         if: github.ref == 'refs/heads/main' && steps.run-tests.outputs.failed_tests == 0
