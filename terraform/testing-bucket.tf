@@ -3,7 +3,7 @@
 
 # S3 bucket for testing site
 resource "aws_s3_bucket" "testing_site" {
-  bucket = "robert-consulting-testing-site"
+  bucket = "robert-consulting-testing-terraform"
 
   tags = {
     Name        = "Robert Consulting Testing Site"
@@ -138,7 +138,7 @@ output "testing_bucket_name" {
 
 output "testing_bucket_website_url" {
   description = "Website URL of the testing S3 bucket"
-  value       = "http://${aws_s3_bucket.testing_site.bucket}.s3-website-${data.aws_region.current.name}.amazonaws.com"
+  value       = "http://${aws_s3_bucket.testing_site.bucket}.s3-website-us-east-1.amazonaws.com"
 }
 
 output "testing_cloudfront_url" {

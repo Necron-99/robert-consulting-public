@@ -122,7 +122,7 @@ jobs:
         run: |
           echo "🚀 Deploying to testing site..."
           
-          # Use the pre-configured testing bucket
+          # Use the manually configured testing bucket
           TESTING_BUCKET="robert-consulting-testing-site"
           echo "🔧 Using pre-configured testing bucket: $TESTING_BUCKET"
           
