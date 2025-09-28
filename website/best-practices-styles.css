@@ -1,0 +1,393 @@
+/* Best Practices Page Specific Styles */
+
+/* Hero Section */
+#best-practices-hero {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    color: white;
+    text-align: center;
+    padding: 8rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+#best-practices-hero .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#best-practices-hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+#best-practices-hero .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+#best-practices-hero .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#best-practices-hero .btn {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+#best-practices-hero .btn-primary {
+    background: #38a169;
+    color: white;
+    border: 2px solid #38a169;
+}
+
+#best-practices-hero .btn-primary:hover {
+    background: #2f855a;
+    border-color: #2f855a;
+    transform: translateY(-2px);
+}
+
+#best-practices-hero .btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+#best-practices-hero .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* General Section Styling */
+.section-padding {
+    padding: 6rem 0;
+}
+
+.bg-light {
+    background-color: #f8fafc;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    color: #1a365d;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.section-description {
+    font-size: 1.1rem;
+    color: #4a5568;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3rem auto;
+    line-height: 1.6;
+}
+
+/* Practices Grid */
+.practices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.practice-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid #38a169;
+}
+
+.practice-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.practice-card.critical {
+    border-left-color: #e53e3e;
+}
+
+.practice-card.high {
+    border-left-color: #d69e2e;
+}
+
+.practice-card.medium {
+    border-left-color: #3182ce;
+}
+
+.practice-card.low {
+    border-left-color: #38a169;
+}
+
+.practice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.practice-header h3 {
+    font-size: 1.4rem;
+    color: #1a365d;
+    margin: 0;
+    font-weight: 600;
+}
+
+.priority {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.priority.critical {
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+.priority.high {
+    background: #fef5e7;
+    color: #744210;
+}
+
+.priority.medium {
+    background: #ebf8ff;
+    color: #2c5282;
+}
+
+.priority.low {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.practice-content p {
+    color: #4a5568;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.practice-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.practice-content li {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.practice-content li::before {
+    content: '✓';
+    color: #38a169;
+    position: absolute;
+    left: 0;
+    font-weight: 600;
+}
+
+.code-example {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+}
+
+.code-example pre {
+    margin: 0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #2d3748;
+}
+
+.code-example code {
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Checklist Styles */
+.checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.checklist-category {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.checklist-category h3 {
+    color: #1a365d;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.checklist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.checklist-items li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.checklist-items li:hover {
+    background: #e2e8f0;
+}
+
+.checklist-items input[type="checkbox"] {
+    margin-right: 1rem;
+    width: 18px;
+    height: 18px;
+    accent-color: #38a169;
+}
+
+.checklist-items label {
+    color: #4a5568;
+    font-size: 0.95rem;
+    cursor: pointer;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.checklist-items input[type="checkbox"]:checked + label {
+    color: #38a169;
+    text-decoration: line-through;
+}
+
+/* Interactive Elements */
+.practice-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.practice-card:nth-child(1) { animation-delay: 0.1s; }
+.practice-card:nth-child(2) { animation-delay: 0.2s; }
+.practice-card:nth-child(3) { animation-delay: 0.3s; }
+.practice-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Progress Indicators */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38a169, #2f855a);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #best-practices-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    #best-practices-hero .hero-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    #best-practices-hero .hero-buttons {
+        flex-direction: column;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .section-description {
+        font-size: 1rem;
+    }
+    
+    .practices-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .checklist-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-padding {
+        padding: 4rem 0;
+    }
+    
+    .practice-card {
+        padding: 1.5rem;
+    }
+    
+    .code-example {
+        overflow-x: auto;
+        font-size: 0.8rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .hero-buttons,
+    .checklist-items input[type="checkbox"] {
+        display: none;
+    }
+    
+    .practice-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+    }
+}
