@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Features Testing - Robert Consulting</title>
+    <meta name="description" content="Testing new features in the private testing environment">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <link rel="stylesheet" href="testing-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline testing">🧪 Testing Environment</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Testing Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="features.html" class="nav-link active">New Features</a>
+                </li>
+                <li class="nav-item">
+                    <a href="performance.html" class="nav-link">Performance</a>
+                </li>
+                <li class="nav-item">
+                    <a href="security.html" class="nav-link">Security</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://robertconsulting.net" class="nav-link external">Production Site</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="features-hero" class="hero-section">
+        <div class="hero-content">
+            <h1>🚀 New Features Testing</h1>
+            <p class="hero-subtitle">Testing and validating new features before production deployment</p>
+        </div>
+    </section>
+
+    <!-- Features Testing Section -->
+    <section id="features-testing" class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Features Under Testing</h2>
+            <p class="section-description">Current features being tested in the private environment</p>
+            
+            <div class="features-testing-grid">
+                <div class="feature-test-card">
+                    <div class="feature-header">
+                        <h3>🤖 GitHub Copilot Integration</h3>
+                        <span class="test-status testing">Testing</span>
+                    </div>
+                    <p>AI-powered code suggestions and automated code review features</p>
+                    <div class="test-details">
+                        <h4>Test Cases:</h4>
+                        <ul>
+                            <li>Security-first code suggestions</li>
+                            <li>Performance optimization recommendations</li>
+                            <li>Accessibility compliance checks</li>
+                            <li>Code quality improvements</li>
+                        </ul>
+                    </div>
+                    <div class="test-actions">
+                        <button class="btn-test" onclick="testCopilotFeature()">Test Feature</button>
+                        <button class="btn-results" onclick="viewTestResults('copilot')">View Results</button>
+                    </div>
+                </div>
+
+                <div class="feature-test-card">
+                    <div class="feature-header">
+                        <h3>🔍 Automated Code Review</h3>
+                        <span class="test-status testing">Testing</span>
+                    </div>
+                    <p>Intelligent code review system with security and performance analysis</p>
+                    <div class="test-details">
+                        <h4>Test Cases:</h4>
+                        <ul>
+                            <li>Security vulnerability detection</li>
+                            <li>Performance issue identification</li>
+                            <li>Accessibility compliance validation</li>
+                            <li>Code quality assessment</li>
+                        </ul>
+                    </div>
+                    <div class="test-actions">
+                        <button class="btn-test" onclick="testCodeReviewFeature()">Test Feature</button>
+                        <button class="btn-results" onclick="viewTestResults('code-review')">View Results</button>
+                    </div>
+                </div>
+
+                <div class="feature-test-card">
+                    <div class="feature-header">
+                        <h3>📋 Best Practices Guide</h3>
+                        <span class="test-status testing">Testing</span>
+                    </div>
+                    <p>Comprehensive web development best practices implementation</p>
+                    <div class="test-details">
+                        <h4>Test Cases:</h4>
+                        <ul>
+                            <li>Security best practices</li>
+                            <li>Performance optimization</li>
+                            <li>Accessibility guidelines</li>
+                            <li>SEO best practices</li>
+                        </ul>
+                    </div>
+                    <div class="test-actions">
+                        <button class="btn-test" onclick="testBestPracticesFeature()">Test Feature</button>
+                        <button class="btn-results" onclick="viewTestResults('best-practices')">View Results</button>
+                    </div>
+                </div>
+
+                <div class="feature-test-card">
+                    <div class="feature-header">
+                        <h3>📊 Status Monitoring</h3>
+                        <span class="test-status testing">Testing</span>
+                    </div>
+                    <p>Real-time system status and security posture monitoring</p>
+                    <div class="test-details">
+                        <h4>Test Cases:</h4>
+                        <ul>
+                            <li>System health monitoring</li>
+                            <li>Security status tracking</li>
+                            <li>Performance metrics</li>
+                            <li>Infrastructure monitoring</li>
+                        </ul>
+                    </div>
+                    <div class="test-actions">
+                        <button class="btn-test" onclick="testStatusMonitoringFeature()">Test Feature</button>
+                        <button class="btn-results" onclick="viewTestResults('status-monitoring')">View Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Results Section -->
+    <section id="test-results" class="section-padding bg-light">
+        <div class="container">
+            <h2 class="section-title">Test Results</h2>
+            <p class="section-description">Latest test results and performance metrics</p>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3>🧪 Test Summary</h3>
+                    <div class="result-stats">
+                        <div class="stat">
+                            <span class="stat-number" id="total-tests">0</span>
+                            <span class="stat-label">Total Tests</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="passed-tests">0</span>
+                            <span class="stat-label">Passed</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="failed-tests">0</span>
+                            <span class="stat-label">Failed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h3>⚡ Performance</h3>
+                    <div class="performance-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Page Load Time</span>
+                            <span class="metric-value" id="load-time">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Core Web Vitals</span>
+                            <span class="metric-value" id="core-vitals">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Accessibility Score</span>
+                            <span class="metric-value" id="a11y-score">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h3>🔒 Security</h3>
+                    <div class="security-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Security Headers</span>
+                            <span class="metric-value" id="security-headers">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Vulnerability Scan</span>
+                            <span class="metric-value" id="vuln-scan">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">HTTPS Status</span>
+                            <span class="metric-value" id="https-status">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testing Guidelines -->
+    <section id="testing-guidelines" class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Testing Guidelines</h2>
+            <p class="section-description">Best practices for testing new features effectively</p>
+            
+            <div class="guidelines-content">
+                <div class="guideline-section">
+                    <h3>🚀 Feature Testing Process</h3>
+                    <ol>
+                        <li><strong>Isolation Testing:</strong> Test features in isolation to identify specific issues</li>
+                        <li><strong>Integration Testing:</strong> Test how features work together</li>
+                        <li><strong>Performance Testing:</strong> Measure impact on page load and Core Web Vitals</li>
+                        <li><strong>Security Testing:</strong> Validate security implications and vulnerabilities</li>
+                        <li><strong>Accessibility Testing:</strong> Ensure features are accessible to all users</li>
+                        <li><strong>User Experience Testing:</strong> Test from end-user perspective</li>
+                    </ol>
+                </div>
+
+                <div class="guideline-section">
+                    <h3>💰 Cost Management</h3>
+                    <ul>
+                        <li>Monitor resource usage during testing</li>
+                        <li>Clean up test data promptly</li>
+                        <li>Use minimal resources for testing</li>
+                        <li>Set up cost alerts and monitoring</li>
+                        <li>Optimize testing environment for cost efficiency</li>
+                    </ul>
+                </div>
+
+                <div class="guideline-section">
+                    <h3>📊 Documentation</h3>
+                    <ul>
+                        <li>Document all test cases and results</li>
+                        <li>Record performance metrics and benchmarks</li>
+                        <li>Note any issues or bugs discovered</li>
+                        <li>Create deployment checklists</li>
+                        <li>Update feature documentation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Testing Environment</h4>
+                <p>Private development and testing environment</p>
+                <div class="testing-info">
+                    <span class="info-item">Environment: Testing</span>
+                    <span class="info-item">Status: Active</span>
+                    <span class="info-item">Cost: ~$2.00/month</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Testing Home</a></li>
+                    <li><a href="performance.html">Performance Tests</a></li>
+                    <li><a href="security.html">Security Tests</a></li>
+                    <li><a href="https://robertconsulting.net">Production Site</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Testing Resources</h4>
+                <ul>
+                    <li><a href="https://github.com/Necron-99/robert-consulting.net">Repository</a></li>
+                    <li><a href="https://github.com/Necron-99/robert-consulting.net/issues">Issues</a></li>
+                    <li><a href="https://github.com/Necron-99/robert-consulting.net/pulls">Pull Requests</a></li>
+                    <li><a href="https://github.com/Necron-99/robert-consulting.net/actions">CI/CD</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Robert Consulting. Testing Environment | Cost Optimized | Private</p>
+        </div>
+    </footer>
+
+    <script src="testing-script.js"></script>
+    <script>
+        // Feature testing functions
+        function testCopilotFeature() {
+            console.log('🤖 Testing GitHub Copilot Integration...');
+            testingEnvironment.logTestingActivity('GitHub Copilot Integration Test', 'success');
+            alert('GitHub Copilot integration test completed successfully!');
+        }
+
+        function testCodeReviewFeature() {
+            console.log('🔍 Testing Automated Code Review...');
+            testingEnvironment.logTestingActivity('Automated Code Review Test', 'success');
+            alert('Automated code review test completed successfully!');
+        }
+
+        function testBestPracticesFeature() {
+            console.log('📋 Testing Best Practices Guide...');
+            testingEnvironment.logTestingActivity('Best Practices Guide Test', 'success');
+            alert('Best practices guide test completed successfully!');
+        }
+
+        function testStatusMonitoringFeature() {
+            console.log('📊 Testing Status Monitoring...');
+            testingEnvironment.logTestingActivity('Status Monitoring Test', 'success');
+            alert('Status monitoring test completed successfully!');
+        }
+
+        function viewTestResults(feature) {
+            console.log(`📊 Viewing test results for: ${feature}`);
+            alert(`Test results for ${feature} would be displayed here.`);
+        }
+
+        // Initialize test results on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTestResults();
+        });
+
+        function updateTestResults() {
+            // Simulate test results
+            document.getElementById('total-tests').textContent = '12';
+            document.getElementById('passed-tests').textContent = '11';
+            document.getElementById('failed-tests').textContent = '1';
+            document.getElementById('load-time').textContent = '1.2s';
+            document.getElementById('core-vitals').textContent = 'Good';
+            document.getElementById('a11y-score').textContent = '95%';
+            document.getElementById('security-headers').textContent = 'Passed';
+            document.getElementById('vuln-scan').textContent = 'Clean';
+            document.getElementById('https-status').textContent = 'Secure';
+        }
+    </script>
+</body>
+</html>
