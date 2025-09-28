@@ -156,31 +156,19 @@ jobs:
         run: |
           echo "🧪 Deploying testing site..."
           
-          # Create testing bucket if it doesn't exist
-          TESTING_BUCKET="robert-consulting-testing-$(date +%s)"
-          aws s3 mb s3://$TESTING_BUCKET --region us-east-1 || echo "Bucket may already exist"
+          # Use the pre-configured testing bucket
+          TESTING_BUCKET="robert-consulting-testing-site"
+          echo "🔧 Using pre-configured testing bucket: $TESTING_BUCKET"
           
-          # Configure bucket for website hosting
-          aws s3 website s3://$TESTING_BUCKET --index-document index.html --error-document error.html
-          
-          # Set bucket policy for public read access
-          cat > bucket-policy.json << EOF
-          {
-              "Version": "2012-10-17",
-              "Statement": [
-                  {
-                      "Sid": "PublicReadGetObject",
-                      "Effect": "Allow",
-                      "Principal": "*",
-                      "Action": "s3:GetObject",
-                      "Resource": "arn:aws:s3:::$TESTING_BUCKET/*"
-                  }
-              ]
-          }
-          EOF
-          
-          aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json
-          rm bucket-policy.json
+          # Verify the bucket exists and is properly configured
+          echo "🔍 Verifying bucket configuration..."
+          if aws s3api head-bucket --bucket $TESTING_BUCKET 2>/dev/null; then
+            echo "✅ Testing bucket exists and is accessible"
+          else
+            echo "❌ Testing bucket does not exist or is not accessible"
+            echo "🔧 Please run the manual setup to create the testing infrastructure first"
+            exit 1
+          fi
           
           # Sync testing files to S3
           aws s3 sync website/testing/ s3://$TESTING_BUCKET --delete

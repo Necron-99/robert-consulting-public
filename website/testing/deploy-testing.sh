@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-TESTING_BUCKET="robert-consulting-testing-$(date +%s)"
+TESTING_BUCKET="robert-consulting-testing-site"
 REGION="us-east-1"
 DISTRIBUTION_ID=""
 
