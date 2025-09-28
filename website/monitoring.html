@@ -14,24 +14,53 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="monitoring-styles.css">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <div class="nav-brand">
-                <h1>📊 AWS Monitoring</h1>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">AWS Monitoring</span>
             </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="learning.html" class="nav-link">Learning</a>
-                <a href="status.html" class="nav-link">Status</a>
-                <a href="best-practices.html" class="nav-link">Best Practices</a>
-                <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="status.html" class="nav-link">Status</a>
+                </li>
+                <li class="nav-item">
+                    <a href="monitoring.html" class="nav-link active">Monitoring</a>
+                </li>
+                <li class="nav-item">
+                    <a href="best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#experience" class="nav-link">Experience</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
     <main class="main">
         <!-- Hero Section -->
@@ -305,6 +334,7 @@
         </div>
     </footer>
 
+    <script src="script.js"></script>
     <script src="monitoring-script.js"></script>
 </body>
 </html>
