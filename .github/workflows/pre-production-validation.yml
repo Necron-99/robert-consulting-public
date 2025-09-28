@@ -102,7 +102,7 @@ jobs:
           TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
           
           # Run accessibility test but be more lenient
-          if pa11y --standard WCAG2AA website/index.html 2>/dev/null; then
+          if pa11y --standard WCAG2AA --chrome-flags="--no-sandbox --disable-setuid-sandbox" website/index.html 2>/dev/null; then
             echo "✅ Accessibility test passed"
             VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Accessibility: Passed"
           else
@@ -115,7 +115,7 @@ jobs:
           TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
           
           # Run performance test but be more lenient
-          if lighthouse website/index.html --output=json --chrome-flags="--headless" --quiet 2>/dev/null; then
+          if lighthouse website/index.html --output=json --chrome-flags="--headless --no-sandbox --disable-setuid-sandbox" --quiet 2>/dev/null; then
             echo "✅ Performance test passed"
             VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Performance: Passed"
           else
