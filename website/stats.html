@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Statistics - Robert Bailey Consulting</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stats-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .stats-header h1 {
+            color: #1a365d;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-header p {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+        
+        .login-section {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-form {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1a365d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #2c5282;
+        }
+        
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .success-message {
+            color: #38a169;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a365d;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: #c53030;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-container">
+        <div class="stats-header">
+            <h1>Site Statistics</h1>
+            <p>Robert Bailey Consulting - Analytics Dashboard</p>
+        </div>
+        
+        <!-- Login Section -->
+        <div id="login-section" class="login-section">
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: #1a365d;">Access Required</h2>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Access Statistics</button>
+                <div id="login-message"></div>
+            </form>
+            <div style="margin-top: 1rem; padding: 1rem; background: #f7fafc; border-radius: 4px; font-size: 0.9rem;">
+                <strong>Credentials:</strong><br>
+                Username: <code>admin</code><br>
+                Password: <code>CHEQZvqKHsh9EyKv4ict</code>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="dashboard">
+            <button id="logout-btn" class="logout-btn">Logout</button>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="visitors">1,247</div>
+                    <div class="stat-label">Total Visitors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pageviews">3,421</div>
+                    <div class="stat-label">Page Views</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="forms">23</div>
+                    <div class="stat-label">Contact Forms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uptime">99.9%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="load-time">1.2s</div>
+                    <div class="stat-label">Avg Load Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="seo-score">95</div>
+                    <div class="stat-label">SEO Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="version">v1.0.0</div>
+                    <div class="stat-label">Site Version</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="build-date">2024-12-19</div>
+                    <div class="stat-label">Build Date</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class StatsDashboard {
+            constructor() {
+                this.isAuthenticated = false;
+                this.init();
+            }
+            
+            init() {
+                this.checkAuthentication();
+                this.setupEventListeners();
+            }
+            
+            checkAuthentication() {
+                const token = localStorage.getItem('stats_token');
+                if (token === 'authenticated_robert2024') {
+                    this.isAuthenticated = true;
+                    this.showDashboard();
+                } else {
+                    this.showLogin();
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('login-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+                
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    this.handleLogout();
+                });
+            }
+            
+            handleLogin() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const messageDiv = document.getElementById('login-message');
+                
+                if (username === 'admin' && password === 'CHEQZvqKHsh9EyKv4ict') {
+                    localStorage.setItem('stats_token', 'authenticated_robert2024');
+                    this.isAuthenticated = true;
+                    messageDiv.innerHTML = '<div class="success-message">✓ Access granted!</div>';
+                    setTimeout(() => {
+                        this.showDashboard();
+                    }, 1000);
+                } else {
+                    messageDiv.innerHTML = '<div class="error-message">✗ Invalid credentials. Please try again.</div>';
+                }
+            }
+            
+            handleLogout() {
+                localStorage.removeItem('stats_token');
+                this.isAuthenticated = false;
+                this.showLogin();
+            }
+            
+            showLogin() {
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+            
+            showDashboard() {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                this.loadStats();
+            }
+            
+            loadStats() {
+                // Load version information
+                fetch('version.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('version').textContent = `v${data.version}`;
+                        document.getElementById('build-date').textContent = data.build;
+                    })
+                    .catch(error => {
+                        console.log('Could not load version info:', error);
+                    });
+                
+                // Load analytics data from localStorage
+                const pageViews = JSON.parse(localStorage.getItem('page_views') || '[]');
+                const formSubmissions = JSON.parse(localStorage.getItem('form_submissions') || '[]');
+                
+                // Update stats with real data
+                document.getElementById('visitors').textContent = pageViews.length.toLocaleString();
+                document.getElementById('pageviews').textContent = pageViews.length.toLocaleString();
+                document.getElementById('forms').textContent = formSubmissions.length;
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new StatsDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -78,9 +78,65 @@ if (contactForm) {
             this.reset();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
+            
+            // Track form submission for analytics
+            trackFormSubmission(name, email, subject);
         }, 2000);
     });
 }
+
+// Analytics tracking functions
+function trackFormSubmission(name, email, subject) {
+    // Store form submission data
+    const formData = {
+        name: name,
+        email: email,
+        subject: subject,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        referrer: document.referrer
+    };
+    
+    // Store in localStorage for admin dashboard
+    const submissions = JSON.parse(localStorage.getItem('form_submissions') || '[]');
+    submissions.push(formData);
+    localStorage.setItem('form_submissions', JSON.stringify(submissions));
+    
+    // Update dashboard if available
+    if (window.dashboard) {
+        window.dashboard.addActivity('contact', `New inquiry from ${email}`);
+    }
+    
+    console.log('Form submission tracked:', formData);
+}
+
+function trackPageView() {
+    const pageView = {
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        referrer: document.referrer,
+        screenResolution: `${screen.width}x${screen.height}`,
+        language: navigator.language
+    };
+    
+    // Store in localStorage for admin dashboard
+    const pageViews = JSON.parse(localStorage.getItem('page_views') || '[]');
+    pageViews.push(pageView);
+    localStorage.setItem('page_views', JSON.stringify(pageViews));
+    
+    // Update dashboard if available
+    if (window.dashboard) {
+        window.dashboard.addActivity('visitor', `Visitor from ${navigator.language}`);
+    }
+    
+    console.log('Page view tracked:', pageView);
+}
+
+// Track page view on load
+document.addEventListener('DOMContentLoaded', () => {
+    trackPageView();
+});
 
 // Optimized: Simplified intersection observer for cost efficiency
 const observerOptions = {
@@ -133,6 +189,31 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.transform = 'translateY(0) scale(1)';
         });
     });
+});
+
+// Version management and display
+document.addEventListener('DOMContentLoaded', () => {
+    // Load version information
+    fetch('version.json')
+        .then(response => response.json())
+        .then(data => {
+            const versionDisplay = document.getElementById('version-display');
+            const buildDisplay = document.getElementById('build-display');
+            
+            if (versionDisplay) {
+                versionDisplay.textContent = `v${data.version}`;
+            }
+            
+            if (buildDisplay) {
+                buildDisplay.textContent = `Build ${data.build}`;
+            }
+            
+            // Add version info to console for debugging
+            console.log(`Robert Bailey Consulting Website v${data.version} (${data.build})`);
+        })
+        .catch(error => {
+            console.warn('Could not load version information:', error);
+        });
 });
 
 // Optimized: Removed typing effect and scroll progress for cost optimization
