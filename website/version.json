@@ -1,8 +1,8 @@
 {
-  "version": "{{GITHUB_VERSION}}",
-  "build": "{{GITHUB_BUILD_DATE}}",
+  "version": "1.0.1759101987",
+  "build": "2025-09-28T23:26:27Z",
   "release": "{{GITHUB_RELEASE_STATUS}}",
-  "commit": "2691e3f1f77be1a6e02857ec3f61a55db21da46a",
+  "commit": "4f7e7be492818f278057c830447944de09706b58",
   "branch": "main",
   "workflow": "{{GITHUB_WORKFLOW}}",
   "run_id": "{{GITHUB_RUN_ID}}",
