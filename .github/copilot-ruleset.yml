@@ -1,0 +1,336 @@
+# GitHub Copilot Ruleset for Robert Consulting Website
+# This file defines rules and guidelines for AI code suggestions
+
+version: 1
+rules:
+  # Security Rules
+  - name: "security-first"
+    description: "Always prioritize security in code suggestions"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+      - "*.json"
+      - "*.yml"
+      - "*.yaml"
+    suggestions:
+      - "Include input validation and sanitization"
+      - "Add security headers where appropriate"
+      - "Use HTTPS for all external resources"
+      - "Implement proper authentication checks"
+      - "Avoid hardcoded secrets or credentials"
+      - "Use parameterized queries for database operations"
+      - "Include CSRF protection for forms"
+      - "Add rate limiting for API endpoints"
+
+  # Performance Rules
+  - name: "performance-optimized"
+    description: "Optimize for performance and Core Web Vitals"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+    suggestions:
+      - "Minimize bundle size and optimize assets"
+      - "Use lazy loading for images and components"
+      - "Implement efficient caching strategies"
+      - "Optimize for Core Web Vitals (LCP, FID, CLS)"
+      - "Use modern JavaScript features and ES6+"
+      - "Minimize DOM manipulations"
+      - "Use efficient CSS selectors"
+      - "Implement code splitting where appropriate"
+
+  # Accessibility Rules
+  - name: "accessibility-compliant"
+    description: "Ensure all code meets WCAG 2.1 AA standards"
+    patterns:
+      - "*.html"
+      - "*.js"
+      - "*.ts"
+      - "*.css"
+    suggestions:
+      - "Include proper ARIA labels and descriptions"
+      - "Use semantic HTML elements"
+      - "Ensure keyboard navigation works"
+      - "Maintain sufficient color contrast ratios"
+      - "Provide alternative text for images"
+      - "Use proper heading hierarchy (h1, h2, h3, etc.)"
+      - "Include focus indicators"
+      - "Support screen readers"
+
+  # Code Quality Rules
+  - name: "code-quality"
+    description: "Maintain high code quality and consistency"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+      - "*.json"
+    suggestions:
+      - "Use meaningful variable and function names"
+      - "Include JSDoc comments for functions"
+      - "Follow consistent code formatting"
+      - "Use TypeScript for type safety where applicable"
+      - "Implement proper error handling"
+      - "Use modern JavaScript features"
+      - "Follow DRY (Don't Repeat Yourself) principles"
+      - "Include unit tests for new functions"
+
+  # Web Standards Rules
+  - name: "web-standards"
+    description: "Follow modern web development standards"
+    patterns:
+      - "*.html"
+      - "*.css"
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "Use HTML5 semantic elements"
+      - "Implement responsive design principles"
+      - "Use CSS Grid and Flexbox for layouts"
+      - "Follow BEM methodology for CSS classes"
+      - "Use CSS custom properties (variables)"
+      - "Implement progressive enhancement"
+      - "Use modern CSS features"
+      - "Ensure cross-browser compatibility"
+
+  # SEO Rules
+  - name: "seo-optimized"
+    description: "Optimize code for search engines"
+    patterns:
+      - "*.html"
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "Include proper meta tags (title, description, keywords)"
+      - "Use structured data markup (JSON-LD)"
+      - "Implement proper heading hierarchy"
+      - "Include alt text for images"
+      - "Use descriptive URLs and anchor text"
+      - "Implement Open Graph tags"
+      - "Include canonical URLs"
+      - "Optimize page load speed"
+
+  # Infrastructure Rules
+  - name: "infrastructure-ready"
+    description: "Code should be ready for cloud deployment"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+      - "*.tf"
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "Use environment variables for configuration"
+      - "Implement proper logging and monitoring"
+      - "Include health checks for services"
+      - "Use infrastructure as code (Terraform)"
+      - "Implement proper error handling and recovery"
+      - "Include metrics and observability"
+      - "Use containerization where appropriate"
+      - "Implement CI/CD best practices"
+
+  # Documentation Rules
+  - name: "well-documented"
+    description: "Include comprehensive documentation"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+      - "*.css"
+      - "*.md"
+    suggestions:
+      - "Include JSDoc comments for functions"
+      - "Add inline comments for complex logic"
+      - "Update README files with new features"
+      - "Include code examples in documentation"
+      - "Document API endpoints and parameters"
+      - "Include setup and installation instructions"
+      - "Document configuration options"
+      - "Include troubleshooting guides"
+
+  # Testing Rules
+  - name: "testable-code"
+    description: "Write code that is easy to test"
+    patterns:
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "Write pure functions where possible"
+      - "Avoid side effects in functions"
+      - "Use dependency injection"
+      - "Include unit tests for new functions"
+      - "Mock external dependencies"
+      - "Test edge cases and error conditions"
+      - "Include integration tests"
+      - "Use descriptive test names"
+
+  # Modern JavaScript Rules
+  - name: "modern-javascript"
+    description: "Use modern JavaScript features and best practices"
+    patterns:
+      - "*.js"
+      - "*.ts"
+    suggestions:
+      - "Use const and let instead of var"
+      - "Use arrow functions where appropriate"
+      - "Use template literals for string interpolation"
+      - "Use destructuring for objects and arrays"
+      - "Use async/await instead of promises"
+      - "Use modules (import/export)"
+      - "Use optional chaining and nullish coalescing"
+      - "Use modern array methods (map, filter, reduce)"
+
+  # CSS Best Practices
+  - name: "css-best-practices"
+    description: "Follow modern CSS best practices"
+    patterns:
+      - "*.css"
+      - "*.scss"
+      - "*.sass"
+    suggestions:
+      - "Use CSS custom properties (variables)"
+      - "Use CSS Grid and Flexbox for layouts"
+      - "Follow BEM methodology for class naming"
+      - "Use mobile-first responsive design"
+      - "Optimize for performance (avoid expensive selectors)"
+      - "Use CSS modules or styled-components"
+      - "Include fallbacks for modern features"
+      - "Use semantic color names"
+
+  # Error Handling Rules
+  - name: "robust-error-handling"
+    description: "Implement comprehensive error handling"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.html"
+    suggestions:
+      - "Use try-catch blocks for async operations"
+      - "Implement proper error boundaries"
+      - "Log errors with appropriate detail"
+      - "Provide user-friendly error messages"
+      - "Handle network failures gracefully"
+      - "Validate input data"
+      - "Include fallback mechanisms"
+      - "Test error scenarios"
+
+  # API Design Rules
+  - name: "api-design"
+    description: "Design APIs following RESTful principles"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.yml"
+      - "*.yaml"
+    suggestions:
+      - "Use RESTful HTTP methods (GET, POST, PUT, DELETE)"
+      - "Include proper HTTP status codes"
+      - "Implement API versioning"
+      - "Include request/response validation"
+      - "Use consistent naming conventions"
+      - "Include API documentation"
+      - "Implement rate limiting"
+      - "Include proper error responses"
+
+  # Database Rules
+  - name: "database-best-practices"
+    description: "Follow database best practices"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.sql"
+    suggestions:
+      - "Use parameterized queries to prevent SQL injection"
+      - "Implement proper indexing"
+      - "Use transactions for related operations"
+      - "Include database connection pooling"
+      - "Implement proper error handling"
+      - "Use database migrations"
+      - "Include data validation"
+      - "Optimize queries for performance"
+
+  # Monitoring Rules
+  - name: "observability"
+    description: "Include monitoring and observability"
+    patterns:
+      - "*.js"
+      - "*.ts"
+      - "*.yml"
+      - "*.yaml"
+    suggestions:
+      - "Include logging for important events"
+      - "Implement health checks"
+      - "Add performance metrics"
+      - "Include error tracking"
+      - "Use structured logging"
+      - "Include request tracing"
+      - "Monitor resource usage"
+      - "Include alerting for critical issues"
+
+  # Git and Version Control Rules
+  - name: "version-control"
+    description: "Follow Git best practices"
+    patterns:
+      - "*.md"
+      - "*.txt"
+    suggestions:
+      - "Write clear, descriptive commit messages"
+      - "Use conventional commit format"
+      - "Include meaningful pull request descriptions"
+      - "Keep commits atomic and focused"
+      - "Use feature branches for new development"
+      - "Include tests with new features"
+      - "Update documentation with changes"
+      - "Review code before merging"
+
+  # Deployment Rules
+  - name: "deployment-ready"
+    description: "Ensure code is ready for production deployment"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+      - "*.js"
+      - "*.ts"
+      - "*.tf"
+    suggestions:
+      - "Use environment-specific configuration"
+      - "Include proper secrets management"
+      - "Implement rollback strategies"
+      - "Include deployment health checks"
+      - "Use blue-green deployments where appropriate"
+      - "Include monitoring and alerting"
+      - "Test in staging environment first"
+      - "Include deployment documentation"
+
+# Global preferences
+preferences:
+  # Code style preferences
+  code_style:
+    indent_size: 2
+    quote_style: "single"
+    semicolon: true
+    trailing_comma: "es5"
+    
+  # Language preferences
+  languages:
+    javascript: "ES2022"
+    typescript: "4.9+"
+    css: "CSS3"
+    html: "HTML5"
+    
+  # Framework preferences
+  frameworks:
+    frontend: "vanilla"
+    testing: "jest"
+    bundling: "webpack"
+    
+  # Tool preferences
+  tools:
+    linter: "eslint"
+    formatter: "prettier"
+    package_manager: "npm"
+    version_control: "git"
