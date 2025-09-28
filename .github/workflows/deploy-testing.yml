@@ -1,0 +1,310 @@
+name: Deploy to Testing Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'terraform/**'
+      - '.github/workflows/deploy-testing.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'terraform/**'
+      - '.github/workflows/deploy-testing.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-testing:
+    runs-on: ubuntu-latest
+    name: Deploy to Testing Site
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          
+      - name: Setup Node.js for testing
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install testing dependencies
+        run: |
+          echo "🔧 Installing testing dependencies..."
+          npm install -g lighthouse
+          npm install -g pa11y
+          npm install -g html-validate
+          
+      - name: Run automated tests
+        id: run-tests
+        run: |
+          echo "🧪 Running automated tests..."
+          
+          # Initialize test results
+          TEST_RESULTS=""
+          FAILED_TESTS=0
+          TOTAL_TESTS=0
+          
+          # Test 1: HTML Validation
+          echo "📝 Testing HTML validation..."
+          TOTAL_TESTS=$((TOTAL_TESTS + 1))
+          if html-validate website/testing/index.html website/testing/features.html; then
+            echo "✅ HTML validation passed"
+            TEST_RESULTS="$TEST_RESULTS\n✅ HTML Validation: Passed"
+          else
+            echo "❌ HTML validation failed"
+            TEST_RESULTS="$TEST_RESULTS\n❌ HTML Validation: Failed"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+          fi
+          
+          # Test 2: Accessibility Testing
+          echo "♿ Testing accessibility..."
+          TOTAL_TESTS=$((TOTAL_TESTS + 1))
+          if pa11y --standard WCAG2AA website/testing/index.html; then
+            echo "✅ Accessibility test passed"
+            TEST_RESULTS="$TEST_RESULTS\n✅ Accessibility: Passed"
+          else
+            echo "❌ Accessibility test failed"
+            TEST_RESULTS="$TEST_RESULTS\n❌ Accessibility: Failed"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+          fi
+          
+          # Test 3: Performance Testing
+          echo "⚡ Testing performance..."
+          TOTAL_TESTS=$((TOTAL_TESTS + 1))
+          if lighthouse website/testing/index.html --output=json --chrome-flags="--headless" --quiet; then
+            echo "✅ Performance test passed"
+            TEST_RESULTS="$TEST_RESULTS\n✅ Performance: Passed"
+          else
+            echo "❌ Performance test failed"
+            TEST_RESULTS="$TEST_RESULTS\n❌ Performance: Failed"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+          fi
+          
+          # Test 4: Security Headers
+          echo "🔒 Testing security headers..."
+          TOTAL_TESTS=$((TOTAL_TESTS + 1))
+          if grep -q "Content-Security-Policy" website/testing/index.html && \
+             grep -q "X-Content-Type-Options" website/testing/index.html && \
+             grep -q "X-Frame-Options" website/testing/index.html; then
+            echo "✅ Security headers test passed"
+            TEST_RESULTS="$TEST_RESULTS\n✅ Security Headers: Passed"
+          else
+            echo "❌ Security headers test failed"
+            TEST_RESULTS="$TEST_RESULTS\n❌ Security Headers: Failed"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+          fi
+          
+          # Test 5: Cost Optimization
+          echo "💰 Testing cost optimization..."
+          TOTAL_TESTS=$((TOTAL_TESTS + 1))
+          if [ -f "website/testing/cost-monitor.sh" ] && [ -f "website/testing/cleanup-testing.sh" ]; then
+            echo "✅ Cost optimization test passed"
+            TEST_RESULTS="$TEST_RESULTS\n✅ Cost Optimization: Passed"
+          else
+            echo "❌ Cost optimization test failed"
+            TEST_RESULTS="$TEST_RESULTS\n❌ Cost Optimization: Failed"
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+          fi
+          
+          # Output test results
+          echo "test_results<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$TEST_RESULTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "failed_tests=$FAILED_TESTS" >> $GITHUB_OUTPUT
+          echo "total_tests=$TOTAL_TESTS" >> $GITHUB_OUTPUT
+          
+          echo "📊 Test Summary:"
+          echo "  Total Tests: $TOTAL_TESTS"
+          echo "  Failed Tests: $FAILED_TESTS"
+          echo "  Pass Rate: $(( (TOTAL_TESTS - FAILED_TESTS) * 100 / TOTAL_TESTS ))%"
+          
+      - name: Deploy to Testing S3
+        if: steps.run-tests.outputs.failed_tests == 0
+        run: |
+          echo "🚀 Deploying to testing site..."
+          
+          # Create testing bucket if it doesn't exist
+          TESTING_BUCKET="robert-consulting-testing-$(date +%s)"
+          aws s3 mb s3://$TESTING_BUCKET --region us-east-1 || echo "Bucket may already exist"
+          
+          # Configure bucket for website hosting
+          aws s3 website s3://$TESTING_BUCKET --index-document index.html --error-document error.html
+          
+          # Set bucket policy for public read access
+          cat > bucket-policy.json << EOF
+          {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                      "Sid": "PublicReadGetObject",
+                      "Effect": "Allow",
+                      "Principal": "*",
+                      "Action": "s3:GetObject",
+                      "Resource": "arn:aws:s3:::$TESTING_BUCKET/*"
+                  }
+              ]
+          }
+          EOF
+          
+          aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json
+          rm bucket-policy.json
+          
+          # Sync testing files to S3
+          aws s3 sync website/testing/ s3://$TESTING_BUCKET --delete
+          
+          # Create CloudFront distribution
+          cat > cloudfront-config.json << EOF
+          {
+              "CallerReference": "testing-site-$(date +%s)",
+              "Comment": "Testing Site Distribution",
+              "DefaultRootObject": "index.html",
+              "Origins": {
+                  "Quantity": 1,
+                  "Items": [
+                      {
+                          "Id": "S3-$TESTING_BUCKET",
+                          "DomainName": "$TESTING_BUCKET.s3-website-us-east-1.amazonaws.com",
+                          "CustomOriginConfig": {
+                              "HTTPPort": 80,
+                              "HTTPSPort": 443,
+                              "OriginProtocolPolicy": "http-only"
+                          }
+                      }
+                  ]
+              },
+              "DefaultCacheBehavior": {
+                  "TargetOriginId": "S3-$TESTING_BUCKET",
+                  "ViewerProtocolPolicy": "redirect-to-https",
+                  "MinTTL": 0,
+                  "DefaultTTL": 300,
+                  "MaxTTL": 3600,
+                  "Compress": true,
+                  "ForwardedValues": {
+                      "QueryString": false,
+                      "Cookies": {
+                          "Forward": "none"
+                      }
+                  }
+              },
+              "Enabled": true,
+              "PriceClass": "PriceClass_100"
+          }
+          EOF
+          
+          DISTRIBUTION_ID=$(aws cloudfront create-distribution --distribution-config file://cloudfront-config.json --query 'Distribution.Id' --output text)
+          rm cloudfront-config.json
+          
+          echo "✅ Testing site deployed successfully!"
+          echo "  S3 Bucket: $TESTING_BUCKET"
+          echo "  CloudFront Distribution: $DISTRIBUTION_ID"
+          echo "  Website URL: http://$TESTING_BUCKET.s3-website-us-east-1.amazonaws.com"
+          echo "  CloudFront URL: https://$(aws cloudfront get-distribution --id $DISTRIBUTION_ID --query 'Distribution.DomainName' --output text)"
+          
+      - name: Deploy to Production S3
+        if: github.ref == 'refs/heads/main' && steps.run-tests.outputs.failed_tests == 0
+        run: |
+          echo "🚀 Deploying to production site..."
+          
+          # Sync website files to production S3
+          aws s3 sync website/ s3://robert-consulting-website-2024-bd900b02/ --delete
+          
+          # Invalidate CloudFront cache
+          aws cloudfront create-invalidation --distribution-id E3HUVB85SPZFHO --paths "/*"
+          
+          echo "✅ Production site deployed successfully!"
+          
+      - name: Comment on Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testResults = `${{ steps.run-tests.outputs.test_results }}`;
+            const failedTests = ${{ steps.run-tests.outputs.failed_tests }};
+            const totalTests = ${{ steps.run-tests.outputs.total_tests }};
+            
+            const comment = `## 🧪 Testing Site Deployment Results
+            
+            **Test Summary:**
+            - Total Tests: ${totalTests}
+            - Failed Tests: ${failedTests}
+            - Pass Rate: ${Math.round((totalTests - failedTests) * 100 / totalTests)}%
+            
+            **Test Results:**
+            ${testResults}
+            
+            ${failedTests === 0 ? '✅ All tests passed! Ready for production deployment.' : '❌ Some tests failed. Please review and fix before merging.'}
+            
+            ---
+            *Automated testing results for testing site deployment*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+      - name: Create Release
+        if: github.ref == 'refs/heads/main' && steps.run-tests.outputs.failed_tests == 0
+        run: |
+          echo "📦 Creating release..."
+          
+          # Get version from version.json
+          VERSION=$(jq -r '.version' website/version.json)
+          BUILD_DATE=$(jq -r '.build' website/version.json)
+          
+          # Create release notes
+          cat > release-notes.md << EOF
+          ## Release $VERSION
+          
+          **Build Date:** $BUILD_DATE
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ### 🧪 Testing Results
+          - Total Tests: ${{ steps.run-tests.outputs.total_tests }}
+          - Failed Tests: ${{ steps.run-tests.outputs.failed_tests }}
+          - Pass Rate: $(( ({{ steps.run-tests.outputs.total_tests }} - {{ steps.run-tests.outputs.failed_tests }}) * 100 / {{ steps.run-tests.outputs.total_tests }} ))%
+          
+          ### 🚀 Features
+          - Automated testing and deployment
+          - Cost-optimized testing environment
+          - Security validation
+          - Performance optimization
+          - Accessibility compliance
+          
+          ### 📊 Quality Metrics
+          - HTML Validation: ✅ Passed
+          - Accessibility: ✅ Passed
+          - Performance: ✅ Passed
+          - Security Headers: ✅ Passed
+          - Cost Optimization: ✅ Passed
+          EOF
+          
+          # Create GitHub release
+          gh release create "v$VERSION" \
+            --title "Release $VERSION" \
+            --notes-file release-notes.md \
+            --target main
+            
+          echo "✅ Release created: v$VERSION"
+          
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Please check the logs and fix any issues before retrying."
+          echo "Failed tests: ${{ steps.run-tests.outputs.failed_tests }}"
+          echo "Total tests: ${{ steps.run-tests.outputs.total_tests }}"

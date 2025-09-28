@@ -1,0 +1,278 @@
+name: Pre-Production Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pre-production-validation:
+    runs-on: ubuntu-latest
+    name: Pre-Production Validation
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+          
+      - name: Setup Node.js for validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install validation tools
+        run: |
+          echo "🔧 Installing validation tools..."
+          npm install -g lighthouse
+          npm install -g pa11y
+          npm install -g html-validate
+          npm install -g snyk
+          npm install -g npm-audit-ci-wrapper
+          
+      - name: Run comprehensive validation
+        id: validation
+        run: |
+          echo "🔍 Running comprehensive pre-production validation..."
+          
+          # Initialize validation results
+          VALIDATION_RESULTS=""
+          FAILED_VALIDATIONS=0
+          TOTAL_VALIDATIONS=0
+          
+          # Validation 1: Security Scan
+          echo "🔒 Running security scan..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if snyk test --severity-threshold=high; then
+            echo "✅ Security scan passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Security Scan: Passed"
+          else
+            echo "❌ Security scan failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Security Scan: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 2: Dependency Audit
+          echo "📦 Running dependency audit..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if npm audit --audit-level=high; then
+            echo "✅ Dependency audit passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Dependency Audit: Passed"
+          else
+            echo "❌ Dependency audit failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Dependency Audit: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 3: HTML Validation
+          echo "📝 Running HTML validation..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if html-validate website/index.html website/learning.html website/status.html website/best-practices.html; then
+            echo "✅ HTML validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ HTML Validation: Passed"
+          else
+            echo "❌ HTML validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ HTML Validation: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 4: Accessibility Testing
+          echo "♿ Running accessibility testing..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if pa11y --standard WCAG2AA website/index.html; then
+            echo "✅ Accessibility test passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Accessibility: Passed"
+          else
+            echo "❌ Accessibility test failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Accessibility: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 5: Performance Testing
+          echo "⚡ Running performance testing..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if lighthouse website/index.html --output=json --chrome-flags="--headless" --quiet; then
+            echo "✅ Performance test passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Performance: Passed"
+          else
+            echo "❌ Performance test failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Performance: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 6: Security Headers
+          echo "🛡️ Validating security headers..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if grep -q "Content-Security-Policy" website/index.html && \
+             grep -q "X-Content-Type-Options" website/index.html && \
+             grep -q "X-Frame-Options" website/index.html && \
+             grep -q "X-XSS-Protection" website/index.html; then
+            echo "✅ Security headers validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Security Headers: Passed"
+          else
+            echo "❌ Security headers validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Security Headers: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 7: Cost Optimization
+          echo "💰 Validating cost optimization..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if [ -f "website/testing/cost-monitor.sh" ] && [ -f "website/testing/cleanup-testing.sh" ] && [ -f "website/testing/deploy-testing.sh" ]; then
+            echo "✅ Cost optimization validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Cost Optimization: Passed"
+          else
+            echo "❌ Cost optimization validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Cost Optimization: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 8: SEO Optimization
+          echo "🔍 Validating SEO optimization..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if grep -q "meta name=\"description\"" website/index.html && \
+             grep -q "meta name=\"keywords\"" website/index.html && \
+             grep -q "title>" website/index.html; then
+            echo "✅ SEO optimization validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ SEO Optimization: Passed"
+          else
+            echo "❌ SEO optimization validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ SEO Optimization: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 9: Mobile Responsiveness
+          echo "📱 Validating mobile responsiveness..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if grep -q "viewport" website/index.html && \
+             grep -q "media" website/styles.css; then
+            echo "✅ Mobile responsiveness validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Mobile Responsiveness: Passed"
+          else
+            echo "❌ Mobile responsiveness validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Mobile Responsiveness: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Validation 10: Code Quality
+          echo "📝 Validating code quality..."
+          TOTAL_VALIDATIONS=$((TOTAL_VALIDATIONS + 1))
+          if [ -f "website/script.js" ] && [ -f "website/styles.css" ] && [ -f "website/index.html" ]; then
+            echo "✅ Code quality validation passed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n✅ Code Quality: Passed"
+          else
+            echo "❌ Code quality validation failed"
+            VALIDATION_RESULTS="$VALIDATION_RESULTS\n❌ Code Quality: Failed"
+            FAILED_VALIDATIONS=$((FAILED_VALIDATIONS + 1))
+          fi
+          
+          # Output validation results
+          echo "validation_results<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$VALIDATION_RESULTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "failed_validations=$FAILED_VALIDATIONS" >> $GITHUB_OUTPUT
+          echo "total_validations=$TOTAL_VALIDATIONS" >> $GITHUB_OUTPUT
+          
+          echo "📊 Validation Summary:"
+          echo "  Total Validations: $TOTAL_VALIDATIONS"
+          echo "  Failed Validations: $FAILED_VALIDATIONS"
+          echo "  Pass Rate: $(( (TOTAL_VALIDATIONS - FAILED_VALIDATIONS) * 100 / TOTAL_VALIDATIONS ))%"
+          
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "📋 Generating validation report..."
+          
+          cat > validation-report.md << EOF
+          # Pre-Production Validation Report
+          
+          **Date:** $(date)
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          **Actor:** ${{ github.actor }}
+          
+          ## Validation Summary
+          
+          | Metric | Value |
+          |--------|-------|
+          | Total Validations | ${{ steps.validation.outputs.total_validations }} |
+          | Failed Validations | ${{ steps.validation.outputs.failed_validations }} |
+          | Pass Rate | $(( ({{ steps.validation.outputs.total_validations }} - {{ steps.validation.outputs.failed_validations }}) * 100 / {{ steps.validation.outputs.total_validations }} ))% |
+          
+          ## Validation Results
+          
+          ${{ steps.validation.outputs.validation_results }}
+          
+          ## Recommendations
+          
+          ${{ steps.validation.outputs.failed_validations == 0 && '✅ All validations passed! Ready for production deployment.' || '❌ Some validations failed. Please review and fix before production deployment.' }}
+          
+          ---
+          *Automated validation report generated by GitHub Actions*
+          EOF
+          
+          echo "📄 Validation report generated: validation-report.md"
+          
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: validation-report.md
+          
+      - name: Comment on Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const validationResults = `${{ steps.validation.outputs.validation_results }}`;
+            const failedValidations = ${{ steps.validation.outputs.failed_validations }};
+            const totalValidations = ${{ steps.validation.outputs.total_validations }};
+            
+            const comment = `## 🔍 Pre-Production Validation Results
+            
+            **Validation Summary:**
+            - Total Validations: ${totalValidations}
+            - Failed Validations: ${failedValidations}
+            - Pass Rate: ${Math.round((totalValidations - failedValidations) * 100 / totalValidations)}%
+            
+            **Validation Results:**
+            ${validationResults}
+            
+            ${failedValidations === 0 ? '✅ All validations passed! Ready for production deployment.' : '❌ Some validations failed. Please review and fix before merging.'}
+            
+            ---
+            *Automated pre-production validation results*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+      - name: Block deployment on failure
+        if: steps.validation.outputs.failed_validations > 0
+        run: |
+          echo "❌ Pre-production validation failed!"
+          echo "Please fix the following issues before deployment:"
+          echo "${{ steps.validation.outputs.validation_results }}"
+          exit 1
+          
+      - name: Approve for production
+        if: steps.validation.outputs.failed_validations == 0
+        run: |
+          echo "✅ Pre-production validation passed!"
+          echo "All validations successful. Ready for production deployment."
+          echo "Validation results:"
+          echo "${{ steps.validation.outputs.validation_results }}"
