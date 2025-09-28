@@ -146,68 +146,66 @@ jobs:
         
         # Replace placeholders in version.json using a more robust approach
         # Create a temporary file with all replacements
-        cat > website/version-temp.json << EOF
-{
-  "version": "$VERSION",
-  "build": "$BUILD_DATE",
-  "release": "$RELEASE_STATUS",
-  "commit": "${{ github.sha }}",
-  "branch": "${{ github.ref_name }}",
-  "workflow": "${{ github.workflow }}",
-  "run_id": "${{ github.run_id }}",
-  "run_number": "${{ github.run_number }}",
-  "actor": "${{ github.actor }}",
-  "repository": "${{ github.repository }}",
-  "event_name": "${{ github.event_name }}",
-  "security": {
-    "status": "$SECURITY_STATUS",
-    "dependencies": "$DEPENDENCIES_STATUS",
-    "vulnerabilities": "$VULNERABILITIES_COUNT",
-    "critical": "$CRITICAL_VULNERABILITIES",
-    "high": "$HIGH_VULNERABILITIES",
-    "medium": "$MEDIUM_VULNERABILITIES",
-    "low": "$LOW_VULNERABILITIES",
-    "last_scan": "$SECURITY_LAST_SCAN",
-    "scan_duration": "$(date -u +%s)",
-    "secrets_found": "$SECRETS_FOUND",
-    "cdn_issues": "$CDN_ISSUES"
-  },
-  "changelog": [
-    {
-      "version": "$VERSION",
-      "date": "$BUILD_DATE",
-      "commit": "${{ github.sha }}",
-      "changes": [
-        "Automated deployment with GitHub Actions",
-        "Dynamic version information from CI/CD pipeline",
-        "Enhanced security monitoring and reporting",
-        "Automated CloudFront cache invalidation",
-        "Continuous integration and deployment"
-      ]
-    }
-  ],
-  "features": [
-    "Responsive design",
-    "Modern UI/UX",
-    "Contact form",
-    "Professional experience timeline",
-    "Service portfolio",
-    "Performance optimized",
-    "Automated deployments",
-    "Security monitoring",
-    "Cache invalidation"
-  ],
-  "technical": {
-    "framework": "Vanilla HTML/CSS/JS",
-    "responsive": true,
-    "seo_optimized": true,
-    "performance_optimized": true,
-    "ci_cd": "GitHub Actions",
-    "deployment": "Automated",
-    "security": "Monitored"
-  }
-}
-EOF
+        echo '{' > website/version-temp.json
+        echo '  "version": "'$VERSION'",' >> website/version-temp.json
+        echo '  "build": "'$BUILD_DATE'",' >> website/version-temp.json
+        echo '  "release": "'$RELEASE_STATUS'",' >> website/version-temp.json
+        echo '  "commit": "'${{ github.sha }}'",' >> website/version-temp.json
+        echo '  "branch": "'${{ github.ref_name }}'",' >> website/version-temp.json
+        echo '  "workflow": "'${{ github.workflow }}'",' >> website/version-temp.json
+        echo '  "run_id": "'${{ github.run_id }}'",' >> website/version-temp.json
+        echo '  "run_number": "'${{ github.run_number }}'",' >> website/version-temp.json
+        echo '  "actor": "'${{ github.actor }}'",' >> website/version-temp.json
+        echo '  "repository": "'${{ github.repository }}'",' >> website/version-temp.json
+        echo '  "event_name": "'${{ github.event_name }}'",' >> website/version-temp.json
+        echo '  "security": {' >> website/version-temp.json
+        echo '    "status": "'$SECURITY_STATUS'",' >> website/version-temp.json
+        echo '    "dependencies": "'$DEPENDENCIES_STATUS'",' >> website/version-temp.json
+        echo '    "vulnerabilities": "'$VULNERABILITIES_COUNT'",' >> website/version-temp.json
+        echo '    "critical": "'$CRITICAL_VULNERABILITIES'",' >> website/version-temp.json
+        echo '    "high": "'$HIGH_VULNERABILITIES'",' >> website/version-temp.json
+        echo '    "medium": "'$MEDIUM_VULNERABILITIES'",' >> website/version-temp.json
+        echo '    "low": "'$LOW_VULNERABILITIES'",' >> website/version-temp.json
+        echo '    "last_scan": "'$SECURITY_LAST_SCAN'",' >> website/version-temp.json
+        echo '    "scan_duration": "'$(date -u +%s)'",' >> website/version-temp.json
+        echo '    "secrets_found": "'$SECRETS_FOUND'",' >> website/version-temp.json
+        echo '    "cdn_issues": "'$CDN_ISSUES'"' >> website/version-temp.json
+        echo '  },' >> website/version-temp.json
+        echo '  "changelog": [' >> website/version-temp.json
+        echo '    {' >> website/version-temp.json
+        echo '      "version": "'$VERSION'",' >> website/version-temp.json
+        echo '      "date": "'$BUILD_DATE'",' >> website/version-temp.json
+        echo '      "commit": "'${{ github.sha }}'",' >> website/version-temp.json
+        echo '      "changes": [' >> website/version-temp.json
+        echo '        "Automated deployment with GitHub Actions",' >> website/version-temp.json
+        echo '        "Dynamic version information from CI/CD pipeline",' >> website/version-temp.json
+        echo '        "Enhanced security monitoring and reporting",' >> website/version-temp.json
+        echo '        "Automated CloudFront cache invalidation",' >> website/version-temp.json
+        echo '        "Continuous integration and deployment"' >> website/version-temp.json
+        echo '      ]' >> website/version-temp.json
+        echo '    }' >> website/version-temp.json
+        echo '  ],' >> website/version-temp.json
+        echo '  "features": [' >> website/version-temp.json
+        echo '    "Responsive design",' >> website/version-temp.json
+        echo '    "Modern UI/UX",' >> website/version-temp.json
+        echo '    "Contact form",' >> website/version-temp.json
+        echo '    "Professional experience timeline",' >> website/version-temp.json
+        echo '    "Service portfolio",' >> website/version-temp.json
+        echo '    "Performance optimized",' >> website/version-temp.json
+        echo '    "Automated deployments",' >> website/version-temp.json
+        echo '    "Security monitoring",' >> website/version-temp.json
+        echo '    "Cache invalidation"' >> website/version-temp.json
+        echo '  ],' >> website/version-temp.json
+        echo '  "technical": {' >> website/version-temp.json
+        echo '    "framework": "Vanilla HTML/CSS/JS",' >> website/version-temp.json
+        echo '    "responsive": true,' >> website/version-temp.json
+        echo '    "seo_optimized": true,' >> website/version-temp.json
+        echo '    "performance_optimized": true,' >> website/version-temp.json
+        echo '    "ci_cd": "GitHub Actions",' >> website/version-temp.json
+        echo '    "deployment": "Automated",' >> website/version-temp.json
+        echo '    "security": "Monitored"' >> website/version-temp.json
+        echo '  }' >> website/version-temp.json
+        echo '}' >> website/version-temp.json
         
         # Replace the original file
         mv website/version-temp.json website/version.json
