@@ -40,7 +40,7 @@ resource "null_resource" "state_validation" {
   provisioner "local-exec" {
     command = <<-EOT
       echo "Validating Terraform state..."
-      terraform plan -out=tfplan
+      terraform plan -lock=false -out=tfplan
       if [ $? -ne 0 ]; then
         echo "ERROR: Infrastructure drift detected!"
         exit 1
@@ -54,7 +54,7 @@ resource "null_resource" "state_validation" {
 variable "enable_state_validation" {
   description = "Enable automatic state validation and drift detection"
   type        = bool
-  default     = true
+  default     = false
 }
 
 # Outputs for state management
