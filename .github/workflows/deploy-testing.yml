@@ -131,8 +131,13 @@ jobs:
           
           # Configure public access block to allow public policies (for testing only)
           echo "🔧 Configuring public access block for bucket: $TESTING_BUCKET"
-          aws s3api put-public-access-block --bucket $TESTING_BUCKET \
-              --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+          if aws s3api put-public-access-block --bucket $TESTING_BUCKET \
+              --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"; then
+            echo "✅ Public access block configuration successful"
+          else
+            echo "❌ Public access block configuration failed"
+            exit 1
+          fi
           
           # Verify the public access block configuration
           echo "🔍 Verifying public access block configuration..."
@@ -155,7 +160,12 @@ jobs:
           EOF
           
           echo "🔧 Applying bucket policy..."
-          aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json
+          if aws s3api put-bucket-policy --bucket $TESTING_BUCKET --policy file://bucket-policy.json; then
+            echo "✅ Bucket policy applied successfully"
+          else
+            echo "❌ Bucket policy application failed"
+            exit 1
+          fi
           
           # Verify the bucket policy was applied
           echo "🔍 Verifying bucket policy..."
