@@ -150,14 +150,14 @@ jobs:
         echo '  "version": "'$VERSION'",' >> website/version-temp.json
         echo '  "build": "'$BUILD_DATE'",' >> website/version-temp.json
         echo '  "release": "'$RELEASE_STATUS'",' >> website/version-temp.json
-        echo '  "commit": "'${{ github.sha }}'",' >> website/version-temp.json
-        echo '  "branch": "'${{ github.ref_name }}'",' >> website/version-temp.json
-        echo '  "workflow": "'${{ github.workflow }}'",' >> website/version-temp.json
-        echo '  "run_id": "'${{ github.run_id }}'",' >> website/version-temp.json
-        echo '  "run_number": "'${{ github.run_number }}'",' >> website/version-temp.json
-        echo '  "actor": "'${{ github.actor }}'",' >> website/version-temp.json
-        echo '  "repository": "'${{ github.repository }}'",' >> website/version-temp.json
-        echo '  "event_name": "'${{ github.event_name }}'",' >> website/version-temp.json
+        echo '  "commit": "'$GITHUB_SHA'",' >> website/version-temp.json
+        echo '  "branch": "'$GITHUB_REF_NAME'",' >> website/version-temp.json
+        echo '  "workflow": "'$GITHUB_WORKFLOW'",' >> website/version-temp.json
+        echo '  "run_id": "'$GITHUB_RUN_ID'",' >> website/version-temp.json
+        echo '  "run_number": "'$GITHUB_RUN_NUMBER'",' >> website/version-temp.json
+        echo '  "actor": "'$GITHUB_ACTOR'",' >> website/version-temp.json
+        echo '  "repository": "'$GITHUB_REPOSITORY'",' >> website/version-temp.json
+        echo '  "event_name": "'$GITHUB_EVENT_NAME'",' >> website/version-temp.json
         echo '  "security": {' >> website/version-temp.json
         echo '    "status": "'$SECURITY_STATUS'",' >> website/version-temp.json
         echo '    "dependencies": "'$DEPENDENCIES_STATUS'",' >> website/version-temp.json
@@ -175,7 +175,7 @@ jobs:
         echo '    {' >> website/version-temp.json
         echo '      "version": "'$VERSION'",' >> website/version-temp.json
         echo '      "date": "'$BUILD_DATE'",' >> website/version-temp.json
-        echo '      "commit": "'${{ github.sha }}'",' >> website/version-temp.json
+        echo '      "commit": "'$GITHUB_SHA'",' >> website/version-temp.json
         echo '      "changes": [' >> website/version-temp.json
         echo '        "Automated deployment with GitHub Actions",' >> website/version-temp.json
         echo '        "Dynamic version information from CI/CD pipeline",' >> website/version-temp.json
