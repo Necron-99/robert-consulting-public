@@ -75,7 +75,11 @@ jobs:
           # Generate version dynamically if version.json contains placeholders
           if jq -r '.version' website/version.json | grep -q "{{GITHUB_VERSION}}"; then
             echo "📝 Version.json contains placeholders, generating dynamic version..."
-            VERSION="1.0.$(date +%s)"
+            # Create a more unique version using timestamp + run number + random
+            TIMESTAMP=$(date +%s)
+            RUN_NUMBER=${{ github.run_number }}
+            RANDOM_SUFFIX=$(shuf -i 1000-9999 -n 1)
+            VERSION="1.0.${TIMESTAMP}.${RUN_NUMBER}.${RANDOM_SUFFIX}"
             BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           else
             VERSION=$(jq -r '.version' website/version.json)
@@ -194,10 +198,19 @@ jobs:
           # Create a simple tag instead of a full release
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a "v${{ steps.release-info.outputs.version }}" -m "Release ${{ steps.release-info.outputs.version }}"
-          git push origin "v${{ steps.release-info.outputs.version }}"
-            
-          echo "✅ GitHub tag created: v${{ steps.release-info.outputs.version }}"
+          
+          TAG_NAME="v${{ steps.release-info.outputs.version }}"
+          
+          # Check if tag already exists
+          if git tag -l | grep -q "^${TAG_NAME}$"; then
+            echo "⚠️ Tag ${TAG_NAME} already exists, skipping tag creation"
+            echo "✅ Using existing tag: ${TAG_NAME}"
+          else
+            echo "📦 Creating new tag: ${TAG_NAME}"
+            git tag -a "${TAG_NAME}" -m "Release ${{ steps.release-info.outputs.version }}"
+            git push origin "${TAG_NAME}"
+            echo "✅ GitHub tag created: ${TAG_NAME}"
+          fi
           
       - name: Update version.json
         run: |
