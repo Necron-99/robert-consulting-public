@@ -2,7 +2,7 @@
   "version": "1.0.1759101987",
   "build": "2025-09-28T23:26:27Z",
   "release": "{{GITHUB_RELEASE_STATUS}}",
-  "commit": "4f7e7be492818f278057c830447944de09706b58",
+  "commit": "01c5b504a30c0a0f2f5109b8816c07354aec1313",
   "branch": "main",
   "workflow": "{{GITHUB_WORKFLOW}}",
   "run_id": "{{GITHUB_RUN_ID}}",
