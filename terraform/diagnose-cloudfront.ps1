@@ -149,3 +149,4 @@ Write-Host ""
 Write-Host "🔍 To check S3 website configuration:" -ForegroundColor Cyan
 Write-Host "aws s3api get-bucket-website --bucket $bucketName" -ForegroundColor Gray
 
+

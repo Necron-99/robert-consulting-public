@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "version": "1.0.1759101987",
   "build": "2025-09-28T23:26:27Z",
@@ -58,3 +59,65 @@
     "security": "Monitored"
   }
 }
+=======
+{
+  "version": "1.0.1759101987",
+  "build": "2025-09-28T23:26:27Z",
+  "release": "{{GITHUB_RELEASE_STATUS}}",
+  "commit": "4f7e7be492818f278057c830447944de09706b58",
+  "branch": "main",
+  "workflow": "{{GITHUB_WORKFLOW}}",
+  "run_id": "{{GITHUB_RUN_ID}}",
+  "run_number": "{{GITHUB_RUN_NUMBER}}",
+  "actor": "Necron-99",
+  "repository": "{{GITHUB_REPOSITORY}}",
+  "event_name": "{{GITHUB_EVENT_NAME}}",
+  "security": {
+    "status": "{{GITHUB_SECURITY_STATUS}}",
+    "dependencies": "{{GITHUB_DEPENDENCIES_STATUS}}",
+    "vulnerabilities": "{{GITHUB_VULNERABILITIES_COUNT}}",
+    "critical": "{{GITHUB_CRITICAL_VULNERABILITIES}}",
+    "high": "{{GITHUB_HIGH_VULNERABILITIES}}",
+    "medium": "{{GITHUB_MEDIUM_VULNERABILITIES}}",
+    "low": "{{GITHUB_LOW_VULNERABILITIES}}",
+    "last_scan": "{{GITHUB_SECURITY_LAST_SCAN}}",
+    "scan_duration": "{{GITHUB_SCAN_DURATION}}",
+    "secrets_found": "{{GITHUB_SECRETS_FOUND}}",
+    "cdn_issues": "{{GITHUB_CDN_ISSUES}}"
+  },
+  "changelog": [
+    {
+      "version": "{{GITHUB_VERSION}}",
+      "date": "{{GITHUB_BUILD_DATE}}",
+      "commit": "{{GITHUB_SHA}}",
+      "changes": [
+        "Automated deployment with GitHub Actions",
+        "Dynamic version information from CI/CD pipeline",
+        "Enhanced security monitoring and reporting",
+        "Automated CloudFront cache invalidation",
+        "Continuous integration and deployment"
+      ]
+    }
+  ],
+  "features": [
+    "Responsive design",
+    "Modern UI/UX",
+    "Contact form",
+    "Professional experience timeline",
+    "Service portfolio",
+    "Performance optimized",
+    "Automated deployments",
+    "Security monitoring",
+    "Cache invalidation"
+  ],
+  "technical": {
+    "framework": "Vanilla HTML/CSS/JS",
+    "responsive": true,
+    "seo_optimized": true,
+    "performance_optimized": true,
+    "ci_cd": "GitHub Actions",
+    "deployment": "Automated",
+    "security": "Monitored"
+  }
+}
+>>>>>>> a5db33b (Lots of changes.)

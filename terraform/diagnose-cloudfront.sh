@@ -136,3 +136,4 @@ echo ""
 echo "🔍 To check S3 website configuration:"
 echo "aws s3api get-bucket-website --bucket $BUCKET_NAME"
 
+
