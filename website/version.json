@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   "version": "1.0.1759101987",
   "build": "2025-09-28T23:26:27Z",
@@ -60,6 +61,8 @@
   }
 }
 =======
+=======
+>>>>>>> a5db33b (Lots of changes.)
 {
   "version": "1.0.1759101987",
   "build": "2025-09-28T23:26:27Z",
@@ -120,4 +123,7 @@
     "security": "Monitored"
   }
 }
+<<<<<<< HEAD
+>>>>>>> a5db33b (Lots of changes.)
+=======
 >>>>>>> a5db33b (Lots of changes.)

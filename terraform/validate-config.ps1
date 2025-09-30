@@ -68,4 +68,7 @@ Write-Host "   ./update-current-cloudfront.sh" -ForegroundColor Gray
 Write-Host ""
 Write-Host "✅ Terraform configuration is valid!" -ForegroundColor Green
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a5db33b (Lots of changes.)

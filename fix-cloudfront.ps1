@@ -32,4 +32,7 @@ Write-Host "aws cloudfront update-distribution --id E36DBYPHUUKB3V --distributio
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a5db33b (Lots of changes.)
