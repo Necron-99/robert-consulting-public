@@ -18,6 +18,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Additional provider for ACM certificates in us-east-1
+# CloudFront requires certificates to be in us-east-1 region
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+  
+  default_tags {
+    tags = {
+      Environment = "Production"
+      ManagedBy   = "Terraform"
+      Project     = "Robert Consulting Website"
+    }
+  }
+}
+
 # S3 bucket for Terraform state storage
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "robert-consulting-terraform-state"

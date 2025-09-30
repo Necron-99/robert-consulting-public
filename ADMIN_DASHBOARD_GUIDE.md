@@ -9,9 +9,9 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 ## Access Information
 
 ### URL
-- **Statistics Dashboard**: `https://robert-consulting.net/stats.html`
-- **Full Dashboard**: `https://robert-consulting.net/dashboard.html`
-- **Main Site**: `https://robert-consulting.net/index.html`
+- **Statistics Dashboard**: `https://robertconsulting.net/stats.html`
+- **Full Dashboard**: `https://robertconsulting.net/dashboard.html`
+- **Main Site**: `https://robertconsulting.net/index.html`
 
 ### Authentication
 - **Access**: Authorized users only
@@ -94,7 +94,7 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 ## Usage Instructions
 
 ### 1. Accessing the Dashboard
-1. Navigate to `https://robert-consulting.net/stats.html` (simple) or `https://robert-consulting.net/dashboard.html` (full-featured)
+1. Navigate to `https://robertconsulting.net/stats.html` (simple) or `https://robertconsulting.net/dashboard.html` (full-featured)
 2. Enter authorized credentials
 3. Click "Login"
 
@@ -132,7 +132,7 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 ### Common Issues
 
 1. **Cannot Access Dashboard**
-   - Check URL: `https://robert-consulting.net/stats.html` or `https://robert-consulting.net/dashboard.html`
+   - Check URL: `https://robertconsulting.net/stats.html` or `https://robertconsulting.net/dashboard.html`
    - Verify you have authorized credentials
    - Contact administrator if access is needed
    - Clear browser cache and try again
@@ -186,9 +186,9 @@ The admin dashboard provides comprehensive site statistics, performance metrics,
 ## Support
 
 For technical support or questions about the admin dashboard:
-- **Email**: robert@robert-consulting.net
+- **Email**: robert@robertconsulting.net
 - **Phone**: (434) 227-8323
-- **Website**: https://robert-consulting.net
+- **Website**: https://robertconsulting.net
 
 ## Version Information
 
