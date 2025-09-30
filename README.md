@@ -143,7 +143,7 @@ Consider adding:
 
 For questions or issues:
 
-- Email: robert@robert-consulting.net
+- Email: robert@robertconsulting.net
 - Create an issue in the GitHub repository
 
 ## 📄 License

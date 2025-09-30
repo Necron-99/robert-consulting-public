@@ -101,7 +101,7 @@ resource "aws_cloudfront_distribution" "website" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "S3-${aws_s3_bucket.website_bucket.bucket}"
     compress               = true
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "allow-all"
 
     forwarded_values {
       query_string = false
@@ -126,6 +126,8 @@ resource "aws_cloudfront_distribution" "website" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  # aliases = ["robertconsulting.net", "www.robertconsulting.net"]  # Commented out until certificate is validated
   
   tags = {
     Name        = "Robert Consulting Website CDN"

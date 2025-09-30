@@ -58,7 +58,7 @@ Accurate professional history:
 - **2011-2014**: Linux Platform Engineer, FireEye/nPulse Technologies
 
 ### 6. Contact Information
-- **Email**: robert@robert-consulting.net (professional)
+- **Email**: robert@robertconsulting.net (professional)
 - **Phone**: "Available upon request" (PII protection)
 - **Location**: "Remote & On-site Available" (PII protection)
 - **Service Areas**: Federal and enterprise clients

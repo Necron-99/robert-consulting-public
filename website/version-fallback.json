@@ -8,7 +8,7 @@
   "run_id": "local-1",
   "run_number": "1",
   "actor": "local-user",
-  "repository": "robert-consulting.net",
+  "repository": "robertconsulting.net",
   "event_name": "local",
   "security": {
     "status": "secure",

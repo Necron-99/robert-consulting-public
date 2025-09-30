@@ -33,12 +33,12 @@ website/
 ## 🌐 Production URLs
 
 ### Public Website
-- **Main Site**: `https://robert-consulting.net/index.html`
-- **Error Page**: `https://robert-consulting.net/error.html`
+- **Main Site**: `https://robertconsulting.net/index.html`
+- **Error Page**: `https://robertconsulting.net/error.html`
 
 ### Protected Dashboards
-- **Simple Stats**: `https://robert-consulting.net/stats.html`
-- **Full Dashboard**: `https://robert-consulting.net/dashboard.html`
+- **Simple Stats**: `https://robertconsulting.net/stats.html`
+- **Full Dashboard**: `https://robertconsulting.net/dashboard.html`
 
 ### Authentication
 - **Username**: `admin`
