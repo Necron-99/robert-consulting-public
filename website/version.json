@@ -1,6 +1,6 @@
 {
   "version": "1.0.1759101987",
-  "build": "2025-10-01T18:06:43Z",
+  "build": "2024-12-19T18:06:43Z",
   "release": "{{GITHUB_RELEASE_STATUS}}",
   "commit": "4f7e7be492818f278057c830447944de09706b58",
   "branch": "main",

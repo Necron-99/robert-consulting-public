@@ -262,7 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (buildDisplay) {
-                buildDisplay.textContent = `Build ${data.build}`;
+                // Format the build date properly
+                let buildDate = data.build;
+                if (buildDate.includes('T')) {
+                    // If it's an ISO timestamp, extract just the date part
+                    buildDate = buildDate.split('T')[0];
+                }
+                buildDisplay.textContent = `Build ${buildDate}`;
             }
             
             // Enhanced version info with security status
@@ -286,6 +292,26 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.warn('Could not load version information:', error);
+            // Try to load fallback version information
+            fetch('version-fallback.json')
+                .then(response => response.json())
+                .then(fallbackData => {
+                    const versionDisplay = document.getElementById('version-display');
+                    const buildDisplay = document.getElementById('build-display');
+                    
+                    if (versionDisplay) {
+                        versionDisplay.textContent = `v${fallbackData.version}`;
+                    }
+                    
+                    if (buildDisplay) {
+                        buildDisplay.textContent = `Build ${fallbackData.build}`;
+                    }
+                    
+                    console.log('Using fallback version information');
+                })
+                .catch(fallbackError => {
+                    console.error('Could not load fallback version information:', fallbackError);
+                });
         });
 });
 
