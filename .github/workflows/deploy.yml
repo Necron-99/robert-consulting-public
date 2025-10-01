@@ -225,7 +225,7 @@ jobs:
         echo "🚀 Deploying website files to S3..."
         
         # Set CloudFront distribution ID
-        export CLOUDFRONT_DISTRIBUTION_ID=E36DBYPHUUKB3V
+        export CLOUDFRONT_DISTRIBUTION_ID=E3HUVB85SPZFHO
         BUCKET_NAME="robert-consulting-website"
         
         # Navigate to website directory and sync only website files
@@ -247,7 +247,7 @@ jobs:
         
         # Create CloudFront invalidation
         INVALIDATION_ID=$(aws cloudfront create-invalidation \
-          --distribution-id E36DBYPHUUKB3V \
+          --distribution-id E3HUVB85SPZFHO \
           --paths "/*" \
           --query 'Invalidation.Id' \
           --output text)
@@ -261,7 +261,7 @@ jobs:
         
         while true; do
           STATUS=$(aws cloudfront get-invalidation \
-            --distribution-id E36DBYPHUUKB3V \
+            --distribution-id E3HUVB85SPZFHO \
             --id $INVALIDATION_ID \
             --query 'Invalidation.Status' \
             --output text)

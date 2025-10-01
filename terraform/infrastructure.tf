@@ -124,12 +124,10 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.wildcard.arn
-    ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
+    cloudfront_default_certificate = true
   }
 
-  aliases = ["robertconsulting.net", "www.robertconsulting.net"]
+  # aliases = ["robertconsulting.net", "www.robertconsulting.net"]  # Commented out until certificate is validated
   
   tags = {
     Name        = "Robert Consulting Website CDN"
