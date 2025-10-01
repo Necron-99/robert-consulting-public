@@ -220,11 +220,36 @@ jobs:
     - name: Make deployment script executable
       run: chmod +x website/deploy-website.sh
       
-    - name: Deploy Website (Decoupled)
+    - name: Deploy Website (Direct)
       run: |
-        cd website
+        echo "🚀 Deploying website files to S3..."
+        
+        # Set CloudFront distribution ID
         export CLOUDFRONT_DISTRIBUTION_ID=E3HUVB85SPZFHO
-        ./deploy-website.sh deploy
+        BUCKET_NAME="robert-consulting-website"
+        
+        # Sync files to S3
+        aws s3 sync . s3://$BUCKET_NAME --delete --exclude "*.sh" --exclude "*.ps1" --exclude "testing/*"
+        
+        # Set proper content types
+        aws s3 cp s3://$BUCKET_NAME/index.html s3://$BUCKET_NAME/index.html --content-type "text/html" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/styles.css s3://$BUCKET_NAME/styles.css --content-type "text/css" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/script.js s3://$BUCKET_NAME/script.js --content-type "application/javascript" --metadata-directive REPLACE
+        
+        echo "✅ Website files deployed to S3"
+        
+    - name: Invalidate CloudFront Cache
+      run: |
+        echo "🔄 Invalidating CloudFront cache..."
+        
+        # Create CloudFront invalidation
+        INVALIDATION_ID=$(aws cloudfront create-invalidation \
+          --distribution-id E3HUVB85SPZFHO \
+          --paths "/*" \
+          --query 'Invalidation.Id' \
+          --output text)
+        
+        echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
         
     - name: Wait for Invalidation (Optional)
       if: ${{ github.event.inputs.wait_for_completion == 'true' }}
