@@ -228,7 +228,10 @@ jobs:
         export CLOUDFRONT_DISTRIBUTION_ID=E3HUVB85SPZFHO
         BUCKET_NAME="robert-consulting-website"
         
-        # Sync files to S3
+        # Navigate to website directory and sync only website files
+        cd website
+        
+        # Sync website files to S3 (excluding scripts and testing)
         aws s3 sync . s3://$BUCKET_NAME --delete --exclude "*.sh" --exclude "*.ps1" --exclude "testing/*"
         
         # Set proper content types
