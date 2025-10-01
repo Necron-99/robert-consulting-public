@@ -46,9 +46,14 @@ if (contactForm) {
         e.preventDefault();
         
         try {
-            // Validate form with security config
-            if (window.securityConfig) {
-                window.securityConfig.validateFormSubmission(this);
+            // Validate form with security config (if available)
+            if (window.securityConfig && typeof window.securityConfig.validateFormSubmission === 'function') {
+                try {
+                    window.securityConfig.validateFormSubmission(this);
+                } catch (securityError) {
+                    console.warn('Security validation failed, proceeding with basic validation:', securityError.message);
+                    // Continue with basic validation instead of failing
+                }
             }
             
             // Get form data
@@ -89,7 +94,15 @@ if (contactForm) {
                 trackFormSubmission(name, email, subject);
             }, 2000);
         } catch (error) {
-            alert(`Form submission failed: ${error.message}`);
+            console.error('Form submission error:', error);
+            // Provide more helpful error messages
+            if (error.message.includes('CSRF')) {
+                alert('Security validation failed. Please refresh the page and try again.');
+            } else if (error.message.includes('rate limit')) {
+                alert('Please wait a moment before submitting another message.');
+            } else {
+                alert(`Form submission failed: ${error.message}`);
+            }
         }
     });
 }

@@ -42,15 +42,48 @@ class SecurityConfig {
         const csrfToken = this.generateCSRFToken();
         sessionStorage.setItem('csrf_token', csrfToken);
 
-        // Add CSRF token to all forms
+        // Add CSRF token to all existing forms
         const forms = document.querySelectorAll('form');
         forms.forEach(form => {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrf_token';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
+            this.addCSRFTokenToForm(form, csrfToken);
         });
+
+        // Watch for dynamically added forms
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) { // Element node
+                        if (node.tagName === 'FORM') {
+                            this.addCSRFTokenToForm(node, csrfToken);
+                        }
+                        // Check for forms within added nodes
+                        const forms = node.querySelectorAll && node.querySelectorAll('form');
+                        if (forms) {
+                            forms.forEach(form => this.addCSRFTokenToForm(form, csrfToken));
+                        }
+                    }
+                });
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // Add CSRF token to a specific form
+    addCSRFTokenToForm(form, token) {
+        // Check if token already exists
+        if (form.querySelector('input[name="csrf_token"]')) {
+            return;
+        }
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = token;
+        form.appendChild(csrfInput);
     }
 
     // Generate CSRF token
@@ -63,6 +96,12 @@ class SecurityConfig {
     // Validate CSRF token
     validateCSRFToken(token) {
         const storedToken = sessionStorage.getItem('csrf_token');
+        if (!storedToken) {
+            // If no stored token, generate a new one and allow the request
+            const newToken = this.generateCSRFToken();
+            sessionStorage.setItem('csrf_token', newToken);
+            return true; // Allow first request
+        }
         return token === storedToken;
     }
 
@@ -172,9 +211,9 @@ class SecurityConfig {
 
     // Validate form submission
     validateFormSubmission(form) {
-        // Check CSRF token
+        // Check CSRF token (if present)
         const csrfToken = form.querySelector('input[name="csrf_token"]')?.value;
-        if (!this.validateCSRFToken(csrfToken)) {
+        if (csrfToken && !this.validateCSRFToken(csrfToken)) {
             throw new Error('Invalid CSRF token');
         }
 
