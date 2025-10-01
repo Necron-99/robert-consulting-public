@@ -8,7 +8,7 @@
   "run_id": "123456789",
   "run_number": "42",
   "actor": "Necron-99",
-  "repository": "Necron-99/robert-consulting.net",
+  "repository": "Necron-99/robertconsulting.net",
   "event_name": "push",
   "security": {
     "status": "secure",
