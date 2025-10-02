@@ -241,23 +241,37 @@ jobs:
         
         echo "✅ Website files deployed to S3"
         
-    - name: Invalidate CloudFront Cache
+    - name: Invalidate CloudFront Cache (Always for Production)
       run: |
-        echo "🔄 Invalidating CloudFront cache..."
+        echo "🔄 Invalidating CloudFront cache for production deployment..."
+        echo "📋 Distribution ID: E3HUVB85SPZFHO"
+        echo "📋 Paths: /* (all content)"
         
-        # Create CloudFront invalidation
+        # Always create CloudFront invalidation for production deployments
+        set -e  # Exit on any error
+        
         INVALIDATION_ID=$(aws cloudfront create-invalidation \
           --distribution-id E3HUVB85SPZFHO \
           --paths "/*" \
           --query 'Invalidation.Id' \
           --output text)
         
-        echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
+        if [ -z "$INVALIDATION_ID" ]; then
+          echo "❌ Failed to create CloudFront invalidation"
+          exit 1
+        fi
+        
+        echo "✅ CloudFront invalidation created successfully: $INVALIDATION_ID"
+        echo "🌐 Cache invalidation will propagate globally within 15-20 minutes"
+        
+        # Store invalidation ID for potential use in subsequent steps
+        echo "INVALIDATION_ID=$INVALIDATION_ID" >> $GITHUB_ENV
         
     - name: Wait for Invalidation (Optional)
       if: ${{ github.event.inputs.wait_for_completion == 'true' }}
       run: |
         echo "⏳ Waiting for CloudFront invalidation to complete..."
+        echo "📋 Invalidation ID: $INVALIDATION_ID"
         
         while true; do
           STATUS=$(aws cloudfront get-invalidation \
@@ -284,22 +298,16 @@ jobs:
         
     - name: Deployment Summary
       run: |
-        echo "🎉 Deployment completed successfully!"
+        echo "🎉 Production Deployment Complete!"
+        echo "=================================="
+        echo "📦 S3 Bucket: robert-consulting-website"
+        echo "🌐 CloudFront Distribution: E3HUVB85SPZFHO"
+        echo "🔄 Cache Invalidation: $INVALIDATION_ID"
+        echo "⏰ Deployment Time: $(date -u)"
         echo ""
-        echo "🌐 Website URLs:"
-        echo "  Main Site: https://robertconsulting.net/index.html"
-        echo "  Learning: https://robertconsulting.net/learning.html"
-        echo "  Stats: https://robertconsulting.net/stats.html"
-        echo "  Dashboard: https://robertconsulting.net/dashboard.html"
-        echo ""
-        echo "📊 CloudFront Distribution:"
-        echo "  Domain: d24d7iql53878z.cloudfront.net"
-        echo "  Status: Cache invalidation in progress"
-        echo ""
-        echo "💡 Tips:"
-        echo "  - Use Ctrl+F5 or Cmd+Shift+R to force refresh"
-        echo "  - Try incognito/private mode if changes aren't visible"
-        echo "  - Changes may take 5-15 minutes to appear globally"
+        echo "🌍 Your website is now live with fresh content!"
+        echo "📝 Cache invalidation will complete within 15-20 minutes globally"
+        
         
     - name: Deploy to Testing Site
       run: |
