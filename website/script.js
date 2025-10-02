@@ -76,23 +76,47 @@ if (contactForm) {
                 return;
             }
             
-            // Simulate form submission
+            // Send form data to API
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
             
-            // Simulate API call
-            setTimeout(() => {
-                alert('Thank you for your message! I\'ll get back to you soon.');
-                this.reset();
+            try {
+                // Send to contact form API
+                const response = await fetch('https://aexfhmgxng.execute-api.us-east-1.amazonaws.com/prod/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        subject: subject,
+                        message: message
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Thank you for your message! I\'ll get back to you soon.');
+                    this.reset();
+                    
+                    // Track successful form submission
+                    trackFormSubmission(name, email, subject);
+                } else {
+                    throw new Error(result.error || 'Failed to send message');
+                }
+                
+            } catch (error) {
+                console.error('Form submission error:', error);
+                alert('Sorry, there was an error sending your message. Please try again or contact me directly at info@robertconsulting.net');
+            } finally {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
-                
-                // Track form submission for analytics
-                trackFormSubmission(name, email, subject);
-            }, 2000);
+            }
         } catch (error) {
             console.error('Form submission error:', error);
             // Provide more helpful error messages
@@ -264,7 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Version management and display
 document.addEventListener('DOMContentLoaded', () => {
     // Load version information
-    fetch('version.json')
+    const cacheBust = `?t=${Date.now()}`;
+    fetch(`version.json${cacheBust}`)
         .then(response => response.json())
         .then(data => {
             const versionDisplay = document.getElementById('version-display');
@@ -299,8 +324,49 @@ document.addEventListener('DOMContentLoaded', () => {
             // Display security status in footer if available
             const securityStatus = document.getElementById('security-status');
             if (securityStatus && data.security) {
-                const statusColor = data.security.status === 'secure' ? '#38a169' : '#e53e3e';
-                securityStatus.innerHTML = `<span style="color: ${statusColor};">🔒 ${data.security.status}</span>`;
+                let statusColor = '#38a169'; // Default green for secure
+                let statusIcon = '🔒';
+                let statusText = data.security.status;
+                
+                // Set color and icon based on security status
+                switch (data.security.status) {
+                    case 'secure':
+                        statusColor = '#38a169';
+                        statusIcon = '🔒';
+                        statusText = 'secure';
+                        break;
+                    case 'critical-vulnerabilities':
+                        statusColor = '#e53e3e';
+                        statusIcon = '🚨';
+                        statusText = 'critical';
+                        break;
+                    case 'high-vulnerabilities':
+                        statusColor = '#dd6b20';
+                        statusIcon = '⚠️';
+                        statusText = 'high risk';
+                        break;
+                    case 'medium-vulnerabilities':
+                        statusColor = '#d69e2e';
+                        statusIcon = '⚠️';
+                        statusText = 'medium risk';
+                        break;
+                    case 'low-vulnerabilities':
+                        statusColor = '#38a169';
+                        statusIcon = '🔒';
+                        statusText = 'low risk';
+                        break;
+                    case 'security-issues-detected':
+                        statusColor = '#dd6b20';
+                        statusIcon = '🔍';
+                        statusText = 'issues found';
+                        break;
+                    default:
+                        statusColor = '#4a5568';
+                        statusIcon = '❓';
+                        statusText = data.security.status;
+                }
+                
+                securityStatus.innerHTML = `<span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${statusText}</span>`;
             }
         })
         .catch(error => {

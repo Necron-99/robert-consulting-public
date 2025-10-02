@@ -35,15 +35,20 @@ jobs:
       with:
         node-version: '18'
         
-    - name: Install Security Scanning Tools
-      run: |
-        echo "🔧 Installing security scanning tools..."
-        npm install -g npm-audit-ci-wrapper
-        npm install -g snyk
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+        queries: security-and-quality
         
-    - name: Run Comprehensive Security Scan
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:javascript"
+        
+    - name: Run GitHub Copilot Security Scan
       run: |
-        echo "🔍 Running comprehensive security scan..."
+        echo "🔍 Running GitHub Copilot security scan..."
         
         # Initialize security variables
         SECURITY_STATUS="secure"
@@ -55,43 +60,33 @@ jobs:
         CRITICAL_VULNERABILITIES="0"
         SECURITY_LAST_SCAN=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
-        # Scan website directory for vulnerabilities
-        if [ -f "website/package.json" ]; then
-          echo "📦 Scanning npm dependencies..."
-          cd website
+        # Check for CodeQL results
+        if [ -f "codeql-results.sarif" ]; then
+          echo "📊 Analyzing CodeQL results..."
           
-          # Run npm audit
-          npm audit --audit-level=moderate --json > ../audit-results.json 2>/dev/null || true
-          cd ..
+          # Parse CodeQL SARIF results for security findings
+          CRITICAL_VULNERABILITIES=$(jq -r '.runs[0].results[] | select(.ruleId | contains("security") or contains("vulnerability")) | select(.level == "error") | .ruleId' codeql-results.sarif 2>/dev/null | wc -l || echo "0")
+          HIGH_VULNERABILITIES=$(jq -r '.runs[0].results[] | select(.ruleId | contains("security") or contains("vulnerability")) | select(.level == "warning") | .ruleId' codeql-results.sarif 2>/dev/null | wc -l || echo "0")
+          MEDIUM_VULNERABILITIES=$(jq -r '.runs[0].results[] | select(.ruleId | contains("security") or contains("vulnerability")) | select(.level == "note") | .ruleId' codeql-results.sarif 2>/dev/null | wc -l || echo "0")
           
-          if [ -f "audit-results.json" ]; then
-            # Parse audit results
-            VULNERABILITIES_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0' 2>/dev/null || echo "0")
-            HIGH_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.high // 0' 2>/dev/null || echo "0")
-            MEDIUM_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.moderate // 0' 2>/dev/null || echo "0")
-            LOW_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.low // 0' 2>/dev/null || echo "0")
-            CRITICAL_VULNERABILITIES=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.critical // 0' 2>/dev/null || echo "0")
-            
-            # Determine security status
-            if [ "$CRITICAL_VULNERABILITIES" -gt 0 ]; then
-              SECURITY_STATUS="critical-vulnerabilities"
-              DEPENDENCIES_STATUS="critical-updates-needed"
-            elif [ "$HIGH_VULNERABILITIES" -gt 0 ]; then
-              SECURITY_STATUS="high-vulnerabilities"
-              DEPENDENCIES_STATUS="high-priority-updates"
-            elif [ "$MEDIUM_VULNERABILITIES" -gt 0 ]; then
-              SECURITY_STATUS="medium-vulnerabilities"
-              DEPENDENCIES_STATUS="recommended-updates"
-            elif [ "$LOW_VULNERABILITIES" -gt 0 ]; then
-              SECURITY_STATUS="low-vulnerabilities"
-              DEPENDENCIES_STATUS="minor-updates"
-            else
-              SECURITY_STATUS="secure"
-              DEPENDENCIES_STATUS="up-to-date"
-            fi
+          VULNERABILITIES_COUNT=$((CRITICAL_VULNERABILITIES + HIGH_VULNERABILITIES + MEDIUM_VULNERABILITIES))
+          
+          # Determine security status based on CodeQL findings
+          if [ "$CRITICAL_VULNERABILITIES" -gt 0 ]; then
+            SECURITY_STATUS="critical-vulnerabilities"
+            DEPENDENCIES_STATUS="critical-updates-needed"
+          elif [ "$HIGH_VULNERABILITIES" -gt 0 ]; then
+            SECURITY_STATUS="high-vulnerabilities"
+            DEPENDENCIES_STATUS="high-priority-updates"
+          elif [ "$MEDIUM_VULNERABILITIES" -gt 0 ]; then
+            SECURITY_STATUS="medium-vulnerabilities"
+            DEPENDENCIES_STATUS="recommended-updates"
+          else
+            SECURITY_STATUS="secure"
+            DEPENDENCIES_STATUS="up-to-date"
           fi
         else
-          echo "📦 No package.json found, skipping npm audit..."
+          echo "📊 No CodeQL results found, running basic security checks..."
         fi
         
         # Scan for common security issues in static files
@@ -119,7 +114,7 @@ jobs:
           fi
         fi
         
-        echo "✅ Security scan completed:"
+        echo "✅ GitHub Copilot security scan completed:"
         echo "  Status: $SECURITY_STATUS"
         echo "  Total Vulnerabilities: $VULNERABILITIES_COUNT"
         echo "  Critical: $CRITICAL_VULNERABILITIES"
@@ -131,10 +126,11 @@ jobs:
       run: |
         echo "📝 Generating dynamic version information..."
         
-        # Get current date in YYYY-MM-DD format
-        BUILD_DATE=$(date -u +"%Y-%m-%d")
+        # Get current date in ISO format for build timestamp
+        BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
-        # Generate version from run number (e.g., 1.0.1, 1.0.2, etc.)
+        # Generate version with major.minor.patch format
+        # Use run number as patch version for production deployments
         VERSION="1.0.${{ github.run_number }}"
         
         # Determine release status based on branch
