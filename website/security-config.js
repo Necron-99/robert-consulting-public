@@ -138,10 +138,10 @@ class SecurityConfig {
 
     // Setup input validation
     setupInputValidation() {
-        // Sanitize all inputs
+        // Sanitize inputs only on blur (when user finishes typing)
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.addEventListener('input', (e) => {
+            input.addEventListener('blur', (e) => {
                 this.sanitizeInput(e.target);
             });
         });
@@ -151,15 +151,22 @@ class SecurityConfig {
     sanitizeInput(input) {
         const value = input.value;
         
-        // Remove potentially dangerous characters
-        const sanitized = value
-            .replace(/[<>]/g, '') // Remove < and >
-            .replace(/javascript:/gi, '') // Remove javascript: protocol
-            .replace(/on\w+=/gi, '') // Remove event handlers
-            .trim();
-        
-        if (sanitized !== value) {
-            input.value = sanitized;
+        // Only sanitize if the input contains potentially dangerous content
+        // Don't sanitize normal text input including spaces
+        if (value.includes('<') || value.includes('>') || 
+            value.toLowerCase().includes('javascript:') || 
+            /on\w+=/gi.test(value)) {
+            
+            // Remove potentially dangerous characters
+            const sanitized = value
+                .replace(/[<>]/g, '') // Remove < and > 
+                .replace(/javascript:/gi, '') // Remove javascript: protocol
+                .replace(/on\w+=/gi, '') // Remove event handlers
+                .trim();
+            
+            if (sanitized !== value) {
+                input.value = sanitized;
+            }
         }
     }
 
