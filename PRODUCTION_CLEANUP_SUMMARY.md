@@ -42,7 +42,7 @@ website/
 
 ### Authentication
 - **Username**: `admin`
-- **Password**: `CHEQZvqKHsh9EyKv4ict`
+- **Password**: `[REDACTED - Use environment variables]`
 
 ## 🔒 Security Features
 
