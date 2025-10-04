@@ -1,63 +1,62 @@
-// AWS Monitoring Dashboard Script
-// Real-time monitoring of AWS costs and service health
+/**
+ * AWS Monitoring Dashboard Script
+ * Handles real-time data updates and interactive functionality
+ */
 
-class AWSMonitoringDashboard {
+class MonitoringDashboard {
     constructor() {
-        this.costData = {};
-        this.healthData = {};
-        this.performanceData = {};
-        this.alerts = [];
-        this.refreshInterval = 30000; // 30 seconds
-        this.isRefreshing = false;
+        this.refreshInterval = null;
+        this.isLoading = false;
+        this.lastUpdate = null;
         
         this.init();
     }
-    
+
+    /**
+     * Initialize the monitoring dashboard
+     */
     init() {
         console.log('🚀 Initializing AWS Monitoring Dashboard...');
         
-        // Set up event listeners
-        this.setupEventListeners();
+        // Bind event listeners
+        this.bindEventListeners();
         
         // Load initial data
-        this.loadCostData();
-        this.loadHealthData();
-        this.loadPerformanceData();
+        this.loadInitialData();
         
         // Set up auto-refresh
         this.setupAutoRefresh();
         
-        // Update last updated time
-        this.updateLastUpdated();
-        
-        console.log('✅ AWS Monitoring Dashboard initialized');
+        console.log('✅ Monitoring Dashboard initialized');
     }
-    
-    setupEventListeners() {
+
+    /**
+     * Bind event listeners
+     */
+    bindEventListeners() {
         // Refresh buttons
-        document.getElementById('refresh-costs').addEventListener('click', () => {
-            this.loadCostData();
+        const refreshButtons = document.querySelectorAll('[id^="refresh-"]');
+        refreshButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const section = e.target.id.replace('refresh-', '');
+                this.refreshSection(section);
+            });
         });
-        
-        document.getElementById('refresh-health').addEventListener('click', () => {
-            this.loadHealthData();
-        });
-        
-        document.getElementById('refresh-performance').addEventListener('click', () => {
-            this.loadPerformanceData();
-        });
+
+        // Global refresh
+        const globalRefresh = document.getElementById('global-refresh');
+        if (globalRefresh) {
+            globalRefresh.addEventListener('click', () => {
+                this.refreshAllSections();
+            });
+        }
     }
-    
-    setupAutoRefresh() {
-        setInterval(() => {
-            if (!this.isRefreshing) {
-                this.refreshAllData();
-            }
-        }, this.refreshInterval);
-    }
-    
-    async refreshAllData() {
-        this.isRefreshing = true;
+
+    /**
+     * Load initial data
+     */
+    async loadInitialData() {
+        console.log('📊 Loading initial monitoring data...');
         
         try {
             await Promise.all([
@@ -67,348 +66,288 @@ class AWSMonitoringDashboard {
             ]);
             
             this.updateLastUpdated();
+            console.log('✅ Initial data loaded successfully');
         } catch (error) {
-            console.error('Error refreshing data:', error);
-        } finally {
-            this.isRefreshing = false;
+            console.error('❌ Failed to load initial data:', error);
+            this.showError('Failed to load monitoring data');
         }
     }
-    
+
+    /**
+     * Load cost monitoring data
+     */
     async loadCostData() {
-        try {
-            console.log('💰 Loading cost data...');
-            
-            // Simulate API call to AWS Cost Explorer
-            // In a real implementation, this would call your backend API
-            const costData = await this.fetchCostData();
-            
-            this.costData = costData;
-            this.updateCostDisplay();
-            this.updateCostAlerts();
-            
-            console.log('✅ Cost data loaded successfully');
-        } catch (error) {
-            console.error('❌ Error loading cost data:', error);
-            this.showError('Failed to load cost data');
-        }
+        // Simulate API call - replace with actual AWS Cost Explorer API
+        const costData = {
+            totalMonthly: 45.67,
+            s3Cost: 12.34,
+            cloudfrontCost: 8.90,
+            lambdaCost: 2.45,
+            route53Cost: 0.50,
+            sesCost: 0.00,
+            otherCost: 21.48,
+            trend: '+5.2%'
+        };
+
+        // Update cost displays
+        this.updateElement('total-cost', `$${costData.totalMonthly.toFixed(2)}`);
+        this.updateElement('total-monthly-cost', `$${costData.totalMonthly.toFixed(2)}`);
+        this.updateElement('cost-trend', costData.trend);
+        
+        this.updateElement('s3-cost', `$${costData.s3Cost.toFixed(2)}`);
+        this.updateElement('s3-storage', '2.5 GB');
+        this.updateElement('s3-objects', '1,234');
+        
+        this.updateElement('cloudfront-cost', `$${costData.cloudfrontCost.toFixed(2)}`);
+        this.updateElement('cloudfront-requests', '45,678');
+        this.updateElement('cloudfront-bandwidth', '2.1 GB');
+        
+        this.updateElement('lambda-cost', `$${costData.lambdaCost.toFixed(2)}`);
+        this.updateElement('lambda-invocations', '1,234');
+        this.updateElement('lambda-duration', '2.5s');
+        
+        this.updateElement('route53-cost', `$${costData.route53Cost.toFixed(2)}`);
+        this.updateElement('route53-queries', '5,678');
+        this.updateElement('route53-health-checks', '3');
+        
+        this.updateElement('ses-cost', `$${costData.sesCost.toFixed(2)}`);
+        this.updateElement('ses-emails', '0');
+        this.updateElement('ses-bounces', '0');
     }
-    
+
+    /**
+     * Load health monitoring data
+     */
     async loadHealthData() {
-        try {
-            console.log('🏥 Loading health data...');
-            
-            // Simulate API call to AWS CloudWatch
-            const healthData = await this.fetchHealthData();
-            
-            this.healthData = healthData;
-            this.updateHealthDisplay();
-            
-            console.log('✅ Health data loaded successfully');
-        } catch (error) {
-            console.error('❌ Error loading health data:', error);
-            this.showError('Failed to load health data');
-        }
+        // Simulate health checks - replace with actual AWS health checks
+        const healthData = {
+            s3: { status: 'healthy', requests: '99.9%', errors: '0.1%' },
+            cloudfront: { status: 'healthy', cacheHit: '85%', errors: '0.2%' },
+            lambda: { status: 'healthy', invocations: '100%', errors: '0%' },
+            route53: { status: 'healthy', resolution: '100%', queries: '5,678' },
+            website: { status: 'healthy', http: '200', ssl: 'Valid' },
+            route53Health: { status: 'healthy', resolution: '100%', queries: '5,678', healthChecks: '3' }
+        };
+
+        // Update health displays
+        this.updateHealthStatus('s3-health', healthData.s3);
+        this.updateHealthStatus('cloudfront-health', healthData.cloudfront);
+        this.updateHealthStatus('lambda-health', healthData.lambda);
+        this.updateHealthStatus('route53-health', healthData.route53);
+        this.updateHealthStatus('website-health', healthData.website);
+        this.updateHealthStatus('route53-health', healthData.route53Health);
     }
-    
+
+    /**
+     * Load performance monitoring data
+     */
     async loadPerformanceData() {
-        try {
-            console.log('⚡ Loading performance data...');
-            
-            // Simulate API call to performance monitoring
-            const performanceData = await this.fetchPerformanceData();
-            
-            this.performanceData = performanceData;
-            this.updatePerformanceDisplay();
-            
-            console.log('✅ Performance data loaded successfully');
-        } catch (error) {
-            console.error('❌ Error loading performance data:', error);
-            this.showError('Failed to load performance data');
+        // Simulate performance metrics - replace with actual performance data
+        const performanceData = {
+            coreWebVitals: {
+                lcp: { value: '1.2s', score: 'good' },
+                fid: { value: '45ms', score: 'good' },
+                cls: { value: '0.05', score: 'good' }
+            },
+            pageSpeed: {
+                mobile: { score: 95, grade: 'A' },
+                desktop: { score: 98, grade: 'A' }
+            },
+            resourceTiming: {
+                dns: '12ms',
+                connect: '45ms',
+                ssl: '23ms',
+                ttfb: '180ms',
+                dom: '320ms',
+                load: '1.2s'
+            }
+        };
+
+        // Update performance displays
+        this.updatePerformanceMetrics('core-web-vitals', performanceData.coreWebVitals);
+        this.updatePerformanceMetrics('page-speed', performanceData.pageSpeed);
+        this.updatePerformanceMetrics('resource-timing', performanceData.resourceTiming);
+    }
+
+    /**
+     * Update health status display
+     */
+    updateHealthStatus(elementId, data) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const statusElement = element.querySelector('.health-status');
+        const metrics = element.querySelectorAll('.metric-value');
+
+        if (statusElement) {
+            statusElement.textContent = data.status;
+            statusElement.className = `health-status ${data.status}`;
+        }
+
+        // Update metrics based on available data
+        if (data.requests) this.updateElement(`${elementId}-requests`, data.requests);
+        if (data.errors) this.updateElement(`${elementId}-errors`, data.errors);
+        if (data.cacheHit) this.updateElement(`${elementId}-cache-hit`, data.cacheHit);
+        if (data.invocations) this.updateElement(`${elementId}-invocations`, data.invocations);
+        if (data.resolution) this.updateElement(`${elementId}-resolution`, data.resolution);
+        if (data.queries) this.updateElement(`${elementId}-queries`, data.queries);
+        if (data.healthChecks) this.updateElement(`${elementId}-health-checks`, data.healthChecks);
+        if (data.http) this.updateElement(`${elementId}-http-status`, data.http);
+        if (data.ssl) this.updateElement(`${elementId}-ssl-status`, data.ssl);
+    }
+
+    /**
+     * Update performance metrics display
+     */
+    updatePerformanceMetrics(elementId, data) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        if (data.lcp) {
+            this.updateElement(`${elementId}-lcp`, data.lcp.value);
+            this.updateElement(`${elementId}-lcp-score`, data.lcp.score);
+        }
+        if (data.fid) {
+            this.updateElement(`${elementId}-fid`, data.fid.value);
+            this.updateElement(`${elementId}-fid-score`, data.fid.score);
+        }
+        if (data.cls) {
+            this.updateElement(`${elementId}-cls`, data.cls.value);
+            this.updateElement(`${elementId}-cls-score`, data.cls.score);
+        }
+        if (data.mobile) {
+            this.updateElement(`${elementId}-mobile-score`, data.mobile.score);
+            this.updateElement(`${elementId}-mobile-grade`, data.mobile.grade);
+        }
+        if (data.desktop) {
+            this.updateElement(`${elementId}-desktop-score`, data.desktop.score);
+            this.updateElement(`${elementId}-desktop-grade`, data.desktop.grade);
+        }
+        if (data.dns) this.updateElement(`${elementId}-dns`, data.dns);
+        if (data.connect) this.updateElement(`${elementId}-connect`, data.connect);
+        if (data.ssl) this.updateElement(`${elementId}-ssl`, data.ssl);
+        if (data.ttfb) this.updateElement(`${elementId}-ttfb`, data.ttfb);
+        if (data.dom) this.updateElement(`${elementId}-dom`, data.dom);
+        if (data.load) this.updateElement(`${elementId}-load`, data.load);
+    }
+
+    /**
+     * Update a single element
+     */
+    updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
         }
     }
-    
-    async fetchCostData() {
-        // Simulate AWS Cost Explorer API call
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    total: 12.45,
-                    s3: 3.20,
-                    cloudfront: 8.15,
-                    route53: 1.10,
-                    s3Storage: '2.5 GB',
-                    s3Objects: 156,
-                    cloudfrontRequests: 12543,
-                    cloudfrontData: '45.2 GB',
-                    route53Queries: 8923,
-                    route53Health: 12
-                });
-            }, 1000);
-        });
+
+    /**
+     * Refresh a specific section
+     */
+    async refreshSection(section) {
+        if (this.isLoading) return;
+
+        console.log(`🔄 Refreshing ${section} section...`);
+        this.setLoading(true);
+
+        try {
+            switch (section) {
+                case 'costs':
+                    await this.loadCostData();
+                    break;
+                case 'health':
+                    await this.loadHealthData();
+                    break;
+                case 'performance':
+                    await this.loadPerformanceData();
+                    break;
+                default:
+                    await this.loadInitialData();
+            }
+            
+            this.updateLastUpdated();
+            console.log(`✅ ${section} section refreshed`);
+        } catch (error) {
+            console.error(`❌ Failed to refresh ${section}:`, error);
+            this.showError(`Failed to refresh ${section} data`);
+        } finally {
+            this.setLoading(false);
+        }
     }
-    
-    async fetchHealthData() {
-        // Simulate AWS CloudWatch API call
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    s3: {
-                        status: 'healthy',
-                        bucketStatus: 'accessible',
-                        storageUsed: '2.5 GB',
-                        objectCount: 156
-                    },
-                    cloudfront: {
-                        status: 'healthy',
-                        distributionStatus: 'deployed',
-                        cacheHit: '94.2%',
-                        errorRate: '0.1%'
-                    },
-                    website: {
-                        status: 'healthy',
-                        responseTime: '245ms',
-                        httpStatus: '200',
-                        sslStatus: 'valid'
-                    },
-                    route53: {
-                        status: 'healthy',
-                        resolution: 'working',
-                        queries: 8923,
-                        healthChecks: 12
-                    }
-                });
-            }, 1000);
-        });
+
+    /**
+     * Refresh all sections
+     */
+    async refreshAllSections() {
+        console.log('🔄 Refreshing all sections...');
+        await this.loadInitialData();
     }
-    
-    async fetchPerformanceData() {
-        // Simulate performance monitoring API call
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    lcp: 1.2,
-                    fid: 45,
-                    cls: 0.05,
-                    ttfb: 180,
-                    fcp: 0.8
-                });
-            }, 1000);
-        });
-    }
-    
-    updateCostDisplay() {
-        const data = this.costData;
-        
-        // Update hero stats
-        document.getElementById('total-cost').textContent = `$${data.total.toFixed(2)}`;
-        
-        // Update cost cards
-        document.getElementById('total-monthly-cost').textContent = `$${data.total.toFixed(2)}`;
-        document.getElementById('s3-cost').textContent = `$${data.s3.toFixed(2)}`;
-        document.getElementById('cloudfront-cost').textContent = `$${data.cloudfront.toFixed(2)}`;
-        document.getElementById('route53-cost').textContent = `$${data.route53.toFixed(2)}`;
-        
-        // Update cost breakdowns
-        document.getElementById('s3-storage').textContent = data.s3Storage;
-        document.getElementById('s3-objects').textContent = data.s3Objects;
-        document.getElementById('cloudfront-requests').textContent = data.cloudfrontRequests.toLocaleString();
-        document.getElementById('cloudfront-data').textContent = data.cloudfrontData;
-        document.getElementById('route53-queries').textContent = data.route53Queries.toLocaleString();
-        document.getElementById('route53-health').textContent = data.route53Health;
-        
-        // Update cost trend
-        const costTrend = document.getElementById('cost-trend');
-        const trend = this.calculateCostTrend();
-        costTrend.textContent = trend;
-        costTrend.className = `cost-trend ${trend.includes('increase') ? 'trend-up' : 'trend-down'}`;
-    }
-    
-    updateHealthDisplay() {
-        const data = this.healthData;
-        
-        // Update service health status
-        this.updateServiceStatus('s3', data.s3);
-        this.updateServiceStatus('cloudfront', data.cloudfront);
-        this.updateServiceStatus('website', data.website);
-        this.updateServiceStatus('route53', data.route53);
-        
-        // Update hero stats
-        const healthyServices = Object.values(data).filter(service => service.status === 'healthy').length;
-        const totalServices = Object.keys(data).length;
-        const healthPercentage = Math.round((healthyServices / totalServices) * 100);
-        
-        document.getElementById('service-health').textContent = `${healthPercentage}%`;
-    }
-    
-    updateServiceStatus(serviceName, serviceData) {
-        const statusElement = document.getElementById(`${serviceName}-status`);
-        const cardElement = document.getElementById(`${serviceName}-health`);
-        
-        // Update status badge
-        statusElement.textContent = serviceData.status;
-        statusElement.className = `health-status ${serviceData.status}`;
-        
-        // Update card background
-        cardElement.className = `health-card ${serviceData.status}`;
-        
-        // Update metrics
-        Object.keys(serviceData).forEach(key => {
-            const element = document.getElementById(`${serviceName}-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
-            if (element) {
-                element.textContent = serviceData[key];
+
+    /**
+     * Set loading state
+     */
+    setLoading(loading) {
+        this.isLoading = loading;
+        const refreshButtons = document.querySelectorAll('[id^="refresh-"]');
+        refreshButtons.forEach(button => {
+            button.disabled = loading;
+            if (loading) {
+                button.textContent = 'Refreshing...';
+            } else {
+                button.textContent = 'Refresh';
             }
         });
     }
-    
-    updatePerformanceDisplay() {
-        const data = this.performanceData;
-        
-        // Update Core Web Vitals
-        document.getElementById('lcp').textContent = `${(data.lcp * 1000).toFixed(0)}ms`;
-        document.getElementById('fid').textContent = `${data.fid}ms`;
-        document.getElementById('cls').textContent = data.cls.toFixed(3);
-        
-        // Update performance status
-        this.updateVitalStatus('lcp', data.lcp, [2.5, 4.0]);
-        this.updateVitalStatus('fid', data.fid / 1000, [0.1, 0.3]);
-        this.updateVitalStatus('cls', data.cls, [0.1, 0.25]);
-        
-        // Update network metrics
-        document.getElementById('ttfb').textContent = `${data.ttfb}ms`;
-        document.getElementById('fcp').textContent = `${(data.fcp * 1000).toFixed(0)}ms`;
-        document.getElementById('lcp-metric').textContent = `${(data.lcp * 1000).toFixed(0)}ms`;
-    }
-    
-    updateVitalStatus(vitalName, value, thresholds) {
-        const statusElement = document.getElementById(`${vitalName}-status`);
-        let status = 'good';
-        
-        if (value > thresholds[1]) {
-            status = 'poor';
-        } else if (value > thresholds[0]) {
-            status = 'needs-improvement';
-        }
-        
-        statusElement.textContent = status.replace('-', ' ');
-        statusElement.className = `vital-status ${status}`;
-    }
-    
-    updateCostAlerts() {
-        const alertsContainer = document.getElementById('cost-alerts');
-        const alerts = this.generateCostAlerts();
-        
-        alertsContainer.innerHTML = '';
-        
-        alerts.forEach(alert => {
-            const alertElement = document.createElement('div');
-            alertElement.className = `alert alert-${alert.type}`;
-            alertElement.innerHTML = `
-                <div class="alert-content">
-                    <div class="alert-title">${alert.title}</div>
-                    <div class="alert-message">${alert.message}</div>
-                </div>
-                <div class="alert-time">${alert.time}</div>
-            `;
-            alertsContainer.appendChild(alertElement);
+
+    /**
+     * Update last updated timestamp
+     */
+    updateLastUpdated() {
+        this.lastUpdate = new Date();
+        const lastUpdatedElements = document.querySelectorAll('.last-updated');
+        lastUpdatedElements.forEach(element => {
+            element.textContent = `Last updated: ${this.lastUpdate.toLocaleTimeString()}`;
         });
     }
-    
-    generateCostAlerts() {
-        const alerts = [];
-        const data = this.costData;
-        
-        // Check for high costs
-        if (data.total > 15) {
-            alerts.push({
-                type: 'danger',
-                title: 'High Monthly Cost',
-                message: `Monthly costs ($${data.total.toFixed(2)}) exceed recommended threshold.`,
-                time: new Date().toLocaleTimeString()
-            });
-        } else if (data.total > 10) {
-            alerts.push({
-                type: 'warning',
-                title: 'Cost Alert',
-                message: `Monthly costs ($${data.total.toFixed(2)}) are approaching threshold.`,
-                time: new Date().toLocaleTimeString()
-            });
-        }
-        
-        // Check for high CloudFront costs
-        if (data.cloudfront > 5) {
-            alerts.push({
-                type: 'warning',
-                title: 'High CloudFront Costs',
-                message: `CloudFront costs ($${data.cloudfront.toFixed(2)}) are high. Consider optimizing caching.`,
-                time: new Date().toLocaleTimeString()
-            });
-        }
-        
-        // Check for high S3 costs
-        if (data.s3 > 3) {
-            alerts.push({
-                type: 'warning',
-                title: 'High S3 Costs',
-                message: `S3 costs ($${data.s3.toFixed(2)}) are high. Consider storage optimization.`,
-                time: new Date().toLocaleTimeString()
-            });
-        }
-        
-        // Add success alert if no issues
-        if (alerts.length === 0) {
-            alerts.push({
-                type: 'success',
-                title: 'Costs Within Limits',
-                message: 'All service costs are within acceptable limits.',
-                time: new Date().toLocaleTimeString()
-            });
-        }
-        
-        return alerts;
+
+    /**
+     * Setup auto-refresh
+     */
+    setupAutoRefresh() {
+        // Auto-refresh every 5 minutes
+        this.refreshInterval = setInterval(() => {
+            if (!this.isLoading) {
+                this.refreshAllSections();
+            }
+        }, 5 * 60 * 1000);
     }
-    
-    calculateCostTrend() {
-        // Simulate cost trend calculation
-        const trends = ['No change', 'Slight increase', 'Slight decrease', 'Stable'];
-        return trends[Math.floor(Math.random() * trends.length)];
-    }
-    
-    updateLastUpdated() {
-        const now = new Date();
-        const timeString = now.toLocaleString();
-        
-        document.getElementById('last-updated').textContent = timeString;
-        document.getElementById('cost-last-updated').textContent = `Last updated: ${timeString}`;
-        document.getElementById('health-last-updated').textContent = `Last updated: ${timeString}`;
-        document.getElementById('performance-last-updated').textContent = `Last updated: ${timeString}`;
-    }
-    
+
+    /**
+     * Show error message
+     */
     showError(message) {
-        console.error(message);
-        
-        // Create error alert
-        const alertElement = document.createElement('div');
-        alertElement.className = 'alert alert-danger';
-        alertElement.innerHTML = `
-            <div class="alert-content">
-                <div class="alert-title">Error</div>
-                <div class="alert-message">${message}</div>
-            </div>
-            <div class="alert-time">${new Date().toLocaleTimeString()}</div>
-        `;
-        
-        // Add to alerts container
-        const alertsContainer = document.getElementById('alerts-container');
-        if (alertsContainer) {
-            alertsContainer.appendChild(alertElement);
+        console.error('❌ Error:', message);
+        // You could add a toast notification or error display here
+    }
+
+    /**
+     * Cleanup
+     */
+    destroy() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
         }
     }
 }
 
-// Initialize dashboard when DOM is loaded
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new AWSMonitoringDashboard();
+    window.monitoringDashboard = new MonitoringDashboard();
 });
 
-// Export for potential use in other scripts
-window.AWSMonitoringDashboard = AWSMonitoringDashboard;
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (window.monitoringDashboard) {
+        window.monitoringDashboard.destroy();
+    }
+});

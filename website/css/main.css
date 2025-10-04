@@ -13,6 +13,7 @@
 
 /* Import Pages */
 @import url('./pages/home.css');
+@import url('./pages/monitoring.css');
 
 /* Import Themes */
 @import url('./themes/dark.css');
