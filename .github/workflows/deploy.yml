@@ -129,71 +129,8 @@ jobs:
           RELEASE_STATUS="development"
         fi
         
-        # Replace placeholders in version.json using a more robust approach
-        # Create a temporary file with all replacements
-        echo '{' > website/version-temp.json
-        echo '  "version": "'$VERSION'",' >> website/version-temp.json
-        echo '  "build": "'$BUILD_DATE'",' >> website/version-temp.json
-        echo '  "release": "'$RELEASE_STATUS'",' >> website/version-temp.json
-        echo '  "commit": "'$GITHUB_SHA'",' >> website/version-temp.json
-        echo '  "branch": "'$GITHUB_REF_NAME'",' >> website/version-temp.json
-        echo '  "workflow": "'$GITHUB_WORKFLOW'",' >> website/version-temp.json
-        echo '  "run_id": "'$GITHUB_RUN_ID'",' >> website/version-temp.json
-        echo '  "run_number": "'$GITHUB_RUN_NUMBER'",' >> website/version-temp.json
-        echo '  "actor": "'$GITHUB_ACTOR'",' >> website/version-temp.json
-        echo '  "repository": "'$GITHUB_REPOSITORY'",' >> website/version-temp.json
-        echo '  "event_name": "'$GITHUB_EVENT_NAME'",' >> website/version-temp.json
-        echo '  "security": {' >> website/version-temp.json
-        echo '    "status": "'$SECURITY_STATUS'",' >> website/version-temp.json
-        echo '    "dependencies": "'$DEPENDENCIES_STATUS'",' >> website/version-temp.json
-        echo '    "vulnerabilities": "'$VULNERABILITIES_COUNT'",' >> website/version-temp.json
-        echo '    "critical": "'$CRITICAL_VULNERABILITIES'",' >> website/version-temp.json
-        echo '    "high": "'$HIGH_VULNERABILITIES'",' >> website/version-temp.json
-        echo '    "medium": "'$MEDIUM_VULNERABILITIES'",' >> website/version-temp.json
-        echo '    "low": "'$LOW_VULNERABILITIES'",' >> website/version-temp.json
-        echo '    "last_scan": "'$SECURITY_LAST_SCAN'",' >> website/version-temp.json
-        echo '    "scan_duration": "'$(date -u +%s)'",' >> website/version-temp.json
-        echo '    "secrets_found": "'$SECRETS_FOUND'",' >> website/version-temp.json
-        echo '    "cdn_issues": "'$CDN_ISSUES'"' >> website/version-temp.json
-        echo '  },' >> website/version-temp.json
-        echo '  "changelog": [' >> website/version-temp.json
-        echo '    {' >> website/version-temp.json
-        echo '      "version": "'$VERSION'",' >> website/version-temp.json
-        echo '      "date": "'$BUILD_DATE'",' >> website/version-temp.json
-        echo '      "commit": "'$GITHUB_SHA'",' >> website/version-temp.json
-        echo '      "changes": [' >> website/version-temp.json
-        echo '        "Automated deployment with GitHub Actions",' >> website/version-temp.json
-        echo '        "Dynamic version information from CI/CD pipeline",' >> website/version-temp.json
-        echo '        "Enhanced security monitoring and reporting",' >> website/version-temp.json
-        echo '        "Automated CloudFront cache invalidation",' >> website/version-temp.json
-        echo '        "Continuous integration and deployment"' >> website/version-temp.json
-        echo '      ]' >> website/version-temp.json
-        echo '    }' >> website/version-temp.json
-        echo '  ],' >> website/version-temp.json
-        echo '  "features": [' >> website/version-temp.json
-        echo '    "Responsive design",' >> website/version-temp.json
-        echo '    "Modern UI/UX",' >> website/version-temp.json
-        echo '    "Contact form",' >> website/version-temp.json
-        echo '    "Professional experience timeline",' >> website/version-temp.json
-        echo '    "Service portfolio",' >> website/version-temp.json
-        echo '    "Performance optimized",' >> website/version-temp.json
-        echo '    "Automated deployments",' >> website/version-temp.json
-        echo '    "Security monitoring",' >> website/version-temp.json
-        echo '    "Cache invalidation"' >> website/version-temp.json
-        echo '  ],' >> website/version-temp.json
-        echo '  "technical": {' >> website/version-temp.json
-        echo '    "framework": "Vanilla HTML/CSS/JS",' >> website/version-temp.json
-        echo '    "responsive": true,' >> website/version-temp.json
-        echo '    "seo_optimized": true,' >> website/version-temp.json
-        echo '    "performance_optimized": true,' >> website/version-temp.json
-        echo '    "ci_cd": "GitHub Actions",' >> website/version-temp.json
-        echo '    "deployment": "Automated",' >> website/version-temp.json
-        echo '    "security": "Monitored"' >> website/version-temp.json
-        echo '  }' >> website/version-temp.json
-        echo '}' >> website/version-temp.json
-        
-        # Replace the original file
-        mv website/version-temp.json website/version.json
+        # Version information is now generated dynamically by version-manager.js
+        # No need to create static version.json files
         
         echo "✅ Version information generated:"
         echo "  Version: $VERSION"
