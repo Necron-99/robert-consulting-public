@@ -374,6 +374,43 @@ body {
   }
 }
 
+/* CRITICAL: Force dark theme navigation for all pages */
+body.dark-theme .navbar {
+  background-color: #1f2937 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+body.dark-theme .nav-logo h2 {
+  color: #f9fafb !important;
+}
+
+body.dark-theme .nav-tagline {
+  color: #d1d5db !important;
+}
+
+body.dark-theme .nav-link {
+  color: #d1d5db !important;
+}
+
+body.dark-theme .nav-link:hover {
+  color: #ffffff !important;
+  background-color: #374151 !important;
+}
+
+body.dark-theme .nav-link.active {
+  color: #ffffff !important;
+  background-color: #4b5563 !important;
+}
+
+body.dark-theme .nav-menu {
+  background-color: #1f2937 !important;
+  border-top-color: #374151 !important;
+}
+
+body.dark-theme .hamburger .bar {
+  background-color: #f9fafb !important;
+}
+
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   * {
