@@ -21,7 +21,7 @@ class APIConfig {
     getAPIEndpoint() {
         // In production, this would come from environment variables
         // For now, we'll use a placeholder that should be replaced during deployment
-        return process.env.CONTACT_API_URL || 'https://[API_ENDPOINT_PLACEHOLDER]/contact';
+        return process.env.CONTACT_API_URL || 'https://PLACEHOLDER_API_ENDPOINT/contact';
     }
 
     /**
@@ -30,7 +30,7 @@ class APIConfig {
     getAPIKey() {
         // In production, this would come from environment variables or secure storage
         // For now, we'll use a placeholder that should be replaced during deployment
-        return process.env.CONTACT_API_KEY || '[API_KEY_PLACEHOLDER]';
+        return process.env.CONTACT_API_KEY || 'PLACEHOLDER_API_KEY';
     }
 
     /**

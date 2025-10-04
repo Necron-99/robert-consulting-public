@@ -23,8 +23,8 @@ cp js/api-config.js js/api-config.js.bak
 # Use awk for safe replacement (handles special characters better than sed)
 awk -v endpoint="$API_ENDPOINT" -v key="$API_KEY" '
 {
-    gsub(/\[API_ENDPOINT_PLACEHOLDER\]/, endpoint)
-    gsub(/\[API_KEY_PLACEHOLDER\]/, key)
+    gsub(/PLACEHOLDER_API_ENDPOINT/, endpoint)
+    gsub(/PLACEHOLDER_API_KEY/, key)
     print
 }' js/api-config.js > js/api-config.js.tmp
 

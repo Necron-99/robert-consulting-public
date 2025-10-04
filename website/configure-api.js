@@ -29,8 +29,8 @@ if (!fs.existsSync(configPath)) {
 let content = fs.readFileSync(configPath, 'utf8');
 
 // Replace placeholders
-content = content.replace(/\[API_ENDPOINT_PLACEHOLDER\]/g, apiEndpoint);
-content = content.replace(/\[API_KEY_PLACEHOLDER\]/g, apiKey);
+content = content.replace(/PLACEHOLDER_API_ENDPOINT/g, apiEndpoint);
+content = content.replace(/PLACEHOLDER_API_KEY/g, apiKey);
 
 // Write back to file
 fs.writeFileSync(configPath, content);
