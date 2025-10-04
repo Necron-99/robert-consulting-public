@@ -14,6 +14,10 @@
 /* Import Pages */
 @import url('./pages/home.css');
 
+/* Import Themes */
+@import url('./themes/dark.css');
+@import url('./themes/light.css');
+
 /* Base Layout */
 body {
   font-family: var(--font-family);

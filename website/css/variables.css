@@ -1,63 +1,70 @@
 /* CSS Variables - Design System Foundation */
 
 :root {
-  /* Color Palette */
-  --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #dbeafe;
+  /* Dark Theme - Sombre Neutral Palette */
+  /* Primary Colors - Muted Blue-Gray */
+  --primary-color: #6b7280;
+  --primary-hover: #4b5563;
+  --primary-light: #374151;
   
-  --secondary-color: #64748b;
-  --secondary-hover: #475569;
-  --secondary-light: #f1f5f9;
+  /* Secondary Colors - Charcoal Gray */
+  --secondary-color: #4b5563;
+  --secondary-hover: #374151;
+  --secondary-light: #1f2937;
   
-  --accent-color: #f59e0b;
-  --accent-hover: #d97706;
-  --accent-light: #fef3c7;
+  /* Accent Colors - Warm Gray */
+  --accent-color: #9ca3af;
+  --accent-hover: #6b7280;
+  --accent-light: #374151;
   
-  --success-color: #10b981;
-  --success-hover: #059669;
-  --success-light: #d1fae5;
+  /* Success Colors - Muted Green */
+  --success-color: #6b7280;
+  --success-hover: #4b5563;
+  --success-light: #374151;
   
-  --warning-color: #f59e0b;
-  --warning-hover: #d97706;
-  --warning-light: #fef3c7;
+  /* Warning Colors - Muted Amber */
+  --warning-color: #9ca3af;
+  --warning-hover: #6b7280;
+  --warning-light: #374151;
   
-  --error-color: #ef4444;
-  --error-hover: #dc2626;
-  --error-light: #fee2e2;
+  /* Error Colors - Muted Red */
+  --error-color: #9ca3af;
+  --error-hover: #6b7280;
+  --error-light: #374151;
   
-  --info-color: #3b82f6;
-  --info-hover: #2563eb;
-  --info-light: #dbeafe;
+  /* Info Colors - Muted Blue */
+  --info-color: #6b7280;
+  --info-hover: #4b5563;
+  --info-light: #374151;
   
-  /* Background Colors */
-  --background-primary: #ffffff;
-  --background-secondary: #f8fafc;
-  --background-tertiary: #f1f5f9;
+  /* Background Colors - Dark Sombre */
+  --background-primary: #111827;
+  --background-secondary: #1f2937;
+  --background-tertiary: #374151;
   
-  /* Surface Colors */
-  --surface-primary: #ffffff;
-  --surface-secondary: #f8fafc;
-  --surface-elevated: #ffffff;
+  /* Surface Colors - Dark Elevated */
+  --surface-primary: #1f2937;
+  --surface-secondary: #374151;
+  --surface-elevated: #4b5563;
   
-  /* Text Colors */
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-tertiary: #94a3b8;
-  --text-inverse: #ffffff;
-  --text-muted: #94a3b8;
+  /* Text Colors - High Contrast for Accessibility */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #111827;
+  --text-muted: #6b7280;
   
-  /* Border Colors */
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --border-focus: #2563eb;
-  --border-error: #ef4444;
+  /* Border Colors - Dark Theme */
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-focus: #6b7280;
+  --border-error: #9ca3af;
   
-  /* Shadow Colors */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  /* Shadow Colors - Dark Theme */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
   
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -182,4 +189,48 @@
   /* Footer Variables */
   --footer-padding: var(--space-8);
   --footer-gap: var(--space-6);
+  
+  /* Accessibility Variables */
+  --focus-ring-color: #6b7280;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  
+  /* High Contrast Mode Support */
+  --hc-border: #ffffff;
+  --hc-text: #ffffff;
+  --hc-background: #000000;
+}
+
+/* Dark Theme Accessibility Enhancements */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --border-primary: #ffffff;
+    --border-secondary: #ffffff;
+    --focus-ring-color: #ffffff;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+  }
+}
+
+/* Dark Mode Support (System Preference) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Already using dark theme as default */
+  }
+}
+
+/* Light Mode Override (if needed) */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Keep dark theme as primary design */
+  }
 }

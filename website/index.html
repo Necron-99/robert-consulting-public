@@ -25,7 +25,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <!-- Using local Font Awesome icons to reduce external requests -->
 </head>
-<body>
+<body class="dark-theme">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -62,6 +62,11 @@
                     <a href="#contact" class="nav-link">Contact</a>
                 </li>
             </ul>
+            <div class="nav-actions">
+                <button id="theme-toggle-btn" class="btn btn-ghost btn-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <span class="icon-moon" id="theme-icon">🌙</span>
+                </button>
+            </div>
             <div class="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -485,6 +490,7 @@
     </footer>
 
     <script src="js/navigation.js"></script>
+    <script src="js/theme-toggle.js"></script>
     <script src="js/api-config.js"></script>
     <script src="security-config.js"></script>
     <script src="version-manager.js"></script>
