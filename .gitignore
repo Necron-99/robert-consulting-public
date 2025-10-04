@@ -182,6 +182,18 @@ coverage/
 *.tgz
 
 # =============================================================================
+# DYNAMIC VERSION FILES
+# =============================================================================
+
+# Dynamic version files (generated at runtime)
+website/version.json
+website/version-fallback.json
+website/version-*.json
+website/dynamic-version.js
+website/version-manager.js
+website/version-updater.js
+
+# =============================================================================
 # TERRAFORM FILES TO KEEP IN SOURCE CONTROL
 # =============================================================================
 # The following Terraform files SHOULD be committed:
