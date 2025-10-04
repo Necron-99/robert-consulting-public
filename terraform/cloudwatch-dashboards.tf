@@ -51,7 +51,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "BucketSizeBytes", "BucketName", "robert-consulting-website-2024-bd900b02", "StorageType", "StandardStorage"]
+            ["AWS/S3", "BucketSizeBytes", "BucketName", "robert-consulting-website", "StorageType", "StandardStorage"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -69,7 +69,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -87,7 +87,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -115,7 +115,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "4xxErrors", "BucketName", "robert-consulting-website-2024-bd900b02"]
+            ["AWS/S3", "4xxErrors", "BucketName", "robert-consulting-website"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -133,7 +133,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "5xxErrors", "BucketName", "robert-consulting-website-2024-bd900b02"]
+            ["AWS/S3", "5xxErrors", "BucketName", "robert-consulting-website"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -151,7 +151,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -169,7 +169,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -187,7 +187,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -205,7 +205,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -233,7 +233,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -251,7 +251,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -269,7 +269,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -287,7 +287,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E3HUVB85SPZFHO"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -377,7 +377,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_error_rate" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    DistributionId = "E3HUVB85SPZFHO"
+    DistributionId = "E36DBYPHUUKB3V"
   }
 }
 
@@ -396,7 +396,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_error_rate" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    BucketName = "robert-consulting-website-2024-bd900b02"
+    BucketName = "robert-consulting-website"
   }
 }
 

@@ -7,7 +7,7 @@ resource "aws_lambda_function" "contact_form" {
   function_name    = "contact-form-api"
   role            = aws_iam_role.contact_form_lambda_role.arn
   handler         = "contact-form.handler"
-  runtime         = "nodejs18.x"
+  runtime         = "nodejs20.x"
   timeout         = 30
   memory_size     = 128
 

@@ -1,0 +1,43 @@
+{
+    "FunctionName": "contact-form-api",
+    "FunctionArn": "arn:aws:lambda:us-east-1:228480945348:function:contact-form-api",
+    "Runtime": "nodejs18.x",
+    "Role": "arn:aws:iam::228480945348:role/contact-form-lambda-role",
+    "Handler": "contact-form.handler",
+    "CodeSize": 1733,
+    "Description": "",
+    "Timeout": 30,
+    "MemorySize": 128,
+    "LastModified": "2025-10-02T14:28:22.000+0000",
+    "CodeSha256": "Y0CiA4REv1jCf0MKnVfuq+EDZwMkP7KYiDLtfjqvCx0=",
+    "Version": "$LATEST",
+    "Environment": {
+        "Variables": {
+            "SES_REGION": "us-east-1"
+        }
+    },
+    "TracingConfig": {
+        "Mode": "PassThrough"
+    },
+    "RevisionId": "de87b386-4793-4d36-a423-f50acb15d42e",
+    "State": "Active",
+    "LastUpdateStatus": "Successful",
+    "PackageType": "Zip",
+    "Architectures": [
+        "x86_64"
+    ],
+    "EphemeralStorage": {
+        "Size": 512
+    },
+    "SnapStart": {
+        "ApplyOn": "None",
+        "OptimizationStatus": "Off"
+    },
+    "RuntimeVersionConfig": {
+        "RuntimeVersionArn": "arn:aws:lambda:us-east-1::runtime:0ac9d342573fe885f26e915fad6ab8a19b489d706ef8e43ccc6fbe80207e612d"
+    },
+    "LoggingConfig": {
+        "LogFormat": "Text",
+        "LogGroup": "/aws/lambda/contact-form-api"
+    }
+}
