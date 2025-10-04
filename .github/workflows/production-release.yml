@@ -2,7 +2,7 @@ name: Production Release
 
 on:
   workflow_run:
-    workflows: ["Staging Deployment (Automatic)"]
+    workflows: ["Pre-Production Validation"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
