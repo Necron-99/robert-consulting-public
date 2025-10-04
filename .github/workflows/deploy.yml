@@ -11,7 +11,7 @@ on:
       skip_security_scan:
         description: 'Skip security scanning (not recommended)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 jobs:
@@ -253,7 +253,7 @@ jobs:
         echo "INVALIDATION_ID=$INVALIDATION_ID" >> $GITHUB_ENV
         
     - name: Wait for Invalidation (Optional)
-      if: ${{ github.event.inputs.wait_for_completion == 'true' }}
+      if: ${{ github.event.inputs.skip_security_scan == 'false' }}
       run: |
         echo "⏳ Waiting for CloudFront invalidation to complete..."
         echo "📋 Invalidation ID: $INVALIDATION_ID"
