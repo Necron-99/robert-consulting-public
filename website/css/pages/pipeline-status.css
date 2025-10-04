@@ -166,36 +166,36 @@
   animation: pulse-green 2s infinite;
 }
 
-/* Pulsing Animations */
+/* Enhanced Pulsing Animations - Phase 2 */
 @keyframes pulse-red {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.6), 0 0 40px rgba(255, 68, 68, 0.3);
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    box-shadow: 0 0 30px rgba(255, 68, 68, 0.8), 0 0 60px rgba(255, 68, 68, 0.5);
     transform: scale(1.05);
   }
 }
 
 @keyframes pulse-yellow {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(255, 170, 0, 0.6);
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.6), 0 0 40px rgba(255, 170, 0, 0.3);
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 30px rgba(255, 170, 0, 0.8);
+    box-shadow: 0 0 30px rgba(255, 170, 0, 0.8), 0 0 60px rgba(255, 170, 0, 0.5);
     transform: scale(1.05);
   }
 }
 
 @keyframes pulse-green {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(68, 255, 68, 0.6);
+    box-shadow: 0 0 20px rgba(68, 255, 68, 0.6), 0 0 40px rgba(68, 255, 68, 0.3);
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 30px rgba(68, 255, 68, 0.8);
+    box-shadow: 0 0 30px rgba(68, 255, 68, 0.8), 0 0 60px rgba(68, 255, 68, 0.5);
     transform: scale(1.05);
   }
 }
@@ -206,6 +206,125 @@
   }
   50% { 
     transform: scale(1.1);
+  }
+}
+
+/* Status Transition Animations */
+.status-light {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-light.status-changing {
+  animation: status-change 0.8s ease-in-out;
+}
+
+@keyframes status-change {
+  0% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Stage Card Hover Enhancements */
+.stage-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stage-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
+.stage-card.status-updating {
+  animation: stage-update 1s ease-in-out;
+}
+
+@keyframes stage-update {
+  0% { 
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  50% { 
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  100% { 
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Real-time Update Indicators */
+.status-indicator.updating {
+  animation: update-indicator 2s infinite;
+}
+
+@keyframes update-indicator {
+  0%, 100% { 
+    opacity: 1;
+  }
+  50% { 
+    opacity: 0.5;
+  }
+}
+
+/* Data Loading Animations */
+.detail-value.loading {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { 
+    background-position: -200% 0;
+  }
+  100% { 
+    background-position: 200% 0;
+  }
+}
+
+/* Success/Error State Animations */
+.detail-value.success {
+  animation: success-pulse 0.6s ease-out;
+}
+
+.detail-value.error {
+  animation: error-shake 0.6s ease-out;
+}
+
+@keyframes success-pulse {
+  0% { 
+    transform: scale(1);
+    color: var(--text-primary);
+  }
+  50% { 
+    transform: scale(1.1);
+    color: #10b981;
+  }
+  100% { 
+    transform: scale(1);
+    color: #10b981;
+  }
+}
+
+@keyframes error-shake {
+  0%, 100% { 
+    transform: translateX(0);
+  }
+  25% { 
+    transform: translateX(-2px);
+  }
+  75% { 
+    transform: translateX(2px);
   }
 }
 
