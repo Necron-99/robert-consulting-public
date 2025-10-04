@@ -1,8 +1,8 @@
 {
     "FunctionName": "contact-form-api",
-    "FunctionArn": "arn:aws:lambda:us-east-1:228480945348:function:contact-form-api",
+    "FunctionArn": "arn:aws:lambda:us-east-1:[REDACTED]:function:contact-form-api",
     "Runtime": "nodejs18.x",
-    "Role": "arn:aws:iam::228480945348:role/contact-form-lambda-role",
+    "Role": "arn:aws:iam::[REDACTED]:role/contact-form-lambda-role",
     "Handler": "contact-form.handler",
     "CodeSize": 1733,
     "Description": "",

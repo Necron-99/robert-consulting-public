@@ -24,12 +24,12 @@ terraform output name_servers
 
 ```bash
 # 1. Get the validation records
-aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.DomainValidationOptions[*].{Domain:DomainName,RecordName:ResourceRecord.Name,RecordValue:ResourceRecord.Value,RecordType:ResourceRecord.Type}' --output table
+aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.DomainValidationOptions[*].{Domain:DomainName,RecordName:ResourceRecord.Name,RecordValue:ResourceRecord.Value,RecordType:ResourceRecord.Type}' --output table
 
 # 2. Add these CNAME records to your DNS provider
 # 3. Wait 5-10 minutes for DNS propagation
 # 4. Check certificate status
-aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.Status'
+aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.Status'
 
 # 5. Once certificate shows "ISSUED", update CloudFront to use it
 ```

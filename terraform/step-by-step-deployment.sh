@@ -26,7 +26,7 @@ echo ""
 echo "📋 Phase 2: Manual Certificate Validation"
 echo "========================================"
 echo "1. Get the validation records:"
-CERT_ARN="arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
+CERT_ARN="arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
 aws acm describe-certificate --certificate-arn "$CERT_ARN" --region us-east-1 --query 'Certificate.DomainValidationOptions[*].{Domain:DomainName,RecordName:ResourceRecord.Name,RecordValue:ResourceRecord.Value,RecordType:ResourceRecord.Type}' --output table
 
 echo ""

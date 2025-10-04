@@ -12,12 +12,12 @@ terraform destroy -target=aws_acm_certificate_validation.wildcard -auto-approve
 
 ### **Step 2: Import the existing certificate**
 ```bash
-terraform import aws_acm_certificate.wildcard arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f
+terraform import aws_acm_certificate.wildcard arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f
 ```
 
 ### **Step 3: Check certificate status**
 ```bash
-aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.{Status:Status,ValidationStatus:DomainValidationOptions[0].ValidationStatus}'
+aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.{Status:Status,ValidationStatus:DomainValidationOptions[0].ValidationStatus}'
 ```
 
 ### **Step 4: If certificate is already validated, skip validation**
@@ -66,10 +66,10 @@ If the certificate is already validated, you can modify your Terraform to skip v
 ```bash
 # Fix the state
 terraform destroy -target=aws_acm_certificate_validation.wildcard -auto-approve
-terraform import aws_acm_certificate.wildcard arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f
+terraform import aws_acm_certificate.wildcard arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f
 
 # Check if certificate is already valid
-aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.Status'
+aws acm describe-certificate --certificate-arn "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f" --region us-east-1 --query 'Certificate.Status'
 
 # If certificate is ISSUED, apply the rest
 terraform apply

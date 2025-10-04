@@ -100,6 +100,13 @@ resource "aws_api_gateway_method" "contact_form_post" {
   resource_id   = aws_api_gateway_resource.contact_form.id
   http_method   = "POST"
   authorization = "NONE"
+  api_key_required = true
+  
+  # Add request validation
+  request_parameters = {
+    "method.request.header.Content-Type" = true
+    "method.request.header.X-API-Key"     = true
+  }
 }
 
 # API Gateway method for OPTIONS requests (CORS)
@@ -188,9 +195,137 @@ resource "aws_api_gateway_deployment" "contact_form_deployment" {
 }
 
 # Outputs
+# API Gateway Usage Plan for rate limiting
+resource "aws_api_gateway_usage_plan" "contact_form_usage_plan" {
+  name = "contact-form-usage-plan"
+  
+  api_stages {
+    api_id = aws_api_gateway_rest_api.contact_form_api.id
+    stage  = aws_api_gateway_stage.contact_form_stage.stage_name
+  }
+  
+  quota_settings {
+    limit  = 1000  # 1000 requests per day
+    period = "DAY"
+  }
+  
+  throttle_settings {
+    rate_limit  = 10  # 10 requests per second
+    burst_limit = 20  # Allow burst up to 20 requests
+  }
+}
+
+# API Gateway API Key for authentication
+resource "aws_api_gateway_api_key" "contact_form_api_key" {
+  name = "contact-form-api-key"
+  description = "API key for contact form endpoint"
+}
+
+# Link API key to usage plan
+resource "aws_api_gateway_usage_plan_key" "contact_form_usage_plan_key" {
+  key_id        = aws_api_gateway_api_key.contact_form_api_key.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.contact_form_usage_plan.id
+}
+
+# WAF Web ACL for additional protection
+resource "aws_wafv2_web_acl" "contact_form_waf" {
+  name  = "contact-form-waf"
+  scope = "REGIONAL"
+  
+  default_action {
+    allow {}
+  }
+  
+  # Rate limiting rule
+  rule {
+    name     = "RateLimitRule"
+    priority = 1
+    
+    action {
+      block {}
+    }
+    
+    statement {
+      rate_based_statement {
+        limit              = 100
+        aggregate_key_type = "IP"
+      }
+    }
+    
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimitRule"
+      sampled_requests_enabled   = true
+    }
+  }
+  
+  # SQL injection protection
+  rule {
+    name     = "SQLInjectionRule"
+    priority = 2
+    
+    action {
+      block {}
+    }
+    
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesSQLiRuleSet"
+      }
+    }
+    
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "SQLInjectionRule"
+      sampled_requests_enabled   = true
+    }
+  }
+  
+  # XSS protection
+  rule {
+    name     = "XSSRule"
+    priority = 3
+    
+    action {
+      block {}
+    }
+    
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesCommonRuleSet"
+      }
+    }
+    
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "XSSRule"
+      sampled_requests_enabled   = true
+    }
+  }
+  
+  tags = {
+    Name = "contact-form-waf"
+  }
+}
+
+# Associate WAF with API Gateway
+resource "aws_wafv2_web_acl_association" "contact_form_waf_association" {
+  resource_arn = aws_api_gateway_stage.contact_form_stage.arn
+  web_acl_arn  = aws_wafv2_web_acl.contact_form_waf.arn
+}
+
 output "contact_form_api_url" {
   description = "URL of the contact form API"
   value       = "${aws_api_gateway_deployment.contact_form_deployment.invoke_url}/contact"
+}
+
+output "contact_form_api_key" {
+  description = "API key for the contact form API"
+  value       = aws_api_gateway_api_key.contact_form_api_key.value
+  sensitive   = true
 }
 
 output "contact_form_lambda_arn" {

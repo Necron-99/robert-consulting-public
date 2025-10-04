@@ -14,7 +14,7 @@ if [ ! -f "infrastructure.tf" ]; then
     exit 1
 fi
 
-CERT_ARN="arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
+CERT_ARN="arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
 
 echo "🔍 Step 1: Check certificate status..."
 CERT_STATUS=$(aws acm describe-certificate --certificate-arn "$CERT_ARN" --region us-east-1 --query 'Certificate.Status' --output text)

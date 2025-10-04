@@ -84,23 +84,16 @@ if (contactForm) {
             submitBtn.disabled = true;
             
             try {
-                // Send to contact form API
-                const response = await fetch('https://aexfhmgxng.execute-api.us-east-1.amazonaws.com/prod/contact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        subject: subject,
-                        message: message
-                    })
+                // Use secure API configuration
+                const apiConfig = new APIConfig();
+                const result = await apiConfig.submitContactForm({
+                    name: name,
+                    email: email,
+                    subject: subject,
+                    message: message
                 });
                 
-                const result = await response.json();
-                
-                if (response.ok) {
+                if (result.success) {
                     alert('Thank you for your message! I\'ll get back to you soon.');
                     this.reset();
                     

@@ -17,7 +17,7 @@ fi
 echo "🔍 Checking current certificate status..."
 
 # Get the certificate ARN from the error message
-CERT_ARN="arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
+CERT_ARN="arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
 
 echo "📋 Certificate ARN: $CERT_ARN"
 

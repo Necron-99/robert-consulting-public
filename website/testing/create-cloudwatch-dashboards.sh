@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 REGION="us-east-1"
-ACCOUNT_ID="228480945348"
+ACCOUNT_ID="[REDACTED]"
 
 # Colors for output
 RED='\033[0;31m'
