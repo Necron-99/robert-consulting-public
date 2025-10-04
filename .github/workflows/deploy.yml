@@ -41,7 +41,7 @@ jobs:
         languages: javascript
         queries: security-and-quality
         paths: 'website/**'
-        paths-ignore: 'terraform/**'
+        paths-ignore: 'terraform/**,backup/**,lambda/**,deployment/**'
         
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
