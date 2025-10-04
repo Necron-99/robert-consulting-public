@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Version Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #111827; color: #f9fafb; }
+        .test { background: #1f2937; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>Simple Version Test</h1>
+    
+    <div class="test">
+        <h3>Version Elements:</h3>
+        <p>Version: <span id="version-display">Loading...</span></p>
+        <p>Build: <span id="build-display">Loading...</span></p>
+        <p>Security: <span id="security-status">Loading...</span></p>
+    </div>
+    
+    <div class="test">
+        <h3>Test Results:</h3>
+        <div id="results">Testing...</div>
+    </div>
+
+    <script>
+        // Simple test without version-manager.js
+        document.addEventListener('DOMContentLoaded', async () => {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test 1: Direct fetch
+                console.log('Testing direct fetch...');
+                const response = await fetch('./version.json');
+                console.log('Response:', response);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Data loaded:', data);
+                    
+                    // Update elements directly
+                    const versionDisplay = document.getElementById('version-display');
+                    const buildDisplay = document.getElementById('build-display');
+                    const securityStatus = document.getElementById('security-status');
+                    
+                    if (versionDisplay) {
+                        versionDisplay.textContent = `v${data.version}`;
+                    }
+                    
+                    if (buildDisplay) {
+                        let buildDate = data.build;
+                        if (buildDate.includes('T')) {
+                            buildDate = buildDate.split('T')[0];
+                        }
+                        buildDisplay.textContent = `Build ${buildDate}`;
+                    }
+                    
+                    if (securityStatus) {
+                        securityStatus.innerHTML = `<span style="color: #10b981; font-weight: bold;">🔒 ${data.security.status}</span>`;
+                    }
+                    
+                    results.innerHTML = '<span class="success">✅ Direct fetch and update successful!</span>';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Test failed:', error);
+                results.innerHTML = `<span class="error">❌ Test failed: ${error.message}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

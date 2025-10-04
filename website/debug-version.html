@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Version System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #111827;
+            color: #f9fafb;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1f2937;
+            border-radius: 8px;
+        }
+        .debug-section {
+            background-color: #374151;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        pre { background-color: #111827; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>Version System Debug</h1>
+        
+        <div class="debug-section">
+            <h3>1. Direct Fetch Test</h3>
+            <div id="fetch-test">Testing...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>2. Version Manager Test</h3>
+            <div id="manager-test">Testing...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>3. DOM Elements Test</h3>
+            <div id="dom-test">Testing...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>4. Console Logs</h3>
+            <div id="console-logs">Check browser console...</div>
+        </div>
+    </div>
+
+    <!-- Add the version elements that should be updated -->
+    <div style="display: none;">
+        <span id="version-display">v1.0.1</span>
+        <span id="build-display">Build 2025-10-02</span>
+        <span id="security-status">🔒 secure</span>
+    </div>
+
+    <script>
+        // Debug version system step by step
+        document.addEventListener('DOMContentLoaded', async () => {
+            const fetchTest = document.getElementById('fetch-test');
+            const managerTest = document.getElementById('manager-test');
+            const domTest = document.getElementById('dom-test');
+            const consoleLogs = document.getElementById('console-logs');
+            
+            console.log('🔍 Starting version system debug...');
+            
+            // Test 1: Direct fetch
+            try {
+                console.log('📡 Testing direct fetch of version.json...');
+                const response = await fetch('version.json');
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Version data loaded:', data);
+                    fetchTest.innerHTML = `<span class="success">✅ Direct fetch successful</span><br>
+                        <strong>Version:</strong> ${data.version}<br>
+                        <strong>Build:</strong> ${data.build}<br>
+                        <strong>Security:</strong> ${data.security.status}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('❌ Direct fetch failed:', error);
+                fetchTest.innerHTML = `<span class="error">❌ Direct fetch failed: ${error.message}</span>`;
+            }
+            
+            // Test 2: Version Manager
+            try {
+                console.log('🔧 Testing version manager...');
+                
+                // Check if version-manager.js is loaded
+                if (typeof window.versionManager === 'undefined') {
+                    throw new Error('version-manager.js not loaded');
+                }
+                
+                console.log('Version manager exists:', !!window.versionManager);
+                
+                // Try to load version
+                const versionData = await window.versionManager.loadVersion();
+                console.log('Version data from manager:', versionData);
+                
+                if (versionData) {
+                    managerTest.innerHTML = `<span class="success">✅ Version manager working</span><br>
+                        <strong>Version:</strong> ${versionData.version}<br>
+                        <strong>Current Version:</strong> ${window.versionManager.getCurrentVersion()}`;
+                } else {
+                    throw new Error('No version data returned');
+                }
+            } catch (error) {
+                console.error('❌ Version manager failed:', error);
+                managerTest.innerHTML = `<span class="error">❌ Version manager failed: ${error.message}</span>`;
+            }
+            
+            // Test 3: DOM Elements
+            try {
+                console.log('🎯 Testing DOM elements...');
+                
+                const versionDisplay = document.getElementById('version-display');
+                const buildDisplay = document.getElementById('build-display');
+                const securityStatus = document.getElementById('security-status');
+                
+                console.log('Version display element:', versionDisplay);
+                console.log('Build display element:', buildDisplay);
+                console.log('Security status element:', securityStatus);
+                
+                if (versionDisplay && buildDisplay && securityStatus) {
+                    domTest.innerHTML = `<span class="success">✅ DOM elements found</span><br>
+                        <strong>Version element:</strong> ${versionDisplay.textContent}<br>
+                        <strong>Build element:</strong> ${buildDisplay.textContent}<br>
+                        <strong>Security element:</strong> ${securityStatus.textContent}`;
+                } else {
+                    throw new Error('DOM elements not found');
+                }
+            } catch (error) {
+                console.error('❌ DOM test failed:', error);
+                domTest.innerHTML = `<span class="error">❌ DOM test failed: ${error.message}</span>`;
+            }
+            
+            // Test 4: Try to update DOM manually
+            try {
+                console.log('🔄 Testing manual DOM update...');
+                
+                const versionDisplay = document.getElementById('version-display');
+                const buildDisplay = document.getElementById('build-display');
+                const securityStatus = document.getElementById('security-status');
+                
+                if (versionDisplay) {
+                    versionDisplay.textContent = 'v1.0.2';
+                    console.log('Updated version display');
+                }
+                
+                if (buildDisplay) {
+                    buildDisplay.textContent = 'Build 2025-10-04';
+                    console.log('Updated build display');
+                }
+                
+                if (securityStatus) {
+                    securityStatus.innerHTML = '<span style="color: #10b981; font-weight: bold;">🔒 secure</span>';
+                    console.log('Updated security status');
+                }
+                
+                console.log('✅ Manual DOM update completed');
+            } catch (error) {
+                console.error('❌ Manual DOM update failed:', error);
+            }
+            
+            console.log('🏁 Debug completed');
+        });
+    </script>
+    
+    <!-- Load version manager -->
+    <script src="version-manager.js"></script>
+</body>
+</html>
