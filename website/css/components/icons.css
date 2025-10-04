@@ -1,0 +1,543 @@
+/* Icon Components - Font Awesome Style Icons */
+
+/* Base Icon Styles */
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+}
+
+/* Icon Sizes */
+.icon-xs { font-size: 0.75rem; }
+.icon-sm { font-size: 0.875rem; }
+.icon-base { font-size: 1rem; }
+.icon-lg { font-size: 1.125rem; }
+.icon-xl { font-size: 1.25rem; }
+.icon-2xl { font-size: 1.5rem; }
+.icon-3xl { font-size: 1.875rem; }
+.icon-4xl { font-size: 2.25rem; }
+
+/* Icon Colors */
+.icon-primary { color: var(--primary-color); }
+.icon-secondary { color: var(--secondary-color); }
+.icon-success { color: var(--success-color); }
+.icon-warning { color: var(--warning-color); }
+.icon-error { color: var(--error-color); }
+.icon-info { color: var(--info-color); }
+
+/* Specific Icons using Unicode/Emoji */
+.icon-laptop::before { content: "💻"; }
+.icon-cogs::before { content: "⚙️"; }
+.icon-chart-bar::before { content: "📊"; }
+.icon-users::before { content: "👥"; }
+.icon-lightbulb::before { content: "💡"; }
+.icon-handshake::before { content: "🤝"; }
+.icon-envelope::before { content: "✉️"; }
+.icon-phone::before { content: "📞"; }
+.icon-location::before { content: "📍"; }
+.icon-user-tie::before { content: "👔"; }
+.icon-database::before { content: "🗄️"; }
+.icon-server::before { content: "🖥️"; }
+.icon-cloud::before { content: "☁️"; }
+.icon-shield::before { content: "🛡️"; }
+.icon-lock::before { content: "🔒"; }
+.icon-key::before { content: "🔑"; }
+.icon-check::before { content: "✅"; }
+.icon-times::before { content: "❌"; }
+.icon-warning::before { content: "⚠️"; }
+.icon-info::before { content: "ℹ️"; }
+.icon-question::before { content: "❓"; }
+.icon-exclamation::before { content: "❗"; }
+.icon-star::before { content: "⭐"; }
+.icon-heart::before { content: "❤️"; }
+.icon-thumbs-up::before { content: "👍"; }
+.icon-thumbs-down::before { content: "👎"; }
+.icon-arrow-up::before { content: "⬆️"; }
+.icon-arrow-down::before { content: "⬇️"; }
+.icon-arrow-left::before { content: "⬅️"; }
+.icon-arrow-right::before { content: "➡️"; }
+.icon-home::before { content: "🏠"; }
+.icon-search::before { content: "🔍"; }
+.icon-menu::before { content: "☰"; }
+.icon-close::before { content: "✕"; }
+.icon-plus::before { content: "➕"; }
+.icon-minus::before { content: "➖"; }
+.icon-edit::before { content: "✏️"; }
+.icon-trash::before { content: "🗑️"; }
+.icon-copy::before { content: "📋"; }
+.icon-download::before { content: "⬇️"; }
+.icon-upload::before { content: "⬆️"; }
+.icon-refresh::before { content: "🔄"; }
+.icon-save::before { content: "💾"; }
+.icon-print::before { content: "🖨️"; }
+.icon-calendar::before { content: "📅"; }
+.icon-clock::before { content: "🕐"; }
+.icon-tag::before { content: "🏷️"; }
+.icon-link::before { content: "🔗"; }
+.icon-external-link::before { content: "🔗"; }
+.icon-mail::before { content: "📧"; }
+.icon-send::before { content: "📤"; }
+.icon-inbox::before { content: "📥"; }
+.icon-outbox::before { content: "📤"; }
+.icon-folder::before { content: "📁"; }
+.icon-file::before { content: "📄"; }
+.icon-image::before { content: "🖼️"; }
+.icon-video::before { content: "🎥"; }
+.icon-audio::before { content: "🎵"; }
+.icon-document::before { content: "📄"; }
+.icon-pdf::before { content: "📄"; }
+.icon-excel::before { content: "📊"; }
+.icon-word::before { content: "📝"; }
+.icon-powerpoint::before { content: "📊"; }
+.icon-zip::before { content: "📦"; }
+.icon-code::before { content: "💻"; }
+.icon-terminal::before { content: "💻"; }
+.icon-bug::before { content: "🐛"; }
+.icon-rocket::before { content: "🚀"; }
+.icon-gear::before { content: "⚙️"; }
+.icon-settings::before { content: "⚙️"; }
+.icon-tools::before { content: "🔧"; }
+.icon-wrench::before { content: "🔧"; }
+.icon-hammer::before { content: "🔨"; }
+.icon-screwdriver::before { content: "🔧"; }
+.icon-paint-brush::before { content: "🎨"; }
+.icon-palette::before { content: "🎨"; }
+.icon-brush::before { content: "🖌️"; }
+.icon-pencil::before { content: "✏️"; }
+.icon-pen::before { content: "✒️"; }
+.icon-marker::before { content: "🖍️"; }
+.icon-highlighter::before { content: "🖍️"; }
+.icon-crayon::before { content: "🖍️"; }
+.icon-chalk::before { content: "🖍️"; }
+.icon-eraser::before { content: "🧽"; }
+.icon-ruler::before { content: "📏"; }
+.icon-triangle::before { content: "📐"; }
+.icon-square::before { content: "⬜"; }
+.icon-circle::before { content: "⭕"; }
+.icon-diamond::before { content: "💎"; }
+.icon-heart::before { content: "❤️"; }
+.icon-spade::before { content: "♠️"; }
+.icon-club::before { content: "♣️"; }
+.icon-diamond::before { content: "♦️"; }
+.icon-star::before { content: "⭐"; }
+.icon-moon::before { content: "🌙"; }
+.icon-sun::before { content: "☀️"; }
+.icon-cloud::before { content: "☁️"; }
+.icon-rain::before { content: "🌧️"; }
+.icon-snow::before { content: "❄️"; }
+.icon-fire::before { content: "🔥"; }
+.icon-water::before { content: "💧"; }
+.icon-earth::before { content: "🌍"; }
+.icon-globe::before { content: "🌐"; }
+.icon-map::before { content: "🗺️"; }
+.icon-compass::before { content: "🧭"; }
+.icon-flag::before { content: "🏁"; }
+.icon-trophy::before { content: "🏆"; }
+.icon-medal::before { content: "🏅"; }
+.icon-crown::before { content: "👑"; }
+.icon-gem::before { content: "💎"; }
+.icon-ring::before { content: "💍"; }
+.icon-necklace::before { content: "📿"; }
+.icon-bracelet::before { content: "📿"; }
+.icon-earring::before { content: "💎"; }
+.icon-watch::before { content: "⌚"; }
+.icon-glasses::before { content: "👓"; }
+.icon-sunglasses::before { content: "🕶️"; }
+.icon-hat::before { content: "🎩"; }
+.icon-cap::before { content: "🧢"; }
+.icon-helmet::before { content: "⛑️"; }
+.icon-mask::before { content: "🎭"; }
+.icon-costume::before { content: "🎭"; }
+.icon-theater::before { content: "🎭"; }
+.icon-movie::before { content: "🎬"; }
+.icon-camera::before { content: "📷"; }
+.icon-video-camera::before { content: "📹"; }
+.icon-microphone::before { content: "🎤"; }
+.icon-speaker::before { content: "🔊"; }
+.icon-headphones::before { content: "🎧"; }
+.icon-radio::before { content: "📻"; }
+.icon-tv::before { content: "📺"; }
+.icon-computer::before { content: "💻"; }
+.icon-laptop::before { content: "💻"; }
+.icon-keyboard::before { content: "⌨️"; }
+.icon-mouse::before { content: "🖱️"; }
+.icon-trackpad::before { content: "🖱️"; }
+.icon-monitor::before { content: "🖥️"; }
+.icon-printer::before { content: "🖨️"; }
+.icon-scanner::before { content: "📷"; }
+.icon-fax::before { content: "📠"; }
+.icon-telephone::before { content: "📞"; }
+.icon-mobile::before { content: "📱"; }
+.icon-tablet::before { content: "📱"; }
+.icon-smartphone::before { content: "📱"; }
+.icon-pager::before { content: "📟"; }
+.icon-walkie-talkie::before { content: "📻"; }
+.icon-satellite::before { content: "🛰️"; }
+.icon-rocket::before { content: "🚀"; }
+.icon-airplane::before { content: "✈️"; }
+.icon-helicopter::before { content: "🚁"; }
+.icon-train::before { content: "🚂"; }
+.icon-bus::before { content: "🚌"; }
+.icon-car::before { content: "🚗"; }
+.icon-truck::before { content: "🚚"; }
+.icon-motorcycle::before { content: "🏍️"; }
+.icon-bicycle::before { content: "🚲"; }
+.icon-scooter::before { content: "🛴"; }
+.icon-skateboard::before { content: "🛹"; }
+.icon-roller-skate::before { content: "🛼"; }
+.icon-ship::before { content: "🚢"; }
+.icon-boat::before { content: "⛵"; }
+.icon-anchor::before { content: "⚓"; }
+.icon-wheel::before { content: "🎡"; }
+.icon-ferris-wheel::before { content: "🎡"; }
+.icon-carousel::before { content: "🎠"; }
+.icon-merry-go-round::before { content: "🎠"; }
+.icon-slide::before { content: "🛝"; }
+.icon-swing::before { content: "🛝"; }
+.icon-seesaw::before { content: "🛝"; }
+.icon-trampoline::before { content: "🛝"; }
+.icon-ball::before { content: "⚽"; }
+.icon-soccer::before { content: "⚽"; }
+.icon-football::before { content: "🏈"; }
+.icon-basketball::before { content: "🏀"; }
+.icon-tennis::before { content: "🎾"; }
+.icon-golf::before { content: "⛳"; }
+.icon-bowling::before { content: "🎳"; }
+.icon-pool::before { content: "🎱"; }
+.icon-billiards::before { content: "🎱"; }
+.icon-darts::before { content: "🎯"; }
+.icon-archery::before { content: "🏹"; }
+.icon-gun::before { content: "🔫"; }
+.icon-bow::before { content: "🏹"; }
+.icon-arrow::before { content: "🏹"; }
+.icon-sword::before { content: "⚔️"; }
+.icon-shield::before { content: "🛡️"; }
+.icon-helmet::before { content: "⛑️"; }
+.icon-armor::before { content: "🛡️"; }
+.icon-crown::before { content: "👑"; }
+.icon-scepter::before { content: "🪄"; }
+.icon-wand::before { content: "🪄"; }
+.icon-magic::before { content: "🪄"; }
+.icon-crystal-ball::before { content: "🔮"; }
+.icon-tarot::before { content: "🔮"; }
+.icon-fortune::before { content: "🔮"; }
+.icon-prediction::before { content: "🔮"; }
+.icon-palm::before { content: "🤚"; }
+.icon-hand::before { content: "✋"; }
+.icon-fist::before { content: "✊"; }
+.icon-thumbs-up::before { content: "👍"; }
+.icon-thumbs-down::before { content: "👎"; }
+.icon-point::before { content: "👉"; }
+.icon-wave::before { content: "👋"; }
+.icon-clap::before { content: "👏"; }
+.icon-pray::before { content: "🙏"; }
+.icon-hug::before { content: "🤗"; }
+.icon-kiss::before { content: "💋"; }
+.icon-lips::before { content: "👄"; }
+.icon-tongue::before { content: "👅"; }
+.icon-tooth::before { content: "🦷"; }
+.icon-teeth::before { content: "🦷"; }
+.icon-mouth::before { content: "👄"; }
+.icon-nose::before { content: "👃"; }
+.icon-ear::before { content: "👂"; }
+.icon-eye::before { content: "👁️"; }
+.icon-eyes::before { content: "👀"; }
+.icon-brow::before { content: "🤨"; }
+.icon-forehead::before { content: "🤨"; }
+.icon-face::before { content: "😀"; }
+.icon-smile::before { content: "😊"; }
+.icon-frown::before { content: "☹️"; }
+.icon-angry::before { content: "😠"; }
+.icon-sad::before { content: "😢"; }
+.icon-cry::before { content: "😭"; }
+.icon-laugh::before { content: "😂"; }
+.icon-grin::before { content: "😁"; }
+.icon-wink::before { content: "😉"; }
+.icon-blush::before { content: "😊"; }
+.icon-kiss::before { content: "😘"; }
+.icon-heart-eyes::before { content: "😍"; }
+.icon-star-eyes::before { content: "🤩"; }
+.icon-cool::before { content: "😎"; }
+.icon-smirk::before { content: "😏"; }
+.icon-neutral::before { content: "😐"; }
+.icon-expressionless::before { content: "😑"; }
+.icon-rolling-eyes::before { content: "🙄"; }
+.icon-thinking::before { content: "🤔"; }
+.icon-confused::before { content: "😕"; }
+.icon-worried::before { content: "😟"; }
+.icon-fearful::before { content: "😨"; }
+.icon-screaming::before { content: "😱"; }
+.icon-astonished::before { content: "😲"; }
+.icon-flushed::before { content: "😳"; }
+.icon-sleeping::before { content: "😴"; }
+.icon-tired::before { content: "😫"; }
+.icon-sleepy::before { content: "😪"; }
+.icon-dizzy::before { content: "😵"; }
+.icon-exploding::before { content: "🤯"; }
+.icon-cowboy::before { content: "🤠"; }
+.icon-disguise::before { content: "🥸"; }
+.icon-sunglasses::before { content: "🕶️"; }
+.icon-nerd::before { content: "🤓"; }
+.icon-monocle::before { content: "🧐"; }
+.icon-confused::before { content: "😕"; }
+.icon-worried::before { content: "😟"; }
+.icon-slightly-frowning::before { content: "🙁"; }
+.icon-slightly-smiling::before { content: "🙂"; }
+.icon-upside-down::before { content: "🙃"; }
+.icon-melting::before { content: "🫠"; }
+.icon-saluting::before { content: "🫡"; }
+.icon-holding-back-tears::before { content: "🥹"; }
+.icon-face-with-peeking-eye::before { content: "🫣"; }
+.icon-face-with-diagonal-mouth::before { content: "🫤"; }
+.icon-dotted-line-face::before { content: "🫥"; }
+.icon-face-with-open-eyes-and-hand-over-mouth::before { content: "🫢"; }
+.icon-face-with-open-eyes::before { content: "😮"; }
+.icon-face-with-raised-eyebrow::before { content: "🤨"; }
+.icon-face-with-one-eyebrow-raised::before { content: "🤨"; }
+.icon-face-with-rolling-eyes::before { content: "🙄"; }
+.icon-face-with-steam-from-nose::before { content: "😤"; }
+.icon-face-with-symbols-on-mouth::before { content: "🤬"; }
+.icon-face-with-hand-over-mouth::before { content: "🤭"; }
+.icon-face-with-open-mouth::before { content: "😮"; }
+.icon-face-with-open-mouth-and-cold-sweat::before { content: "😰"; }
+.icon-face-with-open-mouth-and-eyes::before { content: "😱"; }
+.icon-face-with-open-mouth-and-hand-over-mouth::before { content: "🤭"; }
+.icon-face-with-open-mouth-and-eyes-and-hand-over-mouth::before { content: "🤭"; }
+.icon-face-with-open-mouth-and-eyes-and-hand-over-mouth-and-cold-sweat::before { content: "🤭"; }
+.icon-face-with-open-mouth-and-eyes-and-hand-over-mouth-and-cold-sweat-and-symbols-on-mouth::before { content: "🤭"; }
+
+/* Icon Animations */
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+.icon-pulse {
+  animation: pulse 2s infinite;
+}
+
+.icon-bounce {
+  animation: bounce 1s infinite;
+}
+
+.icon-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0, -8px, 0); }
+  70% { transform: translate3d(0, -4px, 0); }
+  90% { transform: translate3d(0, -2px, 0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Icon States */
+.icon-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-loading {
+  animation: spin 1s linear infinite;
+}
+
+.icon-success {
+  color: var(--success-color);
+}
+
+.icon-warning {
+  color: var(--warning-color);
+}
+
+.icon-error {
+  color: var(--error-color);
+}
+
+.icon-info {
+  color: var(--info-color);
+}
+
+/* Icon Groups */
+.icon-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.icon-group .icon {
+  margin: 0;
+}
+
+/* Icon with Text */
+.icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.icon-text .icon {
+  flex-shrink: 0;
+}
+
+/* Icon Buttons */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.icon-btn:hover {
+  background-color: var(--background-secondary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.icon-btn:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn .icon {
+  font-size: 1rem;
+}
+
+/* Icon Button Sizes */
+.icon-btn-sm {
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon-btn-sm .icon {
+  font-size: 0.875rem;
+}
+
+.icon-btn-lg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.icon-btn-lg .icon {
+  font-size: 1.25rem;
+}
+
+/* Icon Button Variants */
+.icon-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-inverse);
+}
+
+.icon-btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--text-inverse);
+}
+
+.icon-btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--text-inverse);
+}
+
+.icon-btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  border-color: var(--secondary-hover);
+  color: var(--text-inverse);
+}
+
+.icon-btn-outline {
+  background-color: transparent;
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.icon-btn-outline:hover {
+  background-color: var(--background-secondary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.icon-btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--text-primary);
+}
+
+.icon-btn-ghost:hover {
+  background-color: var(--background-secondary);
+  color: var(--primary-color);
+}
+
+/* Responsive Icons */
+@media (max-width: 768px) {
+  .icon-2xl,
+  .icon-3xl,
+  .icon-4xl {
+    font-size: 1.5rem;
+  }
+  
+  .icon-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .icon-btn-lg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .icon {
+    filter: contrast(2);
+  }
+  
+  .icon-btn {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .icon-spin,
+  .icon-pulse,
+  .icon-bounce,
+  .icon-shake {
+    animation: none;
+  }
+}

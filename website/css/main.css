@@ -9,6 +9,10 @@
 @import url('./components/navigation.css');
 @import url('./components/buttons.css');
 @import url('./components/footer.css');
+@import url('./components/icons.css');
+
+/* Import Pages */
+@import url('./pages/home.css');
 
 /* Base Layout */
 body {
