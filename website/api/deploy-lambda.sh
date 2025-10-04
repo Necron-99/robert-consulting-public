@@ -5,8 +5,8 @@
 
 echo "🚀 Deploying Contact Form Lambda Function..."
 
-# Navigate to API directory
-cd "$(dirname "$0")"
+# Navigate to Lambda directory
+cd "$(dirname "$0")/../../lambda"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
