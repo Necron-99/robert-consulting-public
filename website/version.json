@@ -1,15 +1,15 @@
 {
-  "version": "1.0.1",
-  "build": "2025-10-02T14:45:00Z",
+  "version": "1.0.2",
+  "build": "2025-10-04T18:42:26Z",
   "release": "stable",
-  "commit": "7a4f007acce2b2cb9fe0bfe54e96d873b2070d09",
+  "commit": "8d432312996c367d627a7c5de5d993230cede918",
   "branch": "main",
-  "workflow": "Staging Deployment (Automatic)",
-  "run_id": "123456789",
-  "run_number": "42",
-  "actor": "Necron-99",
+  "workflow": "Manual Update",
+  "run_id": "manual",
+  "run_number": "1",
+  "actor": "local",
   "repository": "Necron-99/robertconsulting.net",
-  "event_name": "push",
+  "event_name": "manual",
   "security": {
     "status": "secure",
     "dependencies": "up-to-date",
@@ -25,7 +25,21 @@
   },
   "changelog": [
     {
-      "version": "1.0.1759101987",
+      "version": "1.0.2",
+      "date": "2025-10-04",
+      "commit": "8d432312996c367d627a7c5de5d993230cede918",
+      "changes": [
+        "Dark theme implementation with accessibility features",
+        "Enhanced security scanning and validation",
+        "Improved version management system",
+        "Updated build information and deployment tracking",
+        "Fixed HTML validation issues",
+        "Added theme toggle functionality",
+        "Improved user experience with sombre neutral palette"
+      ]
+    },
+    {
+      "version": "1.0.1",
       "date": "2025-10-01",
       "commit": "4f7e7be492818f278057c830447944de09706b58",
       "changes": [
@@ -40,13 +54,16 @@
   "features": [
     "Responsive design",
     "Modern UI/UX",
-    "Contact form",
+    "Dark theme with accessibility",
+    "Theme toggle functionality",
+    "Contact form with API integration",
     "Professional experience timeline",
     "Service portfolio",
     "Performance optimized",
     "Automated deployments",
     "Security monitoring",
-    "Cache invalidation"
+    "Cache invalidation",
+    "WCAG AA accessibility compliance"
   ],
   "technical": {
     "framework": "Vanilla HTML/CSS/JS",
@@ -55,6 +72,9 @@
     "performance_optimized": true,
     "ci_cd": "GitHub Actions",
     "deployment": "Automated",
-    "security": "Monitored"
+    "security": "Monitored",
+    "accessibility": "WCAG AA Compliant",
+    "theme": "Dark with Light Toggle",
+    "last_updated": "2025-10-04T18:42:26Z"
   }
 }

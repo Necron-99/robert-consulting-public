@@ -112,11 +112,61 @@ class VersionManager {
     }
 
     /**
+     * Update DOM elements with version information
+     */
+    updateDOMElements() {
+        if (!this.versionData) return;
+        
+        // Update version display
+        const versionDisplay = document.getElementById('version-display');
+        if (versionDisplay) {
+            versionDisplay.textContent = `v${this.versionData.version}`;
+        }
+        
+        // Update build display
+        const buildDisplay = document.getElementById('build-display');
+        if (buildDisplay) {
+            let buildDate = this.versionData.build;
+            if (buildDate.includes('T')) {
+                // If it's an ISO timestamp, extract just the date part
+                buildDate = buildDate.split('T')[0];
+            }
+            buildDisplay.textContent = `Build ${buildDate}`;
+        }
+        
+        // Update security status
+        const securityStatus = document.getElementById('security-status');
+        if (securityStatus && this.versionData.security) {
+            const security = this.versionData.security;
+            let statusIcon = '🔒';
+            let statusText = 'secure';
+            let statusColor = '#10b981';
+            
+            if (security.status === 'secure') {
+                statusIcon = '🔒';
+                statusText = 'secure';
+                statusColor = '#10b981';
+            } else if (security.status === 'warning') {
+                statusIcon = '⚠️';
+                statusText = 'warning';
+                statusColor = '#f59e0b';
+            } else if (security.status === 'critical') {
+                statusIcon = '🚨';
+                statusText = 'critical';
+                statusColor = '#ef4444';
+            }
+            
+            securityStatus.innerHTML = `<span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${statusText}</span>`;
+        }
+    }
+
+    /**
      * Initialize version management
      */
     async init() {
         await this.loadVersion();
         this.displayVersionInfo();
+        this.updateDOMElements();
         return this.versionData;
     }
 }
