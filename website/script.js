@@ -42,7 +42,7 @@ window.addEventListener('scroll', () => {
 // Contact form handling
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    contactForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         try {

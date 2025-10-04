@@ -2,14 +2,14 @@
   "name": "robert-consulting-website",
   "version": "1.0.0",
   "description": "Robert Consulting website with automated CloudFront cache invalidation",
-  "main": "auto-invalidate.js",
+  "main": "index.html",
   "scripts": {
-    "deploy": "node auto-invalidate.js all",
-    "deploy:files": "node auto-invalidate.js files",
+    "deploy": "node ../deployment/auto-invalidate.js all",
+    "deploy:files": "node ../deployment/auto-invalidate.js files",
     "deploy:wait": "bash deploy-with-invalidation.sh --wait",
     "deploy:quick": "bash deploy-with-invalidation.sh",
-    "invalidate": "node auto-invalidate.js all",
-    "status": "node auto-invalidate.js status"
+    "invalidate": "node ../deployment/auto-invalidate.js all",
+    "status": "node ../deployment/auto-invalidate.js status"
   },
   "dependencies": {
     "aws-sdk": "^2.1490.0"
