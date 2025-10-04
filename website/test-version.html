@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version Test - Robert Consulting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #111827;
+            color: #f9fafb;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1f2937;
+            border-radius: 8px;
+        }
+        .version-info {
+            background-color: #374151;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .success { background-color: #10b981; color: white; }
+        .error { background-color: #ef4444; color: white; }
+        .warning { background-color: #f59e0b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Version Management Test</h1>
+        
+        <div class="version-info">
+            <h3>Version Information:</h3>
+            <p><strong>Version:</strong> <span id="version-display">Loading...</span></p>
+            <p><strong>Build Date:</strong> <span id="build-display">Loading...</span></p>
+            <p><strong>Security Status:</strong> <span id="security-status">Loading...</span></p>
+        </div>
+        
+        <div class="version-info">
+            <h3>Test Results:</h3>
+            <div id="test-results">
+                <p>Running tests...</p>
+            </div>
+        </div>
+        
+        <div class="version-info">
+            <h3>Console Output:</h3>
+            <div id="console-output">
+                <p>Check browser console for detailed version information</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="version-updater.js"></script>
+    <script>
+        // Test version management
+        document.addEventListener('DOMContentLoaded', async () => {
+            const testResults = document.getElementById('test-results');
+            const consoleOutput = document.getElementById('console-output');
+            
+            try {
+                // Wait for version manager to load
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const versionManager = window.versionManager;
+                const versionData = versionManager.getVersionData();
+                
+                let results = '<h4>Test Results:</h4>';
+                
+                if (versionData) {
+                    results += '<p class="status success">✅ Version data loaded successfully</p>';
+                    results += `<p><strong>Version:</strong> ${versionData.version}</p>`;
+                    results += `<p><strong>Build:</strong> ${versionData.build}</p>`;
+                    results += `<p><strong>Commit:</strong> ${versionData.commit}</p>`;
+                    results += `<p><strong>Security Status:</strong> ${versionData.security.status}</p>`;
+                    results += `<p><strong>Features:</strong> ${versionData.features.length} features</p>`;
+                } else {
+                    results += '<p class="status error">❌ Failed to load version data</p>';
+                }
+                
+                // Test DOM elements
+                const versionDisplay = document.getElementById('version-display');
+                const buildDisplay = document.getElementById('build-display');
+                const securityStatus = document.getElementById('security-status');
+                
+                if (versionDisplay && versionDisplay.textContent !== 'Loading...') {
+                    results += '<p class="status success">✅ Version display updated</p>';
+                } else {
+                    results += '<p class="status error">❌ Version display not updated</p>';
+                }
+                
+                if (buildDisplay && buildDisplay.textContent !== 'Loading...') {
+                    results += '<p class="status success">✅ Build display updated</p>';
+                } else {
+                    results += '<p class="status error">❌ Build display not updated</p>';
+                }
+                
+                if (securityStatus && securityStatus.textContent !== 'Loading...') {
+                    results += '<p class="status success">✅ Security status updated</p>';
+                } else {
+                    results += '<p class="status error">❌ Security status not updated</p>';
+                }
+                
+                testResults.innerHTML = results;
+                
+                // Show console output
+                consoleOutput.innerHTML = '<p>Check browser console (F12) for detailed version information</p>';
+                
+            } catch (error) {
+                testResults.innerHTML = `<p class="status error">❌ Test failed: ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

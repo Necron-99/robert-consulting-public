@@ -493,57 +493,6 @@
     <script src="js/theme-toggle.js"></script>
     <script src="js/api-config.js"></script>
     <script src="security-config.js"></script>
-    <script src="version-manager.js"></script>
-    
-    <!-- Debug version system -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🔍 Debug: DOM loaded');
-            console.log('🔍 Debug: Version manager exists:', typeof window.versionManager !== 'undefined');
-            
-            // Test direct fetch
-            fetch('./version.json')
-                .then(response => {
-                    console.log('🔍 Debug: Fetch response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('🔍 Debug: Version data:', data);
-                    
-                    // Update elements manually
-                    const versionDisplay = document.getElementById('version-display');
-                    const buildDisplay = document.getElementById('build-display');
-                    const securityStatus = document.getElementById('security-status');
-                    
-                    console.log('🔍 Debug: Elements found:', {
-                        version: !!versionDisplay,
-                        build: !!buildDisplay,
-                        security: !!securityStatus
-                    });
-                    
-                    if (versionDisplay) {
-                        versionDisplay.textContent = `v${data.version}`;
-                        console.log('🔍 Debug: Updated version display');
-                    }
-                    
-                    if (buildDisplay) {
-                        let buildDate = data.build;
-                        if (buildDate.includes('T')) {
-                            buildDate = buildDate.split('T')[0];
-                        }
-                        buildDisplay.textContent = `Build ${buildDate}`;
-                        console.log('🔍 Debug: Updated build display');
-                    }
-                    
-                    if (securityStatus) {
-                        securityStatus.innerHTML = `<span style="color: #10b981; font-weight: bold;">🔒 ${data.security.status}</span>`;
-                        console.log('🔍 Debug: Updated security status');
-                    }
-                })
-                .catch(error => {
-                    console.error('🔍 Debug: Fetch failed:', error);
-                });
-        });
-    </script>
+    <script src="version-updater.js"></script>
 </body>
 </html>
