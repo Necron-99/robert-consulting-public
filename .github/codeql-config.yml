@@ -1,0 +1,24 @@
+name: "CodeQL Configuration"
+
+# This configuration file specifies the languages to analyze and the queries to run.
+# For more information, see: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/customizing-code-scanning
+
+# Specify the languages to analyze
+languages:
+  - javascript
+
+# Specify the queries to run
+queries:
+  - name: security-and-quality
+    uses: security-and-quality
+
+# Specify the paths to analyze
+paths:
+  - "website/**"
+
+# Specify the paths to ignore
+paths-ignore:
+  - "terraform/**"
+  - "backup/**"
+  - "lambda/**"
+  - "deployment/**"

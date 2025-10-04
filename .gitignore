@@ -149,6 +149,9 @@ temp/
 *.old
 *.orig
 
+# Backup directories
+backup/
+
 # Log files
 *.log
 logs/
