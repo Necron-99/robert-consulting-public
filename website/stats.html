@@ -453,16 +453,18 @@
             }
             
             loadStats() {
-                // Load version information
-                fetch('version.json')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('version').textContent = `v${data.version}`;
-                        document.getElementById('build-date').textContent = data.build;
-                    })
-                    .catch(error => {
-                        console.log('Could not load version info:', error);
-                    });
+                // Load version information using VersionManager
+                if (window.versionManager) {
+                    const versionData = window.versionManager.generateVersionInfo();
+                    document.getElementById('version').textContent = `v${versionData.version}`;
+                    document.getElementById('build-date').textContent = versionData.buildFormatted;
+                } else {
+                    // Fallback to current date/time if VersionManager not available
+                    const now = new Date();
+                    const version = `1.${now.getFullYear().toString().slice(-2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+                    document.getElementById('version').textContent = `v${version}`;
+                    document.getElementById('build-date').textContent = now.toISOString().split('T')[0];
+                }
                 
                 // Load analytics data from localStorage
                 const pageViews = JSON.parse(localStorage.getItem('page_views') || '[]');
@@ -599,6 +601,7 @@
             new StatsDashboard();
         });
     </script>
+    <script src="version-manager.js"></script>
     <script src="auth.js"></script>
 </body>
 </html>
