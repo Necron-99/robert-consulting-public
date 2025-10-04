@@ -156,8 +156,21 @@ class Dashboard {
 
     async loadVersionInfo() {
         try {
-            const response = await fetch('version.json');
-            const versionData = await response.json();
+            let versionData;
+            
+            // Use version manager for dynamic version data
+            if (window.versionManager) {
+                versionData = window.versionManager.generateVersionInfo();
+                console.log('✅ Using dynamic version data from version manager');
+            } else {
+                // Fallback to simulated data if version manager not available
+                versionData = {
+                    version: '1.0.0',
+                    build: new Date().toISOString(),
+                    buildFormatted: new Date().toLocaleDateString()
+                };
+                console.log('⚠️ Version manager not available, using fallback data');
+            }
             
             const currentVersion = document.getElementById('current-version');
             const versionDate = document.getElementById('version-date');
