@@ -5,7 +5,7 @@
 
 class VersionManager {
     constructor() {
-        this.versionFile = 'version.json';
+        this.versionFile = './version.json';
         this.currentVersion = null;
         this.versionData = null;
     }
@@ -15,12 +15,34 @@ class VersionManager {
      */
     async loadVersion() {
         try {
+            console.log('Loading version from:', this.versionFile);
             const response = await fetch(this.versionFile);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             this.versionData = await response.json();
             this.currentVersion = this.versionData.version;
+            console.log('Version data loaded successfully:', this.versionData);
             return this.versionData;
         } catch (error) {
             console.error('Failed to load version information:', error);
+            console.error('Trying fallback...');
+            
+            // Try fallback
+            try {
+                const fallbackResponse = await fetch('./version-fallback.json');
+                if (fallbackResponse.ok) {
+                    this.versionData = await fallbackResponse.json();
+                    this.currentVersion = this.versionData.version;
+                    console.log('Fallback version data loaded:', this.versionData);
+                    return this.versionData;
+                }
+            } catch (fallbackError) {
+                console.error('Fallback also failed:', fallbackError);
+            }
+            
             return null;
         }
     }
@@ -115,16 +137,27 @@ class VersionManager {
      * Update DOM elements with version information
      */
     updateDOMElements() {
-        if (!this.versionData) return;
+        console.log('Updating DOM elements...');
+        console.log('Version data available:', !!this.versionData);
+        
+        if (!this.versionData) {
+            console.warn('No version data available for DOM update');
+            return;
+        }
         
         // Update version display
         const versionDisplay = document.getElementById('version-display');
+        console.log('Version display element:', versionDisplay);
         if (versionDisplay) {
             versionDisplay.textContent = `v${this.versionData.version}`;
+            console.log('Updated version display to:', versionDisplay.textContent);
+        } else {
+            console.warn('Version display element not found');
         }
         
         // Update build display
         const buildDisplay = document.getElementById('build-display');
+        console.log('Build display element:', buildDisplay);
         if (buildDisplay) {
             let buildDate = this.versionData.build;
             if (buildDate.includes('T')) {
@@ -132,10 +165,14 @@ class VersionManager {
                 buildDate = buildDate.split('T')[0];
             }
             buildDisplay.textContent = `Build ${buildDate}`;
+            console.log('Updated build display to:', buildDisplay.textContent);
+        } else {
+            console.warn('Build display element not found');
         }
         
         // Update security status
         const securityStatus = document.getElementById('security-status');
+        console.log('Security status element:', securityStatus);
         if (securityStatus && this.versionData.security) {
             const security = this.versionData.security;
             let statusIcon = '🔒';
@@ -157,16 +194,29 @@ class VersionManager {
             }
             
             securityStatus.innerHTML = `<span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${statusText}</span>`;
+            console.log('Updated security status to:', securityStatus.innerHTML);
+        } else {
+            console.warn('Security status element not found or no security data');
         }
+        
+        console.log('DOM update completed');
     }
 
     /**
      * Initialize version management
      */
     async init() {
-        await this.loadVersion();
-        this.displayVersionInfo();
-        this.updateDOMElements();
+        console.log('Initializing version manager...');
+        const versionData = await this.loadVersion();
+        console.log('Version data loaded:', !!versionData);
+        
+        if (versionData) {
+            this.displayVersionInfo();
+            this.updateDOMElements();
+        } else {
+            console.error('Failed to load version data, skipping DOM updates');
+        }
+        
         return this.versionData;
     }
 }
@@ -176,7 +226,12 @@ window.versionManager = new VersionManager();
 
 // Auto-initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.versionManager.init();
+    console.log('DOM loaded, initializing version manager...');
+    window.versionManager.init().then(() => {
+        console.log('Version manager initialization completed');
+    }).catch(error => {
+        console.error('Version manager initialization failed:', error);
+    });
 });
 
 // Export for module usage
