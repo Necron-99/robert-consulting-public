@@ -5,6 +5,8 @@
   border-top: 1px solid var(--border-primary);
   margin-top: auto;
   padding: var(--footer-padding) 0;
+  /* Ensure proper contrast for footer text */
+  color: var(--text-primary);
 }
 
 .footer-content {
@@ -197,6 +199,24 @@
   .footer-bottom p {
     color: var(--text-secondary);
   }
+}
+
+/* Version tags - ensure proper contrast */
+.footer-version-tags {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.footer-version-tag {
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid var(--border-primary);
 }
 
 /* High Contrast Mode */

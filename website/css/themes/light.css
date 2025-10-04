@@ -58,6 +58,34 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Footer overrides for better contrast */
+  .footer {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+  }
+  
+  .footer h3,
+  .footer h4 {
+    color: #f9fafb !important;
+  }
+  
+  .footer p,
+  .footer li,
+  .footer a {
+    color: #d1d5db !important;
+  }
+  
+  .footer a:hover {
+    color: #ffffff !important;
+  }
+  
+  /* Version tags in light theme */
+  .footer-version-tag {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+  }
 }
 
 /* Light Theme Components */
