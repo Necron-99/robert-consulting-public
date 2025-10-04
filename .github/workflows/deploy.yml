@@ -18,6 +18,11 @@ jobs:
   deploy:
     name: Deploy Website Content to Staging
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      pull-requests: read
     
     steps:
     - name: Checkout code
