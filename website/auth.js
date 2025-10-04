@@ -142,10 +142,10 @@ class SecureAuth {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // In production, this would be a secure server call
-        // For demo purposes, we'll use environment variables or secure defaults
+        // For demo purposes, we'll use secure defaults
         const validCredentials = {
-            username: process.env.DEMO_USERNAME || 'demo_user',
-            password: this.hashPassword(process.env.DEMO_PASSWORD || 'demo_password_123')
+            username: 'demo_user',
+            password: this.hashPassword('demo_password_123')
         };
         
         const hashedPassword = this.hashPassword(password);
