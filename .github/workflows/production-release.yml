@@ -2,7 +2,7 @@ name: Production Release
 
 on:
   workflow_run:
-    workflows: ["Pre-Production Validation"]
+    workflows: ["Staging Deployment (Automatic)"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -164,7 +164,7 @@ jobs:
           aws s3 sync website/ s3://robert-consulting-website-2024-bd900b02/ --delete
           
           # Invalidate CloudFront cache
-          aws cloudfront create-invalidation --distribution-id E3HUVB85SPZFHO --paths "/*"
+          aws cloudfront create-invalidation --distribution-id E36DBYPHUUKB3V --paths "/*"
           
           echo "✅ Production deployment completed"
           
