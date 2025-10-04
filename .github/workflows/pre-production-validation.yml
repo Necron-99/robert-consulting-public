@@ -19,7 +19,12 @@ on:
         default: false
         type: boolean
       force_validation:
-        description: 'Force validation (skip some checks)'
+        description: 'Force validation (skip IP verification and some checks)'
+        required: false
+        default: false
+        type: boolean
+      skip_ip_verification:
+        description: 'Skip IP address verification (testing only)'
         required: false
         default: false
         type: boolean
@@ -62,13 +67,17 @@ jobs:
         CURRENT_IP=$(curl -s https://api.ipify.org)
         echo "Current IP: $CURRENT_IP"
         
-        # Check if IP is in allowed list (if configured)
-        if [ -n "${{ secrets.ALLOWED_IP_ADDRESS }}" ]; then
+        # Check if IP verification should be skipped
+        if [ "${{ github.event.inputs.skip_ip_verification }}" = "true" ] || [ "${{ github.event.inputs.force_validation }}" = "true" ]; then
+          echo "⚠️ IP verification skipped for testing"
+          echo "⚠️ WARNING: IP verification bypassed - use only for testing"
+        elif [ -n "${{ secrets.ALLOWED_IP_ADDRESS }}" ]; then
           if [ "$CURRENT_IP" = "${{ secrets.ALLOWED_IP_ADDRESS }}" ]; then
             echo "✅ IP address verified: $CURRENT_IP"
           else
             echo "❌ IP address not authorized: $CURRENT_IP"
             echo "Expected: ${{ secrets.ALLOWED_IP_ADDRESS }}"
+            echo "💡 To bypass IP verification, use 'force_validation: true' in manual dispatch"
             exit 1
           fi
         else
