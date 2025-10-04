@@ -210,7 +210,7 @@ jobs:
         echo "🚀 Deploying website files to S3..."
         
         # Set CloudFront distribution ID
-        export CLOUDFRONT_DISTRIBUTION_ID=E3HUVB85SPZFHO
+        export CLOUDFRONT_DISTRIBUTION_ID=E36DBYPHUUKB3V
         BUCKET_NAME="robert-consulting-website"
         
         # Navigate to website directory and sync only website files
@@ -229,14 +229,14 @@ jobs:
     - name: Invalidate CloudFront Cache (Always for Production)
       run: |
         echo "🔄 Invalidating CloudFront cache for production deployment..."
-        echo "📋 Distribution ID: E3HUVB85SPZFHO"
+        echo "📋 Distribution ID: E36DBYPHUUKB3V"
         echo "📋 Paths: /* (all content)"
         
         # Always create CloudFront invalidation for production deployments
         set -e  # Exit on any error
         
         INVALIDATION_ID=$(aws cloudfront create-invalidation \
-          --distribution-id E3HUVB85SPZFHO \
+          --distribution-id E36DBYPHUUKB3V \
           --paths "/*" \
           --query 'Invalidation.Id' \
           --output text)
@@ -260,7 +260,7 @@ jobs:
         
         while true; do
           STATUS=$(aws cloudfront get-invalidation \
-            --distribution-id E3HUVB85SPZFHO \
+            --distribution-id E36DBYPHUUKB3V \
             --id $INVALIDATION_ID \
             --query 'Invalidation.Status' \
             --output text)
@@ -286,7 +286,7 @@ jobs:
         echo "🎉 Production Deployment Complete!"
         echo "=================================="
         echo "📦 S3 Bucket: robert-consulting-website"
-        echo "🌐 CloudFront Distribution: E3HUVB85SPZFHO"
+        echo "🌐 CloudFront Distribution: E36DBYPHUUKB3V"
         echo "🔄 Cache Invalidation: $INVALIDATION_ID"
         echo "⏰ Deployment Time: $(date -u)"
         echo ""
