@@ -45,7 +45,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
         
     - name: Install dependencies
       run: |
@@ -53,6 +52,8 @@ jobs:
         if [ -f "website/package.json" ]; then
           cd website
           npm install
+        else
+          echo "⚠️ No package.json found in website/ directory"
         fi
         
     - name: IP Address Verification
