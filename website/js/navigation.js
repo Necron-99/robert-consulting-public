@@ -5,11 +5,22 @@ document.addEventListener('DOMContentLoaded', function() {
   const navMenu = document.getElementById('nav-menu');
   const navLinks = document.querySelectorAll('.nav-link');
   
+  // Debug logging
+  console.log('Navigation script loaded');
+  console.log('Hamburger element:', hamburger);
+  console.log('Nav menu element:', navMenu);
+  console.log('Nav links found:', navLinks.length);
+  
   // Mobile menu toggle
   if (hamburger && navMenu) {
+    console.log('Adding click listener to hamburger');
     hamburger.addEventListener('click', function() {
+      console.log('Hamburger clicked!');
       hamburger.classList.toggle('active');
       navMenu.classList.toggle('active');
+      
+      console.log('Hamburger active class:', hamburger.classList.contains('active'));
+      console.log('Nav menu active class:', navMenu.classList.contains('active'));
       
       // Prevent body scroll when menu is open
       if (navMenu.classList.contains('active')) {
