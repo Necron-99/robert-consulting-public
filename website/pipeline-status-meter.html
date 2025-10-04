@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Pipeline Status Meter - Robert Consulting</title>
+    <meta name="description" content="Real-time development pipeline status with street light motif">
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚦</text></svg>">
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">Pipeline Status</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="status.html" class="nav-link">Status</a>
+                </li>
+                <li class="nav-item">
+                    <a href="monitoring.html" class="nav-link">Monitoring</a>
+                </li>
+                <li class="nav-item">
+                    <a href="best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#experience" class="nav-link">Experience</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <!-- Pipeline Status Meter -->
+        <section class="pipeline-status-section">
+            <div class="pipeline-status-meter">
+                <div class="status-header">
+                    <h2>🚦 Development Pipeline Status</h2>
+                    <div class="overall-status">
+                        <span class="status-indicator overall-healthy" id="overall-status">🟢</span>
+                        <span class="status-text" id="overall-text">All Systems Operational</span>
+                        <span class="last-updated" id="last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="pipeline-stages">
+                    <!-- Development Stage -->
+                    <div class="stage-card" data-stage="development">
+                        <div class="stage-header">
+                            <div class="stage-icon">💻</div>
+                            <div class="stage-info">
+                                <h3>Development</h3>
+                                <div class="status-light green" id="dev-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="dev-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Last Commit:</span>
+                                <span class="detail-value" id="dev-commit">2 minutes ago</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Branch:</span>
+                                <span class="detail-value" id="dev-branch">feature/new-feature</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tests:</span>
+                                <span class="detail-value" id="dev-tests">✅ 45/45 passing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testing Stage -->
+                    <div class="stage-card" data-stage="testing">
+                        <div class="stage-header">
+                            <div class="stage-icon">🧪</div>
+                            <div class="stage-info">
+                                <h3>Testing</h3>
+                                <div class="status-light yellow" id="test-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="test-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Coverage:</span>
+                                <span class="detail-value" id="test-coverage">87%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Duration:</span>
+                                <span class="detail-value" id="test-duration">2m 34s</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Progress:</span>
+                                <span class="detail-value" id="test-progress">🔄 8/12 passing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Staging Stage -->
+                    <div class="stage-card" data-stage="staging">
+                        <div class="stage-header">
+                            <div class="stage-icon">🚀</div>
+                            <div class="stage-info">
+                                <h3>Staging</h3>
+                                <div class="status-light green" id="staging-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="staging-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Environment:</span>
+                                <span class="detail-value" id="staging-env">staging.robertconsulting.net</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Uptime:</span>
+                                <span class="detail-value" id="staging-uptime">99.9%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Health:</span>
+                                <span class="detail-value" id="staging-health">✅ All services healthy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Stage -->
+                    <div class="stage-card" data-stage="security">
+                        <div class="stage-header">
+                            <div class="stage-icon">🔒</div>
+                            <div class="stage-info">
+                                <h3>Security</h3>
+                                <div class="status-light green" id="security-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="security-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Vulnerabilities:</span>
+                                <span class="detail-value" id="security-vuln">0</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Dependencies:</span>
+                                <span class="detail-value" id="security-deps">All updated</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Compliance:</span>
+                                <span class="detail-value" id="security-compliance">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Stage -->
+                    <div class="stage-card" data-stage="deployment">
+                        <div class="stage-header">
+                            <div class="stage-icon">🚀</div>
+                            <div class="stage-info">
+                                <h3>Deployment</h3>
+                                <div class="status-light yellow" id="deploy-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="deploy-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Strategy:</span>
+                                <span class="detail-value" id="deploy-strategy">Blue-Green</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Progress:</span>
+                                <span class="detail-value" id="deploy-progress">75%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ETA:</span>
+                                <span class="detail-value" id="deploy-eta">3 minutes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring Stage -->
+                    <div class="stage-card" data-stage="monitoring">
+                        <div class="stage-header">
+                            <div class="stage-icon">📊</div>
+                            <div class="stage-info">
+                                <h3>Monitoring</h3>
+                                <div class="status-light green" id="monitor-status"></div>
+                            </div>
+                        </div>
+                        <div class="stage-details" id="monitor-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Uptime:</span>
+                                <span class="detail-value" id="monitor-uptime">99.9%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Response Time:</span>
+                                <span class="detail-value" id="monitor-response">120ms</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Alerts:</span>
+                                <span class="detail-value" id="monitor-alerts">✅ All Clear</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Robert Consulting</h4>
+                <p>DevSecOps & Cloud Engineering Solutions</p>
+                <div class="footer-credentials">
+                    <span class="credential-badge">25+ Years</span>
+                    <span class="credential-badge">Cost Optimized</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Pipeline</h4>
+                <ul>
+                    <li><a href="status.html">Status Page</a></li>
+                    <li><a href="monitoring.html">Monitoring</a></li>
+                    <li><a href="best-practices.html">Best Practices</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="learning.html">Learning Journey</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Robert Consulting. All rights reserved.</p>
+            <p>Last updated: <span id="last-updated">Never</span></p>
+        </div>
+    </footer>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/pipeline-status.js"></script>
+</body>
+</html>

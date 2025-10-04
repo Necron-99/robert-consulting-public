@@ -1,0 +1,416 @@
+/* Pipeline Status Meter - Street Light Motif */
+
+.pipeline-status-section {
+  padding: 3rem 2rem;
+  background: var(--background-primary);
+  min-height: 100vh;
+}
+
+.pipeline-status-meter {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-primary);
+}
+
+.status-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.status-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.overall-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-indicator {
+  font-size: 2rem;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.overall-healthy {
+  color: #10b981;
+}
+
+.status-indicator.overall-warning {
+  color: #f59e0b;
+}
+
+.status-indicator.overall-critical {
+  color: #ef4444;
+}
+
+.status-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.last-updated {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Pipeline Stages Grid */
+.pipeline-stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.stage-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--border-focus);
+}
+
+.stage-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stage-card:hover::before {
+  opacity: 1;
+}
+
+.stage-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stage-icon {
+  font-size: 2rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-elevated);
+  border-radius: 50%;
+  border: 2px solid var(--border-primary);
+}
+
+.stage-info {
+  flex: 1;
+}
+
+.stage-info h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+/* Street Light Status Indicators */
+.status-light {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.status-light.red {
+  background: radial-gradient(circle, #ff4444 0%, #cc0000 100%);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+  animation: pulse-red 2s infinite;
+}
+
+.status-light.yellow {
+  background: radial-gradient(circle, #ffaa00 0%, #cc8800 100%);
+  box-shadow: 0 0 20px rgba(255, 170, 0, 0.6);
+  animation: pulse-yellow 2s infinite;
+}
+
+.status-light.green {
+  background: radial-gradient(circle, #44ff44 0%, #00cc00 100%);
+  box-shadow: 0 0 20px rgba(68, 255, 68, 0.6);
+  animation: pulse-green 2s infinite;
+}
+
+/* Pulsing Animations */
+@keyframes pulse-red {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-yellow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(255, 170, 0, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-green {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(68, 255, 68, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(68, 255, 68, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.1);
+  }
+}
+
+/* Stage Details */
+.stage-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Status-specific styling */
+.detail-value.success {
+  color: #10b981;
+}
+
+.detail-value.warning {
+  color: #f59e0b;
+}
+
+.detail-value.error {
+  color: #ef4444;
+}
+
+.detail-value.progress {
+  color: #3b82f6;
+}
+
+/* Pipeline Flow Connectors */
+.pipeline-stages::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--border-primary) 20%, 
+    var(--border-primary) 80%, 
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pipeline-status-section {
+    padding: 2rem 1rem;
+  }
+  
+  .pipeline-status-meter {
+    padding: 1.5rem;
+  }
+  
+  .status-header h2 {
+    font-size: 2rem;
+  }
+  
+  .pipeline-stages {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .stage-card {
+    padding: 1rem;
+  }
+  
+  .stage-header {
+    gap: 0.75rem;
+  }
+  
+  .stage-icon {
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  .status-light {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .overall-status {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-header h2 {
+    font-size: 1.75rem;
+  }
+  
+  .stage-card {
+    padding: 0.75rem;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .detail-value {
+    text-align: left;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .status-light {
+    border: 2px solid var(--text-primary);
+  }
+  
+  .stage-card {
+    border-width: 2px;
+  }
+  
+  .detail-item {
+    border-bottom-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .status-light,
+  .status-indicator {
+    animation: none;
+  }
+  
+  .stage-card {
+    transition: none;
+  }
+  
+  .stage-card:hover {
+    transform: none;
+  }
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.error {
+  color: var(--error-color);
+  background: var(--error-light);
+  border: 1px solid var(--error-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Success States */
+.success {
+  color: var(--success-color);
+  background: var(--success-light);
+  border: 1px solid var(--success-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
