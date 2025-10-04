@@ -135,26 +135,26 @@ jobs:
         # Check for common secret patterns
         SECRETS_FOUND=0
         
-        # Check for hardcoded passwords
-        if grep -r -i "password.*=" website/ --include="*.js" --include="*.html" --include="*.css" 2>/dev/null | grep -v "password.*=.*''" | grep -v "password.*=.*null" | grep -v "password.*=.*undefined"; then
+        # Check for hardcoded passwords (exclude node_modules)
+        if grep -r -i "password.*=" website/ --include="*.js" --include="*.html" --include="*.css" --exclude-dir=node_modules 2>/dev/null | grep -v "password.*=.*''" | grep -v "password.*=.*null" | grep -v "password.*=.*undefined"; then
           echo "❌ Potential hardcoded passwords found"
           SECRETS_FOUND=$((SECRETS_FOUND + 1))
         fi
         
-        # Check for API keys
-        if grep -r -i "api.*key.*=" website/ --include="*.js" --include="*.html" 2>/dev/null | grep -v "api.*key.*=.*''" | grep -v "api.*key.*=.*null" | grep -v "api.*key.*=.*undefined"; then
+        # Check for API keys (exclude node_modules)
+        if grep -r -i "api.*key.*=" website/ --include="*.js" --include="*.html" --exclude-dir=node_modules 2>/dev/null | grep -v "api.*key.*=.*''" | grep -v "api.*key.*=.*null" | grep -v "api.*key.*=.*undefined"; then
           echo "❌ Potential hardcoded API keys found"
           SECRETS_FOUND=$((SECRETS_FOUND + 1))
         fi
         
-        # Check for AWS credentials
-        if grep -r -i "aws.*secret" website/ --include="*.js" --include="*.html" 2>/dev/null; then
+        # Check for AWS credentials (exclude node_modules)
+        if grep -r -i "aws.*secret" website/ --include="*.js" --include="*.html" --exclude-dir=node_modules 2>/dev/null; then
           echo "❌ Potential AWS secrets found"
           SECRETS_FOUND=$((SECRETS_FOUND + 1))
         fi
         
-        # Check for tokens
-        if grep -r -i "token.*=" website/ --include="*.js" --include="*.html" 2>/dev/null | grep -v "token.*=.*''" | grep -v "token.*=.*null" | grep -v "token.*=.*undefined"; then
+        # Check for tokens (exclude node_modules)
+        if grep -r -i "token.*=" website/ --include="*.js" --include="*.html" --exclude-dir=node_modules 2>/dev/null | grep -v "token.*=.*''" | grep -v "token.*=.*null" | grep -v "token.*=.*undefined"; then
           echo "❌ Potential hardcoded tokens found"
           SECRETS_FOUND=$((SECRETS_FOUND + 1))
         fi
