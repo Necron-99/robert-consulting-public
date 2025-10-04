@@ -145,11 +145,12 @@ class SecureAuth {
         // For demo purposes, we'll use secure defaults
         const validCredentials = {
             username: 'demo_user',
-            password: this.hashPassword('demo_password_123')
+            password: 'demo_password_123'
         };
         
         const hashedPassword = this.hashPassword(password);
-        return username === validCredentials.username && hashedPassword === validCredentials.password;
+        const validHashedPassword = this.hashPassword(validCredentials.password);
+        return username === validCredentials.username && hashedPassword === validHashedPassword;
     }
 
     // Simple password hashing (in production, use proper hashing)
