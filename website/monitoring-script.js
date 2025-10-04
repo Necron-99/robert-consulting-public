@@ -75,17 +75,19 @@ class MonitoringDashboard {
 
     /**
      * Load cost monitoring data
+     * Note: AWS costs only - excludes domain registrar fees and external services
      */
     async loadCostData() {
         // Simulate API call - replace with actual AWS Cost Explorer API
+        // Excludes domain registrar costs (Namecheap, GoDaddy, etc.)
         const costData = {
-            totalMonthly: 45.67,
+            totalMonthly: 45.67, // AWS services only
             s3Cost: 12.34,
             cloudfrontCost: 8.90,
             lambdaCost: 2.45,
             route53Cost: 0.50,
             sesCost: 0.00,
-            otherCost: 21.48,
+            otherCost: 21.48, // Other AWS services
             trend: '+5.2%'
         };
 

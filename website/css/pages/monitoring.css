@@ -112,6 +112,21 @@
   background: var(--background-secondary);
 }
 
+.cost-note {
+  background: var(--info-light);
+  border: 1px solid var(--info-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.cost-note p {
+  margin: 0;
+  color: var(--info-color);
+  font-size: 0.9rem;
+}
+
 .cost-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
