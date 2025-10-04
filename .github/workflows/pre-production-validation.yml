@@ -78,6 +78,8 @@ jobs:
             echo "❌ IP address not authorized: $CURRENT_IP"
             echo "Expected: ${{ secrets.ALLOWED_IP_ADDRESS }}"
             echo "💡 To bypass IP verification, use 'force_validation: true' in manual dispatch"
+            echo "💡 Or remove ALLOWED_IP_ADDRESS secret to disable IP verification"
+            echo "💡 Current IP: $CURRENT_IP (update secret if this is your IP)"
             exit 1
           fi
         else
