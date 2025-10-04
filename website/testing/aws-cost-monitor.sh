@@ -134,7 +134,7 @@ get_service_metrics() {
     CLOUDFRONT_REQUESTS=$(aws cloudwatch get-metric-statistics \
         --namespace AWS/CloudFront \
         --metric-name Requests \
-        --dimensions Name=DistributionId,Value=E3HUVB85SPZFHO \
+        --dimensions Name=DistributionId,Value=E36DBYPHUUKB3V \
         --start-time $(date -d '24 hours ago' -u +%Y-%m-%dT%H:%M:%S) \
         --end-time $(date -u +%Y-%m-%dT%H:%M:%S) \
         --period 86400 \
@@ -145,7 +145,7 @@ get_service_metrics() {
     CLOUDFRONT_BYTES=$(aws cloudwatch get-metric-statistics \
         --namespace AWS/CloudFront \
         --metric-name BytesDownloaded \
-        --dimensions Name=DistributionId,Value=E3HUVB85SPZFHO \
+        --dimensions Name=DistributionId,Value=E36DBYPHUUKB3V \
         --start-time $(date -d '24 hours ago' -u +%Y-%m-%dT%H:%M:%S) \
         --end-time $(date -u +%Y-%m-%dT%H:%M:%S) \
         --period 86400 \

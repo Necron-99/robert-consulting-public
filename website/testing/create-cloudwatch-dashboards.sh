@@ -146,7 +146,7 @@ create_cost_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "Requests", "DistributionId", "E3HUVB85SPZFHO"],
+                    ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"],
                     [".", "BytesDownloaded", ".", "."],
                     [".", "BytesUploaded", ".", "."]
                 ],
@@ -244,7 +244,7 @@ create_service_status_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E3HUVB85SPZFHO"],
+                    ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"],
                     [".", "5xxErrorRate", ".", "."],
                     [".", "CacheHitRate", ".", "."]
                 ],
@@ -264,7 +264,7 @@ create_service_status_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "Requests", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -282,7 +282,7 @@ create_service_status_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -300,7 +300,7 @@ create_service_status_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "OriginLatency", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -318,7 +318,7 @@ create_service_status_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -362,7 +362,7 @@ create_performance_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "OriginLatency", "DistributionId", "E3HUVB85SPZFHO"],
+                    ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"],
                     [".", "CacheHitRate", ".", "."]
                 ],
                 "view": "timeSeries",
@@ -381,7 +381,7 @@ create_performance_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "Requests", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -399,7 +399,7 @@ create_performance_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E3HUVB85SPZFHO"],
+                    ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"],
                     [".", "5xxErrorRate", ".", "."]
                 ],
                 "view": "timeSeries",
@@ -418,7 +418,7 @@ create_performance_dashboard() {
             "height": 6,
             "properties": {
                 "metrics": [
-                    ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E3HUVB85SPZFHO"]
+                    ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -523,7 +523,7 @@ create_health_alerts() {
         --threshold 5.0 \
         --comparison-operator "GreaterThanThreshold" \
         --evaluation-periods 2 \
-        --dimensions Name=DistributionId,Value=E3HUVB85SPZFHO \
+        --dimensions Name=DistributionId,Value=E36DBYPHUUKB3V \
         --region $REGION
     
     # S3 error rate alert

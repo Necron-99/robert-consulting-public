@@ -8,7 +8,7 @@ const AWS = require('aws-sdk');
 class CloudFrontInvalidator {
     constructor() {
         this.cloudfront = new AWS.CloudFront();
-        this.distributionId = 'E3HUVB85SPZFHO'; // Your distribution ID
+        this.distributionId = 'E36DBYPHUUKB3V'; // Your distribution ID
     }
 
     /**

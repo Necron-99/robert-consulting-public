@@ -8,7 +8,7 @@ set -e
 # Configuration
 REGION="us-east-1"
 S3_BUCKET="robert-consulting-website-2024-bd900b02"
-CLOUDFRONT_DISTRIBUTION="E3HUVB85SPZFHO"
+CLOUDFRONT_DISTRIBUTION="E36DBYPHUUKB3V"
 WEBSITE_URL="https://robertconsulting.net"
 
 # Colors for output

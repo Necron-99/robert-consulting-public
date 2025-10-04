@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 S3_BUCKET="robert-consulting-website-2024-bd900b02"
-DISTRIBUTION_ID="E3HUVB85SPZFHO"
+DISTRIBUTION_ID="E36DBYPHUUKB3V"
 AWS_REGION="us-east-1"
 
 # Colors for output
