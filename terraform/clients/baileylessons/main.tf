@@ -29,9 +29,9 @@ provider "aws" {
       ManagedBy   = "Robert Consulting"
     }
   }
+  # Temporarily use OrganizationAccountAccessRole to create remote management role
   assume_role {
-    role_arn = "arn:aws:iam::737915157697:role/RobertClientDeploymentRole"
-    external_id = "robert-consulting-deployment"
+    role_arn = "arn:aws:iam::737915157697:role/OrganizationAccountAccessRole"
   }
 }
 

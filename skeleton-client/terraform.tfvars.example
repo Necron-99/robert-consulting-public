@@ -1,0 +1,313 @@
+# Skeleton Client Configuration Template
+# This file contains the template configuration for new clients
+# Copy this file to terraform.tfvars and customize for your client
+
+# =============================================================================
+# CLIENT CONFIGURATION
+# =============================================================================
+
+# Client Information
+client_name = "your-client-name"
+project_name = "your-project-name"
+environment = "production"
+
+# =============================================================================
+# AWS CONFIGURATION
+# =============================================================================
+
+# AWS Region
+aws_region = "us-east-1"
+
+# =============================================================================
+# COST CONTROL & BUDGET
+# =============================================================================
+
+# Monthly budget limit in USD
+monthly_budget_limit = 100  # Adjust based on client needs
+
+# Email addresses for budget alerts
+budget_alert_emails = [
+  "admin@your-client.com",
+  "finance@your-client.com"
+]
+
+# =============================================================================
+# DOMAIN CONFIGURATION
+# =============================================================================
+
+# Domain configuration
+domain_name = "your-client.com"
+certificate_domain = "your-client.com"
+www_redirect = true
+
+# Route53 configuration
+route53_zone_id = ""  # Will be retrieved automatically
+route53_cleanup = true  # Clean up existing records
+
+# =============================================================================
+# CLOUDFRONT CONFIGURATION
+# =============================================================================
+
+# CloudFront settings
+cloudfront_enabled = true
+cloudfront_price_class = "PriceClass_100"  # US, Canada, Europe
+cloudfront_compress = true
+cloudfront_http2 = true
+
+# CloudFront caching
+default_ttl = 86400  # 1 day
+max_ttl = 31536000  # 1 year
+min_ttl = 0
+
+# =============================================================================
+# LAMBDA CONFIGURATION
+# =============================================================================
+
+# Lambda settings
+lambda_runtime = "nodejs18.x"
+lambda_memory_size = 128  # MB
+lambda_timeout = 30  # seconds
+lambda_environment = "production"
+
+# Lambda functions
+lambda_functions = {
+  "api" = {
+    name = "your-client-api"
+    description = "Your Client API Lambda function"
+    handler = "index.handler"
+    memory_size = 128
+    timeout = 30
+  }
+  "auth" = {
+    name = "your-client-auth"
+    description = "Your Client Auth Lambda function"
+    handler = "auth.handler"
+    memory_size = 128
+    timeout = 30
+  }
+  "admin" = {
+    name = "your-client-admin"
+    description = "Your Client Admin Lambda function"
+    handler = "admin.handler"
+    memory_size = 128
+    timeout = 30
+  }
+}
+
+# =============================================================================
+# API GATEWAY CONFIGURATION
+# =============================================================================
+
+# API Gateway settings
+api_gateway_name = "your-client-api"
+api_gateway_description = "Your Client API Gateway"
+api_gateway_stage = "prod"
+
+# API Gateway throttling
+throttle_rate_limit = 1000
+throttle_burst_limit = 2000
+
+# =============================================================================
+# DYNAMODB CONFIGURATION
+# =============================================================================
+
+# DynamoDB tables
+dynamodb_tables = {
+  "users" = {
+    name = "your-client-users"
+    hash_key = "user_id"
+    range_key = ""
+    billing_mode = "PAY_PER_REQUEST"
+    attributes = [
+      {
+        name = "user_id"
+        type = "S"
+      },
+      {
+        name = "email"
+        type = "S"
+      }
+    ]
+    global_secondary_indexes = [
+      {
+        name = "email-index"
+        hash_key = "email"
+        projection_type = "ALL"
+      }
+    ]
+  }
+  "content" = {
+    name = "your-client-content"
+    hash_key = "content_id"
+    range_key = ""
+    billing_mode = "PAY_PER_REQUEST"
+    attributes = [
+      {
+        name = "content_id"
+        type = "S"
+      },
+      {
+        name = "category"
+        type = "S"
+      }
+    ]
+    global_secondary_indexes = [
+      {
+        name = "category-index"
+        hash_key = "category"
+        projection_type = "ALL"
+      }
+    ]
+  }
+  "analytics" = {
+    name = "your-client-analytics"
+    hash_key = "user_id"
+    range_key = "timestamp"
+    billing_mode = "PAY_PER_REQUEST"
+    attributes = [
+      {
+        name = "user_id"
+        type = "S"
+      },
+      {
+        name = "timestamp"
+        type = "S"
+      }
+    ]
+  }
+}
+
+# =============================================================================
+# S3 CONFIGURATION
+# =============================================================================
+
+# S3 buckets
+s3_buckets = {
+  "static" = {
+    name = "your-client-static"
+    purpose = "Static website hosting"
+    public_read = true
+    cors_enabled = true
+  }
+  "uploads" = {
+    name = "your-client-uploads"
+    purpose = "User uploads"
+    public_read = false
+    cors_enabled = true
+  }
+  "backups" = {
+    name = "your-client-backups"
+    purpose = "Backup storage"
+    public_read = false
+    cors_enabled = false
+  }
+}
+
+# =============================================================================
+# MONITORING & LOGGING
+# =============================================================================
+
+# Enable CloudWatch logs
+enable_cloudwatch_logs = true
+
+# Log retention period in days
+log_retention_days = 7  # Minimal log retention
+
+# =============================================================================
+# COST OPTIMIZATION FEATURES
+# =============================================================================
+
+# Enable cost optimization features
+enable_cost_optimization = true
+
+# Serverless cost optimizations
+lambda_provisioned_concurrency = false
+dynamodb_autoscaling = false
+api_gateway_caching = true
+
+# =============================================================================
+# CLIENT-SPECIFIC CUSTOMIZATIONS
+# =============================================================================
+
+# Custom domain configuration
+custom_domain = "your-client.com"
+ssl_certificate_arn = ""  # Will be created automatically
+
+# Additional tags for client
+additional_tags = {
+  "Environment" = "production"
+  "Project" = "your-project-name"
+  "Client" = "your-client-name"
+  "CostCenter" = "Engineering"
+  "Owner" = "DevOps Team"
+  "Architecture" = "serverless"
+  "Monitoring" = "basic"
+  "CostOptimization" = "serverless"
+}
+
+# Performance requirements - CLIENT-SPECIFIC
+expected_users = 1000  # Expected concurrent users
+peak_traffic_multiplier = 3  # Peak traffic is 3x normal
+response_time_target = 200  # milliseconds
+availability_target = 99.9  # percentage
+
+# Security requirements - CLIENT-SPECIFIC
+enable_encryption = true
+enable_backup = true
+enable_monitoring = true
+enable_logging = true
+
+# Compliance requirements
+compliance_requirements = [
+  "GDPR"
+]
+
+# Data residency requirements
+data_residency = "US"  # US data residency
+
+# Backup configuration
+backup_retention_days = 7  # days
+backup_frequency = "daily"
+cross_region_backup = false
+
+# Monitoring configuration
+monitoring_level = "basic"  # basic monitoring for serverless
+alert_threshold_cpu = 80  # CPU alert threshold
+alert_threshold_memory = 90  # Memory alert threshold
+alert_threshold_disk = 90  # Disk alert threshold
+
+# Cost optimization settings - CLIENT-SPECIFIC
+enable_scheduled_scaling = false  # Serverless auto-scales
+enable_spot_instances = false  # Not applicable for serverless
+enable_auto_scaling = true  # Serverless auto-scales
+enable_load_balancing = false  # API Gateway handles load balancing
+enable_cdn = true  # Enable CloudFront CDN
+
+# =============================================================================
+# CLIENT COST SAVINGS
+# =============================================================================
+
+# Disable expensive features
+enable_enhanced_monitoring = false  # Disable enhanced monitoring
+enable_performance_insights = false  # Disable performance insights
+enable_multi_az = false  # Not applicable for serverless
+enable_encryption_at_rest = true  # Enable encryption for DynamoDB
+enable_encryption_in_transit = true  # Enable encryption for API Gateway
+
+# Minimal storage configuration
+s3_lifecycle_enabled = true  # Enable S3 lifecycle for cost savings
+s3_intelligent_tiering = true  # Enable S3 intelligent tiering
+s3_glacier_transition_days = 30  # Transition to Glacier after 30 days
+s3_deep_archive_transition_days = 90  # Transition to Deep Archive after 90 days
+
+# Minimal monitoring configuration
+cloudwatch_detailed_monitoring = false  # Disable detailed monitoring
+cloudwatch_custom_metrics = false  # Disable custom metrics
+cloudwatch_dashboards = false  # Disable custom dashboards
+cloudwatch_alarms = true  # Keep basic alarms only
+
+# Client security configuration
+security_groups_minimal = true  # Use minimal security groups
+network_acls_minimal = true  # Use minimal network ACLs
+iam_roles_minimal = true  # Use minimal IAM roles
+secrets_manager_minimal = true  # Use minimal secrets management
