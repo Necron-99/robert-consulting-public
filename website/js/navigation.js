@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       hamburger.classList.toggle('active');
       navMenu.classList.toggle('active');
+      const isExpanded = hamburger.classList.contains('active');
+      hamburger.setAttribute('aria-expanded', String(isExpanded));
       
       // Prevent body scroll when menu is open
       if (navMenu.classList.contains('active')) {
@@ -41,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!isClickInsideNav && !isClickOnHamburger && navMenu.classList.contains('active')) {
       hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
       navMenu.classList.remove('active');
       document.body.style.overflow = '';
     }
@@ -132,7 +135,7 @@ document.addEventListener('keydown', function(event) {
   const navMenu = document.getElementById('nav-menu');
   const navLinks = document.querySelectorAll('.nav-link');
   
-  if (navMenu.classList.contains('active')) {
+      if (navMenu.classList.contains('active')) {
     const firstLink = navLinks[0];
     const lastLink = navLinks[navLinks.length - 1];
     
@@ -162,6 +165,7 @@ window.addEventListener('resize', function() {
   // Close mobile menu on window resize
   if (window.innerWidth > 768 && navMenu.classList.contains('active')) {
     hamburger.classList.remove('active');
+    hamburger.setAttribute('aria-expanded', 'false');
     navMenu.classList.remove('active');
     document.body.style.overflow = '';
   }

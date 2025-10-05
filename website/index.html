@@ -66,11 +66,11 @@
                     <span class="icon-moon" id="theme-icon">🌙</span>
                 </button>
             </div>
-            <div class="hamburger" id="hamburger">
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
-            </div>
+            </button>
         </div>
     </nav>
 
@@ -488,73 +488,11 @@
         </div>
     </footer>
 
-    <script src="js/navigation.js"></script>
-    <script src="js/theme-toggle.js"></script>
-    <script src="js/api-config.js"></script>
-    <script src="security-config.js"></script>
-    <!-- Inline Dynamic Version System -->
-    <script>
-        (function() {
-            'use strict';
-            
-            console.log('🚀 Initializing inline dynamic version system...');
-            
-            // Generate version info dynamically
-            function generateVersionInfo() {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hour = String(now.getHours()).padStart(2, '0');
-                const minute = String(now.getMinutes()).padStart(2, '0');
-                
-                const version = `1.${year.toString().slice(-2)}${month}${day}.${hour}${minute}`;
-                const buildDate = now.toISOString().split('T')[0];
-                
-                return {
-                    version: version,
-                    build: buildDate,
-                    security: 'secure'
-                };
-            }
-            
-            // Update DOM elements
-            function updateVersionDisplay() {
-                const versionInfo = generateVersionInfo();
-                
-                // Update version display
-                const versionDisplay = document.getElementById('version-display');
-                if (versionDisplay) {
-                    versionDisplay.textContent = `v${versionInfo.version}`;
-                }
-                
-                // Update build display
-                const buildDisplay = document.getElementById('build-display');
-                if (buildDisplay) {
-                    buildDisplay.textContent = `Build ${versionInfo.build}`;
-                }
-                
-                // Update security status
-                const securityStatus = document.getElementById('security-status');
-                if (securityStatus) {
-                    securityStatus.innerHTML = '<span style="color: #10b981; font-weight: bold;">🔒 secure</span>';
-                }
-                
-                console.log('✅ Version display updated:', versionInfo);
-            }
-            
-            // Initialize when DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', updateVersionDisplay);
-            } else {
-                updateVersionDisplay();
-            }
-            
-            // Also update after a short delay to ensure all elements are loaded
-            setTimeout(updateVersionDisplay, 500);
-            
-            console.log('✅ Inline dynamic version system initialized');
-        })();
-    </script>
+    <script defer src="js/navigation.js"></script>
+    <script defer src="js/theme-toggle.js"></script>
+    <script defer src="js/api-config.js"></script>
+    <script defer src="security-config.js"></script>
+    <script defer src="version-manager.js"></script>
+    <script defer src="js/version-display.js"></script>
 </body>
 </html>

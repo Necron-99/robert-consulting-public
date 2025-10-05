@@ -72,27 +72,8 @@
             
             console.log('🔍 Starting version system debug...');
             
-            // Test 1: Direct fetch
-            try {
-                console.log('📡 Testing direct fetch of version.json...');
-                const response = await fetch('version.json');
-                console.log('Response status:', response.status);
-                console.log('Response ok:', response.ok);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Version data loaded:', data);
-                    fetchTest.innerHTML = `<span class="success">✅ Direct fetch successful</span><br>
-                        <strong>Version:</strong> ${data.version}<br>
-                        <strong>Build:</strong> ${data.build}<br>
-                        <strong>Security:</strong> ${data.security.status}`;
-                } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-            } catch (error) {
-                console.error('❌ Direct fetch failed:', error);
-                fetchTest.innerHTML = `<span class="error">❌ Direct fetch failed: ${error.message}</span>`;
-            }
+            // Test 1: Direct fetch (disabled - version.json removed)
+            fetchTest.innerHTML = `<span class="warning">⚠️ Skipped direct fetch of version.json (file not used)</span>`;
             
             // Test 2: Version Manager
             try {
