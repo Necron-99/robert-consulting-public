@@ -41,7 +41,7 @@ variable "client_accounts" {
   }))
   default = {
     baileylessons = {
-      email  = "admin@baileylessons.com"
+      email  = "rsbailey+bl@necron99.org"
       name   = "Bailey Lessons"
       domain = "baileylessons.com"
       tags = {
@@ -53,55 +53,29 @@ variable "client_accounts" {
   }
 }
 
-# Create the organization (if not already exists)
-resource "aws_organizations_organization" "main" {
-  aws_service_access_principals = [
-    "cloudtrail.amazonaws.com",
-    "config.amazonaws.com",
-    "sso.amazonaws.com",
-    "guardduty.amazonaws.com",
-    "securityhub.amazonaws.com",
-    "access-analyzer.amazonaws.com"
-  ]
-
-  enabled_policy_types = [
-    "SERVICE_CONTROL_POLICY",
-    "TAG_POLICY"
-  ]
-
-  feature_set = "ALL"
-
-  tags = {
-    Name        = "Robert Consulting Organization"
-    Purpose     = "Multi-Client Infrastructure Management"
-    Environment = "Management"
-  }
-}
+# Reference existing organization (account is already in an org)
+data "aws_organizations_organization" "main" {}
 
 # Create organizational units for better structure
 resource "aws_organizations_organizational_unit" "clients" {
   name      = "Client Accounts"
-  parent_id = aws_organizations_organization.main.roots[0].id
-
-  tags = {
-    Name = "Client Accounts OU"
-    Purpose = "Client Infrastructure"
-  }
+  parent_id = data.aws_organizations_organization.main.roots[0].id
 }
 
 resource "aws_organizations_organizational_unit" "shared_services" {
   name      = "Shared Services"
-  parent_id = aws_organizations_organization.main.roots[0].id
-
-  tags = {
-    Name = "Shared Services OU"
-    Purpose = "Shared Infrastructure Components"
-  }
+  parent_id = data.aws_organizations_organization.main.roots[0].id
 }
 
 # Create client accounts
+variable "allow_account_create" {
+  description = "Whether to create new accounts (requires management account)"
+  type        = bool
+  default     = true
+}
+
 resource "aws_organizations_account" "clients" {
-  for_each = var.client_accounts
+  for_each = var.allow_account_create ? var.client_accounts : {}
 
   name  = each.value.name
   email = each.value.email
@@ -117,9 +91,12 @@ resource "aws_organizations_account" "clients" {
     Client = each.key
   })
 
-  # Ensure the account is created before proceeding
-  depends_on = [aws_organizations_organization.main]
+  # Ensure OU exists before account placement
+  depends_on = [aws_organizations_organizational_unit.clients]
 }
+
+# Enable policy types at the root (managed via CLI; Terraform resource unsupported)
+# (SCP and TAG_POLICY already enabled on the root)
 
 # Service Control Policies for security and governance
 resource "aws_organizations_policy" "client_scp" {
@@ -127,54 +104,61 @@ resource "aws_organizations_policy" "client_scp" {
   description = "Service Control Policy for client accounts"
   type        = "SERVICE_CONTROL_POLICY"
 
-  content = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "DenyRootActions"
-        Effect = "Deny"
-        Action = [
-          "iam:DeleteAccountPasswordPolicy",
-          "iam:DeleteAccountAlias",
-          "iam:DeleteAccount",
-          "organizations:LeaveOrganization"
-        ]
-        Resource = "*"
-      },
-      {
-        Sid    = "RequireMFA"
-        Effect = "Deny"
-        Action = "*"
-        Resource = "*"
-        Condition = {
-          BoolIfExists = {
-            "aws:MultiFactorAuthPresent" = "false"
+    content = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Sid    = "DenyRootActions"
+          Effect = "Deny"
+          Action = [
+            "iam:DeleteAccountPasswordPolicy",
+            "iam:DeleteAccountAlias",
+            "iam:DeleteAccount",
+            "organizations:LeaveOrganization"
+          ]
+          Resource = "*"
+        },
+        {
+          Sid    = "RequireMFA"
+          Effect = "Deny"
+          Action = "*"
+          Resource = "*"
+          Condition = {
+            BoolIfExists = {
+              "aws:MultiFactorAuthPresent" = "false"
+            }
           }
-        }
-      },
-      {
-        Sid    = "DenyDirectInternetAccess"
-        Effect = "Deny"
-        Action = [
-          "ec2:CreateInternetGateway",
-          "ec2:AttachInternetGateway"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
+        },
+        {
+          Sid    = "DenyDirectInternetAccess"
+          Effect = "Deny"
+          Action = [
+            "ec2:CreateInternetGateway",
+            "ec2:AttachInternetGateway"
+          ]
+          Resource = "*"
+        },
+      ]
+    })
 }
 
-# Attach SCP to client accounts
-resource "aws_organizations_policy_attachment" "client_scp" {
-  for_each = aws_organizations_account.clients
+# Attach SCP to client accounts (temporarily disabled to allow role creation)
+# resource "aws_organizations_policy_attachment" "client_scp" {
+#   for_each = aws_organizations_account.clients
 
-  policy_id = aws_organizations_policy.client_scp.id
-  target_id = each.value.id
+#   policy_id = aws_organizations_policy.client_scp.id
+#   target_id = each.value.id
+# }
+
+variable "enable_tag_policy" {
+  description = "Whether to create a TAG_POLICY (org must have tag policy enabled)"
+  type        = bool
+  default     = false
 }
 
-# Tag policy for consistent tagging
+# Tag policy for consistent tagging (optional)
 resource "aws_organizations_policy" "tag_policy" {
+  count       = var.enable_tag_policy ? 1 : 0
   name        = "TagPolicy"
   description = "Tag policy for consistent resource tagging"
   type        = "TAG_POLICY"
@@ -188,7 +172,7 @@ resource "aws_organizations_policy" "tag_policy" {
       }
       Client = {
         tag_key = {
-          "@@assign" = ["baileylessons", "robert-consulting"]
+          "@@assign" = ["baileylessons", "robert-consulting", "<client-name>"]
         }
       }
       Purpose = {
@@ -196,20 +180,31 @@ resource "aws_organizations_policy" "tag_policy" {
           "@@assign" = ["Web Hosting", "Educational Platform", "Management", "Monitoring"]
         }
       }
+      Owner = {
+        tag_key = {
+          "@@assign" = ["Robert Consulting", "Client", "SharedServices"]
+        }
+      }
+      CostCenter = {
+        tag_key = {
+          "@@assign" = ["RC-Internal", "Client-Billing", "Shared"]
+        }
+      }
     }
   })
 }
 
-# Attach tag policy to organization
+# Attach tag policy to organization (optional)
 resource "aws_organizations_policy_attachment" "tag_policy" {
-  policy_id = aws_organizations_policy.tag_policy.id
-  target_id = aws_organizations_organization.main.roots[0].id
+  count     = var.enable_tag_policy ? 1 : 0
+  policy_id = aws_organizations_policy.tag_policy[0].id
+  target_id = data.aws_organizations_organization.main.roots[0].id
 }
 
 # Outputs
 output "organization_id" {
   description = "AWS Organizations ID"
-  value       = aws_organizations_organization.main.id
+  value       = data.aws_organizations_organization.main.id
 }
 
 output "client_accounts" {

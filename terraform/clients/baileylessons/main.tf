@@ -29,6 +29,10 @@ provider "aws" {
       ManagedBy   = "Robert Consulting"
     }
   }
+  assume_role {
+    role_arn = "arn:aws:iam::737915157697:role/RobertClientDeploymentRole"
+    external_id = "robert-consulting-deployment"
+  }
 }
 
 variable "aws_region" {
