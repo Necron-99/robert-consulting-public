@@ -56,6 +56,10 @@ module "infra" {
   enable_cloudfront  = true
   enable_waf         = true
   enable_monitoring  = true
+
+  # Adopt existing resources instead of creating new ones
+  existing_cloudfront_distribution_id = "E23X7BS3VXFFFZ"
+  existing_route53_zone_id            = "Z01009052GCOJI1M2TTF7"
 }
 
 # Additional client-specific resources can go here as needed

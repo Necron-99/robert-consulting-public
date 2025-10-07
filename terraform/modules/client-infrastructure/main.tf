@@ -46,6 +46,20 @@ variable "enable_cloudfront" {
   default     = true
 }
 
+# If set, adopt an existing CloudFront distribution instead of creating one
+variable "existing_cloudfront_distribution_id" {
+  description = "Existing CloudFront distribution ID to adopt (skip creation if set)"
+  type        = string
+  default     = null
+}
+
+# If set (and creating a new distribution), use this ACM cert ARN and set aliases
+variable "existing_acm_certificate_arn" {
+  description = "Existing ACM certificate ARN to use for CloudFront (us-east-1)"
+  type        = string
+  default     = null
+}
+
 variable "enable_waf" {
   description = "Enable AWS WAF"
   type        = bool
@@ -56,6 +70,13 @@ variable "enable_monitoring" {
   description = "Enable CloudWatch monitoring"
   type        = bool
   default     = true
+}
+
+# If set, adopt an existing Route53 hosted zone instead of creating one
+variable "existing_route53_zone_id" {
+  description = "Existing Route53 hosted zone ID to adopt (skip creation if set)"
+  type        = string
+  default     = null
 }
 
 # Local values
@@ -69,6 +90,20 @@ locals {
     Purpose     = "Web Hosting"
     ManagedBy   = "Robert Consulting"
   }
+}
+
+# Optionally adopt an existing CloudFront distribution
+data "aws_cloudfront_distribution" "existing" {
+  count = var.enable_cloudfront && var.existing_cloudfront_distribution_id != null ? 1 : 0
+
+  id = var.existing_cloudfront_distribution_id
+}
+
+# Optionally adopt an existing Route53 hosted zone
+data "aws_route53_zone" "existing" {
+  count = var.existing_route53_zone_id != null ? 1 : 0
+
+  zone_id = var.existing_route53_zone_id
 }
 
 # S3 bucket for website hosting
@@ -117,7 +152,7 @@ resource "aws_s3_bucket_website_configuration" "website" {
 
 # CloudFront distribution (if enabled)
 resource "aws_cloudfront_distribution" "website" {
-  count = var.enable_cloudfront ? 1 : 0
+  count = var.enable_cloudfront && var.existing_cloudfront_distribution_id == null ? 1 : 0
 
   origin {
     domain_name = aws_s3_bucket_website_configuration.website.website_endpoint
@@ -135,7 +170,7 @@ resource "aws_cloudfront_distribution" "website" {
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
-  # aliases = concat([var.client_domain], var.additional_domains)  # Commented out - requires SSL cert
+  aliases = var.existing_acm_certificate_arn != null ? concat([var.client_domain], var.additional_domains) : []
 
   default_cache_behavior {
     allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -175,8 +210,21 @@ resource "aws_cloudfront_distribution" "website" {
     }
   }
 
-  viewer_certificate {
-    cloudfront_default_certificate = true
+  dynamic "viewer_certificate" {
+    for_each = var.existing_acm_certificate_arn != null ? [1] : []
+    content {
+      acm_certificate_arn            = var.existing_acm_certificate_arn
+      ssl_support_method             = "sni-only"
+      minimum_protocol_version       = "TLSv1.2_2021"
+      cloudfront_default_certificate = false
+    }
+  }
+
+  dynamic "viewer_certificate" {
+    for_each = var.existing_acm_certificate_arn == null ? [1] : []
+    content {
+      cloudfront_default_certificate = true
+    }
   }
 
   tags = merge(local.common_tags, {
@@ -186,7 +234,7 @@ resource "aws_cloudfront_distribution" "website" {
 
 # ACM certificate for HTTPS
 resource "aws_acm_certificate" "website" {
-  count = var.enable_cloudfront ? 1 : 0
+  count = var.enable_cloudfront && var.existing_cloudfront_distribution_id == null ? 1 : 0
 
   domain_name       = var.client_domain
   validation_method = "DNS"
@@ -204,6 +252,8 @@ resource "aws_acm_certificate" "website" {
 
 # Route 53 hosted zone
 resource "aws_route53_zone" "website" {
+  count = var.existing_route53_zone_id == null ? 1 : 0
+
   name = var.client_domain
 
   tags = merge(local.common_tags, {
@@ -215,13 +265,28 @@ resource "aws_route53_zone" "website" {
 resource "aws_route53_record" "website" {
   count = var.enable_cloudfront ? 1 : 0
 
-  zone_id = aws_route53_zone.website.zone_id
+  zone_id = var.existing_route53_zone_id != null ? data.aws_route53_zone.existing[0].zone_id : aws_route53_zone.website[0].zone_id
   name    = var.client_domain
   type    = "A"
 
   alias {
-    name                   = aws_cloudfront_distribution.website[0].domain_name
-    zone_id                = aws_cloudfront_distribution.website[0].hosted_zone_id
+    name    = var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].domain_name : aws_cloudfront_distribution.website[0].domain_name
+    zone_id = var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].hosted_zone_id : aws_cloudfront_distribution.website[0].hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# Additional DNS records for each additional domain (www/app, etc.)
+resource "aws_route53_record" "additional" {
+  count = var.enable_cloudfront ? length(var.additional_domains) : 0
+
+  zone_id = var.existing_route53_zone_id != null ? data.aws_route53_zone.existing[0].zone_id : aws_route53_zone.website[0].zone_id
+  name    = var.additional_domains[count.index]
+  type    = "A"
+
+  alias {
+    name    = var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].domain_name : aws_cloudfront_distribution.website[0].domain_name
+    zone_id = var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].hosted_zone_id : aws_cloudfront_distribution.website[0].hosted_zone_id
     evaluate_target_health = false
   }
 }
@@ -296,7 +361,7 @@ resource "aws_cloudwatch_dashboard" "website" {
 
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", aws_cloudfront_distribution.website[0].id],
+            ["AWS/CloudFront", "Requests", "DistributionId", var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].id : aws_cloudfront_distribution.website[0].id],
             [".", "BytesDownloaded", ".", "."],
             [".", "BytesUploaded", ".", "."]
           ]
@@ -339,7 +404,7 @@ resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
   alarm_actions       = [aws_sns_topic.alerts[0].arn]
 
   dimensions = {
-    DistributionId = aws_cloudfront_distribution.website[0].id
+    DistributionId = var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].id : aws_cloudfront_distribution.website[0].id
   }
 
   tags = merge(local.common_tags, {
@@ -360,22 +425,22 @@ output "bucket_website_endpoint" {
 
 output "cloudfront_distribution_id" {
   description = "CloudFront distribution ID"
-  value       = var.enable_cloudfront ? aws_cloudfront_distribution.website[0].id : null
+  value       = var.enable_cloudfront ? (var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].id : aws_cloudfront_distribution.website[0].id) : null
 }
 
 output "cloudfront_domain_name" {
   description = "CloudFront distribution domain name"
-  value       = var.enable_cloudfront ? aws_cloudfront_distribution.website[0].domain_name : null
+  value       = var.enable_cloudfront ? (var.existing_cloudfront_distribution_id != null ? data.aws_cloudfront_distribution.existing[0].domain_name : aws_cloudfront_distribution.website[0].domain_name) : null
 }
 
 output "route53_zone_id" {
   description = "Route 53 hosted zone ID"
-  value       = aws_route53_zone.website.zone_id
+  value       = var.existing_route53_zone_id != null ? data.aws_route53_zone.existing[0].zone_id : aws_route53_zone.website[0].zone_id
 }
 
 output "route53_name_servers" {
   description = "Route 53 name servers"
-  value       = aws_route53_zone.website.name_servers
+  value       = var.existing_route53_zone_id != null ? data.aws_route53_zone.existing[0].name_servers : aws_route53_zone.website[0].name_servers
 }
 
 output "waf_web_acl_arn" {

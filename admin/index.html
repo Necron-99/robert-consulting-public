@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Hub</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #0b132b; color: #e0e6f0; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px; }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    h1 { font-size: 24px; margin: 0; }
+    .card { background: #1c2541; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+    .card h2 { margin: 0 0 10px; font-size: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    a.btn { display: inline-block; padding: 10px 12px; background: #3a506b; color: #fff; text-decoration: none; border-radius: 8px; }
+    a.btn:hover { background: #4f6d88; }
+    code, pre { background: #0f2038; color: #d2e3ff; border-radius: 8px; padding: 12px; display: block; overflow-x: auto; }
+    footer { margin-top: 28px; opacity: .8; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Clients Admin Hub</h1>
+      <a class="btn" href="/CLIENTS_MANAGEMENT_HUB.md">Docs</a>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Bailey Lessons</h2>
+        <p>Domain: baileylessons.com</p>
+        <div>
+          <a class="btn" href="https://d1qin31m7br23m.cloudfront.net" target="_blank" rel="noopener">Open Site</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Runbooks</h2>
+        <pre><code>cd terraform/clients/baileylessons
+terraform plan
+terraform apply
+        </code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Quick Links</h2>
+      <ul>
+        <li><a class="btn" href="/CLIENTS_MANAGEMENT_HUB.md">Clients Management Hub</a></li>
+        <li><a class="btn" href="/README.md">Project README</a></li>
+      </ul>
+    </div>
+
+    <footer>© Robert Consulting</footer>
+  </div>
+</body>
+</html>

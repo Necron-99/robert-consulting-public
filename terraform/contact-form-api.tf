@@ -187,11 +187,17 @@ resource "aws_api_gateway_deployment" "contact_form_deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.contact_form_api.id
-  stage_name  = "prod"
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+# API Gateway stage (replaces deprecated stage_name on deployment)
+resource "aws_api_gateway_stage" "contact_form_stage" {
+  rest_api_id   = aws_api_gateway_rest_api.contact_form_api.id
+  deployment_id = aws_api_gateway_deployment.contact_form_deployment.id
+  stage_name    = "prod"
 }
 
 # Outputs
@@ -237,6 +243,12 @@ resource "aws_wafv2_web_acl" "contact_form_waf" {
     allow {}
   }
   
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "contact-form-waf"
+    sampled_requests_enabled   = true
+  }
+  
   # Rate limiting rule
   rule {
     name     = "RateLimitRule"
@@ -265,8 +277,8 @@ resource "aws_wafv2_web_acl" "contact_form_waf" {
     name     = "SQLInjectionRule"
     priority = 2
     
-    action {
-      block {}
+    override_action {
+      none {}
     }
     
     statement {
@@ -288,8 +300,8 @@ resource "aws_wafv2_web_acl" "contact_form_waf" {
     name     = "XSSRule"
     priority = 3
     
-    action {
-      block {}
+    override_action {
+      none {}
     }
     
     statement {
@@ -319,7 +331,7 @@ resource "aws_wafv2_web_acl_association" "contact_form_waf_association" {
 
 output "contact_form_api_url" {
   description = "URL of the contact form API"
-  value       = "${aws_api_gateway_deployment.contact_form_deployment.invoke_url}/contact"
+  value       = "${aws_api_gateway_stage.contact_form_stage.invoke_url}/contact"
 }
 
 output "contact_form_api_key" {
