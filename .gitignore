@@ -113,6 +113,9 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
+# Synology NAS
+@eaDir
+
 # Windows
 Thumbs.db
 ehthumbs.db
