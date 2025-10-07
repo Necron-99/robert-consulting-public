@@ -1,0 +1,33 @@
+# [CLIENT_NAME] Infrastructure Configuration
+# Copy this file to terraform.tfvars and customize for your client
+
+# Client Information
+client_name        = "[CLIENT_NAME]"
+client_domain      = "[CLIENT_DOMAIN]"
+client_account_id  = "[CLIENT_AWS_ACCOUNT_ID]"
+
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "production"
+
+# Additional domains (optional)
+additional_domains = [
+  "www.[CLIENT_DOMAIN]",
+  "app.[CLIENT_DOMAIN]"
+]
+
+# Feature flags
+enable_cloudfront  = true
+enable_waf        = true
+enable_monitoring = true
+
+# Existing resources (if adopting existing infrastructure)
+# Leave as null to create new resources
+existing_cloudfront_distribution_id = null
+existing_route53_zone_id            = null
+existing_acm_certificate_arn       = null
+
+# Example with existing resources:
+# existing_cloudfront_distribution_id = "E23X7BS3VXFFFZ"
+# existing_route53_zone_id            = "Z01009052GCOJI1M2TTF7"
+# existing_acm_certificate_arn       = "arn:aws:acm:us-east-1:123456789012:certificate/443ea37e-fb03-4993-8e65-f7a10d25e32e"

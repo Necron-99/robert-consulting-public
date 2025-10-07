@@ -1,0 +1,71 @@
+name: Deploy Content
+
+on:
+  push:
+    paths:
+      - 'content/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Website Content
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Get S3 bucket name
+      id: get-bucket
+      run: |
+        BUCKET=$(aws ssm get-parameter --name "/clients/${{ secrets.CLIENT_NAME }}/s3-bucket" --query "Parameter.Value" --output text)
+        echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+
+    - name: Get CloudFront distribution ID
+      id: get-cf
+      run: |
+        DIST_ID=$(aws ssm get-parameter --name "/clients/${{ secrets.CLIENT_NAME }}/cloudfront-distribution" --query "Parameter.Value" --output text)
+        echo "distribution-id=$DIST_ID" >> $GITHUB_OUTPUT
+
+    - name: Deploy static assets with long cache
+      run: |
+        aws s3 sync content/website/ s3://${{ steps.get-bucket.outputs.bucket }} \
+          --delete \
+          --cache-control "public, max-age=31536000" \
+          --exclude "*.html" \
+          --exclude "*.css" \
+          --exclude "*.js" \
+          --exclude "*.json"
+
+    - name: Deploy HTML/CSS/JS with shorter cache
+      run: |
+        aws s3 sync content/website/ s3://${{ steps.get-bucket.outputs.bucket }} \
+          --delete \
+          --cache-control "public, max-age=3600" \
+          --include "*.html" \
+          --include "*.css" \
+          --include "*.js" \
+          --include "*.json"
+
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ steps.get-cf.outputs.distribution-id }} \
+          --paths "/*"
+
+    - name: Deployment Summary
+      run: |
+        echo "✅ Content deployed successfully!"
+        echo "🌐 Website: https://${{ secrets.CLIENT_DOMAIN }}"
+        echo "📦 S3 Bucket: ${{ steps.get-bucket.outputs.bucket }}"
+        echo "🚀 CloudFront: ${{ steps.get-cf.outputs.distribution-id }}"

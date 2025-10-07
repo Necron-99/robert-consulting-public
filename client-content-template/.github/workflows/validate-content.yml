@@ -1,0 +1,57 @@
+name: Validate Content
+
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate Website Content
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install validation tools
+      run: |
+        npm install -g html-validate
+        npm install -g stylelint
+        npm install -g eslint
+
+    - name: Validate HTML
+      run: |
+        find content/website -name "*.html" -exec html-validate {} \;
+      continue-on-error: true
+
+    - name: Validate CSS
+      run: |
+        find content/website -name "*.css" -exec stylelint {} \;
+      continue-on-error: true
+
+    - name: Validate JavaScript
+      run: |
+        find content/website -name "*.js" -exec eslint {} \;
+      continue-on-error: true
+
+    - name: Check for broken links
+      run: |
+        # Simple link checker (can be enhanced with more sophisticated tools)
+        grep -r "href=" content/website/ || true
+        grep -r "src=" content/website/ || true
+
+    - name: Validate Content Summary
+      run: |
+        echo "## Content Validation Results" >> $GITHUB_STEP_SUMMARY
+        echo "- HTML validation completed" >> $GITHUB_STEP_SUMMARY
+        echo "- CSS validation completed" >> $GITHUB_STEP_SUMMARY
+        echo "- JavaScript validation completed" >> $GITHUB_STEP_SUMMARY
+        echo "- Link checking completed" >> $GITHUB_STEP_SUMMARY

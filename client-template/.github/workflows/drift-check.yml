@@ -1,0 +1,60 @@
+name: Infrastructure Drift Check
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:
+
+jobs:
+  drift-check:
+    name: Check for Infrastructure Drift
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: infrastructure
+
+    - name: Terraform Plan (Drift Check)
+      id: plan
+      run: |
+        terraform plan -detailed-exitcode -no-color
+        echo "exitcode=$?" >> $GITHUB_OUTPUT
+      working-directory: infrastructure
+      continue-on-error: true
+
+    - name: Check for Drift
+      if: steps.plan.outputs.exitcode == 2
+      run: |
+        echo "🚨 Infrastructure drift detected!"
+        echo "Run 'terraform plan' to see changes"
+        exit 1
+
+    - name: No Drift Found
+      if: steps.plan.outputs.exitcode == 0
+      run: |
+        echo "✅ No infrastructure drift detected"
+        echo "All resources are in sync with Terraform state"
+
+    - name: Terraform Error
+      if: steps.plan.outputs.exitcode == 1
+      run: |
+        echo "❌ Terraform plan failed"
+        echo "Check the logs above for errors"
+        exit 1
