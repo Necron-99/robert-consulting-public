@@ -135,9 +135,8 @@ class MonitoringDashboard {
         this.updateHealthStatus('s3-health', healthData.s3);
         this.updateHealthStatus('cloudfront-health', healthData.cloudfront);
         this.updateHealthStatus('lambda-health', healthData.lambda);
-        this.updateHealthStatus('route53-health', healthData.route53);
-        this.updateHealthStatus('website-health', healthData.website);
         this.updateHealthStatus('route53-health', healthData.route53Health);
+        this.updateHealthStatus('website-health', healthData.website);
     }
 
     /**
