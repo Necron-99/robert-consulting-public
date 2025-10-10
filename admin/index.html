@@ -16,6 +16,31 @@
     a.btn:hover { background: #4f6d88; }
     code, pre { background: #0f2038; color: #d2e3ff; border-radius: 8px; padding: 12px; display: block; overflow-x: auto; }
     footer { margin-top: 28px; opacity: .8; font-size: 12px; }
+    
+    /* Client Statistics Styling */
+    .client-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .client-stat-card { background: #0f2038; border-radius: 8px; padding: 16px; border: 1px solid #3a506b; }
+    .client-stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #3a506b; }
+    .client-stat-header h3 { margin: 0; font-size: 16px; color: #e0e6f0; }
+    .client-status { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .client-status.operational { background: #10b981; color: white; }
+    .client-status.pending { background: #8b5cf6; color: white; }
+    .client-stat-content { margin-bottom: 12px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .stat-label { font-size: 13px; color: #a0a6b0; }
+    .stat-value { font-size: 14px; font-weight: 600; color: #e0e6f0; }
+    .client-stat-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #1c2541; border-radius: 4px; }
+    .breakdown-label { font-size: 11px; color: #a0a6b0; }
+    .breakdown-status { font-size: 12px; }
+    .breakdown-status.healthy { color: #10b981; }
+    .breakdown-status.ready { color: #8b5cf6; }
+    .client-costs-summary { background: #0f2038; border-radius: 8px; padding: 16px; border: 1px solid #3a506b; }
+    .client-costs-summary h3 { margin: 0 0 12px; font-size: 16px; color: #e0e6f0; }
+    .costs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .cost-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1c2541; border-radius: 6px; }
+    .cost-label { font-size: 12px; color: #a0a6b0; }
+    .cost-value { font-size: 14px; font-weight: 700; color: #10b981; }
   </style>
 </head>
 <body>
@@ -59,6 +84,119 @@
 terraform plan
 terraform apply
         </code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Client Infrastructure Statistics</h2>
+      <div class="client-stats-grid">
+        <div class="client-stat-card">
+          <div class="client-stat-header">
+            <h3>Bailey Lessons</h3>
+            <span class="client-status operational">Operational</span>
+          </div>
+          <div class="client-stat-content">
+            <div class="stat-row">
+              <span class="stat-label">AWS Resources:</span>
+              <span class="stat-value" id="bl-resources">12</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Monthly Cost:</span>
+              <span class="stat-value" id="bl-cost">$3.45</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Terraform Files:</span>
+              <span class="stat-value" id="bl-terraform">8</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Last Deployed:</span>
+              <span class="stat-value" id="bl-last-deploy">2 days ago</span>
+            </div>
+          </div>
+          <div class="client-stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">S3 Bucket</span>
+              <span class="breakdown-status healthy">✓</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">CloudFront</span>
+              <span class="breakdown-status healthy">✓</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">Route53</span>
+              <span class="breakdown-status healthy">✓</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">WAF</span>
+              <span class="breakdown-status healthy">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="client-stat-card">
+          <div class="client-stat-header">
+            <h3>Future Clients</h3>
+            <span class="client-status pending">Pending</span>
+          </div>
+          <div class="client-stat-content">
+            <div class="stat-row">
+              <span class="stat-label">Template Resources:</span>
+              <span class="stat-value" id="template-resources">15</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Est. Monthly Cost:</span>
+              <span class="stat-value" id="template-cost">$4.20</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Terraform Modules:</span>
+              <span class="stat-value" id="template-modules">3</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Setup Time:</span>
+              <span class="stat-value" id="template-setup">~30 min</span>
+            </div>
+          </div>
+          <div class="client-stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">S3 + CloudFront</span>
+              <span class="breakdown-status ready">⚡</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">Route53 DNS</span>
+              <span class="breakdown-status ready">⚡</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">WAF Security</span>
+              <span class="breakdown-status ready">⚡</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">Monitoring</span>
+              <span class="breakdown-status ready">⚡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="client-costs-summary">
+        <h3>Total Client Infrastructure</h3>
+        <div class="costs-grid">
+          <div class="cost-item">
+            <span class="cost-label">Total Monthly Cost:</span>
+            <span class="cost-value" id="total-client-cost">$7.65</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Total Resources:</span>
+            <span class="cost-value" id="total-client-resources">27</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Active Clients:</span>
+            <span class="cost-value" id="active-clients">1</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Cost per Client:</span>
+            <span class="cost-value" id="cost-per-client">$3.45</span>
+          </div>
+        </div>
       </div>
     </div>
 
