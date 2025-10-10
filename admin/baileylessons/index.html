@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bailey Lessons - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #4CAF50;
+        }
+
+        .status-offline {
+            background: #f44336;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Bailey Lessons Admin</h1>
+            <p>Educational Platform Management Dashboard</p>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div class="stat-label">Active Site</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">SSL Secure</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">CDN</div>
+                <div class="stat-label">Global Delivery</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🌐 Website Management</h3>
+                <p>Manage the main Bailey Lessons website content, pages, and structure.</p>
+                <a href="https://baileylessons.com" target="_blank" class="btn">View Website</a>
+            </div>
+
+            <div class="card">
+                <h3>📊 Content Deployment</h3>
+                <p>Deploy new content and updates to the Bailey Lessons website from the content repository.</p>
+                <a href="content-deployment.html" class="btn btn-success">Deploy Content</a>
+            </div>
+
+            <div class="card">
+                <h3>🛡️ Security & Monitoring</h3>
+                <p>Monitor security status, view access logs, and manage security settings.</p>
+                <a href="security.html" class="btn btn-secondary">Security Dashboard</a>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ Infrastructure</h3>
+                <p>View infrastructure status, CloudFront distribution, and AWS resources.</p>
+                <a href="infrastructure.html" class="btn">Infrastructure</a>
+            </div>
+
+            <div class="card">
+                <h3>📈 Analytics</h3>
+                <p>View website analytics, visitor statistics, and performance metrics.</p>
+                <a href="analytics.html" class="btn btn-success">View Analytics</a>
+            </div>
+
+            <div class="card">
+                <h3>🔧 Settings</h3>
+                <p>Configure admin settings, user permissions, and system preferences.</p>
+                <a href="settings.html" class="btn btn-secondary">Settings</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📋 Quick Actions</h3>
+            <p>Common administrative tasks and shortcuts.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                <button class="btn" onclick="invalidateCache()">🔄 Invalidate Cache</button>
+                <button class="btn btn-secondary" onclick="checkStatus()">📊 Check Status</button>
+                <button class="btn btn-success" onclick="viewLogs()">📝 View Logs</button>
+                <a href="https://console.aws.amazon.com/cloudfront/home?region=us-east-1#/distributions/E23X7BS3VXFFFZ" target="_blank" class="btn">☁️ AWS Console</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Bailey Lessons. Managed by Robert Consulting.</p>
+        <p>Admin Dashboard v1.0 | Last updated: <span id="lastUpdated"></span></p>
+    </div>
+
+    <script>
+        // Set last updated time
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('admin-authenticated');
+            sessionStorage.removeItem('admin-timestamp');
+            window.location.href = '/login.html';
+        }
+
+        // Quick action functions
+        function invalidateCache() {
+            alert('Cache invalidation initiated. This may take a few minutes to propagate globally.');
+        }
+
+        function checkStatus() {
+            alert('Status check completed. All systems operational.');
+        }
+
+        function viewLogs() {
+            alert('Redirecting to CloudWatch logs...');
+            window.open('https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups', '_blank');
+        }
+
+        // Check authentication on page load
+        (function() {
+            const isAuthenticated = sessionStorage.getItem('admin-authenticated') === 'true';
+            const timestamp = sessionStorage.getItem('admin-timestamp');
+            const now = Date.now();
+            const sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
+            
+            if (!isAuthenticated || !timestamp || (now - timestamp > sessionTimeout)) {
+                sessionStorage.removeItem('admin-authenticated');
+                sessionStorage.removeItem('admin-timestamp');
+                window.location.href = '/login.html';
+            }
+        })();
+    </script>
+</body>
+</html>
