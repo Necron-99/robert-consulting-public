@@ -3,240 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Statistics - Robert Consulting Dashboard</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>System Dashboard - Robert Consulting</title>
+    <meta name="description" content="Comprehensive real-time system status, AWS monitoring, cost tracking, and performance metrics dashboard">
+    <meta name="keywords" content="dashboard, status, monitoring, AWS, cost tracking, service health, performance, Robert Consulting">
+    <meta name="author" content="Robert Consulting">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.amazonaws.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages/dashboard.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="dashboard-body">
-    <!-- Dashboard Navigation -->
-    <nav class="dashboard-navbar">
-        <div class="dashboard-nav-container">
-            <div class="dashboard-logo">
-                <h2>Site Statistics</h2>
-                <span class="dashboard-tagline">Robert Consulting Dashboard</span>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">System Dashboard</span>
             </div>
-            <div class="dashboard-nav-actions">
-                <button id="logout-btn" class="btn btn-outline">Logout</button>
-            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#experience" class="nav-link">Experience</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
         </div>
     </nav>
 
-    <!-- Main Dashboard Content -->
-    <div class="dashboard-container">
-        <!-- Site Overview Section -->
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Site Overview</h2>
-                <div class="last-updated">
-                    <span class="update-indicator"></span>
-                    Last updated: <span id="last-updated">Just now</span>
+    <main class="main">
+        <!-- Dashboard Header -->
+        <section class="dashboard-header">
+            <div class="container">
+                <div class="header-content">
+                    <h1>📊 System Dashboard</h1>
+                    <p class="dashboard-subtitle">Real-time monitoring of infrastructure, costs, and performance</p>
+                    <div class="overall-status" id="overall-status">
+                        <div class="status-indicator" id="status-indicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Loading...</span>
+                        </div>
+                        <div class="last-updated" id="last-updated">
+                            Last updated: <span id="last-updated-time">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="refresh-controls">
+                    <button id="refresh-all" class="btn btn-primary">🔄 Refresh All</button>
+                    <button id="auto-refresh" class="btn btn-secondary">⏱️ Auto Refresh: ON</button>
                 </div>
             </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-content">
-                        <h3>Total Visitors</h3>
-                        <div class="stat-number" id="total-visitors">1,247</div>
-                        <div class="stat-trend positive">
-                            <span class="trend-icon">↗</span>
-                            <span class="trend-text">+12.5%</span>
+        </section>
+
+        <!-- Quick Stats Overview -->
+        <section class="quick-stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-monthly-cost">$0.00</div>
+                            <div class="stat-label">Monthly Cost</div>
+                            <div class="stat-trend" id="cost-trend">+0.0%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="overall-health">Loading...</div>
+                            <div class="stat-label">System Health</div>
+                            <div class="stat-trend" id="health-trend">All Systems Operational</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avg-response-time">--ms</div>
+                            <div class="stat-label">Avg Response Time</div>
+                            <div class="stat-trend" id="performance-trend">Optimal</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="uptime-percentage">99.9%</div>
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-trend" id="uptime-trend">Excellent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Status Section -->
+        <section class="status-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🏥 System Status</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-status" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="status-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="status-grid">
+                    <!-- Website Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🌐 Website</h4>
+                            <div class="status-badge" id="website-status">Operational</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value" id="website-uptime">99.9%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Response Time</span>
+                                <span class="metric-value" id="website-response">120ms</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Last Incident</span>
+                                <span class="metric-value" id="website-incident">None</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🔒 Security</h4>
+                            <div class="status-badge" id="security-status">Secure</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">WAF Status</span>
+                                <span class="metric-value" id="waf-status">Active</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">SSL Certificate</span>
+                                <span class="metric-value" id="ssl-status">Valid</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Threats Blocked</span>
+                                <span class="metric-value" id="threats-blocked">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Infrastructure Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🏗️ Infrastructure</h4>
+                            <div class="status-badge" id="infrastructure-status">Healthy</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">S3 Buckets</span>
+                                <span class="metric-value" id="s3-status">Operational</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">CloudFront</span>
+                                <span class="metric-value" id="cloudfront-status">Deployed</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Route53</span>
+                                <span class="metric-value" id="route53-status">Resolving</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>⚡ Performance</h4>
+                            <div class="status-badge" id="performance-status">Optimal</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Load Time</span>
+                                <span class="metric-value" id="load-time">1.2s</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Cache Hit Rate</span>
+                                <span class="metric-value" id="cache-hit-rate">95%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Core Web Vitals</span>
+                                <span class="metric-value" id="core-web-vitals">Good</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost Monitoring Section -->
+        <section class="cost-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>💰 Cost Monitoring</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-costs" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="cost-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="cost-overview">
+                    <div class="cost-summary">
+                        <div class="cost-total">
+                            <span class="cost-label">Total Monthly Cost</span>
+                            <span class="cost-value" id="total-cost">$0.00</span>
+                            <span class="cost-trend" id="cost-trend">+0.0%</span>
+                        </div>
+                        <div class="cost-breakdown">
+                            <div class="cost-item">
+                                <span class="cost-service">AWS Services</span>
+                                <span class="cost-amount" id="aws-total">$0.00</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-service">Domain Registrar</span>
+                                <span class="cost-amount" id="registrar-cost">$0.00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="stat-card secondary">
-                    <div class="stat-icon">📄</div>
-                    <div class="stat-content">
-                        <h3>Page Views</h3>
-                        <div class="stat-number" id="total-pageviews">3,421</div>
-                        <div class="stat-trend positive">
-                            <span class="trend-icon">↗</span>
-                            <span class="trend-text">+8.3%</span>
+                <div class="cost-grid">
+                    <div class="cost-card">
+                        <h4>S3 Storage</h4>
+                        <div class="cost-value" id="s3-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Storage: <span id="s3-storage">0.0 GB</span></span>
+                            <span>Objects: <span id="s3-objects">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>CloudFront</h4>
+                        <div class="cost-value" id="cloudfront-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Requests: <span id="cloudfront-requests">0</span></span>
+                            <span>Bandwidth: <span id="cloudfront-bandwidth">0.0 GB</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>Route53</h4>
+                        <div class="cost-value" id="route53-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Queries: <span id="route53-queries">0</span></span>
+                            <span>Health Checks: <span id="route53-health-checks">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>WAF</h4>
+                        <div class="cost-value" id="waf-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Web ACLs: <span id="waf-acls">1</span></span>
+                            <span>Rules: <span id="waf-rules">5</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>CloudWatch</h4>
+                        <div class="cost-value" id="cloudwatch-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Metrics: <span id="cloudwatch-metrics">Active</span></span>
+                            <span>Logs: <span id="cloudwatch-logs">Minimal</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>Other Services</h4>
+                        <div class="cost-value" id="other-cost">$0.00</div>
+                        <div class="cost-breakdown">
+                            <span>Lambda: <span id="lambda-cost">$0.00</span></span>
+                            <span>SES: <span id="ses-cost">$0.00</span></span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Service Health Section -->
+        <section class="health-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🏥 Service Health</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-health" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="health-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
                 
-                <div class="stat-card success">
-                    <div class="stat-icon">📧</div>
-                    <div class="stat-content">
-                        <h3>Contact Forms</h3>
-                        <div class="stat-number" id="total-forms">23</div>
-                        <div class="stat-trend positive">
-                            <span class="trend-icon">↗</span>
-                            <span class="trend-text">+15.2%</span>
+                <div class="health-grid">
+                    <div class="health-card" id="s3-health">
+                        <div class="health-header">
+                            <h4>Amazon S3</h4>
+                            <span class="health-status" id="s3-status">Unknown</span>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Requests</span>
+                                <span class="metric-value" id="s3-requests">100%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Errors</span>
+                                <span class="metric-value" id="s3-errors">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-card" id="cloudfront-health">
+                        <div class="health-header">
+                            <h4>Amazon CloudFront</h4>
+                            <span class="health-status" id="cloudfront-status">Unknown</span>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Cache Hit</span>
+                                <span class="metric-value" id="cloudfront-cache-hit">95%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Errors</span>
+                                <span class="metric-value" id="cloudfront-errors">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-card" id="lambda-health">
+                        <div class="health-header">
+                            <h4>AWS Lambda</h4>
+                            <span class="health-status" id="lambda-status">Unknown</span>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Invocations</span>
+                                <span class="metric-value" id="lambda-invocations">100%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Errors</span>
+                                <span class="metric-value" id="lambda-errors">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-card" id="route53-health">
+                        <div class="health-header">
+                            <h4>Amazon Route53</h4>
+                            <span class="health-status" id="route53-status">Unknown</span>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">DNS Resolution</span>
+                                <span class="metric-value" id="route53-resolution">Unknown</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Query Volume</span>
+                                <span class="metric-value" id="route53-queries">0</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Health Checks</span>
+                                <span class="metric-value" id="route53-health-checks">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-card" id="website-health">
+                        <div class="health-header">
+                            <h4>Website</h4>
+                            <span class="health-status" id="website-status">Unknown</span>
+                        </div>
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-label">HTTP Status</span>
+                                <span class="metric-value" id="website-http-status">200</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">SSL Status</span>
+                                <span class="metric-value" id="website-ssl-status">Valid</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Performance Metrics Section -->
+        <section class="performance-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>⚡ Performance Metrics</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-performance" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="performance-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
                 
-                <div class="stat-card warning">
-                    <div class="stat-icon">⚡</div>
-                    <div class="stat-content">
-                        <h3>Avg Load Time</h3>
-                        <div class="stat-number" id="load-time">1.2s</div>
-                        <div class="stat-trend positive">
-                            <span class="trend-icon">↗</span>
-                            <span class="trend-text">-0.3s</span>
+                <div class="performance-grid">
+                    <div class="performance-card" id="core-web-vitals">
+                        <h4>Core Web Vitals</h4>
+                        <div class="vital-metric">
+                            <span class="vital-label">LCP</span>
+                            <span class="vital-value" id="core-web-vitals-lcp">1.2s</span>
+                            <span class="vital-score" id="core-web-vitals-lcp-score">good</span>
+                        </div>
+                        <div class="vital-metric">
+                            <span class="vital-label">FID</span>
+                            <span class="vital-value" id="core-web-vitals-fid">45ms</span>
+                            <span class="vital-score" id="core-web-vitals-fid-score">good</span>
+                        </div>
+                        <div class="vital-metric">
+                            <span class="vital-label">CLS</span>
+                            <span class="vital-value" id="core-web-vitals-cls">0.05</span>
+                            <span class="vital-score" id="core-web-vitals-cls-score">good</span>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-card" id="page-speed">
+                        <h4>Page Speed</h4>
+                        <div class="speed-metric">
+                            <span class="speed-label">Mobile</span>
+                            <span class="speed-value" id="page-speed-mobile-score">95</span>
+                            <span class="speed-grade" id="page-speed-mobile-grade">A</span>
+                        </div>
+                        <div class="speed-metric">
+                            <span class="speed-label">Desktop</span>
+                            <span class="speed-value" id="page-speed-desktop-score">98</span>
+                            <span class="speed-grade" id="page-speed-desktop-grade">A</span>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-card" id="resource-timing">
+                        <h4>Resource Timing</h4>
+                        <div class="timing-metric">
+                            <span class="timing-label">DNS</span>
+                            <span class="timing-value" id="resource-timing-dns">12ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">Connect</span>
+                            <span class="timing-value" id="resource-timing-connect">45ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">SSL</span>
+                            <span class="timing-value" id="resource-timing-ssl">23ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">TTFB</span>
+                            <span class="timing-value" id="resource-timing-ttfb">180ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">DOM</span>
+                            <span class="timing-value" id="resource-timing-dom">320ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">Load</span>
+                            <span class="timing-value" id="resource-timing-load">1.2s</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Performance Metrics -->
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Performance Metrics</h2>
-            </div>
-            
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <h4>SEO Score</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 95%"></div>
+        <!-- Alerts and Notifications -->
+        <section class="alerts-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🚨 Alerts & Notifications</h3>
+                    <div class="alert-controls">
+                        <button id="clear-alerts" class="btn btn-secondary">Clear All</button>
                     </div>
-                    <p class="metric-description">Excellent SEO optimization</p>
                 </div>
                 
-                <div class="metric-card">
-                    <h4>Performance Score</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 85%"></div>
-                    </div>
-                    <p class="metric-description">Excellent performance score</p>
-                </div>
-                
-                <div class="metric-card">
-                    <h4>Uptime</h4>
-                    <div class="uptime-display">
-                        <span class="uptime-value">99.9%</span>
-                        <span class="uptime-label">Last 30 days</span>
-                    </div>
-                    <p class="uptime-description">Excellent reliability</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Version Information -->
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Version Information</h2>
-            </div>
-            
-            <div class="version-info">
-                <div class="version-card">
-                    <h4>Current Version</h4>
-                    <div class="version-number" id="current-version">v1.0.0</div>
-                    <div class="version-status stable">Stable</div>
-                </div>
-                
-                <div class="version-card">
-                    <h4>Build Date</h4>
-                    <div class="build-date" id="build-date">2024-12-19</div>
-                </div>
-                
-                <div class="version-card">
-                    <h4>Features</h4>
-                    <ul class="feature-list" id="feature-list">
-                        <li>Responsive design</li>
-                        <li>Modern UI/UX</li>
-                        <li>Contact form</li>
-                        <li>Service descriptions</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Traffic Sources -->
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Traffic Sources</h2>
-            </div>
-            
-            <div class="traffic-sources">
-                <div class="source-item">
-                    <div class="source-name">Direct</div>
-                    <div class="source-percentage">45%</div>
-                </div>
-                <div class="source-item">
-                    <div class="source-name">Search Engines</div>
-                    <div class="source-percentage">35%</div>
-                </div>
-                <div class="source-item">
-                    <div class="source-name">Social Media</div>
-                    <div class="source-percentage">15%</div>
-                </div>
-                <div class="source-item">
-                    <div class="source-name">Referrals</div>
-                    <div class="source-percentage">5%</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Activity -->
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Recent Activity</h2>
-            </div>
-            
-            <div class="activity-feed" id="activity-feed">
-                <div class="activity-item">
-                    <div class="activity-icon">👤</div>
-                    <div class="activity-content">
-                        <div class="activity-text">New visitor from United States</div>
-                        <div class="activity-time">2 minutes ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon">📧</div>
-                    <div class="activity-content">
-                        <div class="activity-text">Contact form submission</div>
-                        <div class="activity-time">15 minutes ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon">📄</div>
-                    <div class="activity-content">
-                        <div class="activity-text">Page view: Services</div>
-                        <div class="activity-time">1 hour ago</div>
+                <div class="alerts-container" id="alerts-container">
+                    <div class="alert alert-info">
+                        <div class="alert-icon">ℹ️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">System Status</div>
+                            <div class="alert-message">All systems are operational. No issues detected.</div>
+                            <div class="alert-time">Just now</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-    </div>
+    </main>
 
-    <!-- Login Modal -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Dashboard Access</h2>
-                <p>Enter credentials to view site statistics</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Robert Consulting</h4>
+                <p>Professional cloud engineering and DevOps solutions</p>
             </div>
-            <form id="login-form" class="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <div class="login-hint">
-                <p><strong>Authorized Access Only</strong></p>
-                <p><em>Contact administrator for credentials</em></p>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="learning.html">Learning</a></li>
+                    <li><a href="best-practices.html">Best Practices</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>System Info</h4>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="admin/index.html">Admin Panel</a></li>
+                    <li><a href="https://status.robertconsulting.net">Status Page</a></li>
+                </ul>
             </div>
         </div>
-    </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
+            <p>Last updated: <span id="footer-last-updated">--</span></p>
+        </div>
+    </footer>
 
-    <script src="js/navigation.js"></script>
-    <script src="version-manager.js"></script>
-    <script src="auth.js"></script>
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
     <script src="dashboard-script.js"></script>
 </body>
 </html>
