@@ -187,16 +187,18 @@ class PipelineAPI {
                 }
             },
             costs: {
-                current: 45.67,
-                trend: '+5.2%',
+                current: 6.82,
+                trend: '+0.0%',
                 budget: 100.00,
                 breakdown: {
-                    s3: 12.34,
-                    cloudfront: 8.90,
-                    lambda: 2.45,
-                    route53: 0.50,
+                    s3: 0.05,
+                    cloudfront: 0.00,
+                    lambda: 0.00,
+                    route53: 3.04,
                     ses: 0.00,
-                    other: 21.48
+                    waf: 1.46,
+                    cloudwatch: 2.24,
+                    other: 0.03
                 }
             }
         };
