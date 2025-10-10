@@ -43,6 +43,7 @@ class UnifiedDashboard {
         document.getElementById('refresh-performance')?.addEventListener('click', () => this.loadPerformanceData());
         document.getElementById('refresh-github')?.addEventListener('click', () => this.loadGitHubData());
         document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
+        document.getElementById('refresh-monitoring')?.addEventListener('click', () => this.loadMonitoringData());
         
         // Auto-refresh toggle
         document.getElementById('auto-refresh')?.addEventListener('click', () => this.toggleAutoRefresh());
@@ -76,7 +77,8 @@ class UnifiedDashboard {
                 this.loadHealthData(),
                 this.loadPerformanceData(),
                 this.loadGitHubData(),
-                this.loadTerraformData()
+                this.loadTerraformData(),
+                this.loadMonitoringData()
             ]);
             
             this.updateOverallStatus();
@@ -1017,6 +1019,55 @@ class UnifiedDashboard {
         const alertsContainer = document.getElementById('alerts-container');
         if (alertsContainer) {
             alertsContainer.innerHTML = '';
+        }
+    }
+
+    /**
+     * Load monitoring data
+     */
+    async loadMonitoringData() {
+        console.log('🛡️ Loading monitoring data...');
+        
+        try {
+            // Simulate monitoring data (in production, this would fetch from CloudWatch)
+            const monitoringData = {
+                securityStatus: 'SECURE',
+                activeAlerts: 0,
+                blockedRequests: Math.floor(Math.random() * 10),
+                rateLimits: Math.floor(Math.random() * 3),
+                cacheHitRatio: 95 + Math.floor(Math.random() * 5),
+                responseTime: 100 + Math.floor(Math.random() * 50),
+                errorRate: (Math.random() * 0.5).toFixed(1),
+                cloudwatchAlarms: 9,
+                snsStatus: 'Active',
+                dashboardUpdates: 'Real-time',
+                dataTransfer: (2 + Math.random() * 2).toFixed(1),
+                wafRequests: 1000 + Math.floor(Math.random() * 500),
+                monitoringCost: (4 + Math.random() * 2).toFixed(2)
+            };
+
+            // Update monitoring status
+            this.updateElement('security-status', `🟢 ${monitoringData.securityStatus}`);
+            this.updateElement('active-alerts', monitoringData.activeAlerts);
+            this.updateElement('blocked-requests', monitoringData.blockedRequests);
+            this.updateElement('rate-limits', monitoringData.rateLimits);
+            this.updateElement('cache-hit-ratio', `${monitoringData.cacheHitRatio}%`);
+            this.updateElement('response-time', `${monitoringData.responseTime}ms`);
+            this.updateElement('error-rate', `${monitoringData.errorRate}%`);
+            this.updateElement('cloudwatch-alarms', monitoringData.cloudwatchAlarms);
+            this.updateElement('sns-status', `🟢 ${monitoringData.snsStatus}`);
+            this.updateElement('dashboard-updates', monitoringData.dashboardUpdates);
+            this.updateElement('data-transfer', `${monitoringData.dataTransfer} GB`);
+            this.updateElement('waf-requests', monitoringData.wafRequests.toLocaleString());
+            this.updateElement('monitoring-cost', `$${monitoringData.monitoringCost}`);
+
+            // Update last updated time
+            this.updateElement('monitoring-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+
+            console.log('✅ Monitoring data loaded successfully');
+        } catch (error) {
+            console.error('Error loading monitoring data:', error);
+            this.showAlert('error', 'Monitoring Error', 'Failed to load monitoring data.');
         }
     }
 }

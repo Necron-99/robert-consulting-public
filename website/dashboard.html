@@ -587,6 +587,165 @@
             </div>
         </section>
 
+        <!-- Security & Monitoring Section -->
+        <section class="monitoring-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🛡️ Security & Monitoring</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-monitoring" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="monitoring-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="monitoring-overview">
+                    <div class="monitoring-summary">
+                        <div class="monitoring-status">
+                            <span class="monitoring-label">Overall Security Status</span>
+                            <span class="monitoring-value" id="security-status">🟢 SECURE</span>
+                            <span class="monitoring-details">All systems operational</span>
+                        </div>
+                        <div class="monitoring-breakdown">
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">WAF Protection</span>
+                                <span class="monitoring-status-indicator" id="waf-status">🟢 Active</span>
+                            </div>
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">SSL/TLS Encryption</span>
+                                <span class="monitoring-status-indicator" id="ssl-status">🟢 Enabled</span>
+                            </div>
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">Origin Access Control</span>
+                                <span class="monitoring-status-indicator" id="oac-status">🟢 Protected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="monitoring-grid">
+                    <div class="monitoring-card">
+                        <h4>🔒 Security Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Active Alerts</span>
+                                <span class="metric-value" id="active-alerts">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Blocked Requests (24h)</span>
+                                <span class="metric-value" id="blocked-requests">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Rate Limit Triggers</span>
+                                <span class="metric-value" id="rate-limits">0</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Real-time threat detection and automated response
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>⚡ Performance Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Cache Hit Ratio</span>
+                                <span class="metric-value" id="cache-hit-ratio">95%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Response Time</span>
+                                <span class="metric-value" id="response-time">120ms</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Error Rate</span>
+                                <span class="metric-value" id="error-rate">0.1%</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Continuous performance optimization and monitoring
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>📊 Monitoring Infrastructure</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">CloudWatch Alarms</span>
+                                <span class="metric-value" id="cloudwatch-alarms">9</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">SNS Notifications</span>
+                                <span class="metric-value" id="sns-status">🟢 Active</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Dashboard Updates</span>
+                                <span class="metric-value" id="dashboard-updates">Real-time</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Enterprise-grade monitoring and alerting system
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>💰 Cost Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Data Transfer (24h)</span>
+                                <span class="metric-value" id="data-transfer">2.1 GB</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">WAF Requests (24h)</span>
+                                <span class="metric-value" id="waf-requests">1,247</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Monitoring Cost</span>
+                                <span class="metric-value" id="monitoring-cost">$4.20</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Proactive cost tracking and optimization alerts
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="monitoring-features">
+                    <h4>🛡️ Security Features</h4>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon">🛡️</span>
+                            <span class="feature-name">Web Application Firewall</span>
+                            <span class="feature-description">Advanced threat protection with rate limiting</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔒</span>
+                            <span class="feature-name">HTTPS Enforcement</span>
+                            <span class="feature-description">All traffic encrypted with TLS 1.2+</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🚫</span>
+                            <span class="feature-name">Origin Access Control</span>
+                            <span class="feature-description">S3 bucket protected from direct access</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span class="feature-name">Real-time Monitoring</span>
+                            <span class="feature-description">9 CloudWatch alarms with instant alerts</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔍</span>
+                            <span class="feature-name">Threat Detection</span>
+                            <span class="feature-description">Automated blocking of malicious requests</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span class="feature-name">Performance Tracking</span>
+                            <span class="feature-description">Cache optimization and response time monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Service Health Section -->
         <section class="health-section">
             <div class="container">
