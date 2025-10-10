@@ -111,15 +111,19 @@
         </div>
         <div class="config-item">
           <span class="config-label">Repository:</span>
-          <span class="config-value" id="client-repo">username/baileylessons.com</span>
+          <span class="config-value" id="client-repo">Necron-99/baileylessons.com</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">AWS Account:</span>
+          <span class="config-value" id="aws-account">737915157697</span>
         </div>
         <div class="config-item">
           <span class="config-label">S3 Bucket:</span>
-          <span class="config-value" id="s3-bucket">baileylessons-website</span>
+          <span class="config-value" id="s3-bucket">baileylessons-production-static</span>
         </div>
         <div class="config-item">
           <span class="config-label">CloudFront Distribution:</span>
-          <span class="config-value" id="cloudfront-id">E1TD9DYEU1B2AJ</span>
+          <span class="config-value" id="cloudfront-id">E23X7BS3VXFFFZ</span>
         </div>
         <div class="config-item">
           <span class="config-label">Domain:</span>
@@ -171,15 +175,19 @@
         </div>
         <div class="form-group">
           <label for="client-repo-input">GitHub Repository (username/repo):</label>
-          <input type="text" id="client-repo-input" value="username/baileylessons.com" required>
+          <input type="text" id="client-repo-input" value="Necron-99/baileylessons.com" required>
+        </div>
+        <div class="form-group">
+          <label for="aws-account-input">AWS Account ID:</label>
+          <input type="text" id="aws-account-input" value="737915157697" required>
         </div>
         <div class="form-group">
           <label for="s3-bucket-input">S3 Bucket Name:</label>
-          <input type="text" id="s3-bucket-input" value="baileylessons-website" required>
+          <input type="text" id="s3-bucket-input" value="baileylessons-production-static" required>
         </div>
         <div class="form-group">
           <label for="cloudfront-id-input">CloudFront Distribution ID:</label>
-          <input type="text" id="cloudfront-id-input" value="E1TD9DYEU1B2AJ" required>
+          <input type="text" id="cloudfront-id-input" value="E23X7BS3VXFFFZ" required>
         </div>
         <div class="form-group">
           <label for="domain-input">Domain:</label>
@@ -209,17 +217,26 @@
       <h2>🛠️ Manual Commands</h2>
       <p>Use these commands for manual deployment and troubleshooting:</p>
       
-      <h3>Deploy Client Content:</h3>
-      <pre><code>./scripts/deploy-client-content.sh baileylessons username/baileylessons.com baileylessons-website E1TD9DYEU1B2AJ</code></pre>
+      <h3>Deploy from GitHub Repository:</h3>
+      <pre><code>./scripts/update-baileylessons-content.sh</code></pre>
       
-      <h3>Check S3 Bucket:</h3>
-      <pre><code>aws s3 ls s3://baileylessons-website/</code></pre>
+      <h3>Deploy from GitHub (SSH method):</h3>
+      <pre><code>./scripts/update-baileylessons-content-ssh.sh</code></pre>
       
-      <h3>Invalidate CloudFront:</h3>
-      <pre><code>aws cloudfront create-invalidation --distribution-id E1TD9DYEU1B2AJ --paths "/*"</code></pre>
+      <h3>Deploy Local Files:</h3>
+      <pre><code>./scripts/deploy-to-baileylessons.sh ./my-files</code></pre>
       
-      <h3>Check CloudFront Status:</h3>
-      <pre><code>aws cloudfront get-distribution --id E1TD9DYEU1B2AJ --query 'Distribution.Status'</code></pre>
+      <h3>Test Access to Client Account:</h3>
+      <pre><code>./scripts/test-baileylessons-access.sh</code></pre>
+      
+      <h3>Check S3 Bucket (after role assumption):</h3>
+      <pre><code>aws s3 ls s3://baileylessons-production-static/</code></pre>
+      
+      <h3>Invalidate CloudFront (after role assumption):</h3>
+      <pre><code>aws cloudfront create-invalidation --distribution-id E23X7BS3VXFFFZ --paths "/*"</code></pre>
+      
+      <h3>Check CloudFront Status (after role assumption):</h3>
+      <pre><code>aws cloudfront get-distribution --id E23X7BS3VXFFFZ --query 'Distribution.Status'</code></pre>
     </div>
 
     <!-- Infrastructure Status -->
@@ -231,6 +248,35 @@
       <div>
         <a class="btn" href="#" onclick="refreshInfrastructureStatus()">Refresh Status</a>
         <a class="btn" href="#" onclick="openAWSConsole()">AWS Console</a>
+      </div>
+    </div>
+
+    <!-- Role Assumption Information -->
+    <div class="card">
+      <h2>🔐 Cross-Account Access</h2>
+      <p>Bailey Lessons infrastructure is hosted in a separate AWS account. The deployment scripts automatically assume the required role.</p>
+      
+      <div class="client-config">
+        <div class="config-item">
+          <span class="config-label">Source Account:</span>
+          <span class="config-value">Robert Consulting (this account)</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Target Account:</span>
+          <span class="config-value">737915157697 (Bailey Lessons)</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Assumed Role:</span>
+          <span class="config-value">OrganizationAccountAccessRole</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Role ARN:</span>
+          <span class="config-value">arn:aws:iam::737915157697:role/OrganizationAccountAccessRole</span>
+        </div>
+      </div>
+      
+      <div class="status info">
+        <strong>Note:</strong> All deployment scripts automatically handle role assumption. No manual AWS credential switching required.
       </div>
     </div>
 
@@ -252,6 +298,7 @@
       const config = {
         clientName: document.getElementById('client-name-input').value,
         clientRepo: document.getElementById('client-repo-input').value,
+        awsAccount: document.getElementById('aws-account-input').value,
         s3Bucket: document.getElementById('s3-bucket-input').value,
         cloudfrontId: document.getElementById('cloudfront-id-input').value,
         domain: document.getElementById('domain-input').value
@@ -260,6 +307,7 @@
       // Update display values
       document.getElementById('client-name').textContent = config.clientName;
       document.getElementById('client-repo').textContent = config.clientRepo;
+      document.getElementById('aws-account').textContent = config.awsAccount;
       document.getElementById('s3-bucket').textContent = config.s3Bucket;
       document.getElementById('cloudfront-id').textContent = config.cloudfrontId;
       document.getElementById('domain').textContent = config.domain;
@@ -278,6 +326,9 @@
         const config = JSON.parse(saved);
         document.getElementById('client-name').textContent = config.clientName;
         document.getElementById('client-repo').textContent = config.clientRepo;
+        if (config.awsAccount) {
+          document.getElementById('aws-account').textContent = config.awsAccount;
+        }
         document.getElementById('s3-bucket').textContent = config.s3Bucket;
         document.getElementById('cloudfront-id').textContent = config.cloudfrontId;
         document.getElementById('domain').textContent = config.domain;

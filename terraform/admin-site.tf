@@ -218,6 +218,11 @@ output "admin_distribution_domain" {
   description = "CloudFront domain for the admin site"
 }
 
+output "admin_cloudfront_id" {
+  value       = aws_cloudfront_distribution.admin.id
+  description = "CloudFront distribution ID for the admin site"
+}
+
 output "admin_url" {
   value       = var.admin_domain_name != null && var.existing_route53_zone_id != null ? "https://${var.admin_domain_name}" : "https://${aws_cloudfront_distribution.admin.domain_name}"
   description = "URL to access the admin site"
