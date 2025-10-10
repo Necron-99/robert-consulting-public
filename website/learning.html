@@ -76,11 +76,11 @@
                 </p>
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <span class="stat-number">30+</span>
+                        <span class="stat-number">35+</span>
                         <span class="stat-label">Technologies</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">16</span>
+                        <span class="stat-number">20+</span>
                         <span class="stat-label">Weeks</span>
                     </div>
                     <div class="stat-item">
@@ -591,6 +591,82 @@
         </div>
     </section>
 
+    <!-- Recent Achievements Section -->
+    <section id="recent-achievements" class="recent-achievements-section">
+        <div class="container">
+            <h2>Recent Achievements & Breakthroughs</h2>
+            <p class="section-subtitle">Latest insights and solutions from recent project challenges</p>
+            
+            <div class="achievements-grid">
+                <div class="achievement-category">
+                    <h3>🔧 Git Repository Management</h3>
+                    <div class="achievement-items">
+                        <div class="achievement-item">
+                            <h4>Dynamic Version System</h4>
+                            <p>Eliminated persistent git conflicts by implementing dynamic version generation instead of static files that change frequently.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">Conflict Resolution</span>
+                                <span class="badge">Dynamic Generation</span>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <h4>Repository Corruption Recovery</h4>
+                            <p>Successfully recovered from Synology NAS file system corruption using advanced git recovery techniques and repository maintenance.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">Recovery</span>
+                                <span class="badge">Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category">
+                    <h3>🛡️ Security Implementation</h3>
+                    <div class="achievement-items">
+                        <div class="achievement-item">
+                            <h4>Comprehensive API Security</h4>
+                            <p>Implemented multi-layer security with API Gateway authentication, WAF protection, rate limiting, and automated security scanning.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">Multi-Layer Security</span>
+                                <span class="badge">WAF Protection</span>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <h4>Secrets Management</h4>
+                            <p>Resolved 4 potential security issues by implementing proper secrets management and environment-based configuration.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">Security Fixes</span>
+                                <span class="badge">Best Practices</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-category">
+                    <h3>🏗️ Infrastructure Management</h3>
+                    <div class="achievement-items">
+                        <div class="achievement-item">
+                            <h4>State Management Strategy</h4>
+                            <p>Implemented comprehensive Terraform state management with drift detection, remote backend, and resource protection.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">State Management</span>
+                                <span class="badge">Drift Detection</span>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <h4>Decoupled Deployment</h4>
+                            <p>Separated infrastructure management from content deployment for faster updates and reduced operational risk.</p>
+                            <div class="achievement-badges">
+                                <span class="badge">Decoupled</span>
+                                <span class="badge">Risk Reduction</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Lessons Learned Section -->
     <section id="lessons" class="lessons-section">
         <div class="container">
@@ -760,6 +836,88 @@
                         <div class="lesson-item">
                             <h4>Documentation is Key</h4>
                             <p>Comprehensive documentation of processes, decisions, and lessons learned creates valuable knowledge base for future reference.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Dynamic Systems Prevent Conflicts</h4>
+                            <p>Static files that change frequently cause merge conflicts and repository corruption. Use dynamic generation instead of static files for frequently changing data.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Self-Contained Systems Work Better</h4>
+                            <p>Design systems to be self-contained with minimal external dependencies. Runtime generation eliminates file dependencies and conflicts.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-category">
+                    <h3>🛡️ Advanced Security Implementation</h3>
+                    <div class="lesson-items">
+                        <div class="lesson-item">
+                            <h4>Multi-Layer API Security</h4>
+                            <p>Implementing API Gateway authentication, WAF protection, rate limiting, and input validation creates comprehensive security against abuse and attacks.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Secrets Management is Critical</h4>
+                            <p>Never hardcode secrets in source code. Use environment variables and secure placeholder formats that don't trigger security scans.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>WAF Protection is Essential</h4>
+                            <p>Web Application Firewall with managed rules provides automatic protection against SQL injection, XSS, and common attack patterns.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Rate Limiting Prevents Abuse</h4>
+                            <p>Multi-layer rate limiting (API Gateway, WAF, client-side) prevents spam, abuse, and DDoS attacks while maintaining functionality.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Security Scanning in CI/CD</h4>
+                            <p>Automated security scanning in deployment pipelines catches potential secrets and vulnerabilities before they reach production.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-category">
+                    <h3>🏗️ Infrastructure State Management</h3>
+                    <div class="lesson-items">
+                        <div class="lesson-item">
+                            <h4>State Drift is Inevitable</h4>
+                            <p>Infrastructure can drift from Terraform state due to manual changes, API updates, or external modifications. Automated drift detection is essential.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Remote State Backend is Critical</h4>
+                            <p>Use S3 backend with DynamoDB locking for team collaboration. Enable encryption, versioning, and proper access control for state files.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Decouple Infrastructure from Content</h4>
+                            <p>Separating infrastructure management from content deployment allows for faster updates, reduced risk, and better scalability.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Resource Protection Prevents Accidents</h4>
+                            <p>Use lifecycle rules to prevent accidental destruction of critical resources like S3 buckets, CloudFront distributions, and state files.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Regular State Validation</h4>
+                            <p>Implement automated state validation, integrity checks, and drift detection to maintain infrastructure consistency and reliability.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-category">
+                    <h3>🔄 Repository Health & Maintenance</h3>
+                    <div class="lesson-items">
+                        <div class="lesson-item">
+                            <h4>Network Storage Can Cause Corruption</h4>
+                            <p>Synology NAS and other network storage systems can introduce git corruption issues. Regular repository maintenance and corruption detection are essential.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Git Repository Recovery Techniques</h4>
+                            <p>Use `git remote prune`, `git fetch --prune`, and `git push --force-with-lease` for safer repository recovery and maintenance.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>CI/CD Should Be Self-Contained</h4>
+                            <p>CI/CD pipelines should not depend on static files that can cause conflicts. Generate all required data dynamically within workflows.</p>
+                        </div>
+                        <div class="lesson-item">
+                            <h4>Regular Health Checks Prevent Issues</h4>
+                            <p>Use `git fsck` and `git remote prune` regularly to detect and prevent repository corruption before it becomes a major problem.</p>
                         </div>
                     </div>
                 </div>
@@ -942,6 +1100,7 @@
                     <ul>
                         <li><a href="#technologies">Technologies</a></li>
                         <li><a href="#methodologies">Methodologies</a></li>
+                        <li><a href="#recent-achievements">Recent Achievements</a></li>
                         <li><a href="#lessons">Lessons Learned</a></li>
                         <li><a href="#future">Future Goals</a></li>
                     </ul>
