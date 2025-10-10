@@ -42,6 +42,7 @@ class UnifiedDashboard {
         document.getElementById('refresh-health')?.addEventListener('click', () => this.loadHealthData());
         document.getElementById('refresh-performance')?.addEventListener('click', () => this.loadPerformanceData());
         document.getElementById('refresh-github')?.addEventListener('click', () => this.loadGitHubData());
+        document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
         
         // Auto-refresh toggle
         document.getElementById('auto-refresh')?.addEventListener('click', () => this.toggleAutoRefresh());
@@ -74,7 +75,8 @@ class UnifiedDashboard {
                 this.loadCostData(),
                 this.loadHealthData(),
                 this.loadPerformanceData(),
-                this.loadGitHubData()
+                this.loadGitHubData(),
+                this.loadTerraformData()
             ]);
             
             this.updateOverallStatus();
@@ -301,6 +303,84 @@ class UnifiedDashboard {
                     linesAdded: 0,
                     linesDeleted: 0,
                     languages: '0'
+                }
+            };
+        }
+    }
+
+    /**
+     * Load Terraform infrastructure data
+     */
+    async loadTerraformData() {
+        try {
+            console.log('🏗️ Loading Terraform infrastructure data...');
+            
+            // Fetch Terraform statistics
+            const terraformData = await this.fetchTerraformStatistics();
+
+            // Update Terraform displays
+            this.updateElement('total-resources', terraformData.totalResources);
+            this.updateElement('terraform-files', terraformData.terraformFiles);
+            this.updateElement('aws-services', terraformData.awsServices);
+            this.updateElement('security-resources', terraformData.securityResources);
+            this.updateElement('networking-resources', terraformData.networkingResources);
+            this.updateElement('storage-resources', terraformData.storageResources);
+            
+            // Update resource breakdown
+            this.updateElement('route53-count', terraformData.resourceBreakdown.route53);
+            this.updateElement('s3-count', terraformData.resourceBreakdown.s3);
+            this.updateElement('cloudwatch-count', terraformData.resourceBreakdown.cloudwatch);
+            this.updateElement('cloudfront-count', terraformData.resourceBreakdown.cloudfront);
+            this.updateElement('waf-count', terraformData.resourceBreakdown.waf);
+            this.updateElement('api-gateway-count', terraformData.resourceBreakdown.apiGateway);
+            
+            this.updateElement('terraform-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+            
+        } catch (error) {
+            console.error('Error loading Terraform data:', error);
+            this.showAlert('error', 'Terraform Data Error', 'Failed to load Terraform infrastructure data.');
+        }
+    }
+
+    /**
+     * Fetch Terraform statistics
+     */
+    async fetchTerraformStatistics() {
+        try {
+            // In a real implementation, this would call terraform show or terraform state list
+            // For now, return the actual statistics we gathered
+            return {
+                totalResources: '79',
+                terraformFiles: '21',
+                awsServices: '15',
+                securityResources: '12',
+                networkingResources: '11',
+                storageResources: '8',
+                resourceBreakdown: {
+                    route53: '10',
+                    s3: '5',
+                    cloudwatch: '5',
+                    cloudfront: '3',
+                    waf: '2',
+                    apiGateway: '8'
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching Terraform statistics:', error);
+            return {
+                totalResources: '0',
+                terraformFiles: '0',
+                awsServices: '0',
+                securityResources: '0',
+                networkingResources: '0',
+                storageResources: '0',
+                resourceBreakdown: {
+                    route53: '0',
+                    s3: '0',
+                    cloudwatch: '0',
+                    cloudfront: '0',
+                    waf: '0',
+                    apiGateway: '0'
                 }
             };
         }

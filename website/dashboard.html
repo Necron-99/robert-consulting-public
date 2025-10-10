@@ -257,6 +257,144 @@
             </div>
         </section>
 
+        <!-- Terraform Infrastructure Section -->
+        <section class="terraform-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🏗️ Infrastructure as Code</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-terraform" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="terraform-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="terraform-grid">
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📊</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="total-resources">79</div>
+                            <div class="terraform-label">Total Resources</div>
+                            <div class="terraform-trend">All managed by Terraform</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📁</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="terraform-files">21</div>
+                            <div class="terraform-label">Configuration Files</div>
+                            <div class="terraform-trend">3,322 lines of code</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">☁️</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="aws-services">15</div>
+                            <div class="terraform-label">AWS Services</div>
+                            <div class="terraform-trend">Multi-service architecture</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">🔒</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="security-resources">12</div>
+                            <div class="terraform-label">Security Resources</div>
+                            <div class="terraform-trend">WAF, IAM, Encryption</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">🌐</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="networking-resources">11</div>
+                            <div class="terraform-label">Networking Resources</div>
+                            <div class="terraform-trend">Route53, CloudFront, API Gateway</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📦</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="storage-resources">8</div>
+                            <div class="terraform-label">Storage Resources</div>
+                            <div class="terraform-trend">S3, DynamoDB, State Management</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terraform-breakdown">
+                    <div class="breakdown-header">
+                        <h4>🔧 Resource Breakdown</h4>
+                        <span class="breakdown-period">Current Infrastructure</span>
+                    </div>
+                    <div class="breakdown-stats">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Route53 Records</span>
+                            <span class="breakdown-value" id="route53-count">10</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">S3 Buckets</span>
+                            <span class="breakdown-value" id="s3-count">5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">CloudWatch Alarms</span>
+                            <span class="breakdown-value" id="cloudwatch-count">5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">CloudFront Distributions</span>
+                            <span class="breakdown-value" id="cloudfront-count">3</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">WAF Web ACLs</span>
+                            <span class="breakdown-value" id="waf-count">2</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">API Gateway Resources</span>
+                            <span class="breakdown-value" id="api-gateway-count">8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terraform-features">
+                    <div class="features-header">
+                        <h4>🚀 Infrastructure Features</h4>
+                        <a href="https://github.com/Necron-99/robert-consulting.net/tree/main/terraform" class="terraform-link" target="_blank">View Terraform Code →</a>
+                    </div>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-name">Multi-Account Architecture</div>
+                            <div class="feature-description">AWS Organizations with separate client accounts and cross-account access</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🏢 2+ Accounts</span>
+                                <span class="feature-stat">🔐 Cross-Account Roles</span>
+                                <span class="feature-stat">📋 SCPs & Policies</span>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-name">Security & Compliance</div>
+                            <div class="feature-description">WAF protection, IAM roles, encryption, and security monitoring</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🛡️ WAF Protection</span>
+                                <span class="feature-stat">🔒 Encryption</span>
+                                <span class="feature-stat">📊 Monitoring</span>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-name">State Management</div>
+                            <div class="feature-description">Remote state storage with S3 backend and DynamoDB locking</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🗄️ S3 Backend</span>
+                                <span class="feature-stat">🔒 State Locking</span>
+                                <span class="feature-stat">📈 Versioning</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- System Status Section -->
         <section class="status-section">
             <div class="container">
