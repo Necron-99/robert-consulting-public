@@ -232,7 +232,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #ef4444, #dc2626);
+    background: linear-gradient(90deg, #8b5cf6, #7c3aed);
 }
 
 .status-card:nth-child(3)::before {
@@ -252,7 +252,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #f59e0b, #d97706);
+    background: linear-gradient(90deg, #06b6d4, #0891b2);
 }
 
 .status-card:hover {
@@ -507,7 +507,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #f59e0b, #d97706);
+    background: linear-gradient(90deg, #06b6d4, #0891b2);
 }
 
 .health-card:nth-child(3)::before {
@@ -537,7 +537,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #ef4444, #dc2626);
+    background: linear-gradient(90deg, #6366f1, #4f46e5);
 }
 
 .health-card:hover {
