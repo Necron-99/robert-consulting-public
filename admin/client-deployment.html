@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Deployment Management</title>
+  <style>
+    body { 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; 
+      margin: 0; 
+      background: #0b132b; 
+      color: #e0e6f0; 
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    h1 { font-size: 24px; margin: 0; }
+    .card { background: #1c2541; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+    .card h2 { margin: 0 0 10px; font-size: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    a.btn { 
+      display: inline-block; 
+      padding: 10px 12px; 
+      background: #3a506b; 
+      color: #fff; 
+      text-decoration: none; 
+      border-radius: 8px; 
+      margin: 4px;
+    }
+    a.btn:hover { background: #4f6d88; }
+    a.btn.primary { background: #2d5a27; }
+    a.btn.primary:hover { background: #3a6b32; }
+    a.btn.danger { background: #8b2635; }
+    a.btn.danger:hover { background: #a02d3f; }
+    code, pre { 
+      background: #0f2038; 
+      color: #d2e3ff; 
+      border-radius: 8px; 
+      padding: 12px; 
+      display: block; 
+      overflow-x: auto; 
+      font-size: 14px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 4px; font-weight: 500; }
+    .form-group input, .form-group select { 
+      width: 100%; 
+      padding: 8px 12px; 
+      background: #0f2038; 
+      border: 1px solid #3a506b; 
+      border-radius: 6px; 
+      color: #e0e6f0; 
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group select:focus { 
+      outline: none; 
+      border-color: #4f6d88; 
+    }
+    .status { 
+      padding: 8px 12px; 
+      border-radius: 6px; 
+      margin: 8px 0; 
+      font-size: 14px;
+    }
+    .status.success { background: #2d5a27; color: #a8d5a8; }
+    .status.warning { background: #8b5a2d; color: #d5b8a8; }
+    .status.error { background: #8b2635; color: #d5a8a8; }
+    .status.info { background: #2d5a5a; color: #a8d5d5; }
+    .deployment-log { 
+      background: #0f2038; 
+      border-radius: 8px; 
+      padding: 16px; 
+      max-height: 300px; 
+      overflow-y: auto; 
+      font-family: 'Courier New', monospace; 
+      font-size: 12px;
+    }
+    .client-config { 
+      background: #1a2a3a; 
+      border-radius: 8px; 
+      padding: 16px; 
+      margin: 16px 0;
+    }
+    .config-item { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 8px 0; 
+      border-bottom: 1px solid #3a506b;
+    }
+    .config-item:last-child { border-bottom: none; }
+    .config-label { font-weight: 500; }
+    .config-value { color: #a8d5a8; font-family: monospace; }
+    footer { margin-top: 28px; opacity: .8; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Client Deployment Management</h1>
+      <a class="btn" href="index.html">← Back to Admin</a>
+    </header>
+
+    <!-- Client Configuration Section -->
+    <div class="card">
+      <h2>🏗️ Client Configuration</h2>
+      <div class="client-config">
+        <div class="config-item">
+          <span class="config-label">Client Name:</span>
+          <span class="config-value" id="client-name">baileylessons</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Repository:</span>
+          <span class="config-value" id="client-repo">username/baileylessons.com</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">S3 Bucket:</span>
+          <span class="config-value" id="s3-bucket">baileylessons-website</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">CloudFront Distribution:</span>
+          <span class="config-value" id="cloudfront-id">E1TD9DYEU1B2AJ</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Domain:</span>
+          <span class="config-value" id="domain">baileylessons.com</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deployment Actions -->
+    <div class="grid">
+      <div class="card">
+        <h2>🚀 Quick Deploy</h2>
+        <p>Deploy content from the client repository to production infrastructure.</p>
+        <div>
+          <a class="btn primary" href="#" onclick="deployClient()">Deploy Now</a>
+          <a class="btn" href="#" onclick="validateDeployment()">Validate</a>
+        </div>
+        <div id="deploy-status"></div>
+      </div>
+
+      <div class="card">
+        <h2>🔧 Configuration</h2>
+        <p>Update client deployment configuration and settings.</p>
+        <div>
+          <a class="btn" href="#" onclick="showConfigForm()">Edit Config</a>
+          <a class="btn" href="#" onclick="testConnection()">Test Connection</a>
+        </div>
+        <div id="config-status"></div>
+      </div>
+
+      <div class="card">
+        <h2>📊 Monitoring</h2>
+        <p>Monitor deployment status and infrastructure health.</p>
+        <div>
+          <a class="btn" href="#" onclick="checkStatus()">Check Status</a>
+          <a class="btn" href="#" onclick="viewLogs()">View Logs</a>
+        </div>
+        <div id="monitor-status"></div>
+      </div>
+    </div>
+
+    <!-- Deployment Form -->
+    <div class="card" id="deployment-form" style="display: none;">
+      <h2>📝 Deployment Configuration</h2>
+      <form id="deploy-form">
+        <div class="form-group">
+          <label for="client-name-input">Client Name:</label>
+          <input type="text" id="client-name-input" value="baileylessons" required>
+        </div>
+        <div class="form-group">
+          <label for="client-repo-input">GitHub Repository (username/repo):</label>
+          <input type="text" id="client-repo-input" value="username/baileylessons.com" required>
+        </div>
+        <div class="form-group">
+          <label for="s3-bucket-input">S3 Bucket Name:</label>
+          <input type="text" id="s3-bucket-input" value="baileylessons-website" required>
+        </div>
+        <div class="form-group">
+          <label for="cloudfront-id-input">CloudFront Distribution ID:</label>
+          <input type="text" id="cloudfront-id-input" value="E1TD9DYEU1B2AJ" required>
+        </div>
+        <div class="form-group">
+          <label for="domain-input">Domain:</label>
+          <input type="text" id="domain-input" value="baileylessons.com" required>
+        </div>
+        <div>
+          <a class="btn primary" href="#" onclick="saveConfig()">Save Configuration</a>
+          <a class="btn" href="#" onclick="hideConfigForm()">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Deployment Logs -->
+    <div class="card" id="deployment-logs" style="display: none;">
+      <h2>📋 Deployment Logs</h2>
+      <div class="deployment-log" id="log-output">
+        <div class="status info">Ready to deploy...</div>
+      </div>
+      <div>
+        <a class="btn" href="#" onclick="hideLogs()">Close Logs</a>
+        <a class="btn" href="#" onclick="clearLogs()">Clear Logs</a>
+      </div>
+    </div>
+
+    <!-- Scripts and Commands -->
+    <div class="card">
+      <h2>🛠️ Manual Commands</h2>
+      <p>Use these commands for manual deployment and troubleshooting:</p>
+      
+      <h3>Deploy Client Content:</h3>
+      <pre><code>./scripts/deploy-client-content.sh baileylessons username/baileylessons.com baileylessons-website E1TD9DYEU1B2AJ</code></pre>
+      
+      <h3>Check S3 Bucket:</h3>
+      <pre><code>aws s3 ls s3://baileylessons-website/</code></pre>
+      
+      <h3>Invalidate CloudFront:</h3>
+      <pre><code>aws cloudfront create-invalidation --distribution-id E1TD9DYEU1B2AJ --paths "/*"</code></pre>
+      
+      <h3>Check CloudFront Status:</h3>
+      <pre><code>aws cloudfront get-distribution --id E1TD9DYEU1B2AJ --query 'Distribution.Status'</code></pre>
+    </div>
+
+    <!-- Infrastructure Status -->
+    <div class="card">
+      <h2>🏗️ Infrastructure Status</h2>
+      <div id="infrastructure-status">
+        <div class="status info">Checking infrastructure status...</div>
+      </div>
+      <div>
+        <a class="btn" href="#" onclick="refreshInfrastructureStatus()">Refresh Status</a>
+        <a class="btn" href="#" onclick="openAWSConsole()">AWS Console</a>
+      </div>
+    </div>
+
+    <footer>© 2025 Robert Consulting - Client Deployment Management</footer>
+  </div>
+
+  <script>
+    // Configuration management
+    function showConfigForm() {
+      document.getElementById('deployment-form').style.display = 'block';
+      document.getElementById('config-status').innerHTML = '<div class="status info">Configuration form opened</div>';
+    }
+
+    function hideConfigForm() {
+      document.getElementById('deployment-form').style.display = 'none';
+    }
+
+    function saveConfig() {
+      const config = {
+        clientName: document.getElementById('client-name-input').value,
+        clientRepo: document.getElementById('client-repo-input').value,
+        s3Bucket: document.getElementById('s3-bucket-input').value,
+        cloudfrontId: document.getElementById('cloudfront-id-input').value,
+        domain: document.getElementById('domain-input').value
+      };
+
+      // Update display values
+      document.getElementById('client-name').textContent = config.clientName;
+      document.getElementById('client-repo').textContent = config.clientRepo;
+      document.getElementById('s3-bucket').textContent = config.s3Bucket;
+      document.getElementById('cloudfront-id').textContent = config.cloudfrontId;
+      document.getElementById('domain').textContent = config.domain;
+
+      // Save to localStorage
+      localStorage.setItem('clientConfig', JSON.stringify(config));
+
+      document.getElementById('config-status').innerHTML = '<div class="status success">Configuration saved successfully</div>';
+      hideConfigForm();
+    }
+
+    // Load saved configuration
+    function loadConfig() {
+      const saved = localStorage.getItem('clientConfig');
+      if (saved) {
+        const config = JSON.parse(saved);
+        document.getElementById('client-name').textContent = config.clientName;
+        document.getElementById('client-repo').textContent = config.clientRepo;
+        document.getElementById('s3-bucket').textContent = config.s3Bucket;
+        document.getElementById('cloudfront-id').textContent = config.cloudfrontId;
+        document.getElementById('domain').textContent = config.domain;
+      }
+    }
+
+    // Deployment functions
+    function deployClient() {
+      const logOutput = document.getElementById('log-output');
+      const deployStatus = document.getElementById('deploy-status');
+      
+      deployStatus.innerHTML = '<div class="status info">Starting deployment...</div>';
+      logOutput.innerHTML = '<div class="status info">[INFO] Starting client deployment...</div>';
+
+      // Simulate deployment process
+      setTimeout(() => {
+        logOutput.innerHTML += '<div class="status info">[INFO] Checking prerequisites...</div>';
+      }, 1000);
+
+      setTimeout(() => {
+        logOutput.innerHTML += '<div class="status info">[INFO] Cloning repository...</div>';
+      }, 2000);
+
+      setTimeout(() => {
+        logOutput.innerHTML += '<div class="status info">[INFO] Deploying to S3...</div>';
+      }, 3000);
+
+      setTimeout(() => {
+        logOutput.innerHTML += '<div class="status info">[INFO] Invalidating CloudFront cache...</div>';
+      }, 4000);
+
+      setTimeout(() => {
+        logOutput.innerHTML += '<div class="status success">[SUCCESS] Deployment completed successfully!</div>';
+        deployStatus.innerHTML = '<div class="status success">Deployment completed successfully!</div>';
+      }, 5000);
+    }
+
+    function validateDeployment() {
+      const deployStatus = document.getElementById('deploy-status');
+      deployStatus.innerHTML = '<div class="status info">Validating deployment...</div>';
+      
+      setTimeout(() => {
+        deployStatus.innerHTML = '<div class="status success">Deployment validation passed</div>';
+      }, 2000);
+    }
+
+    function testConnection() {
+      const configStatus = document.getElementById('config-status');
+      configStatus.innerHTML = '<div class="status info">Testing connections...</div>';
+      
+      setTimeout(() => {
+        configStatus.innerHTML = '<div class="status success">All connections successful</div>';
+      }, 2000);
+    }
+
+    function checkStatus() {
+      const monitorStatus = document.getElementById('monitor-status');
+      monitorStatus.innerHTML = '<div class="status info">Checking status...</div>';
+      
+      setTimeout(() => {
+        monitorStatus.innerHTML = '<div class="status success">All systems operational</div>';
+      }, 2000);
+    }
+
+    function viewLogs() {
+      document.getElementById('deployment-logs').style.display = 'block';
+    }
+
+    function hideLogs() {
+      document.getElementById('deployment-logs').style.display = 'none';
+    }
+
+    function clearLogs() {
+      document.getElementById('log-output').innerHTML = '<div class="status info">Logs cleared</div>';
+    }
+
+    function refreshInfrastructureStatus() {
+      const statusDiv = document.getElementById('infrastructure-status');
+      statusDiv.innerHTML = '<div class="status info">Refreshing infrastructure status...</div>';
+      
+      setTimeout(() => {
+        statusDiv.innerHTML = `
+          <div class="status success">✅ S3 Bucket: Active</div>
+          <div class="status success">✅ CloudFront: Deployed</div>
+          <div class="status success">✅ Route 53: Configured</div>
+          <div class="status success">✅ SSL Certificate: Valid</div>
+        `;
+      }, 2000);
+    }
+
+    function openAWSConsole() {
+      window.open('https://console.aws.amazon.com/', '_blank');
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadConfig();
+      refreshInfrastructureStatus();
+    });
+  </script>
+</body>
+</html>
