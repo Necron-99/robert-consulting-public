@@ -24,6 +24,19 @@ variable "admin_acm_certificate_arn" {
   default     = null
 }
 
+variable "admin_basic_auth_username" {
+  description = "Username for Basic Auth to access the admin site"
+  type        = string
+  default     = "admin"
+}
+
+variable "admin_basic_auth_password" {
+  description = "Password for Basic Auth to access the admin site"
+  type        = string
+  sensitive   = true
+  default     = "RobertSecure2025!"
+}
+
 locals {
   tags = {
     Project   = "AdminSite"
