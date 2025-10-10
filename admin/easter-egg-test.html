@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Easter Egg Test - Robert Consulting</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b132b;
+            color: #e0e6f0;
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: #1c2541;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        
+        .instructions {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .konami-code {
+            background: #0f2038;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            color: #d2e3ff;
+            border: 2px solid #3a506b;
+        }
+        
+        .hint {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: #3a506b;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: #4f6d88;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f2038;
+            border-radius: 8px;
+            border: 1px solid #3a506b;
+        }
+        
+        .status.success {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .status.error {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Admin Easter Egg Test</h1>
+        
+        <div class="instructions">
+            <p>This page tests the Konami Code easter egg functionality on the admin site.</p>
+            <p>Try entering the classic Konami Code sequence:</p>
+        </div>
+        
+        <div class="konami-code">
+            ↑ ↑ ↓ ↓ ← → ← → B A
+        </div>
+        
+        <div class="instructions">
+            <p>When activated, you'll see a notification and be redirected to the main site.</p>
+            <p>The same code works on the main site to return to the admin panel.</p>
+        </div>
+        
+        <div class="hint">
+            💡 Look for the small blue dot in the bottom-right corner - it indicates the easter egg is active
+        </div>
+        
+        <div class="status" id="status">
+            <div>🔍 Checking easter egg script...</div>
+        </div>
+        
+        <a href="index.html" class="back-link">← Back to Admin Hub</a>
+    </div>
+    
+    <script>
+        // Test if easter egg script loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const status = document.getElementById('status');
+            
+            if (typeof EasterEgg !== 'undefined') {
+                status.className = 'status success';
+                status.innerHTML = '<div>✅ Easter egg script loaded successfully!</div>';
+            } else {
+                status.className = 'status error';
+                status.innerHTML = '<div>❌ Easter egg script failed to load. Check console for errors.</div>';
+            }
+        });
+    </script>
+    
+    <script src="website/js/easter-egg.js"></script>
+</body>
+</html>
