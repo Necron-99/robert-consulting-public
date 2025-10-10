@@ -396,6 +396,10 @@ class UnifiedDashboard {
             // Fetch real performance metrics
             const performanceData = await this.fetchPerformanceMetrics();
 
+            // Update Quick Stats section
+            this.updateElement('avg-response-time', performanceData.resourceTiming.ttfb);
+            this.updateElement('performance-trend', 'Optimal');
+
             // Update performance displays
             this.updatePerformanceMetrics('core-web-vitals', performanceData.coreWebVitals);
             this.updatePerformanceMetrics('page-speed', performanceData.pageSpeed);
