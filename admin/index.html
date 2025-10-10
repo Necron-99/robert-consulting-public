@@ -18,29 +18,29 @@
     footer { margin-top: 28px; opacity: .8; font-size: 12px; }
     
     /* Client Statistics Styling */
-    .client-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
-    .client-stat-card { background: #0f2038; border-radius: 8px; padding: 16px; border: 1px solid #3a506b; }
-    .client-stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #3a506b; }
-    .client-stat-header h3 { margin: 0; font-size: 16px; color: #e0e6f0; }
-    .client-status { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-    .client-status.operational { background: #10b981; color: white; }
-    .client-status.pending { background: #8b5cf6; color: white; }
-    .client-stat-content { margin-bottom: 12px; }
-    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .stat-label { font-size: 13px; color: #a0a6b0; }
-    .stat-value { font-size: 14px; font-weight: 600; color: #e0e6f0; }
-    .client-stat-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #1c2541; border-radius: 4px; }
-    .breakdown-label { font-size: 11px; color: #a0a6b0; }
-    .breakdown-status { font-size: 12px; }
-    .breakdown-status.healthy { color: #10b981; }
-    .breakdown-status.ready { color: #8b5cf6; }
-    .client-costs-summary { background: #0f2038; border-radius: 8px; padding: 16px; border: 1px solid #3a506b; }
-    .client-costs-summary h3 { margin: 0 0 12px; font-size: 16px; color: #e0e6f0; }
-    .costs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    .cost-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1c2541; border-radius: 6px; }
-    .cost-label { font-size: 12px; color: #a0a6b0; }
-    .cost-value { font-size: 14px; font-weight: 700; color: #10b981; }
+    .card .client-stats-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important; gap: 16px !important; margin-bottom: 20px !important; }
+    .card .client-stat-card { background: #0f2038 !important; border-radius: 8px !important; padding: 16px !important; border: 2px solid #3a506b !important; margin: 10px 0 !important; display: block !important; }
+    .card .client-stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #3a506b; }
+    .card .client-stat-header h3 { margin: 0; font-size: 16px; color: #e0e6f0; }
+    .card .client-status { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .card .client-status.operational { background: #10b981; color: white; }
+    .card .client-status.pending { background: #8b5cf6; color: white; }
+    .card .client-stat-content { margin-bottom: 12px; }
+    .card .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .card .stat-label { font-size: 13px; color: #a0a6b0; }
+    .card .stat-value { font-size: 14px; font-weight: 600; color: #e0e6f0; }
+    .card .client-stat-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .card .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #1c2541; border-radius: 4px; }
+    .card .breakdown-label { font-size: 11px; color: #a0a6b0; }
+    .card .breakdown-status { font-size: 12px; }
+    .card .breakdown-status.healthy { color: #10b981; }
+    .card .breakdown-status.ready { color: #8b5cf6; }
+    .card .client-costs-summary { background: #0f2038; border-radius: 8px; padding: 16px; border: 1px solid #3a506b; }
+    .card .client-costs-summary h3 { margin: 0 0 12px; font-size: 16px; color: #e0e6f0; }
+    .card .costs-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important; gap: 12px !important; }
+    .card .cost-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1c2541; border-radius: 6px; }
+    .card .cost-label { font-size: 12px; color: #a0a6b0; }
+    .card .cost-value { font-size: 14px; font-weight: 700; color: #10b981; }
   </style>
 </head>
 <body>
