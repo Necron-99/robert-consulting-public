@@ -1,20 +1,10 @@
-# Low-cost Admin Site (S3 + CloudFront + Basic Auth via CloudFront Function)
+# Low-cost Admin Site (S3 + CloudFront + WAF Protection)
 
 variable "aws_region" {
   type    = string
   default = "us-east-1"
 }
 
-variable "admin_basic_auth_username" {
-  description = "Username for Basic Auth to access the admin site"
-  type        = string
-}
-
-variable "admin_basic_auth_password" {
-  description = "Password for Basic Auth to access the admin site"
-  type        = string
-  sensitive   = true
-}
 
 variable "admin_domain_name" {
   description = "Optional DNS name for the admin site (e.g., admin.example.com)"
