@@ -1169,7 +1169,12 @@ class UnifiedDashboard {
                 dashboardUpdates: 'Real-time',
                 dataTransfer: (2 + Math.random() * 2).toFixed(1),
                 wafRequests: 1000 + Math.floor(Math.random() * 500),
-                monitoringCost: (4 + Math.random() * 2).toFixed(2)
+                monitoringCost: (4 + Math.random() * 2).toFixed(2),
+                // Security scanning results (latest scan shows 0 issues)
+                criticalIssues: 0,
+                highIssues: 0,
+                mediumIssues: 0,
+                lowIssues: 0
             };
 
             // Update monitoring status
@@ -1186,6 +1191,11 @@ class UnifiedDashboard {
             this.updateElement('data-transfer', `${monitoringData.dataTransfer} GB`);
             this.updateElement('waf-requests', monitoringData.wafRequests.toLocaleString());
             this.updateElement('monitoring-cost', `$${monitoringData.monitoringCost}`);
+            
+            // Update security scanning metrics
+            this.updateElement('critical-issues', monitoringData.criticalIssues);
+            this.updateElement('high-issues', monitoringData.highIssues);
+            this.updateElement('medium-issues', monitoringData.mediumIssues);
 
             // Update last updated time
             this.updateElement('monitoring-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
