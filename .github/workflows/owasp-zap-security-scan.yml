@@ -98,8 +98,9 @@ jobs:
       run: |
         echo "🔍 Running OWASP ZAP Baseline Scan with custom Docker implementation..."
         
-        # Create reports directory
+        # Create reports directory with proper permissions
         mkdir -p reports
+        chmod 777 reports
         
         # Set target URL
         TARGET_URL="${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
@@ -146,7 +147,8 @@ jobs:
             docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
             if docker run --rm \
               -v $(pwd)/reports:/zap/wrk/:rw \
-              -u $(id -u):$(id -g) \
+              -v $(pwd)/reports:/home/zap/:rw \
+              --user root \
               -t ghcr.io/zaproxy/zaproxy:stable \
               zap-baseline.py \
               -t "$TARGET_URL" \
@@ -478,8 +480,9 @@ jobs:
       run: |
         echo "🔍 Running OWASP ZAP API Scan with custom Docker implementation..."
         
-        # Create reports directory
+        # Create reports directory with proper permissions
         mkdir -p reports
+        chmod 777 reports
         
         # Set target URL
         TARGET_URL="https://robertconsulting.net"
@@ -526,7 +529,8 @@ jobs:
             docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
             if docker run --rm \
               -v $(pwd)/reports:/zap/wrk/:rw \
-              -u $(id -u):$(id -g) \
+              -v $(pwd)/reports:/home/zap/:rw \
+              --user root \
               -t ghcr.io/zaproxy/zaproxy:stable \
               zap-api-scan.py \
               -t "$TARGET_URL" \
