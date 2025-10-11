@@ -95,7 +95,7 @@ jobs:
         env | grep -E "(DOCKER|ZAP|GITHUB)" || echo "No relevant environment variables found"
 
     - name: OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.6.1
+      uses: zaproxy/action-baseline@v0.2.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -116,7 +116,7 @@ jobs:
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
-      uses: zaproxy/action-full-scan@v0.6.1
+      uses: zaproxy/action-full-scan@v0.2.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -348,7 +348,7 @@ jobs:
         curl -I https://robertconsulting.net || echo "Target not reachable"
     
     - name: OWASP ZAP API Scan
-      uses: zaproxy/action-api-scan@v0.6.1
+      uses: zaproxy/action-api-scan@v0.2.0
       with:
         target: 'https://robertconsulting.net'
         token: ${{ secrets.GITHUB_TOKEN }}
