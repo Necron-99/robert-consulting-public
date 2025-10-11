@@ -39,6 +39,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
+      issues: write
     
     steps:
     - name: Checkout code
@@ -87,6 +88,8 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
+        issue_title: '🔒 OWASP ZAP Security Scan - Baseline'
+        allow_issue_writing: true
       continue-on-error: true
     
     - name: OWASP ZAP Full Scan (if requested)
@@ -98,6 +101,8 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
+        issue_title: '🔒 OWASP ZAP Security Scan - Full'
+        allow_issue_writing: true
       continue-on-error: true
     
     - name: Upload ZAP scan results
@@ -233,6 +238,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
+      issues: write
     
     steps:
     - name: Checkout code
@@ -246,6 +252,8 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
+        issue_title: '🔒 OWASP ZAP Security Scan - API'
+        allow_issue_writing: true
       continue-on-error: true
     
     - name: Upload API scan results
