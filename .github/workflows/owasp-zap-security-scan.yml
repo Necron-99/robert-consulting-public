@@ -101,37 +101,94 @@ jobs:
         # Create reports directory
         mkdir -p reports
         
-        # Run ZAP baseline scan using Docker directly
-        docker run --rm \
+        # Set target URL
+        TARGET_URL="${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
+        echo "🎯 Target URL: $TARGET_URL"
+        
+        # Test Docker and ZAP image availability
+        echo "🐳 Testing Docker availability..."
+        docker --version || echo "❌ Docker not available"
+        
+        echo "📦 Pulling ZAP Docker image..."
+        docker pull owasp/zap2docker-stable || echo "❌ Failed to pull ZAP image"
+        
+        echo "🔍 Running ZAP baseline scan..."
+        # Run ZAP baseline scan with proper error handling
+        if docker run --rm \
           -v $(pwd)/reports:/zap/wrk/:rw \
           -t owasp/zap2docker-stable \
           zap-baseline.py \
-          -t ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }} \
+          -t "$TARGET_URL" \
           -J baseline-report.json \
           -r baseline-report.html \
           -x baseline-report.xml \
-          -a
-        
-        echo "✅ ZAP baseline scan completed"
+          -a; then
+          echo "✅ ZAP baseline scan completed successfully"
+        else
+          echo "❌ ZAP baseline scan failed with exit code $?"
+          echo "🔍 Attempting simplified scan..."
+          # Try a simpler scan without XML output
+          if docker run --rm \
+            -v $(pwd)/reports:/zap/wrk/:rw \
+            -t owasp/zap2docker-stable \
+            zap-baseline.py \
+            -t "$TARGET_URL" \
+            -J baseline-report.json \
+            -r baseline-report.html \
+            -a; then
+            echo "✅ Simplified scan completed successfully"
+          else
+            echo "❌ Simplified scan also failed with exit code $?"
+            echo "🔍 Attempting alternative ZAP image..."
+            # Try with alternative ZAP image
+            docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
+            if docker run --rm \
+              -v $(pwd)/reports:/zap/wrk/:rw \
+              -t ghcr.io/zaproxy/zaproxy:stable \
+              zap-baseline.py \
+              -t "$TARGET_URL" \
+              -J baseline-report.json \
+              -r baseline-report.html \
+              -a; then
+              echo "✅ Alternative ZAP image scan completed successfully"
+            else
+              echo "❌ All ZAP scan attempts failed"
+              # Create a minimal report to indicate scan was attempted
+              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "All ZAP scan attempts failed"}' > reports/baseline-report.json
+              echo "<html><body><h1>ZAP Scan Failed</h1><p>All scan attempts failed for target: $TARGET_URL</p></body></html>" > reports/baseline-report.html
+            fi
+          fi
+        fi
         
         # Check if reports were generated
+        echo "📄 Checking for generated reports..."
         if [ -f "reports/baseline-report.json" ]; then
-          echo "📄 JSON report generated: reports/baseline-report.json"
+          echo "✅ JSON report generated: reports/baseline-report.json"
+        else
+          echo "❌ JSON report not found"
         fi
         if [ -f "reports/baseline-report.html" ]; then
-          echo "📄 HTML report generated: reports/baseline-report.html"
+          echo "✅ HTML report generated: reports/baseline-report.html"
+        else
+          echo "❌ HTML report not found"
         fi
         if [ -f "reports/baseline-report.xml" ]; then
-          echo "📄 XML report generated: reports/baseline-report.xml"
+          echo "✅ XML report generated: reports/baseline-report.xml"
+        else
+          echo "❌ XML report not found"
         fi
         
+        # List all files in reports directory
+        echo "📁 Files in reports directory:"
+        ls -la reports/ || echo "❌ Reports directory not accessible"
+        
         # Copy reports to root directory for artifact upload
-        cp reports/*.json . 2>/dev/null || true
-        cp reports/*.html . 2>/dev/null || true
-        cp reports/*.xml . 2>/dev/null || true
+        cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
+        cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
+        cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
         
         echo "📋 ZAP baseline scan summary:"
-        echo "Target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
+        echo "Target: $TARGET_URL"
         echo "Reports: Available in artifacts"
       continue-on-error: true
 
@@ -421,37 +478,72 @@ jobs:
         # Create reports directory
         mkdir -p reports
         
-        # Run ZAP API scan using Docker directly
-        docker run --rm \
+        # Set target URL
+        TARGET_URL="https://robertconsulting.net"
+        echo "🎯 Target URL: $TARGET_URL"
+        
+        # Test Docker and ZAP image availability
+        echo "🐳 Testing Docker availability..."
+        docker --version || echo "❌ Docker not available"
+        
+        echo "📦 Pulling ZAP Docker image..."
+        docker pull owasp/zap2docker-stable || echo "❌ Failed to pull ZAP image"
+        
+        echo "🔍 Running ZAP API scan..."
+        # Run ZAP API scan with proper error handling
+        if docker run --rm \
           -v $(pwd)/reports:/zap/wrk/:rw \
           -t owasp/zap2docker-stable \
           zap-api-scan.py \
-          -t https://robertconsulting.net \
+          -t "$TARGET_URL" \
           -J api-report.json \
           -r api-report.html \
           -x api-report.xml \
-          -a
-        
-        echo "✅ ZAP API scan completed"
+          -a; then
+          echo "✅ ZAP API scan completed successfully"
+        else
+          echo "❌ ZAP API scan failed with exit code $?"
+          echo "🔍 Attempting simplified API scan..."
+          # Try a simpler scan without XML output
+          docker run --rm \
+            -v $(pwd)/reports:/zap/wrk/:rw \
+            -t owasp/zap2docker-stable \
+            zap-api-scan.py \
+            -t "$TARGET_URL" \
+            -J api-report.json \
+            -r api-report.html \
+            -a || echo "❌ Simplified API scan also failed"
+        fi
         
         # Check if reports were generated
+        echo "📄 Checking for generated API reports..."
         if [ -f "reports/api-report.json" ]; then
-          echo "📄 JSON report generated: reports/api-report.json"
+          echo "✅ JSON report generated: reports/api-report.json"
+        else
+          echo "❌ JSON report not found"
         fi
         if [ -f "reports/api-report.html" ]; then
-          echo "📄 HTML report generated: reports/api-report.html"
+          echo "✅ HTML report generated: reports/api-report.html"
+        else
+          echo "❌ HTML report not found"
         fi
         if [ -f "reports/api-report.xml" ]; then
-          echo "📄 XML report generated: reports/api-report.xml"
+          echo "✅ XML report generated: reports/api-report.xml"
+        else
+          echo "❌ XML report not found"
         fi
         
+        # List all files in reports directory
+        echo "📁 Files in reports directory:"
+        ls -la reports/ || echo "❌ Reports directory not accessible"
+        
         # Copy reports to root directory for artifact upload
-        cp reports/*.json . 2>/dev/null || true
-        cp reports/*.html . 2>/dev/null || true
-        cp reports/*.xml . 2>/dev/null || true
+        cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
+        cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
+        cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
         
         echo "📋 ZAP API scan summary:"
-        echo "Target: https://robertconsulting.net"
+        echo "Target: $TARGET_URL"
         echo "Reports: Available in artifacts"
       continue-on-error: true
 
