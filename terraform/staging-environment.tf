@@ -421,7 +421,7 @@ resource "aws_wafv2_ip_set" "staging_allowed_ips" {
 
 # Associate WAF with CloudFront distribution
 resource "aws_wafv2_web_acl_association" "staging_waf_association" {
-  resource_arn = aws_cloudfront_distribution.staging_website.arn
+  resource_arn = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.staging_website.id}"
   web_acl_arn  = aws_wafv2_web_acl.staging_waf.arn
 }
 
