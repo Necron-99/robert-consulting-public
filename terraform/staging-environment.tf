@@ -120,11 +120,6 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
       preload                    = true
       override                   = false
     }
-    xss_protection {
-      mode     = "block"
-      override = false
-      protection = true
-    }
   }
 
   custom_headers_config {
