@@ -159,6 +159,25 @@ jobs:
           sarif_file: '*.sarif'
         continue-on-error: true
 
+      - name: Create Required Labels
+        if: always()
+        run: |
+          echo "🏷️ Creating required labels for security issues..."
+          
+          # Create labels if they don't exist
+          labels=("security" "automated-scan" "risk-high" "risk-medium" "risk-low" "risk-informational" "zap-finding" "summary")
+          
+          for label in "${labels[@]}"; do
+            if ! gh label list | grep -q "^$label$"; then
+              echo "Creating label: $label"
+              gh label create "$label" --description "Security scan related label" --color "0366d6" 2>/dev/null || echo "Label $label already exists or creation failed"
+            else
+              echo "Label $label already exists"
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Issues for Security Findings
         if: always()
         run: |
@@ -174,7 +193,7 @@ jobs:
           import os
           import subprocess
           import sys
-          from datetime import datetime
+          from datetime import datetime, timezone
 
           def create_github_issue(title, body, labels):
               """Create a GitHub issue with the given title, body, and labels"""
@@ -303,9 +322,18 @@ jobs:
               # Create issues for each unique finding type
               issues_created = 0
               for alert_name, alert_findings in grouped_findings.items():
-                  # Get risk level
+                  # Get risk level (clean up risk description to remove parentheses)
                   risk_levels = [f.get('riskdesc', 'Unknown') for f in alert_findings]
-                  risk_level = max(risk_levels, key=lambda x: {'High': 3, 'Medium': 2, 'Low': 1, 'Informational': 0}.get(x, 0))
+                  # Extract the main risk level (before parentheses)
+                  clean_risk_levels = []
+                  for risk in risk_levels:
+                      if '(' in risk:
+                          clean_risk = risk.split('(')[0].strip()
+                      else:
+                          clean_risk = risk
+                      clean_risk_levels.append(clean_risk)
+                  
+                  risk_level = max(clean_risk_levels, key=lambda x: {'High': 3, 'Medium': 2, 'Low': 1, 'Informational': 0}.get(x, 0))
                   
                   # Count instances
                   instance_count = len(alert_findings)
@@ -319,7 +347,7 @@ jobs:
 
           **Risk Level:** {risk_level}  
           **Instances Found:** {instance_count}  
-          **Scan Date:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}
 
           ### Description
@@ -380,10 +408,10 @@ jobs:
               
               # Create summary issue if findings were found
               if issues_created > 0:
-                  summary_title = f"🔒 Security Scan Summary - {datetime.utcnow().strftime('%Y-%m-%d')}"
+                  summary_title = f"🔒 Security Scan Summary - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
                   summary_body = f"""## Security Scan Summary
 
-          **Scan Date:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}  
           **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
           **Issues Created:** {issues_created}
@@ -411,10 +439,10 @@ jobs:
           except Exception as e:
               print(f"❌ Error processing ZAP results: {e}")
               # Fallback to simple issue creation
-              issue_title = f"🔒 OWASP ZAP Security Scan - {datetime.utcnow().strftime('%Y-%m-%d')}"
+              issue_title = f"🔒 OWASP ZAP Security Scan - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
               issue_body = f"""## Security Scan Results
 
-          **Scan Date:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}  
           **Scan Type:** Baseline
 
@@ -459,7 +487,7 @@ jobs:
           import os
           import subprocess
           import sys
-          from datetime import datetime
+          from datetime import datetime, timezone
 
           def close_github_issue(issue_number, comment):
               """Close a GitHub issue with a comment"""
@@ -524,7 +552,7 @@ jobs:
                               # Create closure comment
                               closure_comment = f"""## ✅ Security Issue Resolved
 
-          **Resolution Date:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Resolution Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Scan Target:** ${{ env.STAGING_URL }}
 
           ### Resolution Details
