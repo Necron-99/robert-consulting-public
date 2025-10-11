@@ -102,33 +102,59 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
   }
 
-  custom_headers_config {
-    items {
-      header   = "X-XSS-Protection"
-      value    = "1; mode=block"
-      override = false
-    }
-    items {
-      header   = "Permissions-Policy"
-      value    = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-      override = false
-    }
-    items {
-      header   = "Cross-Origin-Embedder-Policy"
-      value    = "require-corp"
-      override = false
-    }
-    items {
-      header   = "Cross-Origin-Opener-Policy"
-      value    = "same-origin"
-      override = false
-    }
-    items {
-      header   = "Cross-Origin-Resource-Policy"
-      value    = "same-origin"
-      override = false
-    }
-  }
+         custom_headers_config {
+           items {
+             header   = "Permissions-Policy"
+             value    = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+             override = false
+           }
+           items {
+             header   = "Cross-Origin-Embedder-Policy"
+             value    = "require-corp"
+             override = false
+           }
+           items {
+             header   = "Cross-Origin-Opener-Policy"
+             value    = "same-origin"
+             override = false
+           }
+           items {
+             header   = "Cross-Origin-Resource-Policy"
+             value    = "same-origin"
+             override = false
+           }
+           items {
+             header   = "X-DNS-Prefetch-Control"
+             value    = "off"
+             override = false
+           }
+           items {
+             header   = "X-Download-Options"
+             value    = "noopen"
+             override = false
+           }
+           items {
+             header   = "X-Permitted-Cross-Domain-Policies"
+             value    = "none"
+             override = false
+           }
+         }
+
+         # Remove server headers to prevent information disclosure
+         remove_headers_config {
+           items {
+             header = "Server"
+           }
+           items {
+             header = "X-Powered-By"
+           }
+           items {
+             header = "X-AspNet-Version"
+           }
+           items {
+             header = "X-AspNetMvc-Version"
+           }
+         }
 }
 
 # CloudFront distribution
