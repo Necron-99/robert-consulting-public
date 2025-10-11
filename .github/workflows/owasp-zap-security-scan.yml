@@ -46,17 +46,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Deploy website to staging for scanning
+      - name: Verify production site accessibility
         run: |
-          echo "🧪 Deploying to staging site for ZAP scanning..."
-          aws s3 sync website/ s3://robert-consulting-testing-site --delete
-          echo "✅ Staging deployment completed"
-
-      - name: Wait for deployment
-        run: |
-          echo "⏳ Waiting for staging deployment to be ready..."
-          sleep 30
-          echo "✅ Staging site should be ready for scanning"
+          echo "🔍 Verifying production site accessibility..."
+          
+          # Test production site accessibility
+          if curl -f -s -I "${{ env.TARGET_URL }}" > /dev/null; then
+            echo "✅ Production site is accessible"
+          else
+            echo "❌ Production site is not accessible"
+            exit 1
+          fi
 
       - name: Run OWASP ZAP Baseline Scan
         run: |
@@ -67,7 +67,7 @@ jobs:
           chmod 777 reports
           
           # Set target URL
-          TARGET_URL="${{ env.STAGING_URL }}"
+          TARGET_URL="${{ env.TARGET_URL }}"
           echo "🎯 Target URL: $TARGET_URL"
           
           # Pull the working ZAP image
@@ -371,7 +371,7 @@ jobs:
           **Instances Found:** {instance_count}  
           **Scan Sources:** {scan_sources_str}
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** ${{ env.STAGING_URL }}
+          **Target:** ${{ env.TARGET_URL }}
 
           ### Description
           {alert_findings[0].get('desc', 'No description available')}
@@ -435,7 +435,7 @@ jobs:
                   summary_body = f"""## Security Scan Summary
 
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** ${{ env.STAGING_URL }}  
+          **Target:** ${{ env.TARGET_URL }}  
           **Scan Sources:** {', '.join(report_sources)}
           **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
           **Issues Created:** {issues_created}
@@ -468,7 +468,7 @@ jobs:
               issue_body = f"""## Security Scan Results
 
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** ${{ env.STAGING_URL }}  
+          **Target:** ${{ env.TARGET_URL }}  
           **Scan Type:** Baseline
 
           ### Scan Status
@@ -593,7 +593,7 @@ jobs:
                               closure_comment = f"""## ✅ Security Issue Resolved
 
           **Resolution Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Scan Target:** ${{ env.STAGING_URL }}
+          **Scan Target:** ${{ env.TARGET_URL }}
 
           ### Resolution Details
           This security issue has been automatically closed because the latest OWASP ZAP security scan found **no security findings** for this vulnerability type.
@@ -648,7 +648,7 @@ jobs:
         run: |
           echo "## 🔒 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Scanned:** ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Scanned:** ${{ env.TARGET_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "**Scan Type:** Baseline" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
