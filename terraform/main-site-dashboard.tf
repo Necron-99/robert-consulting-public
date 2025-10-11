@@ -26,6 +26,19 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
           region  = "us-east-1"
           title   = "CloudFront Requests and Error Rates"
           period  = 300
+          yAxis = {
+            left = {
+              min = 0
+            }
+          }
+          annotations = {
+            horizontal = [
+              {
+                label = "No Data Available"
+                value = 0
+              }
+            ]
+          }
         }
       },
       {
@@ -37,14 +50,19 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
 
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"],
-            [".", "OriginLatency", ".", "."]
+            ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V"],
+            [".", "BytesUploaded", ".", "."]
           ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
           title   = "CloudFront Performance Metrics"
           period  = 300
+          yAxis = {
+            left = {
+              min = 0
+            }
+          }
         }
       },
       {
@@ -64,6 +82,11 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
           region  = "us-east-1"
           title   = "WAF Security Metrics"
           period  = 300
+          yAxis = {
+            left = {
+              min = 0
+            }
+          }
         }
       },
       {
