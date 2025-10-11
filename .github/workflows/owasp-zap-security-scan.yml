@@ -99,8 +99,6 @@ jobs:
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        docker_name: 'owasp/zap2docker-stable'
-        fail_action: false
       continue-on-error: true
 
     - name: Check ZAP Scan Results
@@ -120,8 +118,6 @@ jobs:
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        docker_name: 'owasp/zap2docker-stable'
-        fail_action: false
       continue-on-error: true
     
     - name: Upload ZAP scan results
@@ -352,8 +348,6 @@ jobs:
       with:
         target: 'https://robertconsulting.net'
         token: ${{ secrets.GITHUB_TOKEN }}
-        docker_name: 'owasp/zap2docker-stable'
-        fail_action: false
       continue-on-error: true
 
     - name: Check API Scan Results
