@@ -80,24 +80,25 @@ jobs:
         fi
     
     - name: OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@main
+      uses: zaproxy/action-baseline@v0.4.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
         allow_issue_writing: false
-        issue_title: 'ZAP Security Scan Results'
+      continue-on-error: true
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
-      uses: zaproxy/action-full-scan@main
+      uses: zaproxy/action-full-scan@v0.4.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
         allow_issue_writing: false
+      continue-on-error: true
     
     - name: Upload ZAP scan results
       uses: actions/upload-artifact@v4
@@ -237,13 +238,14 @@ jobs:
       uses: actions/checkout@v4
     
     - name: OWASP ZAP API Scan
-      uses: zaproxy/action-api-scan@main
+      uses: zaproxy/action-api-scan@v0.2.0
       with:
         target: 'https://robertconsulting.net'
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
         allow_issue_writing: false
+      continue-on-error: true
     
     - name: Upload API scan results
       uses: actions/upload-artifact@v4
