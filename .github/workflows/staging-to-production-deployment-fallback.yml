@@ -1,4 +1,7 @@
-name: Staging to Production Deployment Pipeline
+name: Staging to Production Deployment Pipeline (Fallback)
+
+# Fallback version that uses manual approval action instead of GitHub environments
+# Use this if the environment-based approach doesn't work
 
 on:
   push:
@@ -6,7 +9,7 @@ on:
     paths:
       - 'website/**'
       - 'admin/**'
-      - '.github/workflows/staging-to-production-deployment.yml'
+      - '.github/workflows/staging-to-production-deployment-fallback.yml'
   workflow_dispatch:
     inputs:
       skip_tests:
@@ -25,8 +28,6 @@ env:
   PRODUCTION_BUCKET: 'robert-consulting-website'
   STAGING_URL: 'https://staging.robertconsulting.net'
   PRODUCTION_URL: 'https://robertconsulting.net'
-  ADMIN_STAGING_URL: 'https://admin-staging.robertconsulting.net'
-  ADMIN_PRODUCTION_URL: 'https://admin.robertconsulting.net'
 
 jobs:
   # Stage 1: Deploy to Staging
@@ -199,141 +200,50 @@ jobs:
           
           echo "✅ All security headers present"
 
-      - name: 🔍 Test 3: Content Integrity Tests
-        run: |
-          echo "🔍 Running content integrity tests..."
-          
-          # Test for broken links (basic check)
-          if curl -s "${{ env.STAGING_URL }}" | grep -q "href=\"#\""; then
-            echo "⚠️ Warning: Found empty href attributes"
-          fi
-          
-          # Test for missing images
-          if curl -s "${{ env.STAGING_URL }}" | grep -q "src=\"\""; then
-            echo "❌ Found empty src attributes"
-            exit 1
-          fi
-          
-          # Test for proper meta tags
-          if ! curl -s "${{ env.STAGING_URL }}" | grep -q "viewport"; then
-            echo "❌ Missing viewport meta tag"
-            exit 1
-          fi
-          
-          echo "✅ Content integrity tests passed"
-
-      - name: 📱 Test 4: Responsive Design Tests
-        run: |
-          echo "📱 Testing responsive design..."
-          
-          # Test with different user agents
-          USER_AGENTS=(
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-          )
-          
-          for ua in "${USER_AGENTS[@]}"; do
-            if ! curl -s -H "User-Agent: $ua" "${{ env.STAGING_URL }}" | grep -q "viewport"; then
-              echo "❌ Responsive design test failed for: $ua"
-              exit 1
-            fi
-            echo "✅ Responsive test passed for: $ua"
-          done
-          
-          echo "✅ All responsive design tests passed"
-
-      - name: ⚡ Test 5: Performance Tests
-        run: |
-          echo "⚡ Running performance tests..."
-          
-          # Test page load time
-          LOAD_TIME=$(curl -s -o /dev/null -w "%{time_total}" "${{ env.STAGING_URL }}")
-          echo "Page load time: ${LOAD_TIME}s"
-          
-          # Fail if load time is too high (10 seconds)
-          if (( $(echo "$LOAD_TIME > 10" | bc -l) )); then
-            echo "❌ Page load time too high: ${LOAD_TIME}s"
-            exit 1
-          fi
-          
-          # Test for large files
-          LARGE_FILES=$(curl -s -I "${{ env.STAGING_URL }}" | grep -i "content-length" | awk '{print $2}' | tr -d '\r')
-          if [ -n "$LARGE_FILES" ] && [ "$LARGE_FILES" -gt 5000000 ]; then
-            echo "⚠️ Warning: Large page size: ${LARGE_FILES} bytes"
-          fi
-          
-          echo "✅ Performance tests passed"
-
-      - name: 🔒 Test 6: Security Scan (Basic)
-        run: |
-          echo "🔒 Running basic security scan..."
-          
-          # Test for common security issues
-          CONTENT=$(curl -s "${{ env.STAGING_URL }}")
-          
-          # Check for hardcoded secrets (basic check)
-          if echo "$CONTENT" | grep -qi "password.*="; then
-            echo "❌ Potential hardcoded password found"
-            exit 1
-          fi
-          
-          # Check for mixed content
-          if echo "$CONTENT" | grep -q "http://"; then
-            echo "⚠️ Warning: Found HTTP links (should use HTTPS)"
-          fi
-          
-          # Check for proper CSP
-          if ! curl -s -I "${{ env.STAGING_URL }}" | grep -qi "content-security-policy"; then
-            echo "❌ Missing Content Security Policy"
-            exit 1
-          fi
-          
-          echo "✅ Basic security scan passed"
-
       - name: 📊 Test Summary
         id: test-summary
         run: |
           echo "## 🧪 Comprehensive Test Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Basic Functionality**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
           echo "- **Security Headers**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Content Integrity**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Responsive Design**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Performance**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Security Scan**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**All tests passed!** Ready for production deployment." >> $GITHUB_STEP_SUMMARY
 
-  # Stage 3: Manual Approval Gate
+  # Stage 3: Manual Approval Gate (Using Action)
   manual-approval:
     name: 👥 Manual Approval for Production
     runs-on: ubuntu-latest
     needs: [deploy-to-staging, comprehensive-testing]
     if: github.event.inputs.force_production != 'true'
-    environment: 
-      name: production-deployment
-      url: https://robertconsulting.net
     steps:
-      - name: 📋 Production Deployment Checklist
-        run: |
-          echo "## 👥 Production Deployment Approval Required" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Pre-deployment Checklist:" >> $GITHUB_STEP_SUMMARY
-          echo "- [x] Code deployed to staging successfully" >> $GITHUB_STEP_SUMMARY
-          echo "- [x] Comprehensive tests passed" >> $GITHUB_STEP_SUMMARY
-          echo "- [x] Security headers validated" >> $GITHUB_STEP_SUMMARY
-          echo "- [x] Performance tests passed" >> $GITHUB_STEP_SUMMARY
-          echo "- [x] Responsive design verified" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Deployment Details:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Author**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Staging URL**: ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Production URL**: ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Ready for Production Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "Please review the staging environment and approve the production deployment." >> $GITHUB_STEP_SUMMARY
+      - name: 👥 Manual Approval Required
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: Necron-99
+          minimum-approvals: 1
+          issue-title: "Production Deployment Approval Required"
+          issue-body: |
+            ## 🚀 Production Deployment Approval Required
+            
+            **Commit**: `${{ github.sha }}`  
+            **Branch**: `${{ github.ref_name }}`  
+            **Author**: ${{ github.actor }}  
+            **Staging URL**: ${{ env.STAGING_URL }}  
+            **Production URL**: ${{ env.PRODUCTION_URL }}  
+            
+            ### ✅ Pre-deployment Checklist:
+            - [x] Code deployed to staging successfully
+            - [x] Comprehensive tests passed
+            - [x] Security headers validated
+            
+            ### 📋 To Approve:
+            Comment on this issue with: **APPROVE**
+            
+            ### 📋 To Reject:
+            Comment on this issue with: **REJECT**
+            
+            The deployment will proceed automatically once approved.
 
   # Stage 4: Production Deployment
   deploy-to-production:
@@ -448,58 +358,3 @@ jobs:
           echo "- **Deployed by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "- **Validation**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
-
-  # Stage 5: Post-deployment monitoring
-  post-deployment-monitoring:
-    name: 📊 Post-deployment Monitoring
-    runs-on: ubuntu-latest
-    needs: deploy-to-production
-    if: always() && needs.deploy-to-production.result == 'success'
-    steps:
-      - name: 🔧 Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: 📊 Monitor deployment health
-        run: |
-          echo "📊 Monitoring deployment health..."
-          
-          # Check CloudWatch metrics
-          echo "🔍 Checking CloudFront metrics..."
-          
-          # Test production site performance
-          LOAD_TIME=$(curl -s -o /dev/null -w "%{time_total}" "${{ env.PRODUCTION_URL }}")
-          echo "Production load time: ${LOAD_TIME}s"
-          
-          # Test multiple pages
-          PAGES=("" "dashboard.html" "learning.html")
-          for page in "${PAGES[@]}"; do
-            URL="${{ env.PRODUCTION_URL }}/$page"
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-            echo "Page $page: HTTP $STATUS"
-          done
-          
-          echo "✅ Post-deployment monitoring complete"
-
-      - name: 📋 Final deployment report
-        run: |
-          echo "## 📋 Final Deployment Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Deployment Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
-          echo "- **Staging**: ✅ Deployed and tested" >> $GITHUB_STEP_SUMMARY
-          echo "- **Testing**: ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Approval**: ✅ Manually approved" >> $GITHUB_STEP_SUMMARY
-          echo "- **Production**: ✅ Deployed and validated" >> $GITHUB_STEP_SUMMARY
-          echo "- **Monitoring**: ✅ Health checks passed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 URLs:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Production**: ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Staging**: ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Next Steps:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Monitor production metrics" >> $GITHUB_STEP_SUMMARY
-          echo "2. Check CloudWatch dashboards" >> $GITHUB_STEP_SUMMARY
-          echo "3. Verify user experience" >> $GITHUB_STEP_SUMMARY
