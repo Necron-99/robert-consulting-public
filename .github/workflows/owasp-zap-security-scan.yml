@@ -76,7 +76,7 @@ jobs:
           
           # Run ZAP baseline scan
           echo "🔍 Running ZAP baseline scan..."
-          docker run --rm \
+          if docker run --rm \
             -v $(pwd)/reports:/zap/wrk/:rw \
             -v $(pwd)/reports:/home/zap/:rw \
             --user root \
@@ -86,10 +86,13 @@ jobs:
             -J baseline-report.json \
             -r baseline-report.html \
             -x baseline-report.xml \
-            -a
-          
-          ZAP_EXIT_CODE=$?
-          echo "📊 ZAP scan completed with exit code: $ZAP_EXIT_CODE"
+            -a; then
+            ZAP_EXIT_CODE=0
+            echo "📊 ZAP scan completed successfully with exit code: $ZAP_EXIT_CODE"
+          else
+            ZAP_EXIT_CODE=$?
+            echo "📊 ZAP scan completed with exit code: $ZAP_EXIT_CODE"
+          fi
           
           # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
           # All of these are SUCCESSFUL scans with findings, not failures
@@ -276,22 +279,25 @@ jobs:
           echo "📦 Pulling ZAP Docker image..."
           docker pull ghcr.io/zaproxy/zaproxy:stable
           
-          # Run ZAP API scan
-          echo "🔍 Running ZAP API scan..."
-          docker run --rm \
+          # Run ZAP baseline scan for API endpoints (since we don't have OpenAPI spec)
+          echo "🔍 Running ZAP baseline scan for API endpoints..."
+          if docker run --rm \
             -v $(pwd)/reports:/zap/wrk/:rw \
             -v $(pwd)/reports:/home/zap/:rw \
             --user root \
             -t ghcr.io/zaproxy/zaproxy:stable \
-            zap-api-scan.py \
+            zap-baseline.py \
             -t "$TARGET_URL" \
             -J api-report.json \
             -r api-report.html \
             -x api-report.xml \
-            -a
-          
-          ZAP_EXIT_CODE=$?
-          echo "📊 ZAP API scan completed with exit code: $ZAP_EXIT_CODE"
+            -a; then
+            ZAP_EXIT_CODE=0
+            echo "📊 ZAP API scan completed successfully with exit code: $ZAP_EXIT_CODE"
+          else
+            ZAP_EXIT_CODE=$?
+            echo "📊 ZAP API scan completed with exit code: $ZAP_EXIT_CODE"
+          fi
           
           # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
           # All of these are SUCCESSFUL scans with findings, not failures
