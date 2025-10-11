@@ -86,7 +86,6 @@ jobs:
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
-        docker_name: 'zap-baseline-scan'
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
@@ -96,7 +95,6 @@ jobs:
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
-        docker_name: 'zap-full-scan'
     
     - name: Upload ZAP scan results
       uses: actions/upload-artifact@v4
@@ -241,7 +239,6 @@ jobs:
         rules_file_name: '.zap/rules.tsv'
         cmd_options: '-a'
         fail_action: false
-        docker_name: 'zap-api-scan'
     
     - name: Upload API scan results
       uses: actions/upload-artifact@v4
