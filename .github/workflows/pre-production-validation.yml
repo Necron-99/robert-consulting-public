@@ -441,8 +441,10 @@ jobs:
         fi
         
         # Check for missing security headers in admin HTML
-        if find admin/ -name "*.html" 2>/dev/null | xargs grep -L "Content-Security-Policy" 2>/dev/null; then
+        MISSING_CSP_FILES=$(find admin/ -name "*.html" 2>/dev/null | xargs grep -L "Content-Security-Policy" 2>/dev/null || true)
+        if [ -n "$MISSING_CSP_FILES" ]; then
           echo "⚠️ Missing Content-Security-Policy in admin HTML files"
+          echo "$MISSING_CSP_FILES"
           ADMIN_SECRETS=$((ADMIN_SECRETS + 1))
         fi
         
