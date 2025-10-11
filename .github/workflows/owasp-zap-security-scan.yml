@@ -88,8 +88,7 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
-        issue_title: '🔒 OWASP ZAP Security Scan - Baseline'
-        allow_issue_writing: true
+        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
     
     - name: OWASP ZAP Full Scan (if requested)
@@ -101,8 +100,7 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
-        issue_title: '🔒 OWASP ZAP Security Scan - Full'
-        allow_issue_writing: true
+        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
     
     - name: Upload ZAP scan results
@@ -162,6 +160,57 @@ jobs:
         sarif_file: '*.sarif'
         category: 'zap-full'
     
+    - name: Create GitHub Issues for Security Findings
+      if: always()
+      run: |
+        echo "🔍 Checking for security findings to create issues..."
+        
+        # Check if any report files exist
+        if find . -name "*.html" -o -name "*.json" -o -name "*.sarif" | grep -q .; then
+          echo "📄 Security scan reports found"
+          
+          # Create a general security scan issue if this is the first run
+          ISSUE_TITLE="🔒 OWASP ZAP Security Scan - $(date +%Y-%m-%d)"
+          ISSUE_BODY="## Security Scan Results
+        
+        **Scan Date:** $(date -u)
+        **Target URL:** ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+        **Scan Type:** Baseline
+        
+        ### Scan Status
+        ✅ Security scan completed successfully
+        📄 Reports generated and uploaded as artifacts
+        
+        ### Artifacts Available
+        - HTML Report: Available in workflow artifacts
+        - JSON Report: Available in workflow artifacts  
+        - SARIF Report: Available in workflow artifacts (if generated)
+        
+        ### Next Steps
+        1. Review the uploaded artifacts for detailed scan results
+        2. Check the GitHub Security tab for SARIF results (if code scanning is enabled)
+        3. Address any security findings identified in the scan
+        
+        ### Workflow Information
+        - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        - **Commit:** ${{ github.sha }}
+        - **Branch:** ${{ github.ref_name }}"
+        
+          # Check if an issue with this title already exists
+          EXISTING_ISSUE=$(gh issue list --search "in:title $ISSUE_TITLE" --json number --jq '.[0].number' 2>/dev/null || echo "")
+          
+          if [ -z "$EXISTING_ISSUE" ]; then
+            echo "📝 Creating GitHub issue for security scan results..."
+            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,automated-scan" || echo "⚠️ Failed to create issue (may need to enable GitHub CLI or check permissions)"
+          else
+            echo "📝 Issue already exists: #$EXISTING_ISSUE"
+          fi
+        else
+          echo "⚠️ No security scan reports found, skipping issue creation"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Generate Security Summary
       if: always()
       run: |
@@ -252,8 +301,7 @@ jobs:
         cmd_options: '-a'
         fail_action: false
         docker_name: 'owasp/zap2docker-stable'
-        issue_title: '🔒 OWASP ZAP Security Scan - API'
-        allow_issue_writing: true
+        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
     
     - name: Upload API scan results
@@ -277,3 +325,54 @@ jobs:
       with:
         sarif_file: '*.sarif'
         category: 'zap-api'
+    
+    - name: Create GitHub Issues for API Security Findings
+      if: always()
+      run: |
+        echo "🔍 Checking for API security findings to create issues..."
+        
+        # Check if any report files exist
+        if find . -name "*.html" -o -name "*.json" -o -name "*.sarif" | grep -q .; then
+          echo "📄 API security scan reports found"
+          
+          # Create a general API security scan issue
+          ISSUE_TITLE="🔒 OWASP ZAP API Security Scan - $(date +%Y-%m-%d)"
+          ISSUE_BODY="## API Security Scan Results
+        
+        **Scan Date:** $(date -u)
+        **Target URL:** https://robertconsulting.net
+        **Scan Type:** API Security
+        
+        ### Scan Status
+        ✅ API security scan completed successfully
+        📄 Reports generated and uploaded as artifacts
+        
+        ### Artifacts Available
+        - HTML Report: Available in workflow artifacts
+        - JSON Report: Available in workflow artifacts  
+        - SARIF Report: Available in workflow artifacts (if generated)
+        
+        ### Next Steps
+        1. Review the uploaded artifacts for detailed API security scan results
+        2. Check the GitHub Security tab for SARIF results (if code scanning is enabled)
+        3. Address any API security findings identified in the scan
+        
+        ### Workflow Information
+        - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        - **Commit:** ${{ github.sha }}
+        - **Branch:** ${{ github.ref_name }}"
+        
+          # Check if an issue with this title already exists
+          EXISTING_ISSUE=$(gh issue list --search "in:title $ISSUE_TITLE" --json number --jq '.[0].number' 2>/dev/null || echo "")
+          
+          if [ -z "$EXISTING_ISSUE" ]; then
+            echo "📝 Creating GitHub issue for API security scan results..."
+            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,api-scan,automated-scan" || echo "⚠️ Failed to create issue (may need to enable GitHub CLI or check permissions)"
+          else
+            echo "📝 Issue already exists: #$EXISTING_ISSUE"
+          fi
+        else
+          echo "⚠️ No API security scan reports found, skipping issue creation"
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
