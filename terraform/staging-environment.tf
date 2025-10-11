@@ -61,6 +61,8 @@ resource "aws_s3_bucket_public_access_block" "staging_website_bucket" {
   block_public_policy     = false
   ignore_public_acls      = false
   restrict_public_buckets = false
+
+  depends_on = [aws_s3_bucket_policy.staging_website_bucket]
 }
 
 # S3 bucket website configuration
@@ -316,8 +318,8 @@ resource "aws_wafv2_web_acl" "staging_waf" {
     name     = "AllowSpecificIPs"
     priority = 1
 
-    override_action {
-      none {}
+    action {
+      allow {}
     }
 
     statement {
@@ -338,8 +340,8 @@ resource "aws_wafv2_web_acl" "staging_waf" {
     name     = "RateLimit"
     priority = 2
 
-    override_action {
-      none {}
+    action {
+      block {}
     }
 
     statement {
@@ -361,8 +363,8 @@ resource "aws_wafv2_web_acl" "staging_waf" {
     name     = "BlockSuspiciousUserAgents"
     priority = 3
 
-    override_action {
-      none {}
+    action {
+      block {}
     }
 
     statement {
