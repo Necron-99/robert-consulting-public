@@ -181,8 +181,8 @@ jobs:
             exit 1
           fi
           
-          # Sync testing files to S3
-          aws s3 sync website/testing/ s3://$TESTING_BUCKET --delete
+          # Sync website files to S3 (staging deployment)
+          aws s3 sync website/ s3://$TESTING_BUCKET --delete
           
           echo "✅ Testing site deployed"
           
