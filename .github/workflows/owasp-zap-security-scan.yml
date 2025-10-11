@@ -264,20 +264,37 @@ jobs:
               with open('baseline-report.json', 'r') as f:
                   zap_data = json.load(f)
               
-              # Extract findings
+              # Extract findings - include ALL alerts that are not PASS
               findings = []
               if 'site' in zap_data and len(zap_data['site']) > 0:
                   site = zap_data['site'][0]
                   if 'alerts' in site:
                       for alert in site['alerts']:
-                          if alert.get('riskcode') in [1, 2, 3]:  # High, Medium, Low risk
-                              findings.append(alert)
+                          # Include all alerts that are not PASS (which means they are FAIL-NEW or WARN-NEW)
+                          # ZAP risk codes: 0=Informational, 1=Low, 2=Medium, 3=High
+                          # Include all risk levels - even Informational (0) if they are WARN-NEW
+                          findings.append(alert)
               
-              print(f"📊 Found {len(findings)} security findings to process")
+              print(f"📊 Found {len(findings)} total alerts in report")
+              
+              # Debug: Print all alert risk codes and names
+              if 'alerts' in site:
+                  print("🔍 Debug - All alerts found:")
+                  for i, alert in enumerate(site['alerts']):
+                      print(f"  Alert {i+1}: Risk={alert.get('riskcode')}, Name='{alert.get('name', 'Unknown')}', RiskDesc='{alert.get('riskdesc', 'Unknown')}', Confidence='{alert.get('confidence', 'Unknown')}'")
+              
+              # Filter out PASS alerts (these are not security issues)
+              security_findings = []
+              for finding in findings:
+                  # Skip alerts that are marked as PASS (no security issues)
+                  if finding.get('confidence') != 'PASS':
+                      security_findings.append(finding)
+              
+              print(f"📊 Found {len(security_findings)} security findings to process (excluding PASS alerts)")
               
               # Group findings by alert name to avoid duplicate issues
               grouped_findings = {}
-              for finding in findings:
+              for finding in security_findings:
                   alert_name = finding.get('name', 'Unknown Alert')
                   if alert_name not in grouped_findings:
                       grouped_findings[alert_name] = []
@@ -368,13 +385,13 @@ jobs:
 
           **Scan Date:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}  
-          **Findings:** {len(findings)} total instances across {len(grouped_findings)} unique issues  
+          **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
           **Issues Created:** {issues_created}
 
           ### Scan Results
-          - **High Risk:** {len([f for f in findings if f.get('riskdesc') == 'High'])} instances
-          - **Medium Risk:** {len([f for f in findings if f.get('riskdesc') == 'Medium'])} instances  
-          - **Low Risk:** {len([f for f in findings if f.get('riskdesc') == 'Low'])} instances
+          - **High Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'High'])} instances
+          - **Medium Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'Medium'])} instances  
+          - **Low Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'Low'])} instances
 
           ### Next Steps
           1. Review the individual security issues created above
@@ -469,15 +486,18 @@ jobs:
               with open('baseline-report.json', 'r') as f:
                   zap_data = json.load(f)
               
-              # Check if there are any findings
-              findings = []
+              # Check if there are any security findings (excluding PASS alerts)
+              security_findings = []
               if 'site' in zap_data and len(zap_data['site']) > 0:
                   site = zap_data['site'][0]
                   if 'alerts' in site:
-                      findings = [alert for alert in site['alerts'] if alert.get('riskcode') in [1, 2, 3]]
+                      for alert in site['alerts']:
+                          # Skip alerts that are marked as PASS (no security issues)
+                          if alert.get('confidence') != 'PASS':
+                              security_findings.append(alert)
               
-              # If no findings, check for open security issues to close
-              if len(findings) == 0:
+              # If no security findings, check for open security issues to close
+              if len(security_findings) == 0:
                   print("✅ No security findings found - checking for resolved issues to close")
                   
                   # Get all open issues with security labels
@@ -544,7 +564,7 @@ jobs:
                   except Exception as e:
                       print(f"❌ Error checking for issues to close: {e}")
               else:
-                  print(f"📊 Found {len(findings)} security findings - no issues to close")
+                  print(f"📊 Found {len(security_findings)} security findings - no issues to close")
                   
           except Exception as e:
               print(f"❌ Error processing ZAP results for issue closure: {e}")
