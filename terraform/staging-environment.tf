@@ -120,7 +120,7 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
       preload                    = true
       override                   = false
     }
-    x_xss_protection {
+    xss_protection {
       mode     = "block"
       override = false
       protection = true
@@ -283,7 +283,7 @@ resource "aws_route53_record" "staging_ssl_validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = data.aws_route53_zone.main.zone_id
+  zone_id         = aws_route53_zone.main.zone_id
 }
 
 # SSL certificate validation
@@ -296,7 +296,7 @@ resource "aws_acm_certificate_validation" "staging_ssl_cert" {
 
 # Route53 record for staging domain
 resource "aws_route53_record" "staging_domain" {
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = aws_route53_zone.main.zone_id
   name    = var.staging_domain_name
   type    = "A"
 
