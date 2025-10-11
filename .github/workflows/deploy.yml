@@ -1,13 +1,16 @@
-name: Staging Deployment (Automatic)
+name: Legacy Direct Deployment (Deprecated)
+
+# ⚠️ DEPRECATED: This workflow is replaced by staging-to-production-deployment.yml
+# This workflow is kept for emergency deployments only
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'website/**'
-      - '.github/workflows/deploy.yml'
   workflow_dispatch:
     inputs:
+      emergency_deployment:
+        description: 'Emergency deployment (bypasses staging and tests)'
+        required: true
+        default: false
+        type: boolean
       skip_security_scan:
         description: 'Skip security scanning (not recommended)'
         required: false
@@ -15,15 +18,34 @@ on:
         type: boolean
 
 jobs:
-  deploy:
-    name: Deploy Website Content to Staging
+  emergency-deploy:
+    name: 🚨 Emergency Direct Deployment
     runs-on: ubuntu-latest
+    if: github.event.inputs.emergency_deployment == 'true'
     permissions:
       contents: read
       actions: read
       pull-requests: read
     
     steps:
+    - name: ⚠️ Emergency Deployment Warning
+      run: |
+        echo "## 🚨 EMERGENCY DEPLOYMENT WARNING" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**⚠️ This is an emergency deployment that bypasses:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Staging environment testing" >> $GITHUB_STEP_SUMMARY
+        echo "- Comprehensive test battery" >> $GITHUB_STEP_SUMMARY
+        echo "- Manual approval process" >> $GITHUB_STEP_SUMMARY
+        echo "- Security validation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**🚀 Deploying directly to production...**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**📋 Recommended next steps after deployment:**" >> $GITHUB_STEP_SUMMARY
+        echo "1. Monitor production closely" >> $GITHUB_STEP_SUMMARY
+        echo "2. Run post-deployment validation" >> $GITHUB_STEP_SUMMARY
+        echo "3. Test critical functionality" >> $GITHUB_STEP_SUMMARY
+        echo "4. Review logs for any issues" >> $GITHUB_STEP_SUMMARY
+        
     - name: Checkout code
       uses: actions/checkout@v4
       
