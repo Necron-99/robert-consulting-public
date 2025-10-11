@@ -336,14 +336,38 @@ main() {
         exit 1
     fi
     
-    # Run all security scans
-    scan_secrets "website" "*.js" "HIGH"
-    scan_secrets "website" "*.html" "HIGH"
-    scan_secrets "admin" "*.js" "HIGH"
-    scan_secrets "admin" "*.html" "HIGH"
-    scan_secrets "client-template" "*.js" "MEDIUM"
-    scan_secrets "client-content-template" "*.js" "MEDIUM"
-    scan_secrets "skeleton-client" "*.js" "MEDIUM"
+    # Run all security scans - only scan directories that exist
+    if [ -d "website" ]; then
+        scan_secrets "website" "*.js" "HIGH"
+        scan_secrets "website" "*.html" "HIGH"
+    else
+        print_status "INFO" "Website directory not found - skipping website scans"
+    fi
+    
+    if [ -d "admin" ]; then
+        scan_secrets "admin" "*.js" "HIGH"
+        scan_secrets "admin" "*.html" "HIGH"
+    else
+        print_status "INFO" "Admin directory not found - skipping admin scans"
+    fi
+    
+    if [ -d "client-template" ]; then
+        scan_secrets "client-template" "*.js" "MEDIUM"
+    else
+        print_status "INFO" "Client template directory not found - skipping client template scans"
+    fi
+    
+    if [ -d "client-content-template" ]; then
+        scan_secrets "client-content-template" "*.js" "MEDIUM"
+    else
+        print_status "INFO" "Client content template directory not found - skipping client content template scans"
+    fi
+    
+    if [ -d "skeleton-client" ]; then
+        scan_secrets "skeleton-client" "*.js" "MEDIUM"
+    else
+        print_status "INFO" "Skeleton client directory not found - skipping skeleton client scans"
+    fi
     
     scan_terraform
     scan_lambda
