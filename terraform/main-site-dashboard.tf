@@ -16,11 +16,11 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-          metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"],
-            [".", "4xxErrorRate", ".", "."],
-            [".", "5xxErrorRate", ".", "."]
-          ]
+           metrics = [
+             ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+             [".", "4xxErrorRate", ".", ".", ".", "."],
+             [".", "5xxErrorRate", ".", ".", ".", "."]
+           ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
@@ -34,7 +34,7 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
           annotations = {
             horizontal = [
               {
-                label = "No Data Available"
+                label = "No Data Available - CloudFront metrics may take up to 24 hours to appear"
                 value = 0
               }
             ]
@@ -49,10 +49,10 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-          metrics = [
-            ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V"],
-            [".", "BytesUploaded", ".", "."]
-          ]
+           metrics = [
+             ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+             [".", "BytesUploaded", ".", ".", ".", "."]
+           ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
@@ -62,6 +62,14 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
             left = {
               min = 0
             }
+          }
+          annotations = {
+            horizontal = [
+              {
+                label = "No Data Available - Performance metrics may take time to appear"
+                value = 0
+              }
+            ]
           }
         }
       },
@@ -97,9 +105,9 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-          metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
-          ]
+           metrics = [
+             ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"]
+           ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
