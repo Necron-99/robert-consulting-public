@@ -1,4 +1,4 @@
-name: OWASP ZAP Security Scan
+name: OWASP ZAP Production Security Scan
 
 on:
   push:
@@ -21,10 +21,19 @@ on:
         description: 'Target URL to scan (default: https://robertconsulting.net)'
         required: false
         default: 'https://robertconsulting.net'
+      scan_type:
+        description: 'Type of scan to perform'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
 
 env:
   STAGING_URL: 'http://robert-consulting-testing-site.s3-website-us-east-1.amazonaws.com'
-  TARGET_URL: ${{ github.event.inputs.target_url || 'https://robertconsulting.net' }}
+  PRODUCTION_URL: 'https://robertconsulting.net'
+  TARGET_URL: ${{ github.event.inputs.target_url || (github.event.inputs.scan_type == 'staging' && env.STAGING_URL) || env.PRODUCTION_URL }}
 
 jobs:
   zap-baseline-scan:
@@ -656,6 +665,12 @@ jobs:
           echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
           echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
           echo "- SARIF Report: Uploaded to GitHub Security tab (if code scanning enabled)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Purpose:" >> $GITHUB_STEP_SUMMARY
+          echo "This scan validates the production site security posture with CloudFront security headers." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Related Workflows:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Staging Scan**: Use 'OWASP ZAP Staging Security Scan' workflow to test remediation before production deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### GitHub Code Scanning Setup:" >> $GITHUB_STEP_SUMMARY
           echo "To enable SARIF uploads to GitHub Security tab:" >> $GITHUB_STEP_SUMMARY
