@@ -10,18 +10,28 @@ echo "=========================================================="
 if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI (gh) is not installed"
     echo ""
-    echo "📋 Manual Setup Required"
-    echo "========================"
+    echo "📋 Manual Setup Required (2025 Instructions)"
+    echo "============================================="
     echo "Since GitHub CLI is not available, please follow the manual setup guide:"
     echo ""
     echo "📖 See: MANUAL_GITHUB_ENVIRONMENT_SETUP.md"
     echo ""
-    echo "🔗 Quick Setup Steps:"
+    echo "🔗 Quick Setup Steps (2025 Interface):"
     echo "1. Go to: https://github.com/Necron-99/robert-consulting.net/settings/environments"
-    echo "2. Click 'New environment'"
+    echo "2. Click 'New environment' (green button in top right)"
     echo "3. Name it: production-deployment"
-    echo "4. Add protection rules for required reviewers"
-    echo "5. Save the configuration"
+    echo "4. In 'Deployment protection rules' section:"
+    echo "   - Check 'Required reviewers'"
+    echo "   - Click 'Add people or teams'"
+    echo "   - Search for and select 'Necron-99'"
+    echo "   - Set required reviewers to 1"
+    echo "5. Click 'Save protection rules'"
+    echo ""
+    echo "🔄 Alternative: Use Fallback Workflow (No Setup Required)"
+    echo "1. Go to Actions tab"
+    echo "2. Click 'Staging to Production Deployment Pipeline (Fallback)'"
+    echo "3. Click 'Run workflow'"
+    echo "4. Comment 'APPROVE' on the created GitHub issue"
     echo ""
     echo "📥 To install GitHub CLI later:"
     echo "   macOS: brew install gh"
@@ -34,8 +44,38 @@ fi
 # Check if user is authenticated
 if ! gh auth status &> /dev/null; then
     echo "❌ Not authenticated with GitHub CLI"
-    echo "🔐 Please run: gh auth login"
-    exit 1
+    echo ""
+    echo "🔐 Authentication Required"
+    echo "========================="
+    echo "To use GitHub CLI, you need to authenticate first:"
+    echo ""
+    echo "1. Run: gh auth login"
+    echo "2. Follow the prompts to authenticate"
+    echo "3. Choose your preferred authentication method"
+    echo ""
+    echo "🔄 Alternative: Use Manual Setup (No CLI Required)"
+    echo "Since authentication is required, you can use the manual setup instead:"
+    echo ""
+    echo "📖 See: MANUAL_GITHUB_ENVIRONMENT_SETUP.md"
+    echo ""
+    echo "🔗 Quick Manual Setup Steps:"
+    echo "1. Go to: https://github.com/Necron-99/robert-consulting.net/settings/environments"
+    echo "2. Click 'New environment' (green button in top right)"
+    echo "3. Name it: production-deployment"
+    echo "4. In 'Deployment protection rules' section:"
+    echo "   - Check 'Required reviewers'"
+    echo "   - Click 'Add people or teams'"
+    echo "   - Search for and select 'Necron-99'"
+    echo "   - Set required reviewers to 1"
+    echo "5. Click 'Save protection rules'"
+    echo ""
+    echo "🔄 Or Use Fallback Workflow (No Setup Required):"
+    echo "1. Go to Actions tab"
+    echo "2. Click 'Staging to Production Deployment Pipeline (Fallback)'"
+    echo "3. Click 'Run workflow'"
+    echo "4. Comment 'APPROVE' on the created GitHub issue"
+    echo ""
+    exit 0
 fi
 
 echo "✅ GitHub CLI is installed and authenticated"
@@ -51,7 +91,10 @@ echo "🏗️ Creating production-deployment environment..."
 USER_ID=$(gh api user --jq .id)
 echo "👤 Current user ID: $USER_ID"
 
-# Create environment with protection rules
+# Create environment with protection rules (2025 API format)
+echo "🏗️ Creating environment with 2025 API format..."
+
+# Try the current API format first
 gh api repos/$REPO/environments/production-deployment \
   --method PUT \
   --input - << EOF
@@ -74,6 +117,22 @@ gh api repos/$REPO/environments/production-deployment \
 }
 EOF
 
+# If that fails, try the simpler format
+if [ $? -ne 0 ]; then
+    echo "⚠️ First attempt failed, trying simpler format..."
+    gh api repos/$REPO/environments/production-deployment \
+      --method PUT \
+      --input - << EOF
+{
+  "protection_rules": [
+    {
+      "type": "required_reviewers"
+    }
+  ]
+}
+EOF
+fi
+
 if [ $? -eq 0 ]; then
     echo "✅ Production deployment environment created successfully"
 else
@@ -83,12 +142,27 @@ else
     if echo "$ENVIRONMENTS" | grep -q "production-deployment"; then
         echo "✅ Environment already exists"
     else
-        echo "❌ Failed to create environment"
-        echo "🔧 You can create it manually in GitHub:"
-        echo "   1. Go to Settings → Environments"
-        echo "   2. Click 'New environment'"
-        echo "   3. Name it 'production-deployment'"
-        echo "   4. Add protection rules for required reviewers"
+        echo "❌ Failed to create environment via CLI"
+        echo ""
+        echo "🔧 Manual Setup Required (2025 Interface):"
+        echo "==========================================="
+        echo "1. Go to: https://github.com/$REPO/settings/environments"
+        echo "2. Click 'New environment' (green button in top right)"
+        echo "3. Name it: production-deployment"
+        echo "4. In 'Deployment protection rules' section:"
+        echo "   - Check 'Required reviewers'"
+        echo "   - Click 'Add people or teams'"
+        echo "   - Search for and select your username"
+        echo "   - Set required reviewers to 1"
+        echo "5. Click 'Save protection rules'"
+        echo ""
+        echo "🔄 Alternative: Use Fallback Workflow (No Setup Required)"
+        echo "1. Go to Actions tab"
+        echo "2. Click 'Staging to Production Deployment Pipeline (Fallback)'"
+        echo "3. Click 'Run workflow'"
+        echo "4. Comment 'APPROVE' on the created GitHub issue"
+        echo ""
+        echo "📖 See: MANUAL_GITHUB_ENVIRONMENT_SETUP.md for detailed instructions"
         exit 1
     fi
 fi
@@ -122,9 +196,16 @@ echo "🔗 Useful Links:"
 echo "- Staging Environment: https://staging.robertconsulting.net"
 echo "- Production Environment: https://robertconsulting.net"
 echo "- GitHub Actions: https://github.com/$REPO/actions"
+echo "- Environment Settings: https://github.com/$REPO/settings/environments"
+echo ""
+echo "🔄 Alternative Workflows:"
+echo "- Main Workflow: 'Staging to Production Deployment Pipeline'"
+echo "- Fallback Workflow: 'Staging to Production Deployment Pipeline (Fallback)'"
+echo "- Emergency Workflow: 'Legacy Direct Deployment (Deprecated)'"
 echo ""
 echo "⚠️ Important Notes:"
 echo "- Manual approval is required for all production deployments"
 echo "- Emergency deployments can bypass this process (use with caution)"
 echo "- All deployments are logged and auditable"
 echo "- Staging environment is IP-restricted for security"
+echo "- Fallback workflow uses GitHub issues for approval (no environment needed)"
