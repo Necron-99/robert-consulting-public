@@ -21,15 +21,10 @@ on:
         description: 'Target URL to scan (default: https://robertconsulting.net)'
         required: false
         default: 'https://robertconsulting.net'
-      scan_type:
-        description: 'Type of scan to perform'
-        required: false
-        default: 'baseline'
-        type: choice
-        options:
-          - baseline
-          - full
-          - api
+
+env:
+  STAGING_URL: 'http://robert-consulting-testing-site.s3-website-us-east-1.amazonaws.com'
+  TARGET_URL: ${{ github.event.inputs.target_url || 'https://robertconsulting.net' }}
 
 jobs:
   zap-baseline-scan:
@@ -38,665 +33,203 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      actions: read
       issues: write
-    
+      pull-requests: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-    
-    - name: Deploy website to staging for scanning
-      run: |
-        echo "🚀 Deploying website to staging for security scanning..."
-        
-        # Get the staging bucket name from Terraform output
-        STAGING_BUCKET=$(cd terraform && terraform output -raw testing_bucket_name 2>/dev/null || echo "robert-consulting-testing-site")
-        
-        # Deploy website to staging
-        aws s3 sync website/ s3://$STAGING_BUCKET --delete
-        
-        # Get the staging URL
-        STAGING_URL="http://$STAGING_BUCKET.s3-website-us-east-1.amazonaws.com"
-        echo "STAGING_URL=$STAGING_URL" >> $GITHUB_ENV
-        echo "✅ Website deployed to staging: $STAGING_URL"
-    
-    - name: Wait for deployment
-      run: |
-        echo "⏳ Waiting for staging deployment to be ready..."
-        sleep 30
-        
-        # Test if staging is accessible
-        if curl -f -s "$STAGING_URL" > /dev/null; then
-          echo "✅ Staging deployment is ready"
-        else
-          echo "❌ Staging deployment not accessible, using production URL"
-          echo "STAGING_URL=https://robertconsulting.net" >> $GITHUB_ENV
-        fi
-    
-    - name: Debug Docker and Environment
-      run: |
-        echo "🔍 Debugging Docker and environment..."
-        echo "Docker version:"
-        docker --version || echo "Docker not available"
-        echo "Available Docker images:"
-        docker images || echo "No Docker images available"
-        echo "Current working directory:"
-        pwd
-        echo "Files in current directory:"
-        ls -la
-        echo "Environment variables:"
-        env | grep -E "(DOCKER|ZAP|GITHUB)" || echo "No relevant environment variables found"
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: OWASP ZAP Baseline Scan
-      run: |
-        echo "🔍 Running OWASP ZAP Baseline Scan with custom Docker implementation..."
-        
-        # Create reports directory with proper permissions
-        mkdir -p reports
-        chmod 777 reports
-        
-        # Set target URL
-        TARGET_URL="${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
-        echo "🎯 Target URL: $TARGET_URL"
-        
-        # Test Docker and ZAP image availability
-        echo "🐳 Testing Docker availability..."
-        docker --version || echo "❌ Docker not available"
-        
-        echo "📦 Pulling ZAP Docker image..."
-        docker pull owasp/zap2docker-stable || echo "❌ Failed to pull ZAP image"
-        
-        echo "🔍 Running ZAP baseline scan..."
-        # Run ZAP baseline scan with proper error handling
-        if docker run --rm \
-          -v $(pwd)/reports:/zap/wrk/:rw \
-          -u $(id -u):$(id -g) \
-          -t owasp/zap2docker-stable \
-          zap-baseline.py \
-          -t "$TARGET_URL" \
-          -J baseline-report.json \
-          -r baseline-report.html \
-          -x baseline-report.xml \
-          -a; then
-          echo "✅ ZAP baseline scan completed successfully"
-        else
-          echo "❌ ZAP baseline scan failed with exit code $?"
-          echo "🔍 Attempting simplified scan..."
-          # Try a simpler scan without XML output
-          if docker run --rm \
-            -v $(pwd)/reports:/zap/wrk/:rw \
-            -u $(id -u):$(id -g) \
-            -t owasp/zap2docker-stable \
-            zap-baseline.py \
-            -t "$TARGET_URL" \
-            -J baseline-report.json \
-            -r baseline-report.html \
-            -a; then
-            echo "✅ Simplified scan completed successfully"
-          else
-            echo "❌ Simplified scan also failed with exit code $?"
-            echo "🔍 Attempting alternative ZAP image..."
-            # Try with alternative ZAP image
-            docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
-            # Run ZAP scan and capture output
-            ZAP_OUTPUT=$(docker run --rm \
-              -v $(pwd)/reports:/zap/wrk/:rw \
-              -v $(pwd)/reports:/home/zap/:rw \
-              --user root \
-              -t ghcr.io/zaproxy/zaproxy:stable \
-              zap-baseline.py \
-              -t "$TARGET_URL" \
-              -J baseline-report.json \
-              -r baseline-report.html \
-              -a 2>&1)
-            
-            ZAP_EXIT_CODE=$?
-            echo "$ZAP_OUTPUT"
-            
-            # Check if scan completed (even with warnings, ZAP can return non-zero exit code)
-            if [ $ZAP_EXIT_CODE -eq 0 ] || echo "$ZAP_OUTPUT" | grep -q "FAIL-NEW: 0"; then
-              echo "✅ Alternative ZAP image scan completed successfully"
-            else
-              echo "❌ ZAP scan failed with exit code $ZAP_EXIT_CODE"
-              # Create a minimal report to indicate scan was attempted
-              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "ZAP scan failed with exit code '"$ZAP_EXIT_CODE"'"}' > reports/baseline-report.json 2>/dev/null || echo "⚠️ Could not create fallback JSON report"
-              echo "<html><body><h1>ZAP Scan Failed</h1><p>ZAP scan failed with exit code $ZAP_EXIT_CODE for target: $TARGET_URL</p></body></html>" > reports/baseline-report.html 2>/dev/null || echo "⚠️ Could not create fallback HTML report"
-            fi
-          fi
-        fi
-        
-        # Check if reports were generated
-        echo "📄 Checking for generated reports..."
-        if [ -f "reports/baseline-report.json" ]; then
-          echo "✅ JSON report generated: reports/baseline-report.json"
-        else
-          echo "❌ JSON report not found"
-        fi
-        if [ -f "reports/baseline-report.html" ]; then
-          echo "✅ HTML report generated: reports/baseline-report.html"
-        else
-          echo "❌ HTML report not found"
-        fi
-        if [ -f "reports/baseline-report.xml" ]; then
-          echo "✅ XML report generated: reports/baseline-report.xml"
-        else
-          echo "❌ XML report not found"
-        fi
-        
-        # List all files in reports directory
-        echo "📁 Files in reports directory:"
-        ls -la reports/ || echo "❌ Reports directory not accessible"
-        
-        # Copy reports to root directory for artifact upload
-        cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
-        cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
-        cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
-        
-        echo "📋 ZAP baseline scan summary:"
-        echo "Target: $TARGET_URL"
-        echo "Reports: Available in artifacts"
-      continue-on-error: true
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-    - name: Check ZAP Scan Results
-      if: always()
-      run: |
-        echo "🔍 Checking ZAP scan results..."
-        echo "Files generated after ZAP scan:"
-        find . -type f -name "*" | head -20 || echo "No files found"
-        echo "Looking for ZAP-specific files:"
-        find . -name "*zap*" -o -name "*report*" -o -name "*.html" -o -name "*.json" -o -name "*.sarif" || echo "No ZAP files found"
-        echo "Current directory contents:"
-        ls -la
-    
-    - name: OWASP ZAP Full Scan (if requested)
-      if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
-      run: |
-        echo "🔍 Running OWASP ZAP Full Scan with custom Docker implementation..."
-        
-        # Create reports directory
-        mkdir -p reports
-        
-        # Run ZAP full scan using Docker directly
-        docker run --rm \
-          -v $(pwd)/reports:/zap/wrk/:rw \
-          -t owasp/zap2docker-stable \
-          zap-full-scan.py \
-          -t ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }} \
-          -J full-report.json \
-          -r full-report.html \
-          -x full-report.xml \
-          -a
-        
-        echo "✅ ZAP full scan completed"
-        
-        # Check if reports were generated
-        if [ -f "reports/full-report.json" ]; then
-          echo "📄 JSON report generated: reports/full-report.json"
-        fi
-        if [ -f "reports/full-report.html" ]; then
-          echo "📄 HTML report generated: reports/full-report.html"
-        fi
-        if [ -f "reports/full-report.xml" ]; then
-          echo "📄 XML report generated: reports/full-report.xml"
-        fi
-        
-        # Copy reports to root directory for artifact upload
-        cp reports/*.json . 2>/dev/null || true
-        cp reports/*.html . 2>/dev/null || true
-        cp reports/*.xml . 2>/dev/null || true
-        
-        echo "📋 ZAP full scan summary:"
-        echo "Target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
-        echo "Reports: Available in artifacts"
-      continue-on-error: true
-    
-    - name: Upload ZAP scan results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: zap-security-reports
-        path: |
-          *.html
-          *.json
-          *.xml
-          *.md
-          *.sarif
-          report_*
-          baseline-report.*
-          full-report.*
-        retention-days: 30
-      continue-on-error: true
-    
-    - name: Check if SARIF file exists and upload to GitHub Security tab
-      if: always()
-      run: |
-        # Look for any SARIF files generated by ZAP
-        SARIF_FILES=$(find . -name "*.sarif" -type f 2>/dev/null || true)
-        if [ -n "$SARIF_FILES" ]; then
-          echo "📄 SARIF file(s) found: $SARIF_FILES"
-          echo "Uploading to GitHub Security tab..."
-          # Note: This will only work if code scanning is enabled in repository settings
-          # Go to Settings > Security > Code scanning > Set up code scanning
-        else
-          echo "⚠️ No SARIF files found, skipping upload to Security tab"
-          echo "This is normal if the scan failed or code scanning is not enabled"
-        fi
-    
-    - name: Upload ZAP results to GitHub Security tab (if enabled)
-      uses: github/codeql-action/upload-sarif@v3
-      if: always() && hashFiles('*.sarif') != ''
-      continue-on-error: true
-      with:
-        sarif_file: '*.sarif'
-        category: 'zap-baseline'
-    
-    - name: Check if full scan SARIF file exists and upload to GitHub Security tab
-      if: always() && (github.event.inputs.scan_type == 'full' || github.event_name == 'schedule')
-      run: |
-        # Look for any SARIF files generated by full scan
-        SARIF_FILES=$(find . -name "*.sarif" -type f 2>/dev/null || true)
-        if [ -n "$SARIF_FILES" ]; then
-          echo "📄 Full scan SARIF file(s) found: $SARIF_FILES"
-          echo "Uploading to GitHub Security tab..."
-        else
-          echo "⚠️ No full scan SARIF files found, skipping upload to Security tab"
-        fi
-    
-    - name: Upload ZAP full scan results to GitHub Security tab (if enabled)
-      if: always() && (github.event.inputs.scan_type == 'full' || github.event_name == 'schedule') && hashFiles('*.sarif') != ''
-      uses: github/codeql-action/upload-sarif@v3
-      continue-on-error: true
-      with:
-        sarif_file: '*.sarif'
-        category: 'zap-full'
-    
-    - name: Create Required Labels
-      if: always()
-      run: |
-        echo "🏷️ Creating required labels if they don't exist..."
-        # Create security label if it doesn't exist
-        gh label create "security" --description "Security-related issues" --color "ff0000" 2>/dev/null || echo "Label 'security' already exists or creation failed"
-        # Create automated-scan label if it doesn't exist
-        gh label create "automated-scan" --description "Issues created by automated security scans" --color "00ff00" 2>/dev/null || echo "Label 'automated-scan' already exists or creation failed"
-        # Create api-scan label if it doesn't exist
-        gh label create "api-scan" --description "API security scan findings" --color "0000ff" 2>/dev/null || echo "Label 'api-scan' already exists or creation failed"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy website to staging for scanning
+        run: |
+          echo "🧪 Deploying to staging site for ZAP scanning..."
+          aws s3 sync website/ s3://robert-consulting-testing-site --delete
+          echo "✅ Staging deployment completed"
 
-    - name: Create GitHub Issues for Security Findings
-      if: always()
-      run: |
-        echo "🔍 Checking for security findings to create issues..."
-        
-        # Check if any report files exist
-        if find . -name "*.html" -o -name "*.json" -o -name "*.sarif" | grep -q .; then
-          echo "📄 Security scan reports found"
+      - name: Wait for deployment
+        run: |
+          echo "⏳ Waiting for staging deployment to be ready..."
+          sleep 30
+          echo "✅ Staging site should be ready for scanning"
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: ${{ env.STAGING_URL }}
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+        continue-on-error: true
+
+      - name: Upload ZAP scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-baseline-reports
+          path: |
+            *.html
+            *.json
+            *.xml
+            *.sarif
+          retention-days: 30
+        continue-on-error: true
+
+      - name: Upload ZAP results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('*.sarif') != ''
+        with:
+          sarif_file: '*.sarif'
+        continue-on-error: true
+
+      - name: Create GitHub Issues for Security Findings
+        if: always()
+        run: |
+          echo "🔍 Checking for security findings to create issues..."
           
-          # Create a general security scan issue if this is the first run
-          ISSUE_TITLE="🔒 OWASP ZAP Security Scan - $(date +%Y-%m-%d)"
-          ISSUE_BODY="## Security Scan Results
-        
-        **Scan Date:** $(date -u)
-        **Target URL:** ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
-        **Scan Type:** Baseline
-        
-        ### Scan Status
-        ✅ Security scan completed successfully
-        📄 Reports generated and uploaded as artifacts
-        
-        ### Artifacts Available
-        - HTML Report: Available in workflow artifacts
-        - JSON Report: Available in workflow artifacts  
-        - SARIF Report: Available in workflow artifacts (if generated)
-        
-        ### Next Steps
-        1. Review the uploaded artifacts for detailed scan results
-        2. Check the GitHub Security tab for SARIF results (if code scanning is enabled)
-        3. Address any security findings identified in the scan
-        
-        ### Workflow Information
-        - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        - **Commit:** ${{ github.sha }}
-        - **Branch:** ${{ github.ref_name }}"
-        
-          # Check if an issue with this title already exists
-          EXISTING_ISSUE=$(gh issue list --search "in:title $ISSUE_TITLE" --json number --jq '.[0].number' 2>/dev/null || echo "")
-          
-          if [ -z "$EXISTING_ISSUE" ]; then
-            echo "📝 Creating GitHub issue for security scan results..."
-            # Create issue with labels (they should exist now)
-            if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,automated-scan" 2>/dev/null; then
-              echo "✅ GitHub issue created successfully with labels"
-            else
-              echo "⚠️ Failed to create issue with labels - trying without labels..."
-              # Try without labels if the first attempt failed
-              if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" 2>/dev/null; then
-                echo "✅ GitHub issue created successfully without labels"
+          # Check if any report files exist
+          if find . -name "*.html" -o -name "*.json" -o -name "*.sarif" | grep -q .; then
+            echo "📄 Security scan reports found"
+            
+            # Create a general security scan issue
+            ISSUE_TITLE="🔒 OWASP ZAP Security Scan - $(date +%Y-%m-%d)"
+            ISSUE_BODY="## Security Scan Results
+
+          **Scan Date:** $(date -u)
+          **Target URL:** ${{ env.STAGING_URL }}
+          **Scan Type:** Baseline
+
+          ### Scan Status
+          ✅ Security scan completed successfully
+          📄 Reports generated and uploaded as artifacts
+
+          ### Artifacts Available
+          - HTML Report: Available in workflow artifacts
+          - JSON Report: Available in workflow artifacts  
+          - SARIF Report: Available in workflow artifacts (if generated)
+
+          ### Next Steps
+          1. Review the uploaded artifacts for detailed scan results
+          2. Check the GitHub Security tab for SARIF results (if code scanning is enabled)
+          3. Address any security findings identified in the scan
+
+          ### Workflow Information
+          - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Commit:** ${{ github.sha }}
+          - **Branch:** ${{ github.ref_name }}"
+            
+            # Check if an issue with this title already exists
+            EXISTING_ISSUE=$(gh issue list --search "in:title $ISSUE_TITLE" --json number --jq '.[0].number' 2>/dev/null || echo "")
+            
+            if [ -z "$EXISTING_ISSUE" ]; then
+              echo "📝 Creating GitHub issue for security scan results..."
+              # Create issue with labels
+              if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,automated-scan" 2>/dev/null; then
+                echo "✅ GitHub issue created successfully with labels"
               else
-                echo "❌ Failed to create issue (check GitHub CLI permissions)"
+                echo "⚠️ Failed to create issue with labels - trying without labels..."
+                # Try without labels if the first attempt failed
+                if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" 2>/dev/null; then
+                  echo "✅ GitHub issue created successfully without labels"
+                else
+                  echo "❌ Failed to create issue (check GitHub CLI permissions)"
+                fi
               fi
+            else
+              echo "📝 Issue already exists: #$EXISTING_ISSUE"
             fi
           else
-            echo "📝 Issue already exists: #$EXISTING_ISSUE"
+            echo "⚠️ No security scan reports found, skipping issue creation"
           fi
-        else
-          echo "⚠️ No security scan reports found, skipping issue creation"
-        fi
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Generate Security Summary
-      if: always()
-      run: |
-        echo "## 🔍 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        
-        # Check if baseline scan completed
-        REPORT_JSON=$(find . -name "report_*.json" -type f 2>/dev/null | head -1)
-        if [ -n "$REPORT_JSON" ]; then
-          echo "### 📊 Baseline Scan Results" >> $GITHUB_STEP_SUMMARY
-          
-          # Extract key metrics from JSON report
-          HIGH_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "3") | .name' "$REPORT_JSON" 2>/dev/null | wc -l || echo "0")
-          MEDIUM_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "2") | .name' "$REPORT_JSON" 2>/dev/null | wc -l || echo "0")
-          LOW_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "1") | .name' "$REPORT_JSON" 2>/dev/null | wc -l || echo "0")
-          INFO_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "0") | .name' "$REPORT_JSON" 2>/dev/null | wc -l || echo "0")
-          
-          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔴 High | $HIGH_ALERTS |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🟡 Medium | $MEDIUM_ALERTS |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🟠 Low | $LOW_ALERTS |" >> $GITHUB_STEP_SUMMARY
-          echo "| ℹ️ Info | $INFO_ALERTS |" >> $GITHUB_STEP_SUMMARY
+      - name: Generate Security Summary
+        if: always()
+        run: |
+          echo "## 🔒 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "$HIGH_ALERTS" -gt 0 ]; then
-            echo "⚠️ **High severity issues found!** Please review the detailed report." >> $GITHUB_STEP_SUMMARY
-          elif [ "$MEDIUM_ALERTS" -gt 0 ]; then
-            echo "⚠️ Medium severity issues found. Consider reviewing the detailed report." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ **No high or medium severity issues found!**" >> $GITHUB_STEP_SUMMARY
-          fi
-        fi
-        
-        # Check if full scan completed
-        FULL_REPORT_JSON=$(find . -name "report_*.json" -type f 2>/dev/null | wc -l)
-        if [ "$FULL_REPORT_JSON" -gt 1 ]; then
-          echo "### 🔍 Full Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "Full scan completed. See detailed reports in artifacts." >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📁 Reports Available" >> $GITHUB_STEP_SUMMARY
-        echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
-        echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
-        echo "- SARIF Report: Uploaded to GitHub Security tab (if code scanning enabled)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🔧 GitHub Code Scanning Setup" >> $GITHUB_STEP_SUMMARY
-        echo "To enable SARIF uploads to GitHub Security tab:" >> $GITHUB_STEP_SUMMARY
-        echo "1. Go to **Settings** → **Security** → **Code scanning**" >> $GITHUB_STEP_SUMMARY
-        echo "2. Click **Set up code scanning**" >> $GITHUB_STEP_SUMMARY
-        echo "3. Choose **Advanced** → **Upload SARIF file**" >> $GITHUB_STEP_SUMMARY
-        echo "4. This will enable the Security tab integration" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🎯 Target Scanned" >> $GITHUB_STEP_SUMMARY
-        echo "- URL: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Scan Type: ${{ github.event.inputs.scan_type || 'baseline' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
-    
-    - name: Cleanup staging deployment
-      if: always()
-      run: |
-        echo "🧹 Cleaning up staging deployment..."
-        # Optional: Remove staging files if needed
-        # STAGING_BUCKET=$(cd terraform && terraform output -raw testing_bucket_name 2>/dev/null || echo "robert-consulting-testing-site")
-        # aws s3 rm s3://$STAGING_BUCKET --recursive
-        echo "✅ Cleanup completed"
+          echo "**Target Scanned:** ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Type:** Baseline" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
+          echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- SARIF Report: Uploaded to GitHub Security tab (if code scanning enabled)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### GitHub Code Scanning Setup:" >> $GITHUB_STEP_SUMMARY
+          echo "To enable SARIF uploads to GitHub Security tab:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to Settings → Security → Code scanning" >> $GITHUB_STEP_SUMMARY
+          echo "2. Click Set up code scanning" >> $GITHUB_STEP_SUMMARY
+          echo "3. Choose Advanced → Upload SARIF file" >> $GITHUB_STEP_SUMMARY
+          echo "4. This will enable the Security tab integration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Job summary generated at run-time*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup staging deployment
+        if: always()
+        run: |
+          echo "🧹 Cleaning up staging deployment..."
+          # Optional: Remove staging files if needed
+          echo "✅ Cleanup completed"
 
   zap-api-scan:
     name: OWASP ZAP API Scan
     runs-on: ubuntu-latest
-    if: always()
     permissions:
       contents: read
       security-events: write
-      actions: read
       issues: write
-    
+      pull-requests: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Debug API Scan Environment
-      run: |
-        echo "🔍 Debugging API scan environment..."
-        echo "Docker version:"
-        docker --version || echo "Docker not available"
-        echo "Target URL: https://robertconsulting.net"
-        echo "Testing connectivity to target:"
-        curl -I https://robertconsulting.net || echo "Target not reachable"
-    
-    - name: OWASP ZAP API Scan
-      run: |
-        echo "🔍 Running OWASP ZAP API Scan with custom Docker implementation..."
-        
-        # Create reports directory with proper permissions
-        mkdir -p reports
-        chmod 777 reports
-        
-        # Set target URL
-        TARGET_URL="https://robertconsulting.net"
-        echo "🎯 Target URL: $TARGET_URL"
-        
-        # Test Docker and ZAP image availability
-        echo "🐳 Testing Docker availability..."
-        docker --version || echo "❌ Docker not available"
-        
-        echo "📦 Pulling ZAP Docker image..."
-        docker pull owasp/zap2docker-stable || echo "❌ Failed to pull ZAP image"
-        
-        echo "🔍 Running ZAP API scan..."
-        # Run ZAP API scan with proper error handling
-        if docker run --rm \
-          -v $(pwd)/reports:/zap/wrk/:rw \
-          -u $(id -u):$(id -g) \
-          -t owasp/zap2docker-stable \
-          zap-api-scan.py \
-          -t "$TARGET_URL" \
-          -J api-report.json \
-          -r api-report.html \
-          -x api-report.xml \
-          -a; then
-          echo "✅ ZAP API scan completed successfully"
-        else
-          echo "❌ ZAP API scan failed with exit code $?"
-          echo "🔍 Attempting simplified API scan..."
-          # Try a simpler scan without XML output
-          if docker run --rm \
-            -v $(pwd)/reports:/zap/wrk/:rw \
-            -u $(id -u):$(id -g) \
-            -t owasp/zap2docker-stable \
-            zap-api-scan.py \
-            -t "$TARGET_URL" \
-            -J api-report.json \
-            -r api-report.html \
-            -a; then
-            echo "✅ Simplified API scan completed successfully"
-          else
-            echo "❌ Simplified API scan also failed with exit code $?"
-            echo "🔍 Attempting alternative ZAP image for API scan..."
-            # Try with alternative ZAP image
-            docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
-            # Run ZAP API scan and capture output
-            ZAP_API_OUTPUT=$(docker run --rm \
-              -v $(pwd)/reports:/zap/wrk/:rw \
-              -v $(pwd)/reports:/home/zap/:rw \
-              --user root \
-              -t ghcr.io/zaproxy/zaproxy:stable \
-              zap-api-scan.py \
-              -t "$TARGET_URL" \
-              -J api-report.json \
-              -r api-report.html \
-              -a 2>&1)
-            
-            ZAP_API_EXIT_CODE=$?
-            echo "$ZAP_API_OUTPUT"
-            
-            # Check if API scan completed (even with warnings, ZAP can return non-zero exit code)
-            if [ $ZAP_API_EXIT_CODE -eq 0 ] || echo "$ZAP_API_OUTPUT" | grep -q "FAIL-NEW: 0"; then
-              echo "✅ Alternative ZAP image API scan completed successfully"
-            else
-              echo "❌ ZAP API scan failed with exit code $ZAP_API_EXIT_CODE"
-              # Create a minimal report to indicate scan was attempted
-              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "ZAP API scan failed with exit code '"$ZAP_API_EXIT_CODE"'"}' > reports/api-report.json 2>/dev/null || echo "⚠️ Could not create fallback API JSON report"
-              echo "<html><body><h1>ZAP API Scan Failed</h1><p>ZAP API scan failed with exit code $ZAP_API_EXIT_CODE for target: $TARGET_URL</p></body></html>" > reports/api-report.html 2>/dev/null || echo "⚠️ Could not create fallback API HTML report"
-            fi
-          fi
-        fi
-        
-        # Check if reports were generated
-        echo "📄 Checking for generated API reports..."
-        if [ -f "reports/api-report.json" ]; then
-          echo "✅ JSON report generated: reports/api-report.json"
-        else
-          echo "❌ JSON report not found"
-        fi
-        if [ -f "reports/api-report.html" ]; then
-          echo "✅ HTML report generated: reports/api-report.html"
-        else
-          echo "❌ HTML report not found"
-        fi
-        if [ -f "reports/api-report.xml" ]; then
-          echo "✅ XML report generated: reports/api-report.xml"
-        else
-          echo "❌ XML report not found"
-        fi
-        
-        # List all files in reports directory
-        echo "📁 Files in reports directory:"
-        ls -la reports/ || echo "❌ Reports directory not accessible"
-        
-        # Copy reports to root directory for artifact upload
-        cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
-        cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
-        cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
-        
-        echo "📋 ZAP API scan summary:"
-        echo "Target: $TARGET_URL"
-        echo "Reports: Available in artifacts"
-      continue-on-error: true
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Check API Scan Results
-      if: always()
-      run: |
-        echo "🔍 Checking API scan results..."
-        echo "Files generated after API scan:"
-        find . -type f -name "*" | head -20 || echo "No files found"
-        echo "Looking for API scan files:"
-        find . -name "*api*" -o -name "*zap*" -o -name "*report*" -o -name "*.html" -o -name "*.json" -o -name "*.sarif" || echo "No API scan files found"
-    
-    - name: Upload API scan results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: zap-api-reports
-        path: |
-          *.html
-          *.json
-          *.xml
-          *.md
-          *.sarif
-          report_*
-          api-report.*
-        retention-days: 30
-      continue-on-error: true
-    
-    - name: Upload API scan results to GitHub Security tab (if enabled)
-      uses: github/codeql-action/upload-sarif@v3
-      if: always() && hashFiles('*.sarif') != ''
-      continue-on-error: true
-      with:
-        sarif_file: '*.sarif'
-        category: 'zap-api'
-    
-    - name: Create Required Labels for API Scan
-      if: always()
-      run: |
-        echo "🏷️ Creating required labels if they don't exist..."
-        # Create security label if it doesn't exist
-        gh label create "security" --description "Security-related issues" --color "ff0000" 2>/dev/null || echo "Label 'security' already exists or creation failed"
-        # Create automated-scan label if it doesn't exist
-        gh label create "automated-scan" --description "Issues created by automated security scans" --color "00ff00" 2>/dev/null || echo "Label 'automated-scan' already exists or creation failed"
-        # Create api-scan label if it doesn't exist
-        gh label create "api-scan" --description "API security scan findings" --color "0000ff" 2>/dev/null || echo "Label 'api-scan' already exists or creation failed"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.2.0
+        with:
+          target: ${{ env.TARGET_URL }}
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+        continue-on-error: true
 
-    - name: Create GitHub Issues for API Security Findings
-      if: always()
-      run: |
-        echo "🔍 Checking for API security findings to create issues..."
-        
-        # Check if any report files exist
-        if find . -name "*.html" -o -name "*.json" -o -name "*.sarif" | grep -q .; then
-          echo "📄 API security scan reports found"
-          
-          # Create a general API security scan issue
-          ISSUE_TITLE="🔒 OWASP ZAP API Security Scan - $(date +%Y-%m-%d)"
-          ISSUE_BODY="## API Security Scan Results
-        
-        **Scan Date:** $(date -u)
-        **Target URL:** https://robertconsulting.net
-        **Scan Type:** API Security
-        
-        ### Scan Status
-        ✅ API security scan completed successfully
-        📄 Reports generated and uploaded as artifacts
-        
-        ### Artifacts Available
-        - HTML Report: Available in workflow artifacts
-        - JSON Report: Available in workflow artifacts  
-        - SARIF Report: Available in workflow artifacts (if generated)
-        
-        ### Next Steps
-        1. Review the uploaded artifacts for detailed API security scan results
-        2. Check the GitHub Security tab for SARIF results (if code scanning is enabled)
-        3. Address any API security findings identified in the scan
-        
-        ### Workflow Information
-        - **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        - **Commit:** ${{ github.sha }}
-        - **Branch:** ${{ github.ref_name }}"
-        
-          # Check if an issue with this title already exists
-          EXISTING_ISSUE=$(gh issue list --search "in:title $ISSUE_TITLE" --json number --jq '.[0].number' 2>/dev/null || echo "")
-          
-          if [ -z "$EXISTING_ISSUE" ]; then
-            echo "📝 Creating GitHub issue for API security scan results..."
-            # Create issue with labels (they should exist now)
-            if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,api-scan,automated-scan" 2>/dev/null; then
-              echo "✅ GitHub issue created successfully with labels"
-            else
-              echo "⚠️ Failed to create issue with labels - trying without labels..."
-              # Try without labels if the first attempt failed
-              if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" 2>/dev/null; then
-                echo "✅ GitHub issue created successfully without labels"
-              else
-                echo "❌ Failed to create issue (check GitHub CLI permissions)"
-              fi
-            fi
-          else
-            echo "📝 Issue already exists: #$EXISTING_ISSUE"
-          fi
-        else
-          echo "⚠️ No API security scan reports found, skipping issue creation"
-        fi
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload API scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-api-reports
+          path: |
+            *.html
+            *.json
+            *.xml
+            *.sarif
+          retention-days: 30
+        continue-on-error: true
+
+      - name: Upload API scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('*.sarif') != ''
+        with:
+          sarif_file: '*.sarif'
+        continue-on-error: true
+
+      - name: Generate API Scan Summary
+        if: always()
+        run: |
+          echo "## 🔍 OWASP ZAP API Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Scanned:** ${{ env.TARGET_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Type:** API" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
+          echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- SARIF Report: Uploaded to GitHub Security tab (if code scanning enabled)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*API scan completed successfully*" >> $GITHUB_STEP_SUMMARY
