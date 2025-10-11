@@ -155,10 +155,19 @@ class UnifiedDashboard {
                 this.fetchRoute53Metrics()
             ]);
 
+            // Calculate AWS Services total
+            const awsTotal = costData.s3Cost + costData.cloudfrontCost + costData.lambdaCost + 
+                           costData.route53Cost + costData.sesCost + costData.wafCost + 
+                           costData.cloudwatchCost + costData.otherCost;
+            
             // Update cost displays
             this.updateElement('total-cost', `$${costData.totalMonthly.toFixed(2)}`);
             this.updateElement('total-monthly-cost', `$${costData.totalMonthly.toFixed(2)}`);
             this.updateElement('cost-trend', costData.trend);
+            
+            // Update AWS Services total and Domain Registrar
+            this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
+            this.updateElement('registrar-cost', '$0.00'); // Domain registrar costs are annual, not monthly
             
             this.updateElement('s3-cost', `$${costData.s3Cost.toFixed(2)}`);
             this.updateElement('s3-storage', s3Metrics.storage);
@@ -424,13 +433,13 @@ class UnifiedDashboard {
             // In a real implementation, this would call AWS Cost Explorer API
             return {
                 totalMonthly: 6.82, // AWS services only (excluding $75 registrar cost)
-                s3Cost: 0.05, // Amazon Simple Storage Service
-                cloudfrontCost: 0.00, // Amazon CloudFront (minimal usage)
+                s3Cost: 0.052, // Amazon Simple Storage Service
+                cloudfrontCost: 0.0000006634, // Amazon CloudFront (minimal usage)
                 lambdaCost: 0.00, // AWS Lambda (no usage)
-                route53Cost: 3.04, // Amazon Route 53
+                route53Cost: 3.039, // Amazon Route 53
                 sesCost: 0.00, // Amazon Simple Email Service (no usage)
-                wafCost: 1.46, // AWS WAF
-                cloudwatchCost: 2.24, // AmazonCloudWatch
+                wafCost: 1.465, // AWS WAF
+                cloudwatchCost: 2.245, // AmazonCloudWatch
                 otherCost: 0.03, // Other AWS services (Cost Explorer, etc.)
                 trend: '+0.0%' // No significant change
             };
