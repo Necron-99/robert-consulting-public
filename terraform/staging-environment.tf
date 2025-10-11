@@ -13,7 +13,7 @@ variable "staging_allowed_ips" {
   type        = list(string)
   default     = [
     # Add your IP addresses here for restricted access
-    # "1.2.3.4/32",  # Example: Your home IP
+    "73.251.19.77/32"
     # "5.6.7.8/32",  # Example: Your office IP
   ]
 }
@@ -238,6 +238,9 @@ resource "aws_cloudfront_distribution" "staging_website" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
+  # Associate WAF with CloudFront distribution
+  web_acl_id = aws_wafv2_web_acl.staging_waf.arn
+
   tags = {
     Name        = "Robert Consulting Staging Website"
     Environment = "Staging"
@@ -420,10 +423,8 @@ resource "aws_wafv2_ip_set" "staging_allowed_ips" {
 }
 
 # Associate WAF with CloudFront distribution
-resource "aws_wafv2_web_acl_association" "staging_waf_association" {
-  resource_arn = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.staging_website.id}"
-  web_acl_arn  = aws_wafv2_web_acl.staging_waf.arn
-}
+# Note: WAF association with CloudFront is done via the distribution's web_acl_id
+# This is handled in the CloudFront distribution configuration above
 
 # CloudWatch alarms for staging (minimal monitoring)
 resource "aws_cloudwatch_metric_alarm" "staging_high_error_rate" {
