@@ -17,10 +17,10 @@ on:
       target_url:
         description: 'Target URL to scan (default: staging site)'
         required: false
-        default: 'http://robert-consulting-testing-site.s3-website-us-east-1.amazonaws.com'
+        default: 'https://staging.robertconsulting.net'
 
 env:
-  STAGING_URL: 'http://robert-consulting-testing-site.s3-website-us-east-1.amazonaws.com'
+  STAGING_URL: 'https://staging.robertconsulting.net'
   TARGET_URL: ${{ github.event.inputs.target_url || env.STAGING_URL }}
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
       - name: Deploy website to staging for scanning
         run: |
           echo "🧪 Deploying to staging site for ZAP scanning..."
-          aws s3 sync website/ s3://robert-consulting-testing-site --delete
+          aws s3 sync website/ s3://robert-consulting-staging-website --delete
           echo "✅ Staging deployment completed"
 
       - name: Wait for deployment
