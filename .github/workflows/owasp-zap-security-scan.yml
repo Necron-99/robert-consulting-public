@@ -95,9 +95,44 @@ jobs:
         env | grep -E "(DOCKER|ZAP|GITHUB)" || echo "No relevant environment variables found"
 
     - name: OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.1.0
-      with:
-        target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+      run: |
+        echo "🔍 Running OWASP ZAP Baseline Scan with custom Docker implementation..."
+        
+        # Create reports directory
+        mkdir -p reports
+        
+        # Run ZAP baseline scan using Docker directly
+        docker run --rm \
+          -v $(pwd)/reports:/zap/wrk/:rw \
+          -t owasp/zap2docker-stable \
+          zap-baseline.py \
+          -t ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }} \
+          -J baseline-report.json \
+          -r baseline-report.html \
+          -x baseline-report.xml \
+          -a
+        
+        echo "✅ ZAP baseline scan completed"
+        
+        # Check if reports were generated
+        if [ -f "reports/baseline-report.json" ]; then
+          echo "📄 JSON report generated: reports/baseline-report.json"
+        fi
+        if [ -f "reports/baseline-report.html" ]; then
+          echo "📄 HTML report generated: reports/baseline-report.html"
+        fi
+        if [ -f "reports/baseline-report.xml" ]; then
+          echo "📄 XML report generated: reports/baseline-report.xml"
+        fi
+        
+        # Copy reports to root directory for artifact upload
+        cp reports/*.json . 2>/dev/null || true
+        cp reports/*.html . 2>/dev/null || true
+        cp reports/*.xml . 2>/dev/null || true
+        
+        echo "📋 ZAP baseline scan summary:"
+        echo "Target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
+        echo "Reports: Available in artifacts"
       continue-on-error: true
 
     - name: Check ZAP Scan Results
@@ -113,9 +148,44 @@ jobs:
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
-      uses: zaproxy/action-full-scan@v0.1.0
-      with:
-        target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+      run: |
+        echo "🔍 Running OWASP ZAP Full Scan with custom Docker implementation..."
+        
+        # Create reports directory
+        mkdir -p reports
+        
+        # Run ZAP full scan using Docker directly
+        docker run --rm \
+          -v $(pwd)/reports:/zap/wrk/:rw \
+          -t owasp/zap2docker-stable \
+          zap-full-scan.py \
+          -t ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }} \
+          -J full-report.json \
+          -r full-report.html \
+          -x full-report.xml \
+          -a
+        
+        echo "✅ ZAP full scan completed"
+        
+        # Check if reports were generated
+        if [ -f "reports/full-report.json" ]; then
+          echo "📄 JSON report generated: reports/full-report.json"
+        fi
+        if [ -f "reports/full-report.html" ]; then
+          echo "📄 HTML report generated: reports/full-report.html"
+        fi
+        if [ -f "reports/full-report.xml" ]; then
+          echo "📄 XML report generated: reports/full-report.xml"
+        fi
+        
+        # Copy reports to root directory for artifact upload
+        cp reports/*.json . 2>/dev/null || true
+        cp reports/*.html . 2>/dev/null || true
+        cp reports/*.xml . 2>/dev/null || true
+        
+        echo "📋 ZAP full scan summary:"
+        echo "Target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}"
+        echo "Reports: Available in artifacts"
       continue-on-error: true
     
     - name: Upload ZAP scan results
@@ -126,9 +196,12 @@ jobs:
         path: |
           *.html
           *.json
+          *.xml
           *.md
           *.sarif
           report_*
+          baseline-report.*
+          full-report.*
         retention-days: 30
       continue-on-error: true
     
@@ -342,9 +415,44 @@ jobs:
         curl -I https://robertconsulting.net || echo "Target not reachable"
     
     - name: OWASP ZAP API Scan
-      uses: zaproxy/action-api-scan@v0.1.0
-      with:
-        target: 'https://robertconsulting.net'
+      run: |
+        echo "🔍 Running OWASP ZAP API Scan with custom Docker implementation..."
+        
+        # Create reports directory
+        mkdir -p reports
+        
+        # Run ZAP API scan using Docker directly
+        docker run --rm \
+          -v $(pwd)/reports:/zap/wrk/:rw \
+          -t owasp/zap2docker-stable \
+          zap-api-scan.py \
+          -t https://robertconsulting.net \
+          -J api-report.json \
+          -r api-report.html \
+          -x api-report.xml \
+          -a
+        
+        echo "✅ ZAP API scan completed"
+        
+        # Check if reports were generated
+        if [ -f "reports/api-report.json" ]; then
+          echo "📄 JSON report generated: reports/api-report.json"
+        fi
+        if [ -f "reports/api-report.html" ]; then
+          echo "📄 HTML report generated: reports/api-report.html"
+        fi
+        if [ -f "reports/api-report.xml" ]; then
+          echo "📄 XML report generated: reports/api-report.xml"
+        fi
+        
+        # Copy reports to root directory for artifact upload
+        cp reports/*.json . 2>/dev/null || true
+        cp reports/*.html . 2>/dev/null || true
+        cp reports/*.xml . 2>/dev/null || true
+        
+        echo "📋 ZAP API scan summary:"
+        echo "Target: https://robertconsulting.net"
+        echo "Reports: Available in artifacts"
       continue-on-error: true
 
     - name: Check API Scan Results
@@ -364,9 +472,11 @@ jobs:
         path: |
           *.html
           *.json
+          *.xml
           *.md
           *.sarif
           report_*
+          api-report.*
         retention-days: 30
       continue-on-error: true
     
