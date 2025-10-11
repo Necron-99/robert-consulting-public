@@ -91,25 +91,14 @@ echo "🏗️ Creating production-deployment environment..."
 USER_ID=$(gh api user --jq .id)
 echo "👤 Current user ID: $USER_ID"
 
-# Create environment with protection rules (2025 API format)
-echo "🏗️ Creating environment with 2025 API format..."
+# Create basic environment (protection rules must be added manually)
+echo "🏗️ Creating basic environment (protection rules require manual setup)..."
 
-# Try the current API format first
+# Create a basic environment first
 gh api repos/$REPO/environments/production-deployment \
   --method PUT \
   --input - << EOF
 {
-  "protection_rules": [
-    {
-      "type": "required_reviewers",
-      "reviewers": [
-        {
-          "type": "User",
-          "id": $USER_ID
-        }
-      ]
-    }
-  ],
   "deployment_branch_policy": {
     "protected_branches": true,
     "custom_branch_policies": false
@@ -117,24 +106,25 @@ gh api repos/$REPO/environments/production-deployment \
 }
 EOF
 
-# If that fails, try the simpler format
-if [ $? -ne 0 ]; then
-    echo "⚠️ First attempt failed, trying simpler format..."
-    gh api repos/$REPO/environments/production-deployment \
-      --method PUT \
-      --input - << EOF
-{
-  "protection_rules": [
-    {
-      "type": "required_reviewers"
-    }
-  ]
-}
-EOF
-fi
+# Note: Protection rules cannot be set via API in most cases
+echo "ℹ️ Note: Protection rules must be configured manually in GitHub UI"
 
 if [ $? -eq 0 ]; then
     echo "✅ Production deployment environment created successfully"
+    echo ""
+    echo "🔧 Next Step: Configure Protection Rules Manually"
+    echo "=================================================="
+    echo "The environment was created, but protection rules must be added manually:"
+    echo ""
+    echo "1. Go to: https://github.com/$REPO/settings/environments"
+    echo "2. Click on 'production-deployment' environment"
+    echo "3. In 'Deployment protection rules' section:"
+    echo "   - Check 'Required reviewers'"
+    echo "   - Click 'Add people or teams'"
+    echo "   - Search for and select your username"
+    echo "   - Set required reviewers to 1"
+    echo "4. Click 'Save protection rules'"
+    echo ""
 else
     echo "⚠️ Environment may already exist or there was an issue"
     echo "🔍 Checking existing environments..."
