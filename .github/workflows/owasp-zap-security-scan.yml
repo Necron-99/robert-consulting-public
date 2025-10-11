@@ -145,7 +145,8 @@ jobs:
             echo "🔍 Attempting alternative ZAP image..."
             # Try with alternative ZAP image
             docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
-            if docker run --rm \
+            # Run ZAP scan and capture output
+            ZAP_OUTPUT=$(docker run --rm \
               -v $(pwd)/reports:/zap/wrk/:rw \
               -v $(pwd)/reports:/home/zap/:rw \
               --user root \
@@ -154,13 +155,19 @@ jobs:
               -t "$TARGET_URL" \
               -J baseline-report.json \
               -r baseline-report.html \
-              -a; then
+              -a 2>&1)
+            
+            ZAP_EXIT_CODE=$?
+            echo "$ZAP_OUTPUT"
+            
+            # Check if scan completed (even with warnings, ZAP can return non-zero exit code)
+            if [ $ZAP_EXIT_CODE -eq 0 ] || echo "$ZAP_OUTPUT" | grep -q "FAIL-NEW: 0"; then
               echo "✅ Alternative ZAP image scan completed successfully"
             else
-              echo "❌ All ZAP scan attempts failed"
+              echo "❌ ZAP scan failed with exit code $ZAP_EXIT_CODE"
               # Create a minimal report to indicate scan was attempted
-              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "All ZAP scan attempts failed"}' > reports/baseline-report.json
-              echo "<html><body><h1>ZAP Scan Failed</h1><p>All scan attempts failed for target: $TARGET_URL</p></body></html>" > reports/baseline-report.html
+              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "ZAP scan failed with exit code '"$ZAP_EXIT_CODE"'"}' > reports/baseline-report.json 2>/dev/null || echo "⚠️ Could not create fallback JSON report"
+              echo "<html><body><h1>ZAP Scan Failed</h1><p>ZAP scan failed with exit code $ZAP_EXIT_CODE for target: $TARGET_URL</p></body></html>" > reports/baseline-report.html 2>/dev/null || echo "⚠️ Could not create fallback HTML report"
             fi
           fi
         fi
@@ -527,7 +534,8 @@ jobs:
             echo "🔍 Attempting alternative ZAP image for API scan..."
             # Try with alternative ZAP image
             docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
-            if docker run --rm \
+            # Run ZAP API scan and capture output
+            ZAP_API_OUTPUT=$(docker run --rm \
               -v $(pwd)/reports:/zap/wrk/:rw \
               -v $(pwd)/reports:/home/zap/:rw \
               --user root \
@@ -536,13 +544,19 @@ jobs:
               -t "$TARGET_URL" \
               -J api-report.json \
               -r api-report.html \
-              -a; then
+              -a 2>&1)
+            
+            ZAP_API_EXIT_CODE=$?
+            echo "$ZAP_API_OUTPUT"
+            
+            # Check if API scan completed (even with warnings, ZAP can return non-zero exit code)
+            if [ $ZAP_API_EXIT_CODE -eq 0 ] || echo "$ZAP_API_OUTPUT" | grep -q "FAIL-NEW: 0"; then
               echo "✅ Alternative ZAP image API scan completed successfully"
             else
-              echo "❌ All API scan attempts failed"
+              echo "❌ ZAP API scan failed with exit code $ZAP_API_EXIT_CODE"
               # Create a minimal report to indicate scan was attempted
-              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "All API scan attempts failed"}' > reports/api-report.json
-              echo "<html><body><h1>ZAP API Scan Failed</h1><p>All API scan attempts failed for target: $TARGET_URL</p></body></html>" > reports/api-report.html
+              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "ZAP API scan failed with exit code '"$ZAP_API_EXIT_CODE"'"}' > reports/api-report.json 2>/dev/null || echo "⚠️ Could not create fallback API JSON report"
+              echo "<html><body><h1>ZAP API Scan Failed</h1><p>ZAP API scan failed with exit code $ZAP_API_EXIT_CODE for target: $TARGET_URL</p></body></html>" > reports/api-report.html 2>/dev/null || echo "⚠️ Could not create fallback API HTML report"
             fi
           fi
         fi
