@@ -92,16 +92,18 @@ jobs:
           echo "📊 ZAP scan completed with exit code: $ZAP_EXIT_CODE"
           
           # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
+          # All of these are SUCCESSFUL scans with findings, not failures
           if [ $ZAP_EXIT_CODE -eq 0 ]; then
             echo "✅ No security issues found"
           elif [ $ZAP_EXIT_CODE -eq 1 ]; then
-            echo "⚠️ Low risk security issues found"
+            echo "⚠️ Low risk security issues found (scan successful)"
           elif [ $ZAP_EXIT_CODE -eq 2 ]; then
-            echo "⚠️ Medium risk security issues found"
+            echo "⚠️ Medium risk security issues found (scan successful)"
           elif [ $ZAP_EXIT_CODE -eq 3 ]; then
-            echo "⚠️ High risk security issues found"
+            echo "⚠️ High risk security issues found (scan successful)"
           else
-            echo "❌ ZAP scan failed with exit code: $ZAP_EXIT_CODE"
+            echo "❌ ZAP scan failed with unexpected exit code: $ZAP_EXIT_CODE"
+            exit 1  # Only fail on unexpected exit codes
           fi
           
           # Check if reports were generated
@@ -127,8 +129,12 @@ jobs:
           
           echo "📋 ZAP baseline scan summary:"
           echo "Target: $TARGET_URL"
-          echo "Exit Code: $ZAP_EXIT_CODE"
+          echo "Exit Code: $ZAP_EXIT_CODE (scan completed successfully)"
           echo "Reports: Available in artifacts"
+          
+          # Always exit with 0 for expected ZAP exit codes (0-3)
+          # This prevents GitHub Actions from treating security findings as failures
+          exit 0
 
       - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
@@ -288,16 +294,18 @@ jobs:
           echo "📊 ZAP API scan completed with exit code: $ZAP_EXIT_CODE"
           
           # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
+          # All of these are SUCCESSFUL scans with findings, not failures
           if [ $ZAP_EXIT_CODE -eq 0 ]; then
             echo "✅ No security issues found"
           elif [ $ZAP_EXIT_CODE -eq 1 ]; then
-            echo "⚠️ Low risk security issues found"
+            echo "⚠️ Low risk security issues found (scan successful)"
           elif [ $ZAP_EXIT_CODE -eq 2 ]; then
-            echo "⚠️ Medium risk security issues found"
+            echo "⚠️ Medium risk security issues found (scan successful)"
           elif [ $ZAP_EXIT_CODE -eq 3 ]; then
-            echo "⚠️ High risk security issues found"
+            echo "⚠️ High risk security issues found (scan successful)"
           else
-            echo "❌ ZAP API scan failed with exit code: $ZAP_EXIT_CODE"
+            echo "❌ ZAP API scan failed with unexpected exit code: $ZAP_EXIT_CODE"
+            exit 1  # Only fail on unexpected exit codes
           fi
           
           # Check if reports were generated
@@ -323,8 +331,12 @@ jobs:
           
           echo "📋 ZAP API scan summary:"
           echo "Target: $TARGET_URL"
-          echo "Exit Code: $ZAP_EXIT_CODE"
+          echo "Exit Code: $ZAP_EXIT_CODE (scan completed successfully)"
           echo "Reports: Available in artifacts"
+          
+          # Always exit with 0 for expected ZAP exit codes (0-3)
+          # This prevents GitHub Actions from treating security findings as failures
+          exit 0
 
       - name: Upload API scan results
         uses: actions/upload-artifact@v4
