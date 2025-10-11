@@ -70,28 +70,32 @@ scan_secrets() {
     local secrets_found=0
     
     # Check for hardcoded passwords
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "password\s*=\s*[\"'][^\"']{4,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test"; then
+    PASSWORD_FILES=$(find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "password\s*=\s*[\"'][^\"']{4,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test" || true)
+    if [ -n "$PASSWORD_FILES" ]; then
         print_status "ERROR" "Hardcoded passwords found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
     fi
     
     # Check for API keys
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null; then
+    API_KEY_FILES=$(find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null || true)
+    if [ -n "$API_KEY_FILES" ]; then
         print_status "ERROR" "Hardcoded API keys found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
     fi
     
     # Check for tokens
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "token\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test"; then
+    TOKEN_FILES=$(find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "token\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test" || true)
+    if [ -n "$TOKEN_FILES" ]; then
         print_status "ERROR" "Hardcoded tokens found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
     fi
     
     # Check for AWS credentials
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "(aws_access_key|aws_secret_key)\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null; then
+    AWS_CRED_FILES=$(find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "(aws_access_key|aws_secret_key)\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null || true)
+    if [ -n "$AWS_CRED_FILES" ]; then
         print_status "ERROR" "Hardcoded AWS credentials found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
@@ -227,8 +231,9 @@ scan_security_headers() {
     
     local header_issues=0
     
-    # Check for missing CSP headers
-    if find . -name "*.html" -type f 2>/dev/null | xargs grep -L "Content-Security-Policy" 2>/dev/null; then
+    # Check for missing CSP headers (exclude component files and non-production files)
+    MISSING_CSP_FILES=$(find . -name "*.html" -type f 2>/dev/null | grep -v "/components/" | grep -v "/terraform/" | grep -v "/backup/" | xargs grep -L "Content-Security-Policy" 2>/dev/null || true)
+    if [ -n "$MISSING_CSP_FILES" ]; then
         print_status "WARNING" "Missing Content-Security-Policy headers in HTML files"
         increment_issue "MEDIUM"
         header_issues=$((header_issues + 1))
@@ -245,8 +250,9 @@ scan_http_links() {
     
     local http_links=0
     
-    # Check for HTTP links in HTML and JS files
-    if grep -r "http://" . --include="*.html" --include="*.js" 2>/dev/null | grep -v "localhost" | grep -v "127.0.0.1"; then
+    # Check for HTTP links in HTML and JS files (exclude non-production files and SVG data URIs)
+    HTTP_LINK_FILES=$(grep -r "http://" . --include="*.html" --include="*.js" 2>/dev/null | grep -v "localhost" | grep -v "127.0.0.1" | grep -v "xmlns=\"http://www.w3.org/2000/svg\"" | grep -v "data:image/svg+xml" | grep -v "/terraform/" | grep -v "/backup/" || true)
+    if [ -n "$HTTP_LINK_FILES" ]; then
         print_status "WARNING" "HTTP links found (should use HTTPS)"
         increment_issue "LOW"
         http_links=$((http_links + 1))
