@@ -95,9 +95,11 @@ jobs:
         env | grep -E "(DOCKER|ZAP|GITHUB)" || echo "No relevant environment variables found"
 
     - name: OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.4.0
+      uses: zaproxy/action-baseline@v0.6.1
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        docker_name: 'owasp/zap2docker-stable'
         fail_action: false
       continue-on-error: true
 
@@ -114,9 +116,11 @@ jobs:
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
-      uses: zaproxy/action-full-scan@v0.4.0
+      uses: zaproxy/action-full-scan@v0.6.1
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        docker_name: 'owasp/zap2docker-stable'
         fail_action: false
       continue-on-error: true
     
@@ -177,6 +181,19 @@ jobs:
         sarif_file: '*.sarif'
         category: 'zap-full'
     
+    - name: Create Required Labels
+      if: always()
+      run: |
+        echo "🏷️ Creating required labels if they don't exist..."
+        # Create security label if it doesn't exist
+        gh label create "security" --description "Security-related issues" --color "ff0000" 2>/dev/null || echo "Label 'security' already exists or creation failed"
+        # Create automated-scan label if it doesn't exist
+        gh label create "automated-scan" --description "Issues created by automated security scans" --color "00ff00" 2>/dev/null || echo "Label 'automated-scan' already exists or creation failed"
+        # Create api-scan label if it doesn't exist
+        gh label create "api-scan" --description "API security scan findings" --color "0000ff" 2>/dev/null || echo "Label 'api-scan' already exists or creation failed"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create GitHub Issues for Security Findings
       if: always()
       run: |
@@ -218,7 +235,18 @@ jobs:
           
           if [ -z "$EXISTING_ISSUE" ]; then
             echo "📝 Creating GitHub issue for security scan results..."
-            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,automated-scan" || echo "⚠️ Failed to create issue (may need to enable GitHub CLI or check permissions)"
+            # Create issue with labels (they should exist now)
+            if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,automated-scan" 2>/dev/null; then
+              echo "✅ GitHub issue created successfully with labels"
+            else
+              echo "⚠️ Failed to create issue with labels - trying without labels..."
+              # Try without labels if the first attempt failed
+              if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" 2>/dev/null; then
+                echo "✅ GitHub issue created successfully without labels"
+              else
+                echo "❌ Failed to create issue (check GitHub CLI permissions)"
+              fi
+            fi
           else
             echo "📝 Issue already exists: #$EXISTING_ISSUE"
           fi
@@ -320,9 +348,11 @@ jobs:
         curl -I https://robertconsulting.net || echo "Target not reachable"
     
     - name: OWASP ZAP API Scan
-      uses: zaproxy/action-api-scan@v0.2.0
+      uses: zaproxy/action-api-scan@v0.6.1
       with:
         target: 'https://robertconsulting.net'
+        token: ${{ secrets.GITHUB_TOKEN }}
+        docker_name: 'owasp/zap2docker-stable'
         fail_action: false
       continue-on-error: true
 
@@ -357,6 +387,19 @@ jobs:
         sarif_file: '*.sarif'
         category: 'zap-api'
     
+    - name: Create Required Labels for API Scan
+      if: always()
+      run: |
+        echo "🏷️ Creating required labels if they don't exist..."
+        # Create security label if it doesn't exist
+        gh label create "security" --description "Security-related issues" --color "ff0000" 2>/dev/null || echo "Label 'security' already exists or creation failed"
+        # Create automated-scan label if it doesn't exist
+        gh label create "automated-scan" --description "Issues created by automated security scans" --color "00ff00" 2>/dev/null || echo "Label 'automated-scan' already exists or creation failed"
+        # Create api-scan label if it doesn't exist
+        gh label create "api-scan" --description "API security scan findings" --color "0000ff" 2>/dev/null || echo "Label 'api-scan' already exists or creation failed"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create GitHub Issues for API Security Findings
       if: always()
       run: |
@@ -398,7 +441,18 @@ jobs:
           
           if [ -z "$EXISTING_ISSUE" ]; then
             echo "📝 Creating GitHub issue for API security scan results..."
-            gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,api-scan,automated-scan" || echo "⚠️ Failed to create issue (may need to enable GitHub CLI or check permissions)"
+            # Create issue with labels (they should exist now)
+            if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" --label "security,api-scan,automated-scan" 2>/dev/null; then
+              echo "✅ GitHub issue created successfully with labels"
+            else
+              echo "⚠️ Failed to create issue with labels - trying without labels..."
+              # Try without labels if the first attempt failed
+              if gh issue create --title "$ISSUE_TITLE" --body "$ISSUE_BODY" 2>/dev/null; then
+                echo "✅ GitHub issue created successfully without labels"
+              else
+                echo "❌ Failed to create issue (check GitHub CLI permissions)"
+              fi
+            fi
           else
             echo "📝 Issue already exists: #$EXISTING_ISSUE"
           fi
