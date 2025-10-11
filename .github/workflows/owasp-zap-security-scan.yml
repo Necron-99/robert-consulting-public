@@ -58,14 +58,90 @@ jobs:
           sleep 30
           echo "✅ Staging site should be ready for scanning"
 
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.4.0
-        with:
-          target: ${{ env.STAGING_URL }}
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
-        continue-on-error: true
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          echo "🔍 Running OWASP ZAP Baseline Scan..."
+          
+          # Create reports directory
+          mkdir -p reports
+          chmod 777 reports
+          
+          # Set target URL
+          TARGET_URL="${{ env.STAGING_URL }}"
+          echo "🎯 Target URL: $TARGET_URL"
+          
+          # Pull the working ZAP image
+          echo "📦 Pulling ZAP Docker image..."
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+          
+          # Run ZAP baseline scan
+          echo "🔍 Running ZAP baseline scan..."
+          docker run --rm \
+            -v $(pwd)/reports:/zap/wrk/:rw \
+            -v $(pwd)/reports:/home/zap/:rw \
+            --user root \
+            -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t "$TARGET_URL" \
+            -J baseline-report.json \
+            -r baseline-report.html \
+            -x baseline-report.xml \
+            -a
+          
+          ZAP_EXIT_CODE=$?
+          echo "📊 ZAP scan completed with exit code: $ZAP_EXIT_CODE"
+          
+          # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
+          if [ $ZAP_EXIT_CODE -eq 0 ]; then
+            echo "✅ No security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 1 ]; then
+            echo "⚠️ Low risk security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 2 ]; then
+            echo "⚠️ Medium risk security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 3 ]; then
+            echo "⚠️ High risk security issues found"
+          else
+            echo "❌ ZAP scan failed with exit code: $ZAP_EXIT_CODE"
+          fi
+          
+          # Check if reports were generated
+          echo "📄 Checking for generated reports..."
+          if [ -f "reports/baseline-report.json" ]; then
+            echo "✅ JSON report generated"
+          fi
+          if [ -f "reports/baseline-report.html" ]; then
+            echo "✅ HTML report generated"
+          fi
+          if [ -f "reports/baseline-report.xml" ]; then
+            echo "✅ XML report generated"
+          fi
+          
+          # List all files in reports directory
+          echo "📁 Files in reports directory:"
+          ls -la reports/ || echo "❌ Reports directory not accessible"
+          
+          # Copy reports to root directory for artifact upload
+          cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
+          cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
+          cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
+          
+          echo "📋 ZAP baseline scan summary:"
+          echo "Target: $TARGET_URL"
+          echo "Exit Code: $ZAP_EXIT_CODE"
+          echo "Reports: Available in artifacts"
 
+      - name: Upload ZAP scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-baseline-reports
+          path: |
+            *.html
+            *.json
+            *.xml
+            *.sarif
+          retention-days: 30
+        continue-on-error: true
 
       - name: Upload ZAP results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -178,14 +254,90 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: OWASP ZAP API Scan
-        uses: zaproxy/action-api-scan@v0.2.0
-        with:
-          target: ${{ env.TARGET_URL }}
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
-        continue-on-error: true
+      - name: Run OWASP ZAP API Scan
+        run: |
+          echo "🔍 Running OWASP ZAP API Scan..."
+          
+          # Create reports directory
+          mkdir -p reports
+          chmod 777 reports
+          
+          # Set target URL
+          TARGET_URL="${{ env.TARGET_URL }}"
+          echo "🎯 Target URL: $TARGET_URL"
+          
+          # Pull the working ZAP image
+          echo "📦 Pulling ZAP Docker image..."
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+          
+          # Run ZAP API scan
+          echo "🔍 Running ZAP API scan..."
+          docker run --rm \
+            -v $(pwd)/reports:/zap/wrk/:rw \
+            -v $(pwd)/reports:/home/zap/:rw \
+            --user root \
+            -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-api-scan.py \
+            -t "$TARGET_URL" \
+            -J api-report.json \
+            -r api-report.html \
+            -x api-report.xml \
+            -a
+          
+          ZAP_EXIT_CODE=$?
+          echo "📊 ZAP API scan completed with exit code: $ZAP_EXIT_CODE"
+          
+          # ZAP exit codes: 0=no issues, 1=low, 2=medium, 3=high risk
+          if [ $ZAP_EXIT_CODE -eq 0 ]; then
+            echo "✅ No security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 1 ]; then
+            echo "⚠️ Low risk security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 2 ]; then
+            echo "⚠️ Medium risk security issues found"
+          elif [ $ZAP_EXIT_CODE -eq 3 ]; then
+            echo "⚠️ High risk security issues found"
+          else
+            echo "❌ ZAP API scan failed with exit code: $ZAP_EXIT_CODE"
+          fi
+          
+          # Check if reports were generated
+          echo "📄 Checking for generated API reports..."
+          if [ -f "reports/api-report.json" ]; then
+            echo "✅ JSON report generated"
+          fi
+          if [ -f "reports/api-report.html" ]; then
+            echo "✅ HTML report generated"
+          fi
+          if [ -f "reports/api-report.xml" ]; then
+            echo "✅ XML report generated"
+          fi
+          
+          # List all files in reports directory
+          echo "📁 Files in reports directory:"
+          ls -la reports/ || echo "❌ Reports directory not accessible"
+          
+          # Copy reports to root directory for artifact upload
+          cp reports/*.json . 2>/dev/null || echo "⚠️ No JSON reports to copy"
+          cp reports/*.html . 2>/dev/null || echo "⚠️ No HTML reports to copy"
+          cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
+          
+          echo "📋 ZAP API scan summary:"
+          echo "Target: $TARGET_URL"
+          echo "Exit Code: $ZAP_EXIT_CODE"
+          echo "Reports: Available in artifacts"
 
+      - name: Upload API scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-api-reports
+          path: |
+            *.html
+            *.json
+            *.xml
+            *.sarif
+          retention-days: 30
+        continue-on-error: true
 
       - name: Upload API scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
