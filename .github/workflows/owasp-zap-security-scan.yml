@@ -1,0 +1,235 @@
+name: OWASP ZAP Security Scan
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'website/**'
+      - 'admin/**'
+      - '.github/workflows/owasp-zap-security-scan.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'website/**'
+      - 'admin/**'
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL to scan (default: https://robertconsulting.net)'
+        required: false
+        default: 'https://robertconsulting.net'
+      scan_type:
+        description: 'Type of scan to perform'
+        required: false
+        default: 'baseline'
+        type: choice
+        options:
+          - baseline
+          - full
+          - api
+
+jobs:
+  zap-baseline-scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Deploy website to staging for scanning
+      run: |
+        echo "🚀 Deploying website to staging for security scanning..."
+        
+        # Get the staging bucket name from Terraform output
+        STAGING_BUCKET=$(cd terraform && terraform output -raw testing_bucket_name 2>/dev/null || echo "robert-consulting-testing-site")
+        
+        # Deploy website to staging
+        aws s3 sync website/ s3://$STAGING_BUCKET --delete
+        
+        # Get the staging URL
+        STAGING_URL="http://$STAGING_BUCKET.s3-website-us-east-1.amazonaws.com"
+        echo "STAGING_URL=$STAGING_URL" >> $GITHUB_ENV
+        echo "✅ Website deployed to staging: $STAGING_URL"
+    
+    - name: Wait for deployment
+      run: |
+        echo "⏳ Waiting for staging deployment to be ready..."
+        sleep 30
+        
+        # Test if staging is accessible
+        if curl -f -s "$STAGING_URL" > /dev/null; then
+          echo "✅ Staging deployment is ready"
+        else
+          echo "❌ Staging deployment not accessible, using production URL"
+          echo "STAGING_URL=https://robertconsulting.net" >> $GITHUB_ENV
+        fi
+    
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.7.0
+      with:
+        target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+        fail_action: true
+        docker_name: 'zap-baseline-scan'
+        baseline_file: 'zap-baseline-report.json'
+        html_file: 'zap-baseline-report.html'
+        json_file: 'zap-baseline-report.json'
+        sarif_file: 'zap-baseline-report.sarif'
+    
+    - name: OWASP ZAP Full Scan (if requested)
+      if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
+      uses: zaproxy/action-full-scan@v0.4.0
+      with:
+        target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+        fail_action: false
+        docker_name: 'zap-full-scan'
+        baseline_file: 'zap-full-report.json'
+        html_file: 'zap-full-report.html'
+        json_file: 'zap-full-report.json'
+        sarif_file: 'zap-full-report.sarif'
+    
+    - name: Upload ZAP scan results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-security-reports
+        path: |
+          zap-*-report.html
+          zap-*-report.json
+          zap-*-report.sarif
+        retention-days: 30
+    
+    - name: Upload ZAP results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'zap-baseline-report.sarif'
+        category: 'zap-baseline'
+    
+    - name: Upload ZAP full scan results to GitHub Security tab
+      if: always() && (github.event.inputs.scan_type == 'full' || github.event_name == 'schedule')
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'zap-full-report.sarif'
+        category: 'zap-full'
+    
+    - name: Generate Security Summary
+      if: always()
+      run: |
+        echo "## 🔍 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if baseline scan completed
+        if [ -f "zap-baseline-report.json" ]; then
+          echo "### 📊 Baseline Scan Results" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract key metrics from JSON report
+          HIGH_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "3") | .name' zap-baseline-report.json | wc -l)
+          MEDIUM_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "2") | .name' zap-baseline-report.json | wc -l)
+          LOW_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "1") | .name' zap-baseline-report.json | wc -l)
+          INFO_ALERTS=$(jq -r '.site[] | select(.alerts) | .alerts[] | select(.riskcode == "0") | .name' zap-baseline-report.json | wc -l)
+          
+          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔴 High | $HIGH_ALERTS |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟡 Medium | $MEDIUM_ALERTS |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🟠 Low | $LOW_ALERTS |" >> $GITHUB_STEP_SUMMARY
+          echo "| ℹ️ Info | $INFO_ALERTS |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$HIGH_ALERTS" -gt 0 ]; then
+            echo "⚠️ **High severity issues found!** Please review the detailed report." >> $GITHUB_STEP_SUMMARY
+          elif [ "$MEDIUM_ALERTS" -gt 0 ]; then
+            echo "⚠️ Medium severity issues found. Consider reviewing the detailed report." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **No high or medium severity issues found!**" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+        
+        # Check if full scan completed
+        if [ -f "zap-full-report.json" ]; then
+          echo "### 🔍 Full Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "Full scan completed. See detailed reports in artifacts." >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📁 Reports Available" >> $GITHUB_STEP_SUMMARY
+        echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "- SARIF Report: Uploaded to GitHub Security tab" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 Target Scanned" >> $GITHUB_STEP_SUMMARY
+        echo "- URL: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Scan Type: ${{ github.event.inputs.scan_type || 'baseline' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
+    
+    - name: Cleanup staging deployment
+      if: always()
+      run: |
+        echo "🧹 Cleaning up staging deployment..."
+        # Optional: Remove staging files if needed
+        # STAGING_BUCKET=$(cd terraform && terraform output -raw testing_bucket_name 2>/dev/null || echo "robert-consulting-testing-site")
+        # aws s3 rm s3://$STAGING_BUCKET --recursive
+        echo "✅ Cleanup completed"
+
+  zap-api-scan:
+    name: OWASP ZAP API Scan
+    runs-on: ubuntu-latest
+    if: github.event.inputs.scan_type == 'api' || github.event_name == 'schedule'
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: OWASP ZAP API Scan
+      uses: zaproxy/action-api-scan@v0.2.0
+      with:
+        target: 'https://robertconsulting.net'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+        fail_action: false
+        docker_name: 'zap-api-scan'
+        baseline_file: 'zap-api-report.json'
+        html_file: 'zap-api-report.html'
+        json_file: 'zap-api-report.json'
+        sarif_file: 'zap-api-report.sarif'
+    
+    - name: Upload API scan results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-api-reports
+        path: |
+          zap-api-report.html
+          zap-api-report.json
+          zap-api-report.sarif
+        retention-days: 30
+    
+    - name: Upload API scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'zap-api-report.sarif'
+        category: 'zap-api'
