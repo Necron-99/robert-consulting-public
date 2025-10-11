@@ -36,3 +36,10 @@ styles.css
 # Configuration files
 dashboard.json
 js/api-config.js
+
+# Infrastructure files (should never be deployed)
+*.tf
+*.tfvars
+*.tfstate
+*.tfstate.backup
+terraform/

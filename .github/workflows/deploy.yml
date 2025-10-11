@@ -187,6 +187,11 @@ jobs:
                   --exclude='styles.css' \
                   --exclude='dashboard.json' \
                   --exclude='js/api-config.js' \
+                  --exclude='*.tf' \
+                  --exclude='*.tfvars' \
+                  --exclude='*.tfstate' \
+                  --exclude='*.tfstate.backup' \
+                  --exclude='terraform/' \
                   . temp-deploy/
         
         cd temp-deploy
@@ -329,6 +334,11 @@ jobs:
                   --exclude='styles.css' \
                   --exclude='dashboard.json' \
                   --exclude='js/api-config.js' \
+                  --exclude='*.tf' \
+                  --exclude='*.tfvars' \
+                  --exclude='*.tfstate' \
+                  --exclude='*.tfstate.backup' \
+                  --exclude='terraform/' \
                   . ../temp-deploy/
         
         cd ../temp-deploy
