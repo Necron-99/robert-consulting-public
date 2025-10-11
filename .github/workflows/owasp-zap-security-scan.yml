@@ -116,6 +116,7 @@ jobs:
         # Run ZAP baseline scan with proper error handling
         if docker run --rm \
           -v $(pwd)/reports:/zap/wrk/:rw \
+          -u $(id -u):$(id -g) \
           -t owasp/zap2docker-stable \
           zap-baseline.py \
           -t "$TARGET_URL" \
@@ -130,6 +131,7 @@ jobs:
           # Try a simpler scan without XML output
           if docker run --rm \
             -v $(pwd)/reports:/zap/wrk/:rw \
+            -u $(id -u):$(id -g) \
             -t owasp/zap2docker-stable \
             zap-baseline.py \
             -t "$TARGET_URL" \
@@ -144,6 +146,7 @@ jobs:
             docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
             if docker run --rm \
               -v $(pwd)/reports:/zap/wrk/:rw \
+              -u $(id -u):$(id -g) \
               -t ghcr.io/zaproxy/zaproxy:stable \
               zap-baseline.py \
               -t "$TARGET_URL" \
@@ -493,6 +496,7 @@ jobs:
         # Run ZAP API scan with proper error handling
         if docker run --rm \
           -v $(pwd)/reports:/zap/wrk/:rw \
+          -u $(id -u):$(id -g) \
           -t owasp/zap2docker-stable \
           zap-api-scan.py \
           -t "$TARGET_URL" \
@@ -505,14 +509,38 @@ jobs:
           echo "❌ ZAP API scan failed with exit code $?"
           echo "🔍 Attempting simplified API scan..."
           # Try a simpler scan without XML output
-          docker run --rm \
+          if docker run --rm \
             -v $(pwd)/reports:/zap/wrk/:rw \
+            -u $(id -u):$(id -g) \
             -t owasp/zap2docker-stable \
             zap-api-scan.py \
             -t "$TARGET_URL" \
             -J api-report.json \
             -r api-report.html \
-            -a || echo "❌ Simplified API scan also failed"
+            -a; then
+            echo "✅ Simplified API scan completed successfully"
+          else
+            echo "❌ Simplified API scan also failed with exit code $?"
+            echo "🔍 Attempting alternative ZAP image for API scan..."
+            # Try with alternative ZAP image
+            docker pull ghcr.io/zaproxy/zaproxy:stable || echo "❌ Failed to pull alternative ZAP image"
+            if docker run --rm \
+              -v $(pwd)/reports:/zap/wrk/:rw \
+              -u $(id -u):$(id -g) \
+              -t ghcr.io/zaproxy/zaproxy:stable \
+              zap-api-scan.py \
+              -t "$TARGET_URL" \
+              -J api-report.json \
+              -r api-report.html \
+              -a; then
+              echo "✅ Alternative ZAP image API scan completed successfully"
+            else
+              echo "❌ All API scan attempts failed"
+              # Create a minimal report to indicate scan was attempted
+              echo '{"scan_status": "failed", "target": "'"$TARGET_URL"'", "error": "All API scan attempts failed"}' > reports/api-report.json
+              echo "<html><body><h1>ZAP API Scan Failed</h1><p>All API scan attempts failed for target: $TARGET_URL</p></body></html>" > reports/api-report.html
+            fi
+          fi
         fi
         
         # Check if reports were generated
