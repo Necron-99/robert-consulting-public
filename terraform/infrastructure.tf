@@ -82,25 +82,29 @@ resource "aws_s3_bucket_policy" "website_bucket" {
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "security-headers-policy"
 
-  security_headers_config {
-    content_type_options {
-      override = false
-    }
-    frame_options {
-      frame_option = "DENY"
-      override     = false
-    }
-    referrer_policy {
-      referrer_policy = "strict-origin-when-cross-origin"
-      override        = false
-    }
-    strict_transport_security {
-      access_control_max_age_sec = 31536000
-      include_subdomains         = true
-      preload                    = true
-      override                   = false
-    }
-  }
+         security_headers_config {
+           content_security_policy {
+             content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content;"
+             override                 = false
+           }
+           content_type_options {
+             override = false
+           }
+           frame_options {
+             frame_option = "DENY"
+             override     = false
+           }
+           referrer_policy {
+             referrer_policy = "strict-origin-when-cross-origin"
+             override        = false
+           }
+           strict_transport_security {
+             access_control_max_age_sec = 31536000
+             include_subdomains         = true
+             preload                    = true
+             override                   = false
+           }
+         }
 
          custom_headers_config {
            items {
