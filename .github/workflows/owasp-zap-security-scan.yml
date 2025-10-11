@@ -183,11 +183,11 @@ jobs:
         run: |
           echo "🔍 Analyzing ZAP scan results and creating GitHub issues..."
           
-          # Check if JSON report exists
-          if [ -f "baseline-report.json" ]; then
-            echo "📄 Found ZAP JSON report, analyzing findings..."
+          # Check if JSON reports exist
+          if [ -f "baseline-report.json" ] || [ -f "api-report.json" ]; then
+            echo "📄 Found ZAP JSON reports, analyzing findings..."
             
-            # Parse ZAP JSON report and create issues for each finding
+            # Parse ZAP JSON reports and create issues for each finding
             python3 << 'EOF'
           import json
           import os
@@ -279,32 +279,51 @@ jobs:
           """)
 
           try:
-              # Read ZAP JSON report
-              with open('baseline-report.json', 'r') as f:
-                  zap_data = json.load(f)
+              # Read both ZAP JSON reports
+              all_findings = []
+              report_sources = []
               
-              # Extract findings - include ALL alerts that are not PASS
-              findings = []
-              if 'site' in zap_data and len(zap_data['site']) > 0:
-                  site = zap_data['site'][0]
-                  if 'alerts' in site:
-                      for alert in site['alerts']:
-                          # Include all alerts that are not PASS (which means they are FAIL-NEW or WARN-NEW)
-                          # ZAP risk codes: 0=Informational, 1=Low, 2=Medium, 3=High
-                          # Include all risk levels - even Informational (0) if they are WARN-NEW
-                          findings.append(alert)
+              # Process baseline report
+              if os.path.exists('baseline-report.json'):
+                  print("📄 Processing baseline-report.json...")
+                  with open('baseline-report.json', 'r') as f:
+                      baseline_data = json.load(f)
+                  
+                  if 'site' in baseline_data and len(baseline_data['site']) > 0:
+                      site = baseline_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              alert['scan_source'] = 'baseline'
+                              all_findings.append(alert)
+                          report_sources.append('baseline')
+                          print(f"📊 Found {len(site['alerts'])} alerts in baseline report")
               
-              print(f"📊 Found {len(findings)} total alerts in report")
+              # Process API report
+              if os.path.exists('api-report.json'):
+                  print("📄 Processing api-report.json...")
+                  with open('api-report.json', 'r') as f:
+                      api_data = json.load(f)
+                  
+                  if 'site' in api_data and len(api_data['site']) > 0:
+                      site = api_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              alert['scan_source'] = 'api'
+                              all_findings.append(alert)
+                          report_sources.append('api')
+                          print(f"📊 Found {len(site['alerts'])} alerts in API report")
+              
+              print(f"📊 Found {len(all_findings)} total alerts across {len(report_sources)} reports")
+              print(f"📊 Report sources: {', '.join(report_sources)}")
               
               # Debug: Print all alert risk codes and names
-              if 'alerts' in site:
-                  print("🔍 Debug - All alerts found:")
-                  for i, alert in enumerate(site['alerts']):
-                      print(f"  Alert {i+1}: Risk={alert.get('riskcode')}, Name='{alert.get('name', 'Unknown')}', RiskDesc='{alert.get('riskdesc', 'Unknown')}', Confidence='{alert.get('confidence', 'Unknown')}'")
+              print("🔍 Debug - All alerts found:")
+              for i, alert in enumerate(all_findings):
+                  print(f"  Alert {i+1}: Risk={alert.get('riskcode')}, Name='{alert.get('name', 'Unknown')}', RiskDesc='{alert.get('riskdesc', 'Unknown')}', Confidence='{alert.get('confidence', 'Unknown')}', Source='{alert.get('scan_source', 'unknown')}'")
               
               # Filter out PASS alerts (these are not security issues)
               security_findings = []
-              for finding in findings:
+              for finding in all_findings:
                   # Skip alerts that are marked as PASS (no security issues)
                   if finding.get('confidence') != 'PASS':
                       security_findings.append(finding)
@@ -312,6 +331,7 @@ jobs:
               print(f"📊 Found {len(security_findings)} security findings to process (excluding PASS alerts)")
               
               # Group findings by alert name to avoid duplicate issues
+              # Also track which scan sources found each issue
               grouped_findings = {}
               for finding in security_findings:
                   alert_name = finding.get('name', 'Unknown Alert')
@@ -335,8 +355,10 @@ jobs:
                   
                   risk_level = max(clean_risk_levels, key=lambda x: {'High': 3, 'Medium': 2, 'Low': 1, 'Informational': 0}.get(x, 0))
                   
-                  # Count instances
+                  # Count instances and track scan sources
                   instance_count = len(alert_findings)
+                  scan_sources = list(set([f.get('scan_source', 'unknown') for f in alert_findings]))
+                  scan_sources_str = ', '.join(scan_sources)
                   
                   # Create issue title
                   risk_emoji = get_risk_color(risk_level)
@@ -347,6 +369,7 @@ jobs:
 
           **Risk Level:** {risk_level}  
           **Instances Found:** {instance_count}  
+          **Scan Sources:** {scan_sources_str}
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}
 
@@ -413,13 +436,15 @@ jobs:
 
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Target:** ${{ env.STAGING_URL }}  
+          **Scan Sources:** {', '.join(report_sources)}
           **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
           **Issues Created:** {issues_created}
 
           ### Scan Results
-          - **High Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'High'])} instances
-          - **Medium Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'Medium'])} instances  
-          - **Low Risk:** {len([f for f in security_findings if f.get('riskdesc') == 'Low'])} instances
+          - **High Risk:** {len([f for f in security_findings if 'High' in f.get('riskdesc', '')])} instances
+          - **Medium Risk:** {len([f for f in security_findings if 'Medium' in f.get('riskdesc', '')])} instances  
+          - **Low Risk:** {len([f for f in security_findings if 'Low' in f.get('riskdesc', '')])} instances
+          - **Informational:** {len([f for f in security_findings if 'Informational' in f.get('riskdesc', '')])} instances
 
           ### Next Steps
           1. Review the individual security issues created above
@@ -468,7 +493,7 @@ jobs:
               create_github_issue(issue_title, issue_body, "security,automated-scan")
           EOF
           else
-            echo "⚠️ No ZAP JSON report found, skipping detailed issue creation"
+            echo "⚠️ No ZAP JSON reports found, skipping detailed issue creation"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -478,9 +503,9 @@ jobs:
         run: |
           echo "🔍 Checking for resolved security issues to close..."
           
-          # Check if JSON report exists and has no findings
-          if [ -f "baseline-report.json" ]; then
-            echo "📄 Found ZAP JSON report, checking for resolved issues..."
+          # Check if JSON reports exist and have no findings
+          if [ -f "baseline-report.json" ] || [ -f "api-report.json" ]; then
+            echo "📄 Found ZAP JSON reports, checking for resolved issues..."
             
             python3 << 'EOF'
           import json
@@ -510,19 +535,34 @@ jobs:
                   return False
 
           try:
-              # Read ZAP JSON report
-              with open('baseline-report.json', 'r') as f:
-                  zap_data = json.load(f)
-              
-              # Check if there are any security findings (excluding PASS alerts)
+              # Read both ZAP JSON reports
               security_findings = []
-              if 'site' in zap_data and len(zap_data['site']) > 0:
-                  site = zap_data['site'][0]
-                  if 'alerts' in site:
-                      for alert in site['alerts']:
-                          # Skip alerts that are marked as PASS (no security issues)
-                          if alert.get('confidence') != 'PASS':
-                              security_findings.append(alert)
+              
+              # Process baseline report
+              if os.path.exists('baseline-report.json'):
+                  with open('baseline-report.json', 'r') as f:
+                      baseline_data = json.load(f)
+                  
+                  if 'site' in baseline_data and len(baseline_data['site']) > 0:
+                      site = baseline_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              # Skip alerts that are marked as PASS (no security issues)
+                              if alert.get('confidence') != 'PASS':
+                                  security_findings.append(alert)
+              
+              # Process API report
+              if os.path.exists('api-report.json'):
+                  with open('api-report.json', 'r') as f:
+                      api_data = json.load(f)
+                  
+                  if 'site' in api_data and len(api_data['site']) > 0:
+                      site = api_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              # Skip alerts that are marked as PASS (no security issues)
+                              if alert.get('confidence') != 'PASS':
+                                  security_findings.append(alert)
               
               # If no security findings, check for open security issues to close
               if len(security_findings) == 0:
@@ -598,7 +638,7 @@ jobs:
               print(f"❌ Error processing ZAP results for issue closure: {e}")
           EOF
           else
-            echo "⚠️ No ZAP JSON report found, skipping issue closure check"
+            echo "⚠️ No ZAP JSON reports found, skipping issue closure check"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
