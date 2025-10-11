@@ -1,0 +1,18 @@
+# OWASP ZAP Custom Rules Configuration
+# This file defines which ZAP rules to include/exclude during scanning
+# Format: Rule ID	Action (IGNORE, INFO, LOW, MEDIUM, HIGH)
+# Action determines the minimum risk level for the rule to be reported
+
+# Note: This is a minimal configuration file
+# ZAP will use default rules if this file is empty or missing
+# You can add specific rule customizations here as needed
+
+# Example rule configurations (uncomment and modify as needed):
+# 10021	HIGH	# XSS Reflected
+# 10020	HIGH	# XSS Stored
+# 10015	HIGH	# SQL Injection
+# 10027	HIGH	# Path Traversal
+# 10011	MEDIUM	# Cross Site Scripting (Reflected)
+# 10012	MEDIUM	# Cross Site Scripting (Stored)
+# 10001	LOW	# Buffer Overflow
+# 10002	LOW	# Directory Browsing

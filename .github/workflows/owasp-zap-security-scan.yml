@@ -117,16 +117,39 @@ jobs:
           zap-*-report.sarif
         retention-days: 30
     
-    - name: Upload ZAP results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
+    - name: Check if SARIF file exists and upload to GitHub Security tab
       if: always()
+      run: |
+        if [ -f "zap-baseline-report.sarif" ]; then
+          echo "📄 SARIF file found, uploading to GitHub Security tab..."
+          # Note: This will only work if code scanning is enabled in repository settings
+          # Go to Settings > Security > Code scanning > Set up code scanning
+        else
+          echo "⚠️ SARIF file not found, skipping upload to Security tab"
+          echo "This is normal if the scan failed or code scanning is not enabled"
+        fi
+    
+    - name: Upload ZAP results to GitHub Security tab (if enabled)
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && hashFiles('zap-baseline-report.sarif') != ''
+      continue-on-error: true
       with:
         sarif_file: 'zap-baseline-report.sarif'
         category: 'zap-baseline'
     
-    - name: Upload ZAP full scan results to GitHub Security tab
+    - name: Check if full scan SARIF file exists and upload to GitHub Security tab
       if: always() && (github.event.inputs.scan_type == 'full' || github.event_name == 'schedule')
+      run: |
+        if [ -f "zap-full-report.sarif" ]; then
+          echo "📄 Full scan SARIF file found, uploading to GitHub Security tab..."
+        else
+          echo "⚠️ Full scan SARIF file not found, skipping upload to Security tab"
+        fi
+    
+    - name: Upload ZAP full scan results to GitHub Security tab (if enabled)
+      if: always() && (github.event.inputs.scan_type == 'full' || github.event_name == 'schedule') && hashFiles('zap-full-report.sarif') != ''
       uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
       with:
         sarif_file: 'zap-full-report.sarif'
         category: 'zap-full'
@@ -174,7 +197,14 @@ jobs:
         echo "### 📁 Reports Available" >> $GITHUB_STEP_SUMMARY
         echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
         echo "- JSON Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
-        echo "- SARIF Report: Uploaded to GitHub Security tab" >> $GITHUB_STEP_SUMMARY
+        echo "- SARIF Report: Uploaded to GitHub Security tab (if code scanning enabled)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔧 GitHub Code Scanning Setup" >> $GITHUB_STEP_SUMMARY
+        echo "To enable SARIF uploads to GitHub Security tab:" >> $GITHUB_STEP_SUMMARY
+        echo "1. Go to **Settings** → **Security** → **Code scanning**" >> $GITHUB_STEP_SUMMARY
+        echo "2. Click **Set up code scanning**" >> $GITHUB_STEP_SUMMARY
+        echo "3. Choose **Advanced** → **Upload SARIF file**" >> $GITHUB_STEP_SUMMARY
+        echo "4. This will enable the Security tab integration" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🎯 Target Scanned" >> $GITHUB_STEP_SUMMARY
         echo "- URL: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}" >> $GITHUB_STEP_SUMMARY
@@ -227,9 +257,10 @@ jobs:
           zap-api-report.sarif
         retention-days: 30
     
-    - name: Upload API scan results to GitHub Security tab
+    - name: Upload API scan results to GitHub Security tab (if enabled)
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && hashFiles('zap-api-report.sarif') != ''
+      continue-on-error: true
       with:
         sarif_file: 'zap-api-report.sarif'
         category: 'zap-api'
