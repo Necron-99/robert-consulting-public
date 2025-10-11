@@ -153,13 +153,57 @@ jobs:
         # Navigate to website directory and sync only website files
         cd website
         
-        # Sync website files to S3 (excluding scripts and testing)
-        aws s3 sync . s3://$BUCKET_NAME --delete --exclude "*.sh" --exclude "*.ps1" --exclude "testing/*"
+        # Sync website files to S3 (excluding non-production files)
+        echo "🚫 Excluding non-production files from deployment..."
         
-        # Set proper content types
+        # Create a temporary directory with only production files
+        mkdir -p temp-deploy
+        
+        # Copy only production files (exclude test files, scripts, etc.)
+        rsync -av --exclude='easter-egg-test.html' \
+                  --exclude='test-*.md' \
+                  --exclude='test-*.html' \
+                  --exclude='auth.js' \
+                  --exclude='configure-api.*' \
+                  --exclude='deploy-*.sh' \
+                  --exclude='secure-api-deployment.sh' \
+                  --exclude='update-version.*' \
+                  --exclude='version-*.js' \
+                  --exclude='version-fallback.json' \
+                  --exclude='package.json' \
+                  --exclude='api/' \
+                  --exclude='security-config.js' \
+                  --exclude='best-practices-script.js' \
+                  --exclude='best-practices-styles.css' \
+                  --exclude='best-practices.html' \
+                  --exclude='dynamic-version.js' \
+                  --exclude='dashboard-styles.css' \
+                  --exclude='learning-styles.css' \
+                  --exclude='monitoring-script.js' \
+                  --exclude='monitoring-styles.css' \
+                  --exclude='status-script.js' \
+                  --exclude='status-styles.css' \
+                  --exclude='script.js' \
+                  --exclude='styles.css' \
+                  --exclude='dashboard.json' \
+                  --exclude='js/api-config.js' \
+                  . temp-deploy/
+        
+        cd temp-deploy
+        
+        # Deploy only the cleaned files
+        aws s3 sync . s3://$BUCKET_NAME --delete
+        
+        # Clean up temporary directory
+        cd ..
+        rm -rf temp-deploy
+        
+        # Set proper content types for main files
         aws s3 cp s3://$BUCKET_NAME/index.html s3://$BUCKET_NAME/index.html --content-type "text/html" --metadata-directive REPLACE
-        aws s3 cp s3://$BUCKET_NAME/styles.css s3://$BUCKET_NAME/styles.css --content-type "text/css" --metadata-directive REPLACE
-        aws s3 cp s3://$BUCKET_NAME/script.js s3://$BUCKET_NAME/script.js --content-type "application/javascript" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/dashboard.html s3://$BUCKET_NAME/dashboard.html --content-type "text/html" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/learning.html s3://$BUCKET_NAME/learning.html --content-type "text/html" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/monitoring.html s3://$BUCKET_NAME/monitoring.html --content-type "text/html" --metadata-directive REPLACE
+        aws s3 cp s3://$BUCKET_NAME/css/main.css s3://$BUCKET_NAME/css/main.css --content-type "text/css" --metadata-directive REPLACE
         
         echo "✅ Website files deployed to S3"
         
@@ -249,9 +293,52 @@ jobs:
           exit 1
         fi
         
-        # Sync website files to S3 (staging deployment)
+        # Sync website files to S3 (staging deployment) - exclude non-production files
         echo "📁 Syncing website files to S3 staging..."
-        aws s3 sync website/ s3://$TESTING_BUCKET --delete
+        echo "🚫 Excluding non-production files from deployment..."
+        
+        # Create a temporary directory with only production files
+        mkdir -p temp-deploy
+        cd website
+        
+        # Copy only production files (exclude test files, scripts, etc.)
+        rsync -av --exclude='easter-egg-test.html' \
+                  --exclude='test-*.md' \
+                  --exclude='test-*.html' \
+                  --exclude='auth.js' \
+                  --exclude='configure-api.*' \
+                  --exclude='deploy-*.sh' \
+                  --exclude='secure-api-deployment.sh' \
+                  --exclude='update-version.*' \
+                  --exclude='version-*.js' \
+                  --exclude='version-fallback.json' \
+                  --exclude='package.json' \
+                  --exclude='api/' \
+                  --exclude='security-config.js' \
+                  --exclude='best-practices-script.js' \
+                  --exclude='best-practices-styles.css' \
+                  --exclude='best-practices.html' \
+                  --exclude='dynamic-version.js' \
+                  --exclude='dashboard-styles.css' \
+                  --exclude='learning-styles.css' \
+                  --exclude='monitoring-script.js' \
+                  --exclude='monitoring-styles.css' \
+                  --exclude='status-script.js' \
+                  --exclude='status-styles.css' \
+                  --exclude='script.js' \
+                  --exclude='styles.css' \
+                  --exclude='dashboard.json' \
+                  --exclude='js/api-config.js' \
+                  . ../temp-deploy/
+        
+        cd ../temp-deploy
+        
+        # Deploy only the cleaned files
+        aws s3 sync . s3://$TESTING_BUCKET --delete
+        
+        # Clean up temporary directory
+        cd ..
+        rm -rf temp-deploy
         
         echo "✅ Testing site deployed successfully!"
         echo "  S3 Bucket: $TESTING_BUCKET"

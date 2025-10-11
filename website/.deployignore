@@ -1,0 +1,38 @@
+# Files to exclude from production deployment
+
+# Test and debug files
+easter-egg-test.html
+test-*.md
+test-*.html
+
+# Development and build files
+auth.js
+configure-api.*
+deploy-*.sh
+secure-api-deployment.sh
+update-version.*
+version-*.js
+version-fallback.json
+package.json
+
+# API and server-side files
+api/
+security-config.js
+
+# Development scripts
+best-practices-script.js
+best-practices-styles.css
+best-practices.html
+dynamic-version.js
+dashboard-styles.css
+learning-styles.css
+monitoring-script.js
+monitoring-styles.css
+status-script.js
+status-styles.css
+script.js
+styles.css
+
+# Configuration files
+dashboard.json
+js/api-config.js
