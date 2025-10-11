@@ -78,6 +78,59 @@ resource "aws_s3_bucket_policy" "website_bucket" {
   })
 }
 
+# CloudFront response headers policy for security headers
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "security-headers-policy"
+
+  security_headers_config {
+    content_type_options {
+      override = false
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = false
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = false
+    }
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = false
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "X-XSS-Protection"
+      value    = "1; mode=block"
+      override = false
+    }
+    items {
+      header   = "Permissions-Policy"
+      value    = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Embedder-Policy"
+      value    = "require-corp"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Opener-Policy"
+      value    = "same-origin"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Resource-Policy"
+      value    = "same-origin"
+      override = false
+    }
+  }
+}
+
 # CloudFront distribution
 resource "aws_cloudfront_distribution" "website" {
   origin {
@@ -101,7 +154,7 @@ resource "aws_cloudfront_distribution" "website" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "S3-${aws_s3_bucket.website_bucket.bucket}"
     compress               = true
-    viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy = "redirect-to-https"
 
     forwarded_values {
       query_string = false
@@ -113,6 +166,9 @@ resource "aws_cloudfront_distribution" "website" {
     min_ttl     = 0
     default_ttl = 3600
     max_ttl     = 86400
+
+    # Security headers to address ZAP findings
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
   }
 
   price_class = "PriceClass_100"
