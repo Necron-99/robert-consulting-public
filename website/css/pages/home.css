@@ -49,8 +49,10 @@
 
 .hero-credentials {
   display: flex;
-  gap: var(--space-8);
+  gap: var(--space-6);
   margin: var(--space-4) 0;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .credential-item {
@@ -604,13 +606,18 @@
     min-height: 60vh;
   }
   
+  .hero-container {
+    padding: 0 var(--space-6);
+  }
+  
   .hero-title {
     font-size: var(--font-size-4xl);
   }
   
   .hero-credentials {
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--space-4);
+    justify-content: space-around;
   }
   
   .hero-buttons {
@@ -619,6 +626,15 @@
   
   .services-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .learning-content {
+    padding: 0 var(--space-4);
+  }
+  
+  .learning-text h3 {
+    font-size: var(--font-size-2xl);
+    padding: 0 var(--space-2);
   }
   
   .experience-timeline::before {
@@ -635,6 +651,10 @@
 }
 
 @media (max-width: 480px) {
+  .hero-container {
+    padding: 0 var(--space-4);
+  }
+  
   .hero-title {
     font-size: var(--font-size-3xl);
   }
@@ -647,5 +667,29 @@
   .about-graphic {
     width: 250px;
     height: 250px;
+  }
+  
+  .learning-content {
+    padding: 0 var(--space-2);
+  }
+  
+  .learning-text h3 {
+    font-size: var(--font-size-xl);
+    padding: 0 var(--space-1);
+    word-wrap: break-word;
+  }
+  
+  .learning-description {
+    padding: 0 var(--space-1);
+  }
+  
+  .hero-credentials {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: center;
+  }
+  
+  .credential-item {
+    min-width: 120px;
   }
 }
