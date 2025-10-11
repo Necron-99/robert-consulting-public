@@ -9,8 +9,26 @@ echo "=========================================================="
 # Check if GitHub CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI (gh) is not installed"
-    echo "📥 Please install it from: https://cli.github.com/"
-    exit 1
+    echo ""
+    echo "📋 Manual Setup Required"
+    echo "========================"
+    echo "Since GitHub CLI is not available, please follow the manual setup guide:"
+    echo ""
+    echo "📖 See: MANUAL_GITHUB_ENVIRONMENT_SETUP.md"
+    echo ""
+    echo "🔗 Quick Setup Steps:"
+    echo "1. Go to: https://github.com/Necron-99/robert-consulting.net/settings/environments"
+    echo "2. Click 'New environment'"
+    echo "3. Name it: production-deployment"
+    echo "4. Add protection rules for required reviewers"
+    echo "5. Save the configuration"
+    echo ""
+    echo "📥 To install GitHub CLI later:"
+    echo "   macOS: brew install gh"
+    echo "   Linux: See https://cli.github.com/"
+    echo "   Windows: See https://cli.github.com/"
+    echo ""
+    exit 0
 fi
 
 # Check if user is authenticated
@@ -29,26 +47,48 @@ echo "📁 Repository: $REPO"
 # Create the production-deployment environment
 echo "🏗️ Creating production-deployment environment..."
 
+# Get current user ID
+USER_ID=$(gh api user --jq .id)
+echo "👤 Current user ID: $USER_ID"
+
 # Create environment with protection rules
 gh api repos/$REPO/environments/production-deployment \
   --method PUT \
-  --field name=production-deployment \
-  --field protection_rules='[{"type":"required_reviewers","reviewers":[{"type":"User","id":'$(gh api user --jq .id)'}]}]' \
-  --field reviewers='[{"type":"User","id":'$(gh api user --jq .id)'}]' \
-  --field deployment_branch_policy='{"protected_branches":true,"custom_branch_policies":false}' \
-  --field environment_url="https://robertconsulting.net" \
-  --field description="Production deployment environment with manual approval required"
+  --input - << EOF
+{
+  "protection_rules": [
+    {
+      "type": "required_reviewers",
+      "reviewers": [
+        {
+          "type": "User",
+          "id": $USER_ID
+        }
+      ]
+    }
+  ],
+  "deployment_branch_policy": {
+    "protected_branches": true,
+    "custom_branch_policies": false
+  }
+}
+EOF
 
 if [ $? -eq 0 ]; then
     echo "✅ Production deployment environment created successfully"
 else
     echo "⚠️ Environment may already exist or there was an issue"
     echo "🔍 Checking existing environments..."
-    gh api repos/$REPO/environments --jq '.[].name' | grep -q "production-deployment"
-    if [ $? -eq 0 ]; then
+    ENVIRONMENTS=$(gh api repos/$REPO/environments --jq '.[].name' 2>/dev/null)
+    if echo "$ENVIRONMENTS" | grep -q "production-deployment"; then
         echo "✅ Environment already exists"
     else
         echo "❌ Failed to create environment"
+        echo "🔧 You can create it manually in GitHub:"
+        echo "   1. Go to Settings → Environments"
+        echo "   2. Click 'New environment'"
+        echo "   3. Name it 'production-deployment'"
+        echo "   4. Add protection rules for required reviewers"
         exit 1
     fi
 fi
@@ -57,12 +97,17 @@ fi
 echo ""
 echo "📋 Environment Configuration:"
 echo "============================="
-gh api repos/$REPO/environments/production-deployment --jq '{
-    name: .name,
-    url: .environment_url,
-    protection_rules: .protection_rules | length,
-    reviewers: .reviewers | length
-}'
+ENV_INFO=$(gh api repos/$REPO/environments/production-deployment 2>/dev/null)
+if [ $? -eq 0 ]; then
+    echo "$ENV_INFO" | jq '{
+        name: .name,
+        protection_rules: .protection_rules | length,
+        deployment_branch_policy: .deployment_branch_policy
+    }'
+else
+    echo "⚠️ Could not retrieve environment details"
+    echo "🔍 Environment may need to be created manually"
+fi
 
 echo ""
 echo "🎉 GitHub Environment Setup Complete!"
