@@ -80,27 +80,44 @@ jobs:
           echo "STAGING_URL=https://robertconsulting.net" >> $GITHUB_ENV
         fi
     
+    - name: Debug Docker and Environment
+      run: |
+        echo "🔍 Debugging Docker and environment..."
+        echo "Docker version:"
+        docker --version || echo "Docker not available"
+        echo "Available Docker images:"
+        docker images || echo "No Docker images available"
+        echo "Current working directory:"
+        pwd
+        echo "Files in current directory:"
+        ls -la
+        echo "Environment variables:"
+        env | grep -E "(DOCKER|ZAP|GITHUB)" || echo "No relevant environment variables found"
+
     - name: OWASP ZAP Baseline Scan
       uses: zaproxy/action-baseline@v0.4.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
         fail_action: false
-        docker_name: 'owasp/zap2docker-stable'
-        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
+
+    - name: Check ZAP Scan Results
+      if: always()
+      run: |
+        echo "🔍 Checking ZAP scan results..."
+        echo "Files generated after ZAP scan:"
+        find . -type f -name "*" | head -20 || echo "No files found"
+        echo "Looking for ZAP-specific files:"
+        find . -name "*zap*" -o -name "*report*" -o -name "*.html" -o -name "*.json" -o -name "*.sarif" || echo "No ZAP files found"
+        echo "Current directory contents:"
+        ls -la
     
     - name: OWASP ZAP Full Scan (if requested)
       if: github.event.inputs.scan_type == 'full' || github.event_name == 'schedule'
       uses: zaproxy/action-full-scan@v0.4.0
       with:
         target: ${{ env.STAGING_URL || github.event.inputs.target_url || 'https://robertconsulting.net' }}
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
         fail_action: false
-        docker_name: 'owasp/zap2docker-stable'
-        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
     
     - name: Upload ZAP scan results
@@ -282,7 +299,7 @@ jobs:
   zap-api-scan:
     name: OWASP ZAP API Scan
     runs-on: ubuntu-latest
-    if: github.event.inputs.scan_type == 'api' || github.event_name == 'schedule'
+    if: always()
     permissions:
       contents: read
       security-events: write
@@ -293,16 +310,30 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: Debug API Scan Environment
+      run: |
+        echo "🔍 Debugging API scan environment..."
+        echo "Docker version:"
+        docker --version || echo "Docker not available"
+        echo "Target URL: https://robertconsulting.net"
+        echo "Testing connectivity to target:"
+        curl -I https://robertconsulting.net || echo "Target not reachable"
+    
     - name: OWASP ZAP API Scan
       uses: zaproxy/action-api-scan@v0.2.0
       with:
         target: 'https://robertconsulting.net'
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
         fail_action: false
-        docker_name: 'owasp/zap2docker-stable'
-        token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true
+
+    - name: Check API Scan Results
+      if: always()
+      run: |
+        echo "🔍 Checking API scan results..."
+        echo "Files generated after API scan:"
+        find . -type f -name "*" | head -20 || echo "No files found"
+        echo "Looking for API scan files:"
+        find . -name "*api*" -o -name "*zap*" -o -name "*report*" -o -name "*.html" -o -name "*.json" -o -name "*.sarif" || echo "No API scan files found"
     
     - name: Upload API scan results
       uses: actions/upload-artifact@v4
