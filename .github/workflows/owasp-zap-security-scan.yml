@@ -59,25 +59,13 @@ jobs:
           echo "✅ Staging site should be ready for scanning"
 
       - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.13.0
+        uses: zaproxy/action-baseline@v0.4.0
         with:
           target: ${{ env.STAGING_URL }}
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
         continue-on-error: true
 
-      - name: Upload ZAP scan results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: zap-baseline-reports
-          path: |
-            *.html
-            *.json
-            *.xml
-            *.sarif
-          retention-days: 30
-        continue-on-error: true
 
       - name: Upload ZAP results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -198,18 +186,6 @@ jobs:
           cmd_options: '-a'
         continue-on-error: true
 
-      - name: Upload API scan results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: zap-api-reports
-          path: |
-            *.html
-            *.json
-            *.xml
-            *.sarif
-          retention-days: 30
-        continue-on-error: true
 
       - name: Upload API scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
