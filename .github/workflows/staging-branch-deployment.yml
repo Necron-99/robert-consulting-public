@@ -481,7 +481,7 @@ jobs:
     needs: [deploy-to-staging, comprehensive-testing]
     if: |
       github.ref == 'refs/heads/staging' && 
-      needs.comprehensive-testing.outputs.tests-passed == 'success' &&
+      needs.comprehensive-testing.outputs.tests-passed == 'true' &&
       needs.comprehensive-testing.outputs.security-score >= 80 &&
       needs.comprehensive-testing.outputs.performance-score >= 60 &&
       needs.comprehensive-testing.outputs.accessibility-score >= 60
