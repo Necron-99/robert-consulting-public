@@ -94,6 +94,20 @@ jobs:
           echo "  Workflow successes: $WORKFLOW_SUCCESSES"
           echo "  Success rate: $SUCCESS_RATE%"
 
+      - name: 🎣 Check for Gone Fishing Mode
+        id: check-fishing-mode
+        run: |
+          # If no commits in the last 24 hours, enable "gone fishing" mode
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -eq 0 ]; then
+            echo "🎣 No commits found - enabling 'Gone Fishing' mode"
+            echo "fishing_mode=true" >> $GITHUB_OUTPUT
+            echo "fishing_message=Taking a well-deserved break from development" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Commits found - normal learning mode"
+            echo "fishing_mode=false" >> $GITHUB_OUTPUT
+            echo "fishing_message=Active development in progress" >> $GITHUB_OUTPUT
+          fi
+
       - name: 📝 Generate High-Level Learning Summary
         id: generate-summary
         run: |
@@ -198,7 +212,30 @@ jobs:
           echo "  Workflows: $WORKFLOW_COUNT"
           echo "  Optimization: $OPTIMIZATION%"
 
+      - name: 🎣 Handle Gone Fishing Mode
+        if: steps.check-fishing-mode.outputs.fishing_mode == 'true'
+        run: |
+          echo "🎣 Setting up Gone Fishing mode..."
+          
+          # Create a simple redirect page for the learning section
+          cat > /tmp/fishing-redirect.html << 'EOF'
+          <div class="fishing-redirect">
+            <div class="fishing-message">
+              <h2>🎣 Gone Fishing</h2>
+              <p>Taking a well-deserved break from development</p>
+              <p>No commits in the last 24 hours - time to recharge!</p>
+              <a href="gone-fishing.html" class="btn btn-primary">Visit Fishing Page</a>
+            </div>
+          </div>
+          EOF
+          
+          # Insert fishing redirect at the beginning of the learning page
+          sed -i "/<main class=\"main\">/r /tmp/fishing-redirect.html" ${{ env.LEARNING_PAGE }}
+          
+          echo "✅ Gone Fishing mode activated"
+
       - name: 🎯 Add Sanitized Learning Highlight
+        if: steps.check-fishing-mode.outputs.fishing_mode == 'false'
         run: |
           echo "🎯 Adding sanitized learning highlight for ${{ steps.analyze-work.outputs.current_date }}..."
           
@@ -304,8 +341,18 @@ jobs:
         run: |
           echo "💾 Committing daily learning updates..."
           
-          git add ${{ env.LEARNING_PAGE }} ${{ env.DAILY_LOG }}
-          git commit -m "📚 Daily learning summary for ${{ steps.analyze-work.outputs.current_date }}
+          # Add files based on mode
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            git add ${{ env.LEARNING_PAGE }} ${{ env.DAILY_LOG }} website/gone-fishing.html website/css/pages/gone-fishing.css
+            COMMIT_MESSAGE="🎣 Gone Fishing mode activated for ${{ steps.analyze-work.outputs.current_date }}
+
+          No commits in the last 24 hours - taking a well-deserved break!
+          - Added gone fishing page and animations
+          - Updated learning page with fishing mode redirect
+          - Time to recharge and catch some inspiration 🐟"
+          else
+            git add ${{ env.LEARNING_PAGE }} ${{ env.DAILY_LOG }}
+            COMMIT_MESSAGE="📚 Daily learning summary for ${{ steps.analyze-work.outputs.current_date }}
 
           Based on previous 24 hours work:
           - ${{ steps.analyze-work.outputs.commit_count }} commits
@@ -316,7 +363,9 @@ jobs:
           - ${{ steps.analyze-work.outputs.security_work }} security enhancements
 
           Learning summary: ${{ steps.generate-summary.outputs.learning_summary }}"
+          fi
           
+          git commit -m "$COMMIT_MESSAGE"
           git push origin staging
           
           echo "✅ Daily learning update committed and pushed"
@@ -326,8 +375,17 @@ jobs:
           echo "## 📚 Daily Learning Summary Complete" >> $GITHUB_STEP_SUMMARY
           echo "- **Date**: ${{ steps.analyze-work.outputs.current_date }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Time**: ${{ steps.analyze-work.outputs.current_time }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode**: ${{ steps.check-fishing-mode.outputs.fishing_message }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📈 Previous 24 Hours Work Analysis:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "## 🎣 Gone Fishing Mode Activated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: No commits in the last 24 hours" >> $GITHUB_STEP_SUMMARY
+            echo "- **Action**: Taking a well-deserved break" >> $GITHUB_STEP_SUMMARY
+            echo "- **Page**: Gone fishing page created with animations" >> $GITHUB_STEP_SUMMARY
+            echo "- **Learning**: Time to recharge and catch inspiration 🐟" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 📈 Previous 24 Hours Work Analysis:" >> $GITHUB_STEP_SUMMARY
           echo "- **Commits**: ${{ steps.analyze-work.outputs.commit_count }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Files Modified**: ${{ steps.analyze-work.outputs.files_changed }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Bug Fixes**: ${{ steps.analyze-work.outputs.bug_fixes }}" >> $GITHUB_STEP_SUMMARY
@@ -335,14 +393,23 @@ jobs:
           echo "- **Improvements**: ${{ steps.analyze-work.outputs.improvements }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Security Work**: ${{ steps.analyze-work.outputs.security_work }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Workflow Success Rate**: ${{ steps.analyze-work.outputs.success_rate }}%" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📝 High-Level Summary:" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.generate-summary.outputs.learning_summary }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## 📝 High-Level Summary:" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.generate-summary.outputs.learning_summary }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## ✅ Actions Completed:" >> $GITHUB_STEP_SUMMARY
           echo "- Analyzed previous 24 hours of work" >> $GITHUB_STEP_SUMMARY
-          echo "- Updated hero stats conservatively" >> $GITHUB_STEP_SUMMARY
-          echo "- Added sanitized learning highlight" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "- Activated gone fishing mode" >> $GITHUB_STEP_SUMMARY
+            echo "- Created fishing page with animations" >> $GITHUB_STEP_SUMMARY
+            echo "- Updated learning page with fishing redirect" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Updated hero stats conservatively" >> $GITHUB_STEP_SUMMARY
+            echo "- Added sanitized learning highlight" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- Logged daily learning to persistent file" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check-changes.outputs.has_changes }}" = "true" ]; then
             echo "- Committed and pushed changes" >> $GITHUB_STEP_SUMMARY
