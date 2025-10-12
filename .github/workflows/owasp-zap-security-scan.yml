@@ -33,7 +33,6 @@ on:
 env:
   STAGING_URL: 'http://robert-consulting-testing-site.s3-website-us-east-1.amazonaws.com'
   PRODUCTION_URL: 'https://robertconsulting.net'
-  TARGET_URL: ${{ github.event.inputs.target_url || (github.event.inputs.scan_type == 'staging' && env.STAGING_URL) || env.PRODUCTION_URL }}
 
 jobs:
   zap-baseline-scan:
@@ -47,6 +46,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set target URL
+        run: |
+          if [ "${{ github.event.inputs.target_url }}" != "" ]; then
+            echo "TARGET_URL=${{ github.event.inputs.target_url }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.scan_type }}" == "staging" ]; then
+            echo "TARGET_URL=${{ env.STAGING_URL }}" >> $GITHUB_ENV
+          else
+            echo "TARGET_URL=${{ env.PRODUCTION_URL }}" >> $GITHUB_ENV
+          fi
+          echo "🎯 Target URL set to: $TARGET_URL"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -699,6 +709,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set target URL
+        run: |
+          if [ "${{ github.event.inputs.target_url }}" != "" ]; then
+            echo "TARGET_URL=${{ github.event.inputs.target_url }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.scan_type }}" == "staging" ]; then
+            echo "TARGET_URL=${{ env.STAGING_URL }}" >> $GITHUB_ENV
+          else
+            echo "TARGET_URL=${{ env.PRODUCTION_URL }}" >> $GITHUB_ENV
+          fi
+          echo "🎯 Target URL set to: $TARGET_URL"
 
       - name: Run OWASP ZAP API Scan
         run: |
