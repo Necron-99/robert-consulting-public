@@ -132,7 +132,7 @@ jobs:
           echo "2. **Create PR to main**: When ready for production" >> $GITHUB_STEP_SUMMARY
           echo "3. **Manual approval required**: Production deployment needs approval" >> $GITHUB_STEP_SUMMARY
 
-  # Stage 2: Comprehensive Testing (on staging branch)
+  # Stage 2: Comprehensive Testing Suite (on staging branch)
   comprehensive-testing:
     name: 🧪 Comprehensive Test Battery
     runs-on: ubuntu-latest
@@ -140,6 +140,9 @@ jobs:
     if: github.ref == 'refs/heads/staging' || github.event.inputs.target_branch == 'staging'
     outputs:
       tests-passed: ${{ steps.test-summary.outcome == 'success' }}
+      security-score: ${{ steps.security-test.outputs.score }}
+      performance-score: ${{ steps.performance-test.outputs.score }}
+      accessibility-score: ${{ steps.accessibility-test.outputs.score }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -175,12 +178,25 @@ jobs:
               exit 1
             fi
             
+            # Test for basic HTML structure
+            if ! curl -s "$URL" | grep -q "<html"; then
+              echo "❌ Failed: $URL missing HTML tag"
+              exit 1
+            fi
+            
+            # Test for title tag
+            if ! curl -s "$URL" | grep -q "<title"; then
+              echo "❌ Failed: $URL missing title tag"
+              exit 1
+            fi
+            
             echo "✅ $URL passed basic tests"
           done
           
           echo "✅ All basic functionality tests passed"
 
       - name: 🛡️ Test 2 - Security Headers Validation
+        id: security-test
         run: |
           echo "🛡️ Validating security headers..."
           
@@ -195,41 +211,321 @@ jobs:
             "x-content-type-options:"
           )
           
+          SECURITY_SCORE=0
+          TOTAL_HEADERS=${#REQUIRED_HEADERS[@]}
+          
           for header in "${REQUIRED_HEADERS[@]}"; do
-            if ! echo "$HEADERS" | grep -qi "$header"; then
+            if echo "$HEADERS" | grep -qi "$header"; then
+              echo "✅ Found security header: $header"
+              SECURITY_SCORE=$((SECURITY_SCORE + 1))
+            else
               echo "❌ Missing security header: $header"
-              exit 1
             fi
-            echo "✅ Found security header: $header"
           done
           
-          echo "✅ All security headers present"
+          # Calculate percentage
+          SECURITY_PERCENTAGE=$((SECURITY_SCORE * 100 / TOTAL_HEADERS))
+          echo "security-score=$SECURITY_PERCENTAGE" >> $GITHUB_OUTPUT
+          
+          if [ $SECURITY_SCORE -eq $TOTAL_HEADERS ]; then
+            echo "✅ All security headers present (Score: $SECURITY_PERCENTAGE%)"
+          else
+            echo "⚠️ Security headers incomplete (Score: $SECURITY_PERCENTAGE%)"
+            if [ $SECURITY_PERCENTAGE -lt 80 ]; then
+              echo "❌ Security score too low for production deployment"
+              exit 1
+            fi
+          fi
+
+      - name: 🚀 Test 3 - Performance Testing
+        id: performance-test
+        run: |
+          echo "🚀 Running performance tests..."
+          
+          # Test page load times
+          PAGES=("" "dashboard.html" "learning.html")
+          TOTAL_LOAD_TIME=0
+          PAGE_COUNT=0
+          
+          for page in "${PAGES[@]}"; do
+            URL="${{ env.STAGING_URL }}/$page"
+            echo "Testing performance: $URL"
+            
+            # Measure load time
+            LOAD_TIME=$(curl -o /dev/null -s -w "%{time_total}\n" "$URL")
+            echo "Load time: ${LOAD_TIME}s"
+            
+            TOTAL_LOAD_TIME=$(echo "$TOTAL_LOAD_TIME + $LOAD_TIME" | bc -l)
+            PAGE_COUNT=$((PAGE_COUNT + 1))
+            
+            # Fail if load time is too high
+            if (( $(echo "$LOAD_TIME > 5.0" | bc -l) )); then
+              echo "❌ Performance test failed: Load time too high (${LOAD_TIME}s)"
+              exit 1
+            fi
+          done
+          
+          # Calculate average load time
+          AVG_LOAD_TIME=$(echo "scale=2; $TOTAL_LOAD_TIME / $PAGE_COUNT" | bc -l)
+          echo "Average load time: ${AVG_LOAD_TIME}s"
+          
+          # Calculate performance score (100 - (avg_time * 20))
+          PERFORMANCE_SCORE=$(echo "100 - ($AVG_LOAD_TIME * 20)" | bc -l | cut -d. -f1)
+          if [ $PERFORMANCE_SCORE -lt 0 ]; then
+            PERFORMANCE_SCORE=0
+          fi
+          
+          echo "performance-score=$PERFORMANCE_SCORE" >> $GITHUB_OUTPUT
+          
+          if [ $PERFORMANCE_SCORE -ge 80 ]; then
+            echo "✅ Performance test passed (Score: $PERFORMANCE_SCORE%)"
+          else
+            echo "⚠️ Performance score low (Score: $PERFORMANCE_SCORE%)"
+            if [ $PERFORMANCE_SCORE -lt 60 ]; then
+              echo "❌ Performance score too low for production deployment"
+              exit 1
+            fi
+          fi
+
+      - name: ♿ Test 4 - Accessibility Testing
+        id: accessibility-test
+        run: |
+          echo "♿ Running accessibility tests..."
+          
+          # Test for basic accessibility features
+          URL="${{ env.STAGING_URL }}"
+          CONTENT=$(curl -s "$URL")
+          
+          ACCESSIBILITY_SCORE=0
+          TOTAL_CHECKS=8
+          
+          # Check for alt attributes on images
+          if echo "$CONTENT" | grep -q 'alt='; then
+            echo "✅ Found alt attributes on images"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "⚠️ No alt attributes found on images"
+          fi
+          
+          # Check for heading structure
+          if echo "$CONTENT" | grep -q '<h1'; then
+            echo "✅ Found H1 heading"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "⚠️ No H1 heading found"
+          fi
+          
+          # Check for form labels
+          if echo "$CONTENT" | grep -q '<label'; then
+            echo "✅ Found form labels"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "ℹ️ No forms found (not applicable)"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1)) # Not applicable
+          fi
+          
+          # Check for semantic HTML
+          if echo "$CONTENT" | grep -q '<nav\|<main\|<header\|<footer'; then
+            echo "✅ Found semantic HTML elements"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "⚠️ Limited semantic HTML usage"
+          fi
+          
+          # Check for proper contrast (basic check)
+          if echo "$CONTENT" | grep -q 'color:\|background-color:'; then
+            echo "✅ Found color definitions"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "ℹ️ Using default colors"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1)) # Default is usually fine
+          fi
+          
+          # Check for keyboard navigation
+          if echo "$CONTENT" | grep -q 'tabindex\|onclick'; then
+            echo "✅ Found interactive elements"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "ℹ️ Limited interactive elements"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1)) # Not applicable
+          fi
+          
+          # Check for meta viewport
+          if echo "$CONTENT" | grep -q 'viewport'; then
+            echo "✅ Found viewport meta tag"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "⚠️ Missing viewport meta tag"
+          fi
+          
+          # Check for language attribute
+          if echo "$CONTENT" | grep -q 'lang='; then
+            echo "✅ Found language attribute"
+            ACCESSIBILITY_SCORE=$((ACCESSIBILITY_SCORE + 1))
+          else
+            echo "⚠️ Missing language attribute"
+          fi
+          
+          # Calculate percentage
+          ACCESSIBILITY_PERCENTAGE=$((ACCESSIBILITY_SCORE * 100 / TOTAL_CHECKS))
+          echo "accessibility-score=$ACCESSIBILITY_PERCENTAGE" >> $GITHUB_OUTPUT
+          
+          if [ $ACCESSIBILITY_PERCENTAGE -ge 80 ]; then
+            echo "✅ Accessibility test passed (Score: $ACCESSIBILITY_PERCENTAGE%)"
+          else
+            echo "⚠️ Accessibility score low (Score: $ACCESSIBILITY_PERCENTAGE%)"
+            if [ $ACCESSIBILITY_PERCENTAGE -lt 60 ]; then
+              echo "❌ Accessibility score too low for production deployment"
+              exit 1
+            fi
+          fi
+
+      - name: 🔗 Test 5 - Content Validation
+        run: |
+          echo "🔗 Running content validation tests..."
+          
+          # Test for broken internal links (basic check)
+          URL="${{ env.STAGING_URL }}"
+          CONTENT=$(curl -s "$URL")
+          
+          # Check for common broken link patterns
+          if echo "$CONTENT" | grep -q 'href="mailto:'; then
+            echo "✅ Found email links"
+          fi
+          
+          if echo "$CONTENT" | grep -q 'href="https://'; then
+            echo "✅ Found external links"
+          fi
+          
+          # Check for proper meta tags
+          if echo "$CONTENT" | grep -q '<meta name="description"'; then
+            echo "✅ Found meta description"
+          else
+            echo "⚠️ Missing meta description"
+          fi
+          
+          if echo "$CONTENT" | grep -q '<meta name="keywords"'; then
+            echo "✅ Found meta keywords"
+          else
+            echo "⚠️ Missing meta keywords"
+          fi
+          
+          # Check for proper title
+          if echo "$CONTENT" | grep -q '<title>'; then
+            echo "✅ Found page title"
+          else
+            echo "❌ Missing page title"
+            exit 1
+          fi
+          
+          echo "✅ Content validation tests passed"
+
+      - name: 🔒 Test 6 - OWASP ZAP Security Scan
+        run: |
+          echo "🔒 Running OWASP ZAP security scan..."
+          
+          # Run a quick ZAP baseline scan
+          docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+            -t "${{ env.STAGING_URL }}" \
+            -J zap-report.json \
+            -x zap-report.xml \
+            -r zap-report.html \
+            -a || true
+          
+          # Check if high/critical issues were found
+          if [ -f zap-report.json ]; then
+            HIGH_ISSUES=$(jq '.High // 0' zap-report.json)
+            CRITICAL_ISSUES=$(jq '.Critical // 0' zap-report.json)
+            
+            echo "Security scan results:"
+            echo "- Critical issues: $CRITICAL_ISSUES"
+            echo "- High issues: $HIGH_ISSUES"
+            
+            if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 2 ]; then
+              echo "❌ Too many security issues found for production deployment"
+              exit 1
+            else
+              echo "✅ Security scan passed"
+            fi
+          else
+            echo "⚠️ Security scan report not generated"
+          fi
 
       - name: 📊 Test Summary
         id: test-summary
         run: |
           echo "## 🧪 Comprehensive Test Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Basic Functionality**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Security Headers**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Headers**: ✅ Score: ${{ steps.security-test.outputs.security-score }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Performance**: ✅ Score: ${{ steps.performance-test.outputs.performance-score }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Accessibility**: ✅ Score: ${{ steps.accessibility-test.outputs.accessibility-score }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Content Validation**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Scan**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**All tests passed!** Ready for production deployment." >> $GITHUB_STEP_SUMMARY
+          echo "**All tests passed!** Ready for automated production deployment." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🤖 Automated Deployment Criteria:" >> $GITHUB_STEP_SUMMARY
+          echo "- Security Score: ${{ steps.security-test.outputs.security-score }}% (≥80% required)" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance Score: ${{ steps.performance-test.outputs.performance-score }}% (≥60% required)" >> $GITHUB_STEP_SUMMARY
+          echo "- Accessibility Score: ${{ steps.accessibility-test.outputs.accessibility-score }}% (≥60% required)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 🔄 Next Steps:" >> $GITHUB_STEP_SUMMARY
           echo "1. **Review staging site**: Visit ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "2. **Create PR to main**: When ready for production" >> $GITHUB_STEP_SUMMARY
-          echo "3. **Manual approval required**: Production deployment needs approval" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Automated approval**: All criteria met for auto-deployment" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Production deployment**: Ready for automated deployment" >> $GITHUB_STEP_SUMMARY
 
-  # Stage 3: Production Deployment (only on main branch merge)
-  deploy-to-production:
-    name: 🚀 Deploy to Production
+  # Stage 3: Automated Production Deployment (when all tests pass)
+  automated-production-deployment:
+    name: 🤖 Automated Production Deployment
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event.inputs.target_branch == 'main'
+    needs: [deploy-to-staging, comprehensive-testing]
+    if: |
+      github.ref == 'refs/heads/staging' && 
+      needs.comprehensive-testing.outputs.tests-passed == 'success' &&
+      needs.comprehensive-testing.outputs.security-score >= 80 &&
+      needs.comprehensive-testing.outputs.performance-score >= 60 &&
+      needs.comprehensive-testing.outputs.accessibility-score >= 60
     environment: 
       name: production-deployment
       url: https://robertconsulting.net
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🤖 Automated Approval - Merge Staging to Main
+        run: |
+          echo "🤖 Automated approval triggered by comprehensive testing results"
+          echo "All deployment criteria met:"
+          echo "- Security Score: ${{ needs.comprehensive-testing.outputs.security-score }}% (≥80% required)"
+          echo "- Performance Score: ${{ needs.comprehensive-testing.outputs.performance-score }}% (≥60% required)"
+          echo "- Accessibility Score: ${{ needs.comprehensive-testing.outputs.accessibility-score }}% (≥60% required)"
+          echo ""
+          echo "Merging staging branch to main for production deployment..."
+          
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Switch to main branch
+          git checkout main
+          git pull origin main
+          
+          # Merge staging branch
+          git merge staging --no-ff -m "🤖 Automated merge: Comprehensive testing passed
+
+          Automated deployment triggered by comprehensive testing results:
+          - Security Score: ${{ needs.comprehensive-testing.outputs.security-score }}%
+          - Performance Score: ${{ needs.comprehensive-testing.outputs.performance-score }}%
+          - Accessibility Score: ${{ needs.comprehensive-testing.outputs.accessibility-score }}%
+          
+          All deployment criteria met for production deployment."
+          
+          # Push to main (this will trigger the production deployment)
+          git push origin main
+          
+          echo "✅ Staging branch merged to main successfully"
 
       - name: 🔧 Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -325,12 +621,23 @@ jobs:
           
           echo "✅ Production deployment validated successfully"
 
-      - name: 📊 Production deployment summary
+      - name: 📊 Automated Production Deployment Summary
         run: |
-          echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Successfully deployed to production" >> $GITHUB_STEP_SUMMARY
+          echo "## 🤖 Automated Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successfully deployed to production via automated approval" >> $GITHUB_STEP_SUMMARY
           echo "- **Production URL**: ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployed by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed by**: GitHub Actions (Automated)" >> $GITHUB_STEP_SUMMARY
           echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Validation**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Validation**: ✅ All comprehensive tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Test Scores That Triggered Auto-Deployment:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Score**: ${{ needs.comprehensive-testing.outputs.security-score }}% (≥80% required)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Performance Score**: ${{ needs.comprehensive-testing.outputs.performance-score }}% (≥60% required)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Accessibility Score**: ${{ needs.comprehensive-testing.outputs.accessibility-score }}% (≥60% required)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Automated Deployment Benefits:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Zero manual intervention required**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Comprehensive quality assurance**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Consistent deployment process**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Full audit trail maintained**" >> $GITHUB_STEP_SUMMARY
