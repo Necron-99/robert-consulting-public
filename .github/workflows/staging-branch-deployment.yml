@@ -510,7 +510,7 @@ jobs:
           git pull origin main
           
           # Merge staging branch
-          git merge staging --no-ff -m "🤖 Automated merge: Comprehensive testing passed
+          git merge staging --no-ff --allow-unrelated-histories -m "🤖 Automated merge: Comprehensive testing passed
 
           Automated deployment triggered by comprehensive testing results:
           - Security Score: ${{ needs.comprehensive-testing.outputs.security-score }}%
