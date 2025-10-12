@@ -449,3 +449,217 @@
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+/* Learning Highlights Section */
+.learning-highlights {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.learning-highlights::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.highlights-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.highlights-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.highlights-header .section-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.highlight-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.highlight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.highlight-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.highlight-card:hover::before {
+    opacity: 1;
+}
+
+.highlight-card.featured {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.02);
+}
+
+.highlight-card.featured::before {
+    opacity: 1;
+    background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6);
+}
+
+.highlight-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.highlight-content h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.highlight-date {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.highlight-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.highlight-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.highlight-tags .tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.highlight-tags .tag:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.highlights-footer {
+    text-align: center;
+    margin-top: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.highlights-note {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Responsive Design for Learning Highlights */
+@media (max-width: 768px) {
+    .learning-highlights {
+        padding: 3rem 0;
+    }
+    
+    .highlights-header h2 {
+        font-size: 2rem;
+    }
+    
+    .highlights-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .highlight-card {
+        padding: 1.5rem;
+    }
+    
+    .highlight-card.featured {
+        transform: none;
+    }
+    
+    .highlight-icon {
+        font-size: 2rem;
+    }
+    
+    .highlight-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .highlight-description {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .highlights-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .highlight-card {
+        padding: 1.25rem;
+    }
+    
+    .highlight-tags .tag {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+    }
+}
