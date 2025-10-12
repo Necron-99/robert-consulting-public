@@ -19,13 +19,18 @@ jobs:
         run: |
           echo "Testing staging site access from GitHub Actions..."
           
+          # Get the current IP address
+          CURRENT_IP=$(curl -s https://ipinfo.io/ip)
+          echo "Current GitHub Actions runner IP: $CURRENT_IP"
+          
           # Test basic connectivity
           if curl -f -s -I "${{ env.STAGING_URL }}" > /dev/null; then
             echo "✅ Staging site is accessible from GitHub Actions"
             curl -s -I "${{ env.STAGING_URL }}" | head -10
           else
             echo "❌ Staging site is not accessible from GitHub Actions"
-            echo "This might indicate IP restriction issues"
+            echo "Current IP: $CURRENT_IP"
+            echo "This IP needs to be added to the staging allowlist"
             exit 1
           fi
 
