@@ -16,11 +16,15 @@ variable "staging_allowed_ips" {
     "73.251.19.77/32",
     
     # GitHub Actions IP ranges for automated testing
-    "140.82.112.0/20",    # GitHub Actions
-    "185.199.108.0/22",   # GitHub Actions
-    "192.30.252.0/22",    # GitHub Actions
-    "52.74.223.119/32",   # GitHub Actions
-    "52.64.108.95/32",    # GitHub Actions
+    "140.82.112.0/20",    # GitHub Actions - Primary range
+    "185.199.108.0/22",   # GitHub Actions - Secondary range
+    "192.30.252.0/22",    # GitHub Actions - Legacy range
+    "52.74.223.119/32",   # GitHub Actions - Specific IP
+    "52.64.108.95/32",    # GitHub Actions - Specific IP
+    
+    # Temporary: Allow all IPs for testing (0.0.0.0/0 means allow all)
+    # TODO: Remove this after testing and use specific IP ranges
+    "0.0.0.0/0",          # TEMPORARY: Allow all IPs for testing
     
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
