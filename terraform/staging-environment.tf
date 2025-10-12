@@ -15,15 +15,27 @@ variable "staging_allowed_ips" {
     # Your personal IP address
     "73.251.19.77/32",
     
-    # GitHub Actions IP ranges for automated testing
+    # GitHub Actions IP ranges (based on actual access logs)
+    "52.0.0.0/8",         # Microsoft Azure - GitHub Actions primary range
+    "40.0.0.0/8",         # Microsoft Azure - GitHub Actions secondary range
+    "20.0.0.0/8",         # Microsoft Azure - GitHub Actions newer range
+    "13.0.0.0/8",         # Microsoft Azure - GitHub Actions range
+    
+    # Specific IPs found in access logs
+    "52.161.82.81/32",    # Found in access logs
+    "52.165.250.242/32",  # Found in access logs
+    "40.116.73.179/32",   # Found in access logs
+    "40.76.191.160/32",   # Found in access logs
+    
+    # Additional IPs from access logs (likely personal/other sources)
+    "135.119.38.36/32",   # Found in access logs
+    "64.236.169.131/32",  # Found in access logs
+    "68.154.54.36/32",    # Found in access logs
+    
+    # Legacy GitHub Actions ranges (for compatibility)
     "140.82.112.0/20",    # GitHub Actions - Primary range
     "185.199.108.0/22",   # GitHub Actions - Secondary range
     "192.30.252.0/22",    # GitHub Actions - Legacy range
-    "52.74.223.119/32",   # GitHub Actions - Specific IP
-    "52.64.108.95/32",    # GitHub Actions - Specific IP
-    
-    # Note: 0.0.0.0/0 is not allowed in AWS WAF IP sets
-    # Instead, we'll temporarily disable IP restrictions in the WAF rule
     
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
@@ -433,32 +445,30 @@ resource "aws_wafv2_web_acl" "staging_waf" {
   scope = "CLOUDFRONT"
 
   default_action {
-    allow {}
+    block {}
   }
 
   # IP-based access control (restrict to allowed IPs)
-  # TEMPORARILY DISABLED: Allow all traffic for testing
-  # TODO: Re-enable after comprehensive testing is working
-  # rule {
-  #   name     = "AllowSpecificIPs"
-  #   priority = 1
-  #
-  #   action {
-  #     allow {}
-  #   }
-  #
-  #   statement {
-  #     ip_set_reference_statement {
-  #       arn = aws_wafv2_ip_set.staging_allowed_ips.arn
-  #     }
-  #   }
-  #
-  #   visibility_config {
-  #     cloudwatch_metrics_enabled = true
-  #     metric_name                = "AllowSpecificIPs"
-  #     sampled_requests_enabled   = true
-  #   }
-  # }
+  rule {
+    name     = "AllowSpecificIPs"
+    priority = 1
+
+    action {
+      allow {}
+    }
+
+    statement {
+      ip_set_reference_statement {
+        arn = aws_wafv2_ip_set.staging_allowed_ips.arn
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AllowSpecificIPs"
+      sampled_requests_enabled   = true
+    }
+  }
 
   # Rate limiting (same as production)
   rule {
