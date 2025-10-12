@@ -46,6 +46,80 @@ resource "aws_s3_bucket" "staging_website_bucket" {
   }
 }
 
+# S3 bucket for CloudFront access logs (to collect IP addresses)
+resource "aws_s3_bucket" "staging_access_logs" {
+  bucket = "robert-consulting-staging-access-logs"
+  
+  tags = {
+    Name        = "Robert Consulting Staging Access Logs"
+    Environment = "Staging"
+    Purpose     = "CloudFront Access Logs for IP Collection"
+    ManagedBy   = "Terraform"
+  }
+  
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# S3 bucket versioning for access logs
+resource "aws_s3_bucket_versioning" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# S3 bucket server-side encryption for access logs
+resource "aws_s3_bucket_server_side_encryption_configuration" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# S3 bucket public access block for access logs (private bucket)
+resource "aws_s3_bucket_public_access_block" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# S3 bucket policy for CloudFront access logs
+resource "aws_s3_bucket_policy" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "CloudFrontAccessLogs"
+        Effect    = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
+        }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.staging_access_logs.arn}/*"
+      },
+      {
+        Sid       = "CloudFrontAccessLogsList"
+        Effect    = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
+        }
+        Action    = "s3:GetBucketAcl"
+        Resource  = aws_s3_bucket.staging_access_logs.arn
+      }
+    ]
+  })
+}
+
 # S3 bucket versioning
 resource "aws_s3_bucket_versioning" "staging_website_bucket" {
   bucket = aws_s3_bucket.staging_website_bucket.id
@@ -252,6 +326,13 @@ resource "aws_cloudfront_distribution" "staging_website" {
 
   # Associate WAF with CloudFront distribution
   web_acl_id = aws_wafv2_web_acl.staging_waf.arn
+
+  # Enable access logging to collect IP addresses
+  logging_config {
+    bucket          = aws_s3_bucket.staging_access_logs.bucket_domain_name
+    include_cookies = false
+    prefix          = "staging-access-logs/"
+  }
 
   tags = {
     Name        = "Robert Consulting Staging Website"
@@ -497,4 +578,14 @@ output "staging_domain_url" {
 output "staging_waf_arn" {
   description = "ARN of the staging WAF Web ACL"
   value       = aws_wafv2_web_acl.staging_waf.arn
+}
+
+output "staging_access_logs_bucket" {
+  description = "Name of the staging access logs S3 bucket"
+  value       = aws_s3_bucket.staging_access_logs.bucket
+}
+
+output "staging_access_logs_bucket_arn" {
+  description = "ARN of the staging access logs S3 bucket"
+  value       = aws_s3_bucket.staging_access_logs.arn
 }
