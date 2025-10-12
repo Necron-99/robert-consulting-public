@@ -513,18 +513,8 @@ jobs:
           git checkout main
           git pull origin main
           
-          # Merge staging branch (prefer staging changes for conflicts)
-          git merge staging --no-ff --allow-unrelated-histories --strategy=recursive -X theirs -m "🤖 Automated merge: Comprehensive testing passed
-
-          Automated deployment triggered by comprehensive testing results:
-          - Security Score: ${{ needs.comprehensive-testing.outputs.security-score }}%
-          - Performance Score: ${{ needs.comprehensive-testing.outputs.performance-score }}%
-          - Accessibility Score: ${{ needs.comprehensive-testing.outputs.accessibility-score }}%
-          
-          All deployment criteria met for production deployment."
-          
-          # Push to main (this will trigger the production deployment)
-          git push origin main
+          # Force push staging branch to main (staging is the source of truth)
+          git push origin staging:main --force
           
           echo "✅ Staging branch merged to main successfully"
 
