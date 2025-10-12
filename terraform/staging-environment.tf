@@ -15,69 +15,9 @@ variable "staging_allowed_ips" {
     # Your personal IP address
     "73.251.19.77/32",
     
-    # GitHub Actions IP ranges (current 2025 ranges from GitHub API)
-    "4.148.0.0/16",       # GitHub Actions - Primary range
-    "4.149.0.0/18",       # GitHub Actions - Secondary range
-    "4.149.64.0/19",      # GitHub Actions - Range
-    "4.149.96.0/19",      # GitHub Actions - Range
-    "4.149.128.0/17",     # GitHub Actions - Range
-    "4.150.0.0/18",       # GitHub Actions - Range
-    "4.150.64.0/18",      # GitHub Actions - Range
-    "4.150.128.0/18",     # GitHub Actions - Range
-    "4.150.192.0/19",     # GitHub Actions - Range
-    "4.150.224.0/19",     # GitHub Actions - Range
-    "4.151.0.0/16",       # GitHub Actions - Range
-    "4.152.0.0/15",       # GitHub Actions - Range
-    "4.154.0.0/15",       # GitHub Actions - Range
-    "4.156.0.0/15",       # GitHub Actions - Range
-    "4.175.0.0/16",       # GitHub Actions - Range
-    "4.180.0.0/16",       # GitHub Actions - Range
-    "4.207.0.0/16",       # GitHub Actions - Range
-    "4.208.0.0/15",       # GitHub Actions - Range
-    "4.210.0.0/17",       # GitHub Actions - Range
-    "4.210.128.0/17",     # GitHub Actions - Range
-    
-    # GitHub Actions macOS ranges
-    "13.105.117.0/31",    # GitHub Actions macOS
-    "13.105.117.10/31",   # GitHub Actions macOS
-    "13.105.117.100/31",  # GitHub Actions macOS
-    "13.105.117.102/31",  # GitHub Actions macOS
-    "13.105.117.104/31",  # GitHub Actions macOS
-    "13.105.117.106/31",  # GitHub Actions macOS
-    "13.105.117.108/31",  # GitHub Actions macOS
-    "13.105.117.110/31",  # GitHub Actions macOS
-    "13.105.117.112/31",  # GitHub Actions macOS
-    "13.105.117.114/31",  # GitHub Actions macOS
-    "13.105.117.116/31",  # GitHub Actions macOS
-    "13.105.117.118/31",  # GitHub Actions macOS
-    "13.105.117.12/31",   # GitHub Actions macOS
-    "13.105.117.120/31",  # GitHub Actions macOS
-    "13.105.117.122/31",  # GitHub Actions macOS
-    "13.105.117.124/31",  # GitHub Actions macOS
-    "13.105.117.126/31",  # GitHub Actions macOS
-    "13.105.117.128/31",  # GitHub Actions macOS
-    "13.105.117.130/31",  # GitHub Actions macOS
-    "13.105.117.132/31",  # GitHub Actions macOS
-    
-    # Specific IPs found in access logs (for reference)
-    "52.161.82.81/32",    # Found in access logs
-    "52.165.250.242/32",  # Found in access logs
-    "40.116.73.179/32",   # Found in access logs
-    "40.76.191.160/32",   # Found in access logs
-    "135.119.38.36/32",   # Found in access logs
-    "64.236.169.131/32",  # Found in access logs
-    "68.154.54.36/32",    # Found in access logs
-    
-    # Current GitHub Actions runner IP
-    "57.151.137.208/32",  # GitHub Actions runner IP (2025-10-12)
-    
-    # Legacy GitHub Actions ranges (for compatibility)
-    "140.82.112.0/20",    # GitHub Actions - Legacy range
-    "185.199.108.0/22",   # GitHub Actions - Legacy range
-    "192.30.252.0/22",    # GitHub Actions - Legacy range
-    
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
+    # "10.0.0.0/8",  # Example: VPN range
   ]
 }
 
