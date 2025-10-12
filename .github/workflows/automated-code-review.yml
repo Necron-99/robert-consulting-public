@@ -286,8 +286,11 @@ jobs:
           # Install cloc for code counting
           sudo apt-get install cloc
           
-          # Generate code statistics
-          cloc . --exclude-dir=.git,node_modules,terraform/.terraform --json --out=cloc-results.json
+          # Generate code statistics (fix cloc syntax)
+          cloc . --not-match-d='(\.git|node_modules|terraform/.terraform)' --json --out=cloc-results.json || {
+            echo "cloc failed, using alternative method"
+            echo "Total Files: $(find . -type f -not -path './node_modules/*' -not -path './terraform/.terraform/*' -not -path './.git/*' | wc -l)" > cloc-results.json
+          }
           
           # Generate quality report
           cat > quality-metrics-report.md << 'EOF'
