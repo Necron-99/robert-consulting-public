@@ -86,10 +86,8 @@ jobs:
           
           echo "✅ Website deployed to staging S3 bucket"
           
-          # Create CloudFront invalidation for staging
-          STAGING_DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-            --query "DistributionList.Items[?Comment=='Robert Consulting Staging Website'].Id" \
-            --output text)
+        # Create CloudFront invalidation for staging
+        STAGING_DISTRIBUTION_ID="E1TD9DYEU1B2AJ"  # Staging CloudFront distribution
           
           if [ -n "$STAGING_DISTRIBUTION_ID" ]; then
             echo "🔄 Creating CloudFront invalidation for staging..."
@@ -561,10 +559,8 @@ jobs:
           
           echo "✅ Website deployed to production S3 bucket"
           
-          # Create CloudFront invalidation for production
-          PRODUCTION_DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-            --query "DistributionList.Items[?Comment=='Robert Consulting Website'].Id" \
-            --output text)
+        # Create CloudFront invalidation for production
+        PRODUCTION_DISTRIBUTION_ID="E36DBYPHUUKB3V"  # Main production CloudFront distribution
           
           if [ -n "$PRODUCTION_DISTRIBUTION_ID" ]; then
             echo "🔄 Creating CloudFront invalidation for production..."
