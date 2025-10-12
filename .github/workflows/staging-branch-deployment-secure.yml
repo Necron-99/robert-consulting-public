@@ -66,13 +66,8 @@ jobs:
         run: |
           echo "🚀 Deploying website content to staging S3 bucket: ${{ env.STAGING_BUCKET }}"
           
-          # Use rsync with .deployignore for clean deployment (if it exists)
-          if [ -f .deployignore ]; then
-            rsync -av --exclude-from='.deployignore' website/ s3://${{ env.STAGING_BUCKET }}/ --delete
-          else
-            echo "⚠️ .deployignore not found, deploying all website files"
-            rsync -av website/ s3://${{ env.STAGING_BUCKET }}/ --delete
-          fi
+          # Use AWS CLI to sync website files to S3
+          aws s3 sync website/ s3://${{ env.STAGING_BUCKET }}/ --delete
           
           echo "✅ Staging deployment to S3 completed"
 
@@ -382,13 +377,8 @@ jobs:
         run: |
           echo "🚀 Deploying website content to production S3 bucket: ${{ env.PRODUCTION_BUCKET }}"
           
-          # Use rsync with .deployignore for clean deployment (if it exists)
-          if [ -f .deployignore ]; then
-            rsync -av --exclude-from='.deployignore' website/ s3://${{ env.PRODUCTION_BUCKET }}/ --delete
-          else
-            echo "⚠️ .deployignore not found, deploying all website files"
-            rsync -av website/ s3://${{ env.PRODUCTION_BUCKET }}/ --delete
-          fi
+          # Use AWS CLI to sync website files to S3
+          aws s3 sync website/ s3://${{ env.PRODUCTION_BUCKET }}/ --delete
           
           echo "✅ Production deployment to S3 completed"
 
