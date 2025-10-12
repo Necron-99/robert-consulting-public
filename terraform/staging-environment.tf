@@ -22,9 +22,8 @@ variable "staging_allowed_ips" {
     "52.74.223.119/32",   # GitHub Actions - Specific IP
     "52.64.108.95/32",    # GitHub Actions - Specific IP
     
-    # Temporary: Allow all IPs for testing (0.0.0.0/0 means allow all)
-    # TODO: Remove this after testing and use specific IP ranges
-    "0.0.0.0/0",          # TEMPORARY: Allow all IPs for testing
+    # Note: 0.0.0.0/0 is not allowed in AWS WAF IP sets
+    # Instead, we'll temporarily disable IP restrictions in the WAF rule
     
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
@@ -326,30 +325,32 @@ resource "aws_wafv2_web_acl" "staging_waf" {
   scope = "CLOUDFRONT"
 
   default_action {
-    block {}
+    allow {}
   }
 
   # IP-based access control (restrict to allowed IPs)
-  rule {
-    name     = "AllowSpecificIPs"
-    priority = 1
-
-    action {
-      allow {}
-    }
-
-    statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.staging_allowed_ips.arn
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "AllowSpecificIPs"
-      sampled_requests_enabled   = true
-    }
-  }
+  # TEMPORARILY DISABLED: Allow all traffic for testing
+  # TODO: Re-enable after comprehensive testing is working
+  # rule {
+  #   name     = "AllowSpecificIPs"
+  #   priority = 1
+  #
+  #   action {
+  #     allow {}
+  #   }
+  #
+  #   statement {
+  #     ip_set_reference_statement {
+  #       arn = aws_wafv2_ip_set.staging_allowed_ips.arn
+  #     }
+  #   }
+  #
+  #   visibility_config {
+  #     cloudwatch_metrics_enabled = true
+  #     metric_name                = "AllowSpecificIPs"
+  #     sampled_requests_enabled   = true
+  #   }
+  # }
 
   # Rate limiting (same as production)
   rule {
