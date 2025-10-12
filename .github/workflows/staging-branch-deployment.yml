@@ -86,8 +86,8 @@ jobs:
           
           echo "✅ Website deployed to staging S3 bucket"
           
-        # Create CloudFront invalidation for staging
-        STAGING_DISTRIBUTION_ID="E1TD9DYEU1B2AJ"  # Staging CloudFront distribution
+          # Create CloudFront invalidation for staging
+          STAGING_DISTRIBUTION_ID="E1TD9DYEU1B2AJ"  # Staging CloudFront distribution
           
           if [ -n "$STAGING_DISTRIBUTION_ID" ]; then
             echo "🔄 Creating CloudFront invalidation for staging..."
