@@ -151,7 +151,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: 🧪 Test 1: Basic Functionality Tests
+      - name: 🧪 Test 1 - Basic Functionality Tests
         run: |
           echo "🧪 Running basic functionality tests..."
           
@@ -180,7 +180,7 @@ jobs:
           
           echo "✅ All basic functionality tests passed"
 
-      - name: 🛡️ Test 2: Security Headers Validation
+      - name: 🛡️ Test 2 - Security Headers Validation
         run: |
           echo "🛡️ Validating security headers..."
           
