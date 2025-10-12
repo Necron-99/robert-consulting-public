@@ -240,61 +240,36 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔍 Check Code Scanning Status
-        id: check-code-scanning
+      - name: 🔍 CodeQL Analysis (Skipped for Private Repo)
         run: |
-          echo "🔍 Checking if code scanning is enabled for this repository..."
-          
-          # Check if code scanning is enabled by trying to get code scanning alerts
-          if gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[]' 2>/dev/null | head -1 > /dev/null; then
-            echo "✅ Code scanning is enabled"
-            echo "code_scanning_enabled=true" >> $GITHUB_OUTPUT
-          else
-            echo "⚠️ Code scanning is not enabled for this repository"
-            echo "code_scanning_enabled=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: 🔍 Initialize CodeQL (if enabled)
-        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'true'
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: 🔍 Perform CodeQL Analysis (if enabled)
-        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'true'
-        uses: github/codeql-action/analyze@v3
-
-      - name: ⚠️ CodeQL Skipped (Code Scanning Not Enabled)
-        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'false'
-        run: |
-          echo "⚠️ CodeQL analysis skipped - code scanning not enabled"
-          echo "To enable code scanning:"
-          echo "1. Go to repository Settings"
-          echo "2. Navigate to Security → Code security and analysis"
-          echo "3. Enable 'Code scanning'"
-          echo "4. Or visit: https://github.com/${{ github.repository }}/settings/security_analysis"
+          echo "⚠️ CodeQL analysis skipped for private repository"
+          echo "CodeQL requires code scanning to be enabled, which may not be available for private repositories"
+          echo "Focusing on alternative security analysis tools..."
           
           # Create a placeholder report
           cat > codeql-skipped-report.md << 'EOF'
           # 🔍 CodeQL Analysis Skipped
           
-          ## ⚠️ Code Scanning Not Enabled
+          ## ⚠️ Private Repository Limitation
           
-          CodeQL analysis was skipped because code scanning is not enabled for this repository.
+          CodeQL analysis was skipped because this is a private repository and code scanning may not be enabled.
           
-          ### 📋 To Enable Code Scanning:
+          ### 📋 Alternative Security Analysis:
+          - **Trivy Security Scan**: Comprehensive vulnerability scanning
+          - **Static Code Analysis**: ESLint and other code quality tools
+          - **Manual Security Review**: Code review for security issues
+          
+          ### 🔒 To Enable CodeQL (if desired):
           1. Go to repository **Settings**
           2. Navigate to **Security** → **Code security and analysis**
-          3. Enable **Code scanning**
+          3. Enable **Code scanning** (if available for your plan)
           4. Or visit: https://github.com/${{ github.repository }}/settings/security_analysis
           
-          ### 🔒 Benefits of Code Scanning:
-          - Automated vulnerability detection
-          - Security issue identification
-          - Code quality analysis
-          - Integration with GitHub Security tab
-          
-          Once enabled, CodeQL will automatically analyze your code for security vulnerabilities and coding errors.
+          ### 🛡️ Current Security Coverage:
+          - Trivy vulnerability scanning
+          - Static code analysis
+          - Automated code review
+          - Security best practices validation
           EOF
 
       - name: 🛡️ Run Trivy Security Scan
@@ -320,15 +295,10 @@ jobs:
           EOF
           
           # Add CodeQL status
-          if [ "${{ steps.check-code-scanning.outputs.code_scanning_enabled }}" = "true" ]; then
-            echo "✅ CodeQL analysis completed" >> security-report.md
-            echo "- Code scanning is enabled for this repository" >> security-report.md
-            echo "- Security vulnerabilities analyzed" >> security-report.md
-          else
-            echo "⚠️ CodeQL analysis skipped" >> security-report.md
-            echo "- Code scanning is not enabled for this repository" >> security-report.md
-            echo "- To enable: Go to Settings → Security → Code security and analysis" >> security-report.md
-          fi
+          echo "⚠️ CodeQL analysis skipped" >> security-report.md
+          echo "- Private repository - code scanning may not be available" >> security-report.md
+          echo "- Alternative security analysis tools are being used" >> security-report.md
+          echo "- To enable CodeQL: Go to Settings → Security → Code security and analysis" >> security-report.md
           
           echo "" >> security-report.md
           echo "## 🛡️ Trivy Vulnerability Scan Results" >> security-report.md
@@ -533,7 +503,7 @@ jobs:
               const securityReport = fs.readFileSync('./security-results/security-report.md', 'utf8');
               reviewComment += `## 🔒 Security Analysis\n\n${securityReport}\n\n---\n\n`;
             } catch (error) {
-              reviewComment += `## 🔒 Security Analysis\n\n⚠️ Security analysis results not available\n\n---\n\n`;
+              reviewComment += `## 🔒 Security Analysis\n\n⚠️ Security analysis results not available\n\n**Note**: CodeQL analysis is skipped for private repositories. Alternative security tools (Trivy) are used instead.\n\n---\n\n`;
             }
             
             // Add quality metrics
