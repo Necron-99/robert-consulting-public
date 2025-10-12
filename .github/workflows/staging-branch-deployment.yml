@@ -514,7 +514,7 @@ jobs:
           git pull origin main
           
           # Merge staging branch (prefer staging changes for conflicts)
-          git merge staging --no-ff --allow-unrelated-histories --strategy=ours -m "🤖 Automated merge: Comprehensive testing passed
+          git merge staging --no-ff --allow-unrelated-histories --strategy=theirs -m "🤖 Automated merge: Comprehensive testing passed
 
           Automated deployment triggered by comprehensive testing results:
           - Security Score: ${{ needs.comprehensive-testing.outputs.security-score }}%
