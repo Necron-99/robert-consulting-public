@@ -240,13 +240,62 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔍 Run CodeQL Analysis
+      - name: 🔍 Check Code Scanning Status
+        id: check-code-scanning
+        run: |
+          echo "🔍 Checking if code scanning is enabled for this repository..."
+          
+          # Check if code scanning is enabled by trying to get code scanning alerts
+          if gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[]' 2>/dev/null | head -1 > /dev/null; then
+            echo "✅ Code scanning is enabled"
+            echo "code_scanning_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Code scanning is not enabled for this repository"
+            echo "code_scanning_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔍 Initialize CodeQL (if enabled)
+        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'true'
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - name: 🔍 Perform CodeQL Analysis
+      - name: 🔍 Perform CodeQL Analysis (if enabled)
+        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'true'
         uses: github/codeql-action/analyze@v3
+
+      - name: ⚠️ CodeQL Skipped (Code Scanning Not Enabled)
+        if: steps.check-code-scanning.outputs.code_scanning_enabled == 'false'
+        run: |
+          echo "⚠️ CodeQL analysis skipped - code scanning not enabled"
+          echo "To enable code scanning:"
+          echo "1. Go to repository Settings"
+          echo "2. Navigate to Security → Code security and analysis"
+          echo "3. Enable 'Code scanning'"
+          echo "4. Or visit: https://github.com/${{ github.repository }}/settings/security_analysis"
+          
+          # Create a placeholder report
+          cat > codeql-skipped-report.md << 'EOF'
+          # 🔍 CodeQL Analysis Skipped
+          
+          ## ⚠️ Code Scanning Not Enabled
+          
+          CodeQL analysis was skipped because code scanning is not enabled for this repository.
+          
+          ### 📋 To Enable Code Scanning:
+          1. Go to repository **Settings**
+          2. Navigate to **Security** → **Code security and analysis**
+          3. Enable **Code scanning**
+          4. Or visit: https://github.com/${{ github.repository }}/settings/security_analysis
+          
+          ### 🔒 Benefits of Code Scanning:
+          - Automated vulnerability detection
+          - Security issue identification
+          - Code quality analysis
+          - Integration with GitHub Security tab
+          
+          Once enabled, CodeQL will automatically analyze your code for security vulnerabilities and coding errors.
+          EOF
 
       - name: 🛡️ Run Trivy Security Scan
         run: |
@@ -267,8 +316,22 @@ jobs:
           cat > security-report.md << 'EOF'
           # 🔒 Security Analysis Report
           
-          ## 🛡️ Vulnerability Scan Results
+          ## 🔍 CodeQL Analysis Status
           EOF
+          
+          # Add CodeQL status
+          if [ "${{ steps.check-code-scanning.outputs.code_scanning_enabled }}" = "true" ]; then
+            echo "✅ CodeQL analysis completed" >> security-report.md
+            echo "- Code scanning is enabled for this repository" >> security-report.md
+            echo "- Security vulnerabilities analyzed" >> security-report.md
+          else
+            echo "⚠️ CodeQL analysis skipped" >> security-report.md
+            echo "- Code scanning is not enabled for this repository" >> security-report.md
+            echo "- To enable: Go to Settings → Security → Code security and analysis" >> security-report.md
+          fi
+          
+          echo "" >> security-report.md
+          echo "## 🛡️ Trivy Vulnerability Scan Results" >> security-report.md
           
           if [ -f trivy-results.json ]; then
             echo "✅ Trivy security scan completed" >> security-report.md
@@ -276,7 +339,7 @@ jobs:
             cat trivy-results.json >> security-report.md
             echo "```" >> security-report.md
           else
-            echo "⚠️ Security scan failed or no vulnerabilities found" >> security-report.md
+            echo "⚠️ Trivy security scan failed or no vulnerabilities found" >> security-report.md
           fi
 
       - name: 📤 Upload Security Artifacts
@@ -286,6 +349,7 @@ jobs:
           path: |
             trivy-results.json
             security-report.md
+            codeql-skipped-report.md
           retention-days: 30
 
   # Job 3: Code Quality Metrics
