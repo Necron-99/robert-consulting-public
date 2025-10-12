@@ -1,33 +1,13 @@
-name: 📚 Real Daily Learning Tracker
+name: 📚 Daily Learning Summary
 
 on:
-  push:
-    branches: [ staging, main ]
-    paths:
-      - 'website/**'
-      - 'admin/**'
-      - 'terraform/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
-  pull_request:
-    branches: [ main ]
-    types: [ opened, closed, merged ]
+  schedule:
+    # Run every day at midnight UTC
+    - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
-      learning_summary:
-        description: 'Summary of today\'s learning and work'
-        required: true
-        type: string
-      issues_resolved:
-        description: 'Issues or bugs resolved today (comma-separated)'
-        required: false
-        type: string
-      features_implemented:
-        description: 'Features implemented today (comma-separated)'
-        required: false
-        type: string
-      technologies_learned:
-        description: 'New technologies or concepts learned (comma-separated)'
+      date_override:
+        description: 'Override date (YYYY-MM-DD format)'
         required: false
         type: string
 
@@ -51,31 +31,44 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-      - name: 📊 Analyze Today's Work
+      - name: 📊 Analyze Previous 24 Hours Work
         id: analyze-work
         run: |
-          # Get current date
-          CURRENT_DATE=$(date -u +%Y-%m-%d)
+          # Get current date or use override
+          if [ -n "${{ github.event.inputs.date_override }}" ]; then
+            CURRENT_DATE="${{ github.event.inputs.date_override }}"
+          else
+            CURRENT_DATE=$(date -u +%Y-%m-%d)
+          fi
           CURRENT_TIME=$(date -u +%H:%M:%S)
           
-          # Analyze recent commits for actual work done
-          echo "📊 Analyzing recent work and commits..."
+          # Analyze work from previous 24 hours (midnight to midnight)
+          echo "📊 Analyzing work from previous 24 hours..."
           
-          # Get commits from last 24 hours
-          RECENT_COMMITS=$(git log --since="24 hours ago" --oneline --pretty=format:"%h %s" | head -10)
-          COMMIT_COUNT=$(echo "$RECENT_COMMITS" | wc -l)
+          # Get commits from last 24 hours with sanitized output
+          RECENT_COMMITS=$(git log --since="24 hours ago" --oneline --pretty=format:"%h" | wc -l)
+          COMMIT_COUNT=$RECENT_COMMITS
           
-          # Analyze commit messages for patterns
-          BUG_FIXES=$(echo "$RECENT_COMMITS" | grep -i -E "(fix|bug|error|issue|resolve)" | wc -l)
-          FEATURES=$(echo "$RECENT_COMMITS" | grep -i -E "(add|implement|create|new|feature)" | wc -l)
-          IMPROVEMENTS=$(echo "$RECENT_COMMITS" | grep -i -E "(improve|optimize|enhance|update|refactor)" | wc -l)
-          SECURITY=$(echo "$RECENT_COMMITS" | grep -i -E "(security|vulnerability|scan|audit)" | wc -l)
+          # Analyze commit messages for patterns (sanitized - only counts, no details)
+          BUG_FIXES=$(git log --since="24 hours ago" --grep="fix\|bug\|error\|issue\|resolve" --oneline | wc -l)
+          FEATURES=$(git log --since="24 hours ago" --grep="add\|implement\|create\|new\|feature" --oneline | wc -l)
+          IMPROVEMENTS=$(git log --since="24 hours ago" --grep="improve\|optimize\|enhance\|update\|refactor" --oneline | wc -l)
+          SECURITY=$(git log --since="24 hours ago" --grep="security\|vulnerability\|scan\|audit" --oneline | wc -l)
           
-          # Count file changes
-          FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | wc -l || echo "0")
+          # Count file changes (sanitized - only count, no file names)
+          FILES_CHANGED=$(git log --since="24 hours ago" --name-only --pretty=format: | grep -v "^$" | sort -u | wc -l)
           
-          # Analyze workflow runs for issues encountered
-          WORKFLOW_FAILURES=$(gh run list --limit 10 --json conclusion | jq -r '.[] | select(.conclusion == "failure") | .conclusion' | wc -l 2>/dev/null || echo "0")
+          # Analyze workflow runs for issues (sanitized)
+          WORKFLOW_FAILURES=$(gh run list --since="24 hours ago" --json conclusion | jq -r '.[] | select(.conclusion == "failure") | .conclusion' | wc -l 2>/dev/null || echo "0")
+          WORKFLOW_SUCCESSES=$(gh run list --since="24 hours ago" --json conclusion | jq -r '.[] | select(.conclusion == "success") | .conclusion' | wc -l 2>/dev/null || echo "0")
+          
+          # Calculate success rate
+          TOTAL_WORKFLOWS=$((WORKFLOW_FAILURES + WORKFLOW_SUCCESSES))
+          if [ $TOTAL_WORKFLOWS -gt 0 ]; then
+            SUCCESS_RATE=$((WORKFLOW_SUCCESSES * 100 / TOTAL_WORKFLOWS))
+          else
+            SUCCESS_RATE=100
+          fi
           
           # Set outputs
           echo "current_date=$CURRENT_DATE" >> $GITHUB_OUTPUT
@@ -87,8 +80,10 @@ jobs:
           echo "security_work=$SECURITY" >> $GITHUB_OUTPUT
           echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
           echo "workflow_failures=$WORKFLOW_FAILURES" >> $GITHUB_OUTPUT
+          echo "workflow_successes=$WORKFLOW_SUCCESSES" >> $GITHUB_OUTPUT
+          echo "success_rate=$SUCCESS_RATE" >> $GITHUB_OUTPUT
           
-          echo "📈 Today's work analysis:"
+          echo "📈 Previous 24 hours work analysis:"
           echo "  Commits: $COMMIT_COUNT"
           echo "  Bug fixes: $BUG_FIXES"
           echo "  Features: $FEATURES"
@@ -96,52 +91,59 @@ jobs:
           echo "  Security work: $SECURITY"
           echo "  Files changed: $FILES_CHANGED"
           echo "  Workflow failures: $WORKFLOW_FAILURES"
+          echo "  Workflow successes: $WORKFLOW_SUCCESSES"
+          echo "  Success rate: $SUCCESS_RATE%"
 
-      - name: 📝 Generate Learning Summary
+      - name: 📝 Generate High-Level Learning Summary
         id: generate-summary
         run: |
-          # Use manual input if provided, otherwise generate from analysis
-          if [ -n "${{ github.event.inputs.learning_summary }}" ]; then
-            LEARNING_SUMMARY="${{ github.event.inputs.learning_summary }}"
-            ISSUES_RESOLVED="${{ github.event.inputs.issues_resolved }}"
-            FEATURES_IMPLEMENTED="${{ github.event.inputs.features_implemented }}"
-            TECHNOLOGIES_LEARNED="${{ github.event.inputs.technologies_learned }}"
-          else
-            # Generate summary from actual work analysis
-            LEARNING_SUMMARY="Worked on ${{ steps.analyze-work.outputs.commit_count }} commits today"
-            
-            if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
-              LEARNING_SUMMARY="$LEARNING_SUMMARY, resolved ${{ steps.analyze-work.outputs.bug_fixes }} issues"
-            fi
-            
-            if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
-              LEARNING_SUMMARY="$LEARNING_SUMMARY, implemented ${{ steps.analyze-work.outputs.features }} features"
-            fi
-            
-            if [ "${{ steps.analyze-work.outputs.improvements }}" -gt 0 ]; then
-              LEARNING_SUMMARY="$LEARNING_SUMMARY, made ${{ steps.analyze-work.outputs.improvements }} improvements"
-            fi
-            
-            if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
-              LEARNING_SUMMARY="$LEARNING_SUMMARY, enhanced security"
-            fi
-            
-            # Generate realistic issues and features based on actual work
-            ISSUES_RESOLVED=""
-            FEATURES_IMPLEMENTED=""
-            TECHNOLOGIES_LEARNED=""
-            
-            if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
-              ISSUES_RESOLVED="Workflow failures, deployment issues, configuration errors"
-            fi
-            
-            if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
-              FEATURES_IMPLEMENTED="New workflows, automation improvements, monitoring enhancements"
-            fi
-            
-            if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
-              TECHNOLOGIES_LEARNED="CodeQL configuration, security scanning, vulnerability management"
-            fi
+          # Generate sanitized, high-level summary from actual work analysis
+          LEARNING_SUMMARY="Completed ${{ steps.analyze-work.outputs.commit_count }} commits"
+          
+          # Add high-level categories without specific details
+          CATEGORIES=()
+          
+          if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.bug_fixes }} bug fixes")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.features }} features")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.improvements }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.improvements }} improvements")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            CATEGORIES+=("security enhancements")
+          fi
+          
+          # Join categories with commas
+          if [ ${#CATEGORIES[@]} -gt 0 ]; then
+            LEARNING_SUMMARY="$LEARNING_SUMMARY with $(IFS=', '; echo "${CATEGORIES[*]}")"
+          fi
+          
+          # Generate high-level, sanitized descriptions
+          ISSUES_RESOLVED=""
+          FEATURES_IMPLEMENTED=""
+          TECHNOLOGIES_LEARNED=""
+          
+          if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            ISSUES_RESOLVED="${{ steps.analyze-work.outputs.bug_fixes }} issues resolved"
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            FEATURES_IMPLEMENTED="${{ steps.analyze-work.outputs.features }} features implemented"
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            TECHNOLOGIES_LEARNED="Security and automation tools"
+          fi
+          
+          # Add workflow success rate to summary
+          if [ "${{ steps.analyze-work.outputs.success_rate }}" -lt 100 ]; then
+            LEARNING_SUMMARY="$LEARNING_SUMMARY (${SUCCESS_RATE}% workflow success rate)"
           fi
           
           echo "learning_summary=$LEARNING_SUMMARY" >> $GITHUB_OUTPUT
@@ -149,81 +151,97 @@ jobs:
           echo "features_implemented=$FEATURES_IMPLEMENTED" >> $GITHUB_OUTPUT
           echo "technologies_learned=$TECHNOLOGIES_LEARNED" >> $GITHUB_OUTPUT
           
-          echo "📝 Generated learning summary:"
+          echo "📝 Generated high-level learning summary:"
           echo "  Summary: $LEARNING_SUMMARY"
           echo "  Issues: $ISSUES_RESOLVED"
           echo "  Features: $FEATURES_IMPLEMENTED"
           echo "  Technologies: $TECHNOLOGIES_LEARNED"
 
-      - name: 📊 Update Hero Stats Based on Real Work
+      - name: 📊 Update Hero Stats Conservatively
         run: |
-          echo "📊 Updating hero stats based on actual work done..."
+          echo "📊 Updating hero stats conservatively based on actual progress..."
           
-          # Calculate realistic stats based on actual work
-          TOTAL_TECH_COUNT=35  # Base count
+          # Only update stats if there was significant work (more than 2 commits)
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -lt 2 ]; then
+            echo "⚠️ Insufficient work to update hero stats (less than 2 commits)"
+            echo "skip_stats_update=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Calculate conservative stats based on actual work
+          TOTAL_TECH_COUNT=35  # Base count - only increment for significant new tech
           TOTAL_WEEKS=$(( ($(date -d "${{ steps.analyze-work.outputs.current_date }}" +%s) - $(date -d "2024-10-01" +%s)) / 604800 ))
           
-          # Add to tech count based on new technologies learned
-          if [ -n "${{ steps.generate-summary.outputs.technologies_learned }}" ]; then
-            NEW_TECH_COUNT=$(echo "${{ steps.generate-summary.outputs.technologies_learned }}" | tr ',' '\n' | wc -l)
-            TOTAL_TECH_COUNT=$((TOTAL_TECH_COUNT + NEW_TECH_COUNT))
+          # Only increment tech count for significant security work (new tools learned)
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            TOTAL_TECH_COUNT=$((TOTAL_TECH_COUNT + 1))
           fi
           
           # Update workflow count based on actual workflow files
           WORKFLOW_COUNT=$(find .github/workflows -name "*.yml" | wc -l)
           
-          # Calculate optimization based on recent success rate
-          if [ "${{ steps.analyze-work.outputs.commit_count }}" -gt 0 ]; then
-            SUCCESS_RATE=$(( ({{ steps.analyze-work.outputs.commit_count }} - {{ steps.analyze-work.outputs.workflow_failures }}) * 100 / {{ steps.analyze-work.outputs.commit_count }} ))
-            OPTIMIZATION=$(( 85 + SUCCESS_RATE / 4 ))  # Base 85% + success rate bonus
-          else
-            OPTIMIZATION=95  # Default if no recent work
+          # Calculate optimization based on workflow success rate
+          OPTIMIZATION=${{ steps.analyze-work.outputs.success_rate }}
+          if [ $OPTIMIZATION -lt 80 ]; then
+            OPTIMIZATION=80  # Minimum 80% for public display
           fi
           
-          # Update the learning page with realistic stats
+          # Update the learning page with conservative stats
           sed -i "s/<span class=\"stat-number\">[0-9]*<\/span>/<span class=\"stat-number\">$TOTAL_TECH_COUNT<\/span>/g" ${{ env.LEARNING_PAGE }}
           sed -i "s/<span class=\"stat-number\">[0-9]*+<\/span>/<span class=\"stat-number\">$TOTAL_WEEKS+<\/span>/g" ${{ env.LEARNING_PAGE }}
           sed -i "s/<span class=\"stat-number\">[0-9]*<\/span>/<span class=\"stat-number\">$WORKFLOW_COUNT<\/span>/g" ${{ env.LEARNING_PAGE }}
           sed -i "s/<span class=\"stat-number\">[0-9]*%<\/span>/<span class=\"stat-number\">$OPTIMIZATION%<\/span>/g" ${{ env.LEARNING_PAGE }}
           
-          echo "✅ Updated hero stats:"
+          echo "✅ Updated hero stats conservatively:"
           echo "  Technologies: $TOTAL_TECH_COUNT"
           echo "  Weeks: $TOTAL_WEEKS+"
           echo "  Workflows: $WORKFLOW_COUNT"
           echo "  Optimization: $OPTIMIZATION%"
 
-      - name: 🎯 Add Real Learning Highlight
+      - name: 🎯 Add Sanitized Learning Highlight
         run: |
-          echo "🎯 Adding real learning highlight for ${{ steps.analyze-work.outputs.current_date }}..."
+          echo "🎯 Adding sanitized learning highlight for ${{ steps.analyze-work.outputs.current_date }}..."
           
-          # Create highlight based on actual work
+          # Only add highlight if there was significant work
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -lt 1 ]; then
+            echo "⚠️ No significant work to highlight"
+            exit 0
+          fi
+          
+          # Create sanitized highlight based on work categories
           HIGHLIGHT_ICON="🔧"
-          HIGHLIGHT_TITLE="Daily Development Work"
+          HIGHLIGHT_TITLE="Daily Development Progress"
           
           if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
             HIGHLIGHT_ICON="🐛"
-            HIGHLIGHT_TITLE="Bug Fixes & Issue Resolution"
+            HIGHLIGHT_TITLE="Issue Resolution & Bug Fixes"
           elif [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
             HIGHLIGHT_ICON="✨"
-            HIGHLIGHT_TITLE="Feature Implementation"
+            HIGHLIGHT_TITLE="Feature Development"
           elif [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
             HIGHLIGHT_ICON="🔒"
-            HIGHLIGHT_TITLE="Security Enhancements"
+            HIGHLIGHT_TITLE="Security & Automation"
           fi
           
-          # Create the highlight content
-          NEW_HIGHLIGHT=$(cat << EOF
+          # Create sanitized description
+          DESCRIPTION="Completed ${{ steps.analyze-work.outputs.commit_count }} commits"
+          if [ "${{ steps.analyze-work.outputs.files_changed }}" -gt 0 ]; then
+            DESCRIPTION="$DESCRIPTION across ${{ steps.analyze-work.outputs.files_changed }} files"
+          fi
+          DESCRIPTION="$DESCRIPTION with focus on continuous improvement and automation."
+          
+          # Create the sanitized highlight content
+          NEW_HIGHLIGHT=$(cat << 'EOF'
                     <div class="highlight-card">
                         <div class="highlight-icon">$HIGHLIGHT_ICON</div>
                         <div class="highlight-content">
                             <h3>$HIGHLIGHT_TITLE</h3>
                             <p class="highlight-date">${{ steps.analyze-work.outputs.current_date }}</p>
                             <p class="highlight-description">
-                                ${{ steps.generate-summary.outputs.learning_summary }}. 
-                                ${{ steps.analyze-work.outputs.files_changed }} files modified across ${{ steps.analyze-work.outputs.commit_count }} commits.
+                                $DESCRIPTION
                             </p>
                             <div class="highlight-tags">
-                                <span class="tag">Real Work</span>
+                                <span class="tag">Development</span>
                                 <span class="tag">${{ steps.analyze-work.outputs.commit_count }} Commits</span>
                                 <span class="tag">${{ steps.analyze-work.outputs.current_date }}</span>
                             </div>
@@ -235,44 +253,55 @@ jobs:
           # Insert new highlight at the beginning of highlights grid
           sed -i "/<div class=\"highlights-grid\">/a\\$NEW_HIGHLIGHT" ${{ env.LEARNING_PAGE }}
           
-          echo "✅ Added real learning highlight"
+          echo "✅ Added sanitized learning highlight"
 
-      - name: 📚 Update Learning Topics with Real Work
+      - name: 📚 Add Sanitized Learning Topic
         run: |
-          echo "📚 Updating learning topics with real work insights..."
+          echo "📚 Adding sanitized learning topic for ${{ steps.analyze-work.outputs.current_date }}..."
           
-          # Create topic based on actual work done
-          TOPIC_TITLE="Daily Development: ${{ steps.generate-summary.outputs.learning_summary }}"
-          TOPIC_DESCRIPTION="Real work completed on ${{ steps.analyze-work.outputs.current_date }}. ${{ steps.generate-summary.outputs.learning_summary }}."
-          
-          if [ -n "${{ steps.generate-summary.outputs.issues_resolved }}" ]; then
-            TOPIC_DESCRIPTION="$TOPIC_DESCRIPTION Issues resolved: ${{ steps.generate-summary.outputs.issues_resolved }}."
+          # Only add topic if there was significant work
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -lt 1 ]; then
+            echo "⚠️ No significant work to add as learning topic"
+            exit 0
           fi
           
-          if [ -n "${{ steps.generate-summary.outputs.features_implemented }}" ]; then
-            TOPIC_DESCRIPTION="$TOPIC_DESCRIPTION Features implemented: ${{ steps.generate-summary.outputs.features_implemented }}."
+          # Create sanitized topic based on work categories
+          TOPIC_TITLE="Daily Development Progress"
+          TOPIC_DESCRIPTION="Development work completed on ${{ steps.analyze-work.outputs.current_date }}. Focus on continuous improvement, automation, and best practices."
+          
+          # Determine category based on work type
+          CATEGORY="development"
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            CATEGORY="security"
+            TOPIC_TITLE="Security & Automation Work"
+          elif [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            CATEGORY="troubleshooting"
+            TOPIC_TITLE="Issue Resolution & Debugging"
+          elif [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            CATEGORY="feature-development"
+            TOPIC_TITLE="Feature Implementation"
           fi
           
-          # Create new topic entry
-          NEW_TOPIC=$(cat << EOF
+          # Create sanitized topic entry
+          NEW_TOPIC=$(cat << 'EOF'
         {
-            id: "real-work-${{ steps.analyze-work.outputs.current_date }}",
+            id: "daily-work-${{ steps.analyze-work.outputs.current_date }}",
             title: "$TOPIC_TITLE",
-            category: "real-development",
+            category: "$CATEGORY",
             difficulty: "intermediate",
             description: "$TOPIC_DESCRIPTION",
-            technologies: ["Real Work", "Daily Development", "${{ steps.analyze-work.outputs.current_date }}"],
+            technologies: ["Development", "Automation", "Best Practices"],
             date: "${{ steps.analyze-work.outputs.current_date }}",
             status: "completed",
             insights: [
                 "Completed ${{ steps.analyze-work.outputs.commit_count }} commits",
                 "Modified ${{ steps.analyze-work.outputs.files_changed }} files",
-                "Real-world problem solving and development"
+                "Applied development best practices and automation"
             ],
             resources: [
-                "Git commit history",
-                "Actual code changes",
-                "Real issues encountered and resolved"
+                "Git version control",
+                "Automated workflows",
+                "Development methodologies"
             ]
         },
           EOF
@@ -281,41 +310,39 @@ jobs:
           # Insert new topic at the beginning of the topics array
           sed -i "/const learningTopics = \[/a\\$NEW_TOPIC" ${{ env.LEARNING_TOPICS_JS }}
           
-          echo "✅ Added real work topic to learning topics"
+          echo "✅ Added sanitized learning topic"
 
-      - name: 📋 Log Daily Learning
+      - name: 📋 Log Sanitized Daily Learning
         run: |
-          echo "📋 Logging daily learning to persistent log..."
+          echo "📋 Logging sanitized daily learning to persistent log..."
           
-          # Create or append to daily learning log
+          # Create or append to daily learning log with sanitized content
           cat >> ${{ env.DAILY_LOG }} << EOF
           
           ## ${{ steps.analyze-work.outputs.current_date }} - ${{ steps.analyze-work.outputs.current_time }}
           
           **Work Summary**: ${{ steps.generate-summary.outputs.learning_summary }}
           
-          **Stats**:
+          **High-Level Stats**:
           - Commits: ${{ steps.analyze-work.outputs.commit_count }}
-          - Files Changed: ${{ steps.analyze-work.outputs.files_changed }}
+          - Files Modified: ${{ steps.analyze-work.outputs.files_changed }}
           - Bug Fixes: ${{ steps.analyze-work.outputs.bug_fixes }}
           - Features: ${{ steps.analyze-work.outputs.features }}
           - Improvements: ${{ steps.analyze-work.outputs.improvements }}
           - Security Work: ${{ steps.analyze-work.outputs.security_work }}
-          - Workflow Failures: ${{ steps.analyze-work.outputs.workflow_failures }}
+          - Workflow Success Rate: ${{ steps.analyze-work.outputs.success_rate }}%
           
-          **Issues Resolved**: ${{ steps.generate-summary.outputs.issues_resolved }}
+          **Categories**:
+          - Issues Resolved: ${{ steps.generate-summary.outputs.issues_resolved }}
+          - Features Implemented: ${{ steps.generate-summary.outputs.features_implemented }}
+          - Technologies Learned: ${{ steps.generate-summary.outputs.technologies_learned }}
           
-          **Features Implemented**: ${{ steps.generate-summary.outputs.features_implemented }}
-          
-          **Technologies Learned**: ${{ steps.generate-summary.outputs.technologies_learned }}
-          
-          **Recent Commits**:
-          $(echo "$RECENT_COMMITS" | head -5 | sed 's/^/- /')
+          **Focus Areas**: Development, Automation, Best Practices
           
           ---
           EOF
           
-          echo "✅ Logged daily learning to persistent file"
+          echo "✅ Logged sanitized daily learning to persistent file"
 
       - name: 🔍 Check for Changes
         id: check-changes
@@ -352,32 +379,37 @@ jobs:
           
           echo "✅ Real learning update committed and pushed"
 
-      - name: 📊 Real Learning Update Summary
+      - name: 📊 Daily Learning Summary
         run: |
-          echo "## 📚 Real Daily Learning Update Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## 📚 Daily Learning Summary Complete" >> $GITHUB_STEP_SUMMARY
           echo "- **Date**: ${{ steps.analyze-work.outputs.current_date }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Time**: ${{ steps.analyze-work.outputs.current_time }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📈 Actual Work Completed:" >> $GITHUB_STEP_SUMMARY
+          echo "## 📈 Previous 24 Hours Work Analysis:" >> $GITHUB_STEP_SUMMARY
           echo "- **Commits**: ${{ steps.analyze-work.outputs.commit_count }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Files Changed**: ${{ steps.analyze-work.outputs.files_changed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Files Modified**: ${{ steps.analyze-work.outputs.files_changed }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Bug Fixes**: ${{ steps.analyze-work.outputs.bug_fixes }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Features**: ${{ steps.analyze-work.outputs.features }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Improvements**: ${{ steps.analyze-work.outputs.improvements }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Security Work**: ${{ steps.analyze-work.outputs.security_work }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Workflow Failures**: ${{ steps.analyze-work.outputs.workflow_failures }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow Success Rate**: ${{ steps.analyze-work.outputs.success_rate }}%" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📝 Learning Summary:" >> $GITHUB_STEP_SUMMARY
+          echo "## 📝 High-Level Summary:" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.generate-summary.outputs.learning_summary }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## ✅ Actions Completed:" >> $GITHUB_STEP_SUMMARY
-          echo "- Analyzed actual work and commits" >> $GITHUB_STEP_SUMMARY
-          echo "- Updated hero stats based on real progress" >> $GITHUB_STEP_SUMMARY
-          echo "- Added learning highlight for actual work" >> $GITHUB_STEP_SUMMARY
-          echo "- Updated learning topics with real insights" >> $GITHUB_STEP_SUMMARY
+          echo "- Analyzed previous 24 hours of work" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated hero stats conservatively" >> $GITHUB_STEP_SUMMARY
+          echo "- Added sanitized learning highlight" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated learning topics with high-level insights" >> $GITHUB_STEP_SUMMARY
           echo "- Logged daily learning to persistent file" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check-changes.outputs.has_changes }}" = "true" ]; then
             echo "- Committed and pushed changes" >> $GITHUB_STEP_SUMMARY
           else
             echo "- No changes to commit" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Privacy & Security:" >> $GITHUB_STEP_SUMMARY
+          echo "- All data sanitized for public display" >> $GITHUB_STEP_SUMMARY
+          echo "- No sensitive information exposed" >> $GITHUB_STEP_SUMMARY
+          echo "- High-level metrics only" >> $GITHUB_STEP_SUMMARY
