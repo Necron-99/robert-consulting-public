@@ -81,13 +81,30 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "staging_access_lo
   }
 }
 
-# S3 bucket public access block for access logs (private bucket)
+# S3 bucket ACL for CloudFront access logs
+resource "aws_s3_bucket_acl" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.staging_access_logs]
+}
+
+# S3 bucket ownership controls for access logs
+resource "aws_s3_bucket_ownership_controls" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 bucket public access block for access logs (allow ACL for CloudFront)
 resource "aws_s3_bucket_public_access_block" "staging_access_logs" {
   bucket = aws_s3_bucket.staging_access_logs.id
 
-  block_public_acls       = true
+  block_public_acls       = false  # Allow ACL for CloudFront logging
   block_public_policy     = true
-  ignore_public_acls      = true
+  ignore_public_acls      = false  # Allow ACL for CloudFront logging
   restrict_public_buckets = true
 }
 
@@ -102,19 +119,29 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
         Sid       = "CloudFrontAccessLogs"
         Effect    = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
+          Service = "cloudfront.amazonaws.com"
         }
         Action    = "s3:PutObject"
         Resource  = "${aws_s3_bucket.staging_access_logs.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
+          }
+        }
       },
       {
         Sid       = "CloudFrontAccessLogsList"
         Effect    = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
+          Service = "cloudfront.amazonaws.com"
         }
         Action    = "s3:GetBucketAcl"
         Resource  = aws_s3_bucket.staging_access_logs.arn
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
+          }
+        }
       }
     ]
   })
