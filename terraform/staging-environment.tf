@@ -12,8 +12,17 @@ variable "staging_allowed_ips" {
   description = "List of IP addresses allowed to access staging environment"
   type        = list(string)
   default     = [
-    # Add your IP addresses here for restricted access
-    "73.251.19.77/32"
+    # Your personal IP address
+    "73.251.19.77/32",
+    
+    # GitHub Actions IP ranges for automated testing
+    "140.82.112.0/20",    # GitHub Actions
+    "185.199.108.0/22",   # GitHub Actions
+    "192.30.252.0/22",    # GitHub Actions
+    "52.74.223.119/32",   # GitHub Actions
+    "52.64.108.95/32",    # GitHub Actions
+    
+    # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
   ]
 }
