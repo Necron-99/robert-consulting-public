@@ -543,28 +543,20 @@ jobs:
                   print(f"   Please check the ZAP reports manually before proceeding.")
                   return False
 
-          # Run the check
+          # Run the check and exit with appropriate code
           if check_blocking_severities():
-              print("security-check-passed=true" >> open('/tmp/security_check_result', 'w'))
-              sys.exit(0)
+              sys.exit(0)  # Success - no blocking findings
           else:
-              print("security-check-passed=false" >> open('/tmp/security_check_result', 'w'))
-              sys.exit(1)
+              sys.exit(1)  # Failure - blocking findings found
           EOF
             
-            # Check the result
-            if [ -f "/tmp/security_check_result" ]; then
-              source /tmp/security_check_result
-              if [ "$security-check-passed" = "true" ]; then
-                echo "✅ Security check passed - no blocking findings"
-                echo "security-check-passed=true" >> $GITHUB_OUTPUT
-              else
-                echo "❌ Security check failed - blocking findings found"
-                echo "security-check-passed=false" >> $GITHUB_OUTPUT
-                exit 1
-              fi
+            # Check the exit code from the Python script
+            PYTHON_EXIT_CODE=$?
+            if [ $PYTHON_EXIT_CODE -eq 0 ]; then
+              echo "✅ Security check passed - no blocking findings"
+              echo "security-check-passed=true" >> $GITHUB_OUTPUT
             else
-              echo "❌ Security check failed - unable to analyze findings"
+              echo "❌ Security check failed - blocking findings found"
               echo "security-check-passed=false" >> $GITHUB_OUTPUT
               exit 1
             fi
