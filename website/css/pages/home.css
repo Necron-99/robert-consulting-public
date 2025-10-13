@@ -11,10 +11,10 @@
 }
 
 .hero-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
   align-items: center;
-  text-align: center;
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--space-4);
@@ -23,10 +23,8 @@
 .hero-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
   gap: var(--space-6);
-  max-width: 800px;
+  text-align: left;
 }
 
 .hero-title {
@@ -84,8 +82,47 @@
   display: flex;
   gap: var(--space-4);
   margin-top: var(--space-6);
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
+}
+
+.hero-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-graphic {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.professional-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xl);
+}
+
+.photo-placeholder {
+  width: 120px;
+  height: 120px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-user-tie::before {
+  content: "👔";
+  font-size: 3rem;
+  color: white;
 }
 
 
@@ -549,6 +586,7 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .hero-container,
   .about-content,
   .learning-content,
   .contact-content {
@@ -556,6 +594,7 @@
     gap: var(--space-8);
   }
   
+  .hero-image,
   .about-image,
   .learning-visual {
     order: -1;
@@ -588,6 +627,8 @@
   
   .hero-buttons {
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
   
   .services-grid {
@@ -629,6 +670,7 @@
     font-size: var(--font-size-3xl);
   }
   
+  .hero-graphic,
   .about-graphic {
     width: 250px;
     height: 250px;
