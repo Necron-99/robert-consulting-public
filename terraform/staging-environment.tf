@@ -430,30 +430,30 @@ resource "aws_wafv2_web_acl" "staging_waf" {
   scope = "CLOUDFRONT"
 
   default_action {
-    block {}
+    allow {}
   }
 
-  # IP-based access control (restrict to allowed IPs)
-  rule {
-    name     = "AllowSpecificIPs"
-    priority = 1
-
-    action {
-      allow {}
-    }
-
-    statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.staging_allowed_ips.arn
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "AllowSpecificIPs"
-      sampled_requests_enabled   = true
-    }
-  }
+  # IP-based access control disabled - using secret-based access control instead
+  # rule {
+  #   name     = "AllowSpecificIPs"
+  #   priority = 1
+  #
+  #   action {
+  #     allow {}
+  #   }
+  #
+  #   statement {
+  #     ip_set_reference_statement {
+  #       arn = aws_wafv2_ip_set.staging_allowed_ips.arn
+  #     }
+  #   }
+  #
+  #   visibility_config {
+  #     cloudwatch_metrics_enabled = true
+  #     metric_name                = "AllowSpecificIPs"
+  #     sampled_requests_enabled   = true
+  #   }
+  # }
 
   # Rate limiting (same as production)
   rule {
