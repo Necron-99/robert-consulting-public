@@ -16,7 +16,13 @@ function handler(event) {
     // Check if this is a staging request
     if (request.headers.host && request.headers.host.value.includes('staging.robertconsulting.net')) {
         // Allow static assets without secret
-        if (uri.includes('/css/') || uri.includes('/js/') || uri.endsWith('.css') || uri.endsWith('.js')) {
+        if (uri.includes('/css/') || uri.includes('/js/') || 
+            uri.endsWith('.css') || uri.endsWith('.js') || 
+            uri.endsWith('.ico') || uri.endsWith('.png') || 
+            uri.endsWith('.jpg') || uri.endsWith('.jpeg') || 
+            uri.endsWith('.gif') || uri.endsWith('.svg') || 
+            uri.endsWith('.woff') || uri.endsWith('.woff2') || 
+            uri.endsWith('.ttf') || uri.endsWith('.eot')) {
             return request;
         }
         
