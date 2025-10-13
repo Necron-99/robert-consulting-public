@@ -271,8 +271,7 @@ class UnifiedDashboard {
             this.updateElement('lines-deleted', `-${githubData.recentActivity.linesDeleted.toLocaleString()}`);
             this.updateElement('languages-used', githubData.recentActivity.languages);
             
-            // Update projects section
-            this.updateProjectsSection(githubData.projects);
+            // Projects section removed - only showing public repos would be misleading
             
             this.updateElement('github-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (Real GitHub Data)`);
             
@@ -326,21 +325,7 @@ class UnifiedDashboard {
                 new Date(repo.updated_at) > thirtyDaysAgo
             );
             
-            // Get top repositories for projects section
-            const topRepos = repos
-                .filter(repo => !repo.private)
-                .sort((a, b) => b.stargazers_count - a.stargazers_count)
-                .slice(0, 3);
-            
-            const projects = topRepos.map(repo => ({
-                name: repo.name,
-                description: repo.description || 'No description available',
-                stars: repo.stargazers_count,
-                forks: repo.forks_count,
-                commits: Math.floor(Math.random() * 50) + 10,
-                url: `https://github.com/Necron-99/${repo.name}`,
-                language: repo.language || 'Unknown'
-            }));
+            // Projects section removed - only showing public repos would be misleading
             
             // Get language statistics
             const allLanguages = new Set();
@@ -362,8 +347,7 @@ class UnifiedDashboard {
                     linesAdded: Math.floor(Math.random() * 1000) + 200,
                     linesDeleted: Math.floor(Math.random() * 500) + 100,
                     languages: allLanguages.size.toString()
-                },
-                projects: projects
+                }
             };
         } catch (error) {
             console.error('Error fetching GitHub statistics:', error);
@@ -380,61 +364,12 @@ class UnifiedDashboard {
                     linesAdded: 500,
                     linesDeleted: 200,
                     languages: '3'
-                },
-                projects: [
-                    {
-                        name: 'robert-consulting.net',
-                        description: 'Professional consulting website with AWS infrastructure',
-                        stars: 0,
-                        forks: 0,
-                        commits: 150,
-                        url: 'https://github.com/Necron-99/robert-consulting.net',
-                        language: 'HTML'
-                    },
-                    {
-                        name: 'baileylessons.com',
-                        description: 'Educational platform for Bailey lessons',
-                        stars: 0,
-                        forks: 0,
-                        commits: 75,
-                        url: 'https://github.com/Necron-99/baileylessons.com',
-                        language: 'HTML'
-                    },
-                    {
-                        name: 'tools',
-                        description: 'Development and deployment tools',
-                        stars: 0,
-                        forks: 0,
-                        commits: 45,
-                        url: 'https://github.com/Necron-99/tools',
-                        language: 'Python'
-                    }
-                ]
+                }
             };
         }
     }
 
-    /**
-     * Update projects section with real GitHub data
-     */
-    updateProjectsSection(projects) {
-        const projectsGrid = document.getElementById('projects-grid');
-        if (!projectsGrid || !projects || projects.length === 0) {
-            return;
-        }
-
-        projectsGrid.innerHTML = projects.map(project => `
-            <div class="project-card">
-                <div class="project-name">${project.name}</div>
-                <div class="project-description">${project.description}</div>
-                <div class="project-stats">
-                    <span class="project-stat">⭐ ${project.stars}</span>
-                    <span class="project-stat">🍴 ${project.forks}</span>
-                    <span class="project-stat">🔧 ${project.commits} commits</span>
-                </div>
-            </div>
-        `).join('');
-    }
+    // Projects section removed - only showing public repos would be misleading
 
     /**
      * Load Terraform infrastructure data
