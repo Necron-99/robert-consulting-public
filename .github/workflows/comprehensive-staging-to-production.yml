@@ -103,6 +103,7 @@ jobs:
           echo "🔍 Debug: Testing URLs from GitHub Actions runner..."
           echo "STAGING_URL: $STAGING_URL"
           echo "ACCESS_KEY: $ACCESS_KEY"
+          echo "Full test URL: $STAGING_URL/?key=$ACCESS_KEY"
           
           # Test staging site without access key first
           echo "Testing staging site without access key..."
@@ -111,6 +112,7 @@ jobs:
           
           # Test staging site with access key
           echo "Testing staging site with access key..."
+          echo "Testing URL: $STAGING_URL/?key=$ACCESS_KEY"
           WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
           echo "Staging site with key status: $WITH_KEY_STATUS"
           
