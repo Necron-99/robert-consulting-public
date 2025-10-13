@@ -114,10 +114,27 @@ jobs:
           WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
           echo "Staging site with key status: $WITH_KEY_STATUS"
           
-          # Test homepage with detailed debugging
+          # If we get 403, wait and retry (CloudFront function propagation)
+          if [ "$WITH_KEY_STATUS" = "403" ]; then
+            echo "⚠️ Got 403, waiting 30 seconds for CloudFront function propagation..."
+            sleep 30
+            WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+            echo "Staging site with key status after retry: $WITH_KEY_STATUS"
+          fi
+          
+          # Test homepage with detailed debugging and retry
           echo "Testing homepage..."
           HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
           echo "Homepage status code: $HOMEPAGE_STATUS"
+          
+          # Retry if we get 403 (CloudFront function propagation issue)
+          if [ "$HOMEPAGE_STATUS" = "403" ]; then
+            echo "⚠️ Homepage got 403, retrying after 15 seconds..."
+            sleep 15
+            HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+            echo "Homepage status code after retry: $HOMEPAGE_STATUS"
+          fi
+          
           if [ "$HOMEPAGE_STATUS" = "200" ]; then
             echo "✅ Homepage accessible"
             HOMEPAGE_OK=true
