@@ -24,12 +24,10 @@ resource "null_resource" "state_validation" {
     infrastructure_hash = md5(jsonencode({
       s3_buckets     = [
         aws_s3_bucket.website_bucket.id,
-        aws_s3_bucket.testing_site.id,
         aws_s3_bucket.terraform_state.id
       ]
       cloudfront_ids = [
-        aws_cloudfront_distribution.website.id,
-        aws_cloudfront_distribution.testing_site.id
+        aws_cloudfront_distribution.website.id
       ]
       dynamodb_tables = [
         aws_dynamodb_table.terraform_state_lock.id
