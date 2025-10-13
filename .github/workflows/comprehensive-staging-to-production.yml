@@ -100,47 +100,76 @@ jobs:
           STAGING_URL="https://staging.robertconsulting.net"
           ACCESS_KEY="staging-access-2025"
           
-          # Test homepage
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY" | grep -q "200"; then
+          echo "🔍 Debug: Testing URLs from GitHub Actions runner..."
+          echo "STAGING_URL: $STAGING_URL"
+          echo "ACCESS_KEY: $ACCESS_KEY"
+          
+          # Test staging site without access key first
+          echo "Testing staging site without access key..."
+          NO_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/")
+          echo "Staging site without key status: $NO_KEY_STATUS"
+          
+          # Test staging site with access key
+          echo "Testing staging site with access key..."
+          WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+          echo "Staging site with key status: $WITH_KEY_STATUS"
+          
+          # Test homepage with detailed debugging
+          echo "Testing homepage..."
+          HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+          echo "Homepage status code: $HOMEPAGE_STATUS"
+          if [ "$HOMEPAGE_STATUS" = "200" ]; then
             echo "✅ Homepage accessible"
             HOMEPAGE_OK=true
           else
-            echo "❌ Homepage not accessible"
+            echo "❌ Homepage not accessible (status: $HOMEPAGE_STATUS)"
             HOMEPAGE_OK=false
           fi
           
-          # Test dashboard
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?key=$ACCESS_KEY" | grep -q "200"; then
+          # Test dashboard with detailed debugging
+          echo "Testing dashboard..."
+          DASHBOARD_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?key=$ACCESS_KEY")
+          echo "Dashboard status code: $DASHBOARD_STATUS"
+          if [ "$DASHBOARD_STATUS" = "200" ]; then
             echo "✅ Dashboard accessible"
             DASHBOARD_OK=true
           else
-            echo "❌ Dashboard not accessible"
+            echo "❌ Dashboard not accessible (status: $DASHBOARD_STATUS)"
             DASHBOARD_OK=false
           fi
           
-          # Test learning page
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html?key=$ACCESS_KEY" | grep -q "200"; then
+          # Test learning page with detailed debugging
+          echo "Testing learning page..."
+          LEARNING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html?key=$ACCESS_KEY")
+          echo "Learning page status code: $LEARNING_STATUS"
+          if [ "$LEARNING_STATUS" = "200" ]; then
             echo "✅ Learning page accessible"
             LEARNING_OK=true
           else
-            echo "❌ Learning page not accessible"
+            echo "❌ Learning page not accessible (status: $LEARNING_STATUS)"
             LEARNING_OK=false
           fi
           
-          # Test CSS and JS loading (these don't need access key)
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/css/main.css" | grep -q "200"; then
+          # Test CSS and JS loading with detailed debugging
+          echo "Testing CSS files..."
+          CSS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/css/main.css")
+          echo "CSS status code: $CSS_STATUS"
+          if [ "$CSS_STATUS" = "200" ]; then
             echo "✅ CSS files loading"
             CSS_OK=true
           else
-            echo "❌ CSS files not loading"
+            echo "❌ CSS files not loading (status: $CSS_STATUS)"
             CSS_OK=false
           fi
           
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard-script.js" | grep -q "200"; then
+          echo "Testing JS files..."
+          JS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard-script.js")
+          echo "JS status code: $JS_STATUS"
+          if [ "$JS_STATUS" = "200" ]; then
             echo "✅ JS files loading"
             JS_OK=true
           else
-            echo "❌ JS files not loading"
+            echo "❌ JS files not loading (status: $JS_STATUS)"
             JS_OK=false
           fi
           
