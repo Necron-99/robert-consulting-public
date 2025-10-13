@@ -59,11 +59,11 @@ jobs:
             --query 'Invalidation.Id' \
             --output text)
           
-          echo "staging-url=https://staging.robertconsulting.net" >> $GITHUB_OUTPUT
+          echo "staging-url=https://d3guz3lq4sqlvl.cloudfront.net" >> $GITHUB_OUTPUT
           echo "deployment-id=$INVALIDATION_ID" >> $GITHUB_OUTPUT
           
           echo "✅ Staging deployment completed"
-          echo "🔗 Staging URL: https://staging.robertconsulting.net"
+          echo "🔗 Staging URL: https://d3guz3lq4sqlvl.cloudfront.net"
           echo "🔄 Invalidation ID: $INVALIDATION_ID"
 
       - name: ⏳ Wait for CloudFront propagation
@@ -102,7 +102,7 @@ jobs:
           echo "🌐 Running basic functionality tests..."
           
           # Test main pages with staging access secret
-          STAGING_URL="https://staging.robertconsulting.net"
+          STAGING_URL="https://d3guz3lq4sqlvl.cloudfront.net"
           ACCESS_SECRET="staging-access-2025"
           
           echo "🔍 Debug: Testing URLs from GitHub Actions runner..."
@@ -212,7 +212,7 @@ jobs:
         run: |
           echo "🔒 Testing security headers..."
           
-          STAGING_URL="https://staging.robertconsulting.net"
+          STAGING_URL="https://d3guz3lq4sqlvl.cloudfront.net"
           ACCESS_KEY="staging-access-2025"
           SECURITY_SCORE=0
           MAX_SCORE=8
@@ -293,7 +293,7 @@ jobs:
         run: |
           echo "⚡ Running performance tests..."
           
-          STAGING_URL="https://staging.robertconsulting.net"
+          STAGING_URL="https://d3guz3lq4sqlvl.cloudfront.net"
           ACCESS_KEY="staging-access-2025"
           
           # Test response time
@@ -333,11 +333,28 @@ jobs:
         run: |
           echo "🔍 Running OWASP ZAP Security Scan on staging environment..."
           
-          # Set target URL with access key
-          STAGING_URL="https://staging.robertconsulting.net"
+          # Set target URL with access key (use CloudFront domain for better reliability)
+          STAGING_URL="https://d3guz3lq4sqlvl.cloudfront.net"
           ACCESS_KEY="staging-access-2025"
           TARGET_URL="$STAGING_URL/?secret=$ACCESS_KEY"
           echo "🎯 Target URL: $TARGET_URL"
+          
+          # Test connectivity before running ZAP
+          echo "🔍 Testing connectivity to staging environment..."
+          if curl -f -s -I "$TARGET_URL" --connect-timeout 10 --max-time 30 > /dev/null; then
+            echo "✅ Staging environment is accessible"
+          else
+            echo "❌ Staging environment is not accessible, trying fallback..."
+            # Try the custom domain as fallback
+            FALLBACK_URL="https://staging.robertconsulting.net/?secret=$ACCESS_KEY"
+            if curl -f -s -I "$FALLBACK_URL" --connect-timeout 10 --max-time 30 > /dev/null; then
+              echo "✅ Fallback domain is accessible, using fallback URL"
+              TARGET_URL="$FALLBACK_URL"
+            else
+              echo "❌ Both staging URLs are inaccessible, failing scan"
+              exit 1
+            fi
+          fi
           
           # Create reports directory
           mkdir -p reports
@@ -637,7 +654,7 @@ jobs:
           **Instances Found:** {instance_count}  
           **Scan Sources:** {scan_sources_str}
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
           **Environment:** Staging (Pre-Production)
 
           ### Description
@@ -703,7 +720,7 @@ jobs:
                   summary_body = f"""## Staging Security Scan Summary
 
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
           **Environment:** Staging (Pre-Production)
           **Scan Sources:** {', '.join(report_sources)}
           **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
@@ -737,7 +754,7 @@ jobs:
               issue_body = f"""## Staging Security Scan Results
 
           **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
           **Environment:** Staging (Pre-Production)
           **Scan Type:** Baseline
 
@@ -871,7 +888,7 @@ jobs:
                               closure_comment = f"""## ✅ Security Issue Resolved
 
           **Resolution Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
-          **Scan Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Scan Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
           **Environment:** Staging (Pre-Production)
 
           ### Resolution Details
@@ -983,7 +1000,7 @@ jobs:
           echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Deployment Details:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Staging URL**: https://staging.robertconsulting.net" >> $GITHUB_STEP_SUMMARY
+          echo "- **Staging URL**: https://d3guz3lq4sqlvl.cloudfront.net" >> $GITHUB_STEP_SUMMARY
           echo "- **Production URL**: https://robertconsulting.net" >> $GITHUB_STEP_SUMMARY
           echo "- **Tests Skipped**: ${{ inputs.skip_tests }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
