@@ -11,10 +11,21 @@ resource "aws_cloudfront_function" "staging_access_control" {
 function handler(event) {
     var request = event.request;
     var querystring = request.querystring;
+    var uri = request.uri;
     
     // Check if this is a staging request
     if (request.headers.host && request.headers.host.value.includes('staging.robertconsulting.net')) {
-        // Check for access key
+        // Allow static assets (CSS, JS, images, fonts) without access key
+        if (uri.includes('/css/') || uri.includes('/js/') || uri.includes('/images/') || 
+            uri.includes('/img/') || uri.includes('/fonts/') || uri.includes('/assets/') ||
+            uri.endsWith('.css') || uri.endsWith('.js') || uri.endsWith('.png') || 
+            uri.endsWith('.jpg') || uri.endsWith('.jpeg') || uri.endsWith('.gif') || 
+            uri.endsWith('.svg') || uri.endsWith('.ico') || uri.endsWith('.woff') || 
+            uri.endsWith('.woff2') || uri.endsWith('.ttf') || uri.endsWith('.eot')) {
+            return request;
+        }
+        
+        // For HTML pages and other content, check for access key
         if (querystring.key && querystring.key.value === 'staging-access-2025') {
             // Valid access key, allow request
             return request;

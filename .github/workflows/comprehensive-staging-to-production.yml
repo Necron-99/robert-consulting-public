@@ -136,7 +136,7 @@ jobs:
             CSS_OK=false
           fi
           
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/js/main.js" | grep -q "200"; then
+          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard-script.js" | grep -q "200"; then
             echo "✅ JS files loading"
             JS_OK=true
           else
