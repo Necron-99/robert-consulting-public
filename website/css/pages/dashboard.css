@@ -1273,6 +1273,11 @@
 }
 
 /* Development Velocity Section */
+.development-velocity-section {
+    padding: 4rem 0;
+    background: var(--bg-secondary);
+}
+
 .development-velocity {
     background: var(--card-background);
     border-radius: 12px;
