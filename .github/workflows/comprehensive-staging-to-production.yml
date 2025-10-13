@@ -77,6 +77,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-to-staging
     if: ${{ !inputs.skip_tests }}
+    permissions:
+      contents: read
+      security-events: write
+      issues: write
+      pull-requests: write
     outputs:
       tests-passed: ${{ steps.test-results.outputs.all-tests-passed }}
       security-score: ${{ steps.security-test.outputs.security-score }}
@@ -418,6 +423,461 @@ jobs:
             *.xml
           retention-days: 30
         continue-on-error: true
+
+      - name: 🏷️ Create Required Labels
+        if: always()
+        run: |
+          echo "🏷️ Creating required labels for security issues..."
+          
+          # Create labels if they don't exist
+          labels=("security" "automated-scan" "risk-high" "risk-medium" "risk-low" "risk-informational" "zap-finding" "summary" "staging-scan")
+          
+          for label in "${labels[@]}"; do
+            if ! gh label list | grep -q "^$label$"; then
+              echo "Creating label: $label"
+              gh label create "$label" --description "Security scan related label" --color "0366d6" 2>/dev/null || echo "Label $label already exists or creation failed"
+            else
+              echo "Label $label already exists"
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Create GitHub Issues for Security Findings
+        if: always()
+        run: |
+          echo "🔍 Analyzing ZAP scan results and creating GitHub issues..."
+          
+          # Check if JSON reports exist
+          if [ -f "staging-baseline-report.json" ]; then
+            echo "📄 Found ZAP JSON reports, analyzing findings..."
+            
+            # Parse ZAP JSON reports and create issues for each finding
+            python3 << 'EOF'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime, timezone
+
+          def create_github_issue(title, body, labels):
+              """Create a GitHub issue with the given title, body, and labels"""
+              try:
+                  cmd = ["gh", "issue", "create", "--title", title, "--body", body]
+                  if labels:
+                      cmd.extend(["--label", labels])
+                  
+                  result = subprocess.run(cmd, capture_output=True, text=True)
+                  if result.returncode == 0:
+                      print(f"✅ Created issue: {title}")
+                      return True
+                  else:
+                      print(f"❌ Failed to create issue: {title}")
+                      print(f"Error: {result.stderr}")
+                      return False
+              except Exception as e:
+                  print(f"❌ Exception creating issue: {e}")
+                  return False
+
+          def get_risk_color(risk):
+              """Get color emoji for risk level"""
+              risk_colors = {
+                  "High": "🔴",
+                  "Medium": "🟡", 
+                  "Low": "🟢",
+                  "Informational": "🔵"
+              }
+              return risk_colors.get(risk, "⚪")
+
+          def get_remediation_steps(alert_name):
+              """Get remediation steps for common security issues"""
+              remediations = {
+                  "Missing Anti-clickjacking Header": """
+          ### Remediation Steps:
+          1. Add X-Frame-Options header to all responses
+          2. Set to 'DENY' or 'SAMEORIGIN' based on requirements
+          3. Example: `X-Frame-Options: DENY`
+          4. Update CloudFront Response Headers Policy if using CDN
+          """,
+                  "X-Content-Type-Options Header Missing": """
+          ### Remediation Steps:
+          1. Add X-Content-Type-Options header to all responses
+          2. Set to 'nosniff' to prevent MIME type sniffing
+          3. Example: `X-Content-Type-Options: nosniff`
+          4. Update CloudFront Response Headers Policy if using CDN
+          """,
+                  "Strict-Transport-Security Defined via META": """
+          ### Remediation Steps:
+          1. Move HSTS from meta tag to HTTP header
+          2. Add Strict-Transport-Security header to all HTTPS responses
+          3. Example: `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+          4. Update CloudFront Response Headers Policy if using CDN
+          """,
+                  "Server Leaks Version Information": """
+          ### Remediation Steps:
+          1. Remove or obfuscate Server header information
+          2. Configure web server to not reveal version details
+          3. Use generic server identification
+          4. Update CloudFront to strip server headers
+          """,
+                  "Permissions Policy Header Not Set": """
+          ### Remediation Steps:
+          1. Add Permissions-Policy header to restrict browser features
+          2. Example: `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+          3. Configure based on your application's needs
+          4. Update CloudFront Response Headers Policy if using CDN
+          """,
+                  "Sub Resource Integrity Attribute Missing": """
+          ### Remediation Steps:
+          1. Add integrity attributes to external script/link tags
+          2. Generate SRI hashes for external resources
+          3. Example: `<script src="..." integrity="sha384-..." crossorigin="anonymous"></script>`
+          4. Use tools like https://www.srihash.org/ to generate hashes
+          """
+              }
+              return remediations.get(alert_name, """
+          ### Remediation Steps:
+          1. Review the security finding details in the ZAP report
+          2. Consult OWASP guidelines for this vulnerability type
+          3. Implement appropriate security controls
+          4. Test the fix and re-scan to verify resolution
+          """)
+
+          try:
+              # Read ZAP JSON report
+              all_findings = []
+              report_sources = []
+              
+              # Process staging baseline report
+              if os.path.exists('staging-baseline-report.json'):
+                  print("📄 Processing staging-baseline-report.json...")
+                  with open('staging-baseline-report.json', 'r') as f:
+                      baseline_data = json.load(f)
+                  
+                  if 'site' in baseline_data and len(baseline_data['site']) > 0:
+                      site = baseline_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              alert['scan_source'] = 'staging-baseline'
+                              all_findings.append(alert)
+                          report_sources.append('staging-baseline')
+                          print(f"📊 Found {len(site['alerts'])} alerts in staging baseline report")
+              
+              print(f"📊 Found {len(all_findings)} total alerts across {len(report_sources)} reports")
+              print(f"📊 Report sources: {', '.join(report_sources)}")
+              
+              # Filter out PASS alerts (these are not security issues)
+              security_findings = []
+              for finding in all_findings:
+                  # Skip alerts that are marked as PASS (no security issues)
+                  if finding.get('confidence') != 'PASS':
+                      security_findings.append(finding)
+              
+              print(f"📊 Found {len(security_findings)} security findings to process (excluding PASS alerts)")
+              
+              # Group findings by alert name to avoid duplicate issues
+              grouped_findings = {}
+              for finding in security_findings:
+                  alert_name = finding.get('name', 'Unknown Alert')
+                  if alert_name not in grouped_findings:
+                      grouped_findings[alert_name] = []
+                  grouped_findings[alert_name].append(finding)
+              
+              # Create issues for each unique finding type
+              issues_created = 0
+              for alert_name, alert_findings in grouped_findings.items():
+                  # Get risk level (clean up risk description to remove parentheses)
+                  risk_levels = [f.get('riskdesc', 'Unknown') for f in alert_findings]
+                  # Extract the main risk level (before parentheses)
+                  clean_risk_levels = []
+                  for risk in risk_levels:
+                      if '(' in risk:
+                          clean_risk = risk.split('(')[0].strip()
+                      else:
+                          clean_risk = risk
+                      clean_risk_levels.append(clean_risk)
+                  
+                  risk_level = max(clean_risk_levels, key=lambda x: {'High': 3, 'Medium': 2, 'Low': 1, 'Informational': 0}.get(x, 0))
+                  
+                  # Count instances and track scan sources
+                  instance_count = len(alert_findings)
+                  scan_sources = list(set([f.get('scan_source', 'unknown') for f in alert_findings]))
+                  scan_sources_str = ', '.join(scan_sources)
+                  
+                  # Create issue title
+                  risk_emoji = get_risk_color(risk_level)
+                  issue_title = f"{risk_emoji} Security: {alert_name} ({risk_level} Risk) - Staging"
+                  
+                  # Create issue body
+                  issue_body = f"""## Security Finding: {alert_name}
+
+          **Risk Level:** {risk_level}  
+          **Instances Found:** {instance_count}  
+          **Scan Sources:** {scan_sources_str}
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Environment:** Staging (Pre-Production)
+
+          ### Description
+          {alert_findings[0].get('desc', 'No description available')}
+
+          ### Solution
+          {alert_findings[0].get('solution', 'No solution provided')}
+
+          {get_remediation_steps(alert_name)}
+
+          ### Affected URLs
+          """
+                  
+                  # Add affected URLs (limit to first 10 to avoid huge issues)
+                  for i, finding in enumerate(alert_findings[:10]):
+                      if 'instances' in finding:
+                          for instance in finding['instances'][:3]:  # Limit instances per finding
+                              url = instance.get('uri', 'Unknown URL')
+                              issue_body += f"- {url}\n"
+                  
+                  if instance_count > 10:
+                      issue_body += f"- ... and {instance_count - 10} more instances\n"
+                  
+                  issue_body += f"""
+          ### References
+          - [OWASP ZAP Alert Reference](https://www.zaproxy.org/docs/alerts/)
+          - [Workflow Run]({os.environ.get('GITHUB_SERVER_URL', '')}/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')})
+
+          ### Labels
+          - `security`
+          - `automated-scan`
+          - `staging-scan`
+          - `risk-{risk_level.lower()}`
+          - `zap-finding`
+          """
+                  
+                  # Create labels
+                  labels = f"security,automated-scan,staging-scan,risk-{risk_level.lower()},zap-finding"
+                  
+                  # Check if issue already exists
+                  try:
+                      existing_issues = subprocess.run(
+                          ["gh", "issue", "list", "--search", f"in:title {alert_name} staging", "--json", "number,title"],
+                          capture_output=True, text=True
+                      )
+                      if existing_issues.returncode == 0:
+                          existing_data = json.loads(existing_issues.stdout)
+                          if existing_data:
+                              print(f"📝 Issue already exists for: {alert_name}")
+                              continue
+                  except:
+                      pass
+                  
+                  # Create the issue
+                  if create_github_issue(issue_title, issue_body, labels):
+                      issues_created += 1
+              
+              print(f"✅ Created {issues_created} security issues")
+              
+              # Create summary issue if findings were found
+              if issues_created > 0:
+                  summary_title = f"🔒 Staging Security Scan Summary - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+                  summary_body = f"""## Staging Security Scan Summary
+
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Environment:** Staging (Pre-Production)
+          **Scan Sources:** {', '.join(report_sources)}
+          **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
+          **Issues Created:** {issues_created}
+
+          ### Scan Results
+          - **High Risk:** {len([f for f in security_findings if 'High' in f.get('riskdesc', '')])} instances
+          - **Medium Risk:** {len([f for f in security_findings if 'Medium' in f.get('riskdesc', '')])} instances  
+          - **Low Risk:** {len([f for f in security_findings if 'Low' in f.get('riskdesc', '')])} instances
+          - **Informational:** {len([f for f in security_findings if 'Informational' in f.get('riskdesc', '')])} instances
+
+          ### Next Steps
+          1. Review the individual security issues created above
+          2. Prioritize High and Medium risk findings
+          3. Implement fixes and re-run scans to verify resolution
+          4. Check the workflow artifacts for detailed ZAP reports
+
+          ### Workflow Information
+          - **Workflow Run:** {os.environ.get('GITHUB_SERVER_URL', '')}/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}
+          - **Commit:** {os.environ.get('GITHUB_SHA', '')}
+          - **Branch:** {os.environ.get('GITHUB_REF_NAME', '')}
+          """
+                  
+                  create_github_issue(summary_title, summary_body, "security,automated-scan,staging-scan,summary")
+                  print("✅ Created staging security scan summary issue")
+              
+          except Exception as e:
+              print(f"❌ Error processing ZAP results: {e}")
+              # Fallback to simple issue creation
+              issue_title = f"🔒 OWASP ZAP Staging Security Scan - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+              issue_body = f"""## Staging Security Scan Results
+
+          **Scan Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Environment:** Staging (Pre-Production)
+          **Scan Type:** Baseline
+
+          ### Scan Status
+          ✅ Security scan completed successfully  
+          📄 Reports generated and uploaded as artifacts
+
+          ### Artifacts Available
+          - HTML Report: Available in workflow artifacts
+          - JSON Report: Available in workflow artifacts  
+          - XML Report: Available in workflow artifacts
+
+          ### Next Steps
+          1. Review the uploaded artifacts for detailed scan results
+          2. Address any security findings identified in the scan
+          3. Re-run the scan after implementing fixes
+
+          ### Workflow Information
+          - **Workflow Run:** {os.environ.get('GITHUB_SERVER_URL', '')}/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}
+          - **Commit:** {os.environ.get('GITHUB_SHA', '')}
+          - **Branch:** {os.environ.get('GITHUB_REF_NAME', '')}
+          """
+              create_github_issue(issue_title, issue_body, "security,automated-scan,staging-scan")
+          EOF
+          else
+            echo "⚠️ No ZAP JSON reports found, skipping detailed issue creation"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔄 Close Resolved Security Issues
+        if: always()
+        run: |
+          echo "🔍 Checking for resolved security issues to close..."
+          
+          # Check if JSON reports exist and have no findings
+          if [ -f "staging-baseline-report.json" ]; then
+            echo "📄 Found ZAP JSON reports, checking for resolved issues..."
+            
+            python3 << 'EOF'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime, timezone
+
+          def close_github_issue(issue_number, comment):
+              """Close a GitHub issue with a comment"""
+              try:
+                  # Add comment to issue
+                  subprocess.run([
+                      "gh", "issue", "comment", str(issue_number), 
+                      "--body", comment
+                  ], check=True)
+                  
+                  # Close the issue
+                  subprocess.run([
+                      "gh", "issue", "close", str(issue_number)
+                  ], check=True)
+                  
+                  print(f"✅ Closed issue #{issue_number}")
+                  return True
+              except Exception as e:
+                  print(f"❌ Failed to close issue #{issue_number}: {e}")
+                  return False
+
+          try:
+              # Read ZAP JSON report
+              security_findings = []
+              
+              # Process staging baseline report
+              if os.path.exists('staging-baseline-report.json'):
+                  with open('staging-baseline-report.json', 'r') as f:
+                      baseline_data = json.load(f)
+                  
+                  if 'site' in baseline_data and len(baseline_data['site']) > 0:
+                      site = baseline_data['site'][0]
+                      if 'alerts' in site:
+                          for alert in site['alerts']:
+                              # Skip alerts that are marked as PASS (no security issues)
+                              if alert.get('confidence') != 'PASS':
+                                  security_findings.append(alert)
+              
+              # If no security findings, check for open security issues to close
+              if len(security_findings) == 0:
+                  print("✅ No security findings found - checking for resolved issues to close")
+                  
+                  # Get all open issues with staging-scan labels
+                  try:
+                      result = subprocess.run([
+                          "gh", "issue", "list", 
+                          "--label", "security,automated-scan,staging-scan",
+                          "--state", "open",
+                          "--json", "number,title,labels"
+                      ], capture_output=True, text=True)
+                      
+                      if result.returncode == 0:
+                          issues = json.loads(result.stdout)
+                          closed_count = 0
+                          
+                          for issue in issues:
+                              issue_number = issue['number']
+                              issue_title = issue['title']
+                              
+                              # Skip summary issues
+                              if 'Summary' in issue_title:
+                                  continue
+                              
+                              # Create closure comment
+                              closure_comment = f"""## ✅ Security Issue Resolved
+
+          **Resolution Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Scan Target:** https://staging.robertconsulting.net/?secret=staging-access-2025
+          **Environment:** Staging (Pre-Production)
+
+          ### Resolution Details
+          This security issue has been automatically closed because the latest OWASP ZAP staging security scan found **no security findings** for this vulnerability type.
+
+          ### Scan Results
+          - **Total Findings:** 0
+          - **High Risk:** 0
+          - **Medium Risk:** 0  
+          - **Low Risk:** 0
+
+          ### Verification
+          - ✅ Latest staging security scan completed successfully
+          - ✅ No instances of this vulnerability found
+          - ✅ Issue automatically resolved
+
+          ### Next Steps
+          - Monitor future security scans to ensure this issue doesn't reoccur
+          - If you believe this closure is incorrect, please reopen the issue with details
+
+          ### Workflow Information
+          - **Workflow Run:** {os.environ.get('GITHUB_SERVER_URL', '')}/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}
+          - **Commit:** {os.environ.get('GITHUB_SHA', '')}
+          - **Branch:** {os.environ.get('GITHUB_REF_NAME', '')}
+          """
+                              
+                              if close_github_issue(issue_number, closure_comment):
+                                  closed_count += 1
+                          
+                          if closed_count > 0:
+                              print(f"✅ Closed {closed_count} resolved security issues")
+                          else:
+                              print("📝 No open security issues found to close")
+                      else:
+                          print("⚠️ Could not retrieve open issues")
+                          
+                  except Exception as e:
+                      print(f"❌ Error checking for issues to close: {e}")
+              else:
+                  print(f"📊 Found {len(security_findings)} security findings - no issues to close")
+                  
+          except Exception as e:
+              print(f"❌ Error processing ZAP results for issue closure: {e}")
+          EOF
+          else
+            echo "⚠️ No ZAP JSON reports found, skipping issue closure check"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📊 Test Results Summary
         id: test-results
