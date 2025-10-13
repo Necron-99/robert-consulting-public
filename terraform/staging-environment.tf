@@ -321,11 +321,11 @@ resource "aws_cloudfront_distribution" "staging_website" {
     # Apply security headers policy (identical to production)
     response_headers_policy_id = aws_cloudfront_response_headers_policy.staging_security_headers.id
 
-    # Associate CloudFront function for access control
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.staging_access_control.arn
-    }
+            # Associate CloudFront function for access control
+            function_association {
+              event_type   = "viewer-request"
+              function_arn = aws_cloudfront_function.staging_access_control.arn
+            }
 
     min_ttl     = 0
     default_ttl = 3600

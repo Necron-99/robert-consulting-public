@@ -1,31 +1,31 @@
 import json
-import os
-import hashlib
+import boto3
+import jwt
 import time
 from datetime import datetime, timedelta
 
 def handler(event, context):
     """
-    Generate access tokens for staging environment
+    Generate JWT tokens for staging environment access
     """
     try:
-        # Parse request body
+        # Parse the request
         body = json.loads(event.get('body', '{}'))
         requested_path = body.get('path', '/')
         expiration_hours = body.get('expiration_hours', 24)
         
-        # Get staging access token from environment
-        staging_token = os.environ.get('STAGING_ACCESS_TOKEN', 'staging-access-2025')
+        # Get JWT secret from environment
+        jwt_secret = get_jwt_secret()
         
-        # Generate access token
-        access_token = generate_access_token(
+        # Generate JWT token
+        token = generate_jwt_token(
             path=requested_path,
             expiration_hours=expiration_hours,
-            secret=staging_token
+            secret=jwt_secret
         )
         
         # Create staging URL with token
-        staging_url = f"https://staging.robertconsulting.net{requested_path}?token={access_token}"
+        staging_url = f"https://staging.robertconsulting.net{requested_path}?token={token}"
         
         return {
             'statusCode': 200,
@@ -37,9 +37,9 @@ def handler(event, context):
             },
             'body': json.dumps({
                 'staging_url': staging_url,
-                'access_token': access_token,
+                'token': token,
                 'expires_at': (datetime.utcnow() + timedelta(hours=expiration_hours)).isoformat(),
-                'path': requested_path
+                'expiration_hours': expiration_hours
             })
         }
         
@@ -55,24 +55,36 @@ def handler(event, context):
             })
         }
 
-def generate_access_token(path, expiration_hours, secret):
+def get_jwt_secret():
     """
-    Generate a simple access token for staging
+    Get JWT secret from Secrets Manager
     """
-    # Calculate expiration timestamp
-    expiration = int(time.time()) + (expiration_hours * 3600)
+    secrets_client = boto3.client('secretsmanager')
+    try:
+        response = secrets_client.get_secret_value(SecretId='staging-jwt-secret')
+        return response['SecretString']
+    except Exception as e:
+        # Fallback to environment variable for development
+        import os
+        return os.environ.get('JWT_SECRET', 'staging-secret-2025')
+
+def generate_jwt_token(path, expiration_hours, secret):
+    """
+    Generate JWT token for staging access
+    """
+    # Calculate expiration time
+    expires = datetime.utcnow() + timedelta(hours=expiration_hours)
     
-    # Create token data
-    token_data = f"{path}:{expiration}:{secret}"
+    # Create payload
+    payload = {
+        'path': path,
+        'exp': expires,
+        'iat': datetime.utcnow(),
+        'iss': 'staging-access-control',
+        'aud': 'staging.robertconsulting.net'
+    }
     
-    # Generate hash
-    token_hash = hashlib.sha256(token_data.encode()).hexdigest()
+    # Generate token
+    token = jwt.encode(payload, secret, algorithm='HS256')
     
-    # Create token (path:expiration:hash)
-    access_token = f"{path}:{expiration}:{token_hash}"
-    
-    # Base64 encode for URL safety
-    import base64
-    encoded_token = base64.b64encode(access_token.encode()).decode()
-    
-    return encoded_token
+    return token

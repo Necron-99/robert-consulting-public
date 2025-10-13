@@ -15,23 +15,17 @@ function handler(event) {
     
     // Check if this is a staging request
     if (request.headers.host && request.headers.host.value.includes('staging.robertconsulting.net')) {
-        // Allow static assets (CSS, JS, images, fonts) without access key
-        if (uri.includes('/css/') || uri.includes('/js/') || uri.includes('/images/') || 
-            uri.includes('/img/') || uri.includes('/fonts/') || uri.includes('/assets/') ||
-            uri.endsWith('.css') || uri.endsWith('.js') || uri.endsWith('.png') || 
-            uri.endsWith('.jpg') || uri.endsWith('.jpeg') || uri.endsWith('.gif') || 
-            uri.endsWith('.svg') || uri.endsWith('.ico') || uri.endsWith('.woff') || 
-            uri.endsWith('.woff2') || uri.endsWith('.ttf') || uri.endsWith('.eot')) {
+        // Allow static assets without secret
+        if (uri.includes('/css/') || uri.includes('/js/') || uri.endsWith('.css') || uri.endsWith('.js')) {
             return request;
         }
         
-        // For HTML pages and other content, check for access key
-        // Simple check for the key parameter
-        if (querystring.key && querystring.key.value === 'staging-access-2025') {
+        // Check for secret parameter
+        if (querystring.secret && querystring.secret.value === 'staging-access-2025') {
             return request;
         }
         
-        // No valid access key, return access denied page
+        // Return access denied
         return {
             statusCode: 403,
             statusDescription: 'Forbidden',
@@ -40,12 +34,11 @@ function handler(event) {
             },
             body: {
                 encoding: 'text',
-                data: '<!DOCTYPE html><html><head><title>Staging Access Required</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:50px;background:#f5f5f5;}h1{color:#333;}.container{max-width:600px;margin:0 auto;background:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}p{color:#666;line-height:1.6;}.code{background:#f8f9fa;padding:10px;border-radius:4px;font-family:monospace;margin:20px 0;}</style></head><body><div class="container"><h1>🔒 Staging Access Required</h1><p>This is a staging environment that requires an access key.</p><p>To access staging, add the following parameter to your URL:</p><div class="code">?key=staging-access-2025</div><p>Example: <code>https://staging.robertconsulting.net/dashboard.html?key=staging-access-2025</code></p><p><strong>Note:</strong> This is a simple access control method. For production use, consider more robust authentication.</p></div></body></html>'
+                data: '<!DOCTYPE html><html><head><title>Staging Access Required</title></head><body><h1>Staging Access Required</h1><p>Add ?secret=staging-access-2025 to your URL</p></body></html>'
             }
         };
     }
     
-    // Not a staging request, allow through
     return request;
 }
 EOT
@@ -55,8 +48,10 @@ EOT
 output "staging_access_info" {
   description = "Information about staging access"
   value = {
-    access_key = "staging-access-2025"
-    example_url = "https://staging.robertconsulting.net/dashboard.html?key=staging-access-2025"
-    note = "Add ?key=staging-access-2025 to any staging URL to access it"
+    access_secret = "staging-access-2025"
+    example_url = "https://staging.robertconsulting.net/dashboard.html?secret=staging-access-2025"
+    header_name = "x-staging-secret"
+    header_value = "staging-access-2025"
+    note = "Add ?secret=staging-access-2025 to any staging URL to access it"
   }
 }

@@ -96,44 +96,44 @@ jobs:
         run: |
           echo "🌐 Running basic functionality tests..."
           
-          # Test main pages with staging access key
+          # Test main pages with staging access secret
           STAGING_URL="https://staging.robertconsulting.net"
-          ACCESS_KEY="staging-access-2025"
+          ACCESS_SECRET="staging-access-2025"
           
           echo "🔍 Debug: Testing URLs from GitHub Actions runner..."
           echo "STAGING_URL: $STAGING_URL"
-          echo "ACCESS_KEY: $ACCESS_KEY"
-          echo "Full test URL: $STAGING_URL/?key=$ACCESS_KEY"
+          echo "ACCESS_SECRET: $ACCESS_SECRET"
+          echo "Full test URL: $STAGING_URL/?secret=$ACCESS_SECRET"
           
           # Test staging site without access key first
           echo "Testing staging site without access key..."
           NO_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/")
           echo "Staging site without key status: $NO_KEY_STATUS"
           
-          # Test staging site with access key
-          echo "Testing staging site with access key..."
-          echo "Testing URL: $STAGING_URL/?key=$ACCESS_KEY"
-          WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
-          echo "Staging site with key status: $WITH_KEY_STATUS"
+          # Test staging site with access secret
+          echo "Testing staging site with access secret..."
+          echo "Testing URL: $STAGING_URL/?secret=$ACCESS_SECRET"
+          WITH_SECRET_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?secret=$ACCESS_SECRET")
+          echo "Staging site with secret status: $WITH_SECRET_STATUS"
           
           # If we get 403, wait and retry (CloudFront function propagation)
-          if [ "$WITH_KEY_STATUS" = "403" ]; then
+          if [ "$WITH_SECRET_STATUS" = "403" ]; then
             echo "⚠️ Got 403, waiting 30 seconds for CloudFront function propagation..."
             sleep 30
-            WITH_KEY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
-            echo "Staging site with key status after retry: $WITH_KEY_STATUS"
+            WITH_SECRET_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?secret=$ACCESS_SECRET")
+            echo "Staging site with secret status after retry: $WITH_SECRET_STATUS"
           fi
           
           # Test homepage with detailed debugging and retry
           echo "Testing homepage..."
-          HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+          HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?secret=$ACCESS_SECRET")
           echo "Homepage status code: $HOMEPAGE_STATUS"
           
           # Retry if we get 403 (CloudFront function propagation issue)
           if [ "$HOMEPAGE_STATUS" = "403" ]; then
             echo "⚠️ Homepage got 403, retrying after 15 seconds..."
             sleep 15
-            HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY")
+            HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?secret=$ACCESS_SECRET")
             echo "Homepage status code after retry: $HOMEPAGE_STATUS"
           fi
           
@@ -147,7 +147,7 @@ jobs:
           
           # Test dashboard with detailed debugging
           echo "Testing dashboard..."
-          DASHBOARD_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?key=$ACCESS_KEY")
+          DASHBOARD_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?secret=$ACCESS_SECRET")
           echo "Dashboard status code: $DASHBOARD_STATUS"
           if [ "$DASHBOARD_STATUS" = "200" ]; then
             echo "✅ Dashboard accessible"
@@ -159,7 +159,7 @@ jobs:
           
           # Test learning page with detailed debugging
           echo "Testing learning page..."
-          LEARNING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html?key=$ACCESS_KEY")
+          LEARNING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html?secret=$ACCESS_SECRET")
           echo "Learning page status code: $LEARNING_STATUS"
           if [ "$LEARNING_STATUS" = "200" ]; then
             echo "✅ Learning page accessible"

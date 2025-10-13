@@ -1,31 +1,33 @@
 import json
-import os
+import boto3
+import base64
 import hashlib
+import hmac
 import time
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 def handler(event, context):
     """
-    Generate access tokens for staging environment
+    Generate CloudFront signed URLs for staging environment access
     """
     try:
-        # Parse request body
+        # Parse the request
         body = json.loads(event.get('body', '{}'))
         requested_path = body.get('path', '/')
         expiration_hours = body.get('expiration_hours', 24)
         
-        # Get staging access token from environment
-        staging_token = os.environ.get('STAGING_ACCESS_TOKEN', 'staging-access-2025')
+        # Get CloudFront key pair from environment
+        key_pair_id = 'K2JCJMDEHXQW47'  # CloudFront key pair ID
+        private_key = get_private_key()
         
-        # Generate access token
-        access_token = generate_access_token(
-            path=requested_path,
-            expiration_hours=expiration_hours,
-            secret=staging_token
+        # Generate signed URL
+        signed_url = generate_signed_url(
+            url=f"https://staging.robertconsulting.net{requested_path}",
+            key_pair_id=key_pair_id,
+            private_key=private_key,
+            expiration_hours=expiration_hours
         )
-        
-        # Create staging URL with token
-        staging_url = f"https://staging.robertconsulting.net{requested_path}?token={access_token}"
         
         return {
             'statusCode': 200,
@@ -36,10 +38,9 @@ def handler(event, context):
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
             'body': json.dumps({
-                'staging_url': staging_url,
-                'access_token': access_token,
+                'signed_url': signed_url,
                 'expires_at': (datetime.utcnow() + timedelta(hours=expiration_hours)).isoformat(),
-                'path': requested_path
+                'expiration_hours': expiration_hours
             })
         }
         
@@ -55,24 +56,67 @@ def handler(event, context):
             })
         }
 
-def generate_access_token(path, expiration_hours, secret):
+def get_private_key():
     """
-    Generate a simple access token for staging
+    Get CloudFront private key from Secrets Manager
     """
-    # Calculate expiration timestamp
-    expiration = int(time.time()) + (expiration_hours * 3600)
+    secrets_client = boto3.client('secretsmanager')
+    try:
+        response = secrets_client.get_secret_value(SecretId='cloudfront-staging-private-key')
+        return response['SecretString']
+    except Exception as e:
+        # Fallback to environment variable for development
+        import os
+        return os.environ.get('CLOUDFRONT_PRIVATE_KEY', '')
+
+def generate_signed_url(url, key_pair_id, private_key, expiration_hours=24):
+    """
+    Generate CloudFront signed URL
+    """
+    # Calculate expiration time
+    expires = int(time.time()) + (expiration_hours * 3600)
     
-    # Create token data
-    token_data = f"{path}:{expiration}:{secret}"
+    # Create policy
+    policy = {
+        "Statement": [
+            {
+                "Resource": url,
+                "Condition": {
+                    "DateLessThan": {
+                        "AWS:EpochTime": expires
+                    }
+                }
+            }
+        ]
+    }
     
-    # Generate hash
-    token_hash = hashlib.sha256(token_data.encode()).hexdigest()
+    # Encode policy
+    policy_json = json.dumps(policy, separators=(',', ':'))
+    policy_b64 = base64.b64encode(policy_json.encode('utf-8')).decode('utf-8')
     
-    # Create token (path:expiration:hash)
-    access_token = f"{path}:{expiration}:{token_hash}"
+    # Sign policy
+    signature = sign_policy(policy_b64, private_key)
     
-    # Base64 encode for URL safety
-    import base64
-    encoded_token = base64.b64encode(access_token.encode()).decode()
+    # Create signed URL
+    signed_url = f"{url}?Policy={policy_b64}&Signature={signature}&Key-Pair-Id={key_pair_id}"
     
-    return encoded_token
+    return signed_url
+
+def sign_policy(policy, private_key):
+    """
+    Sign the policy with the private key
+    """
+    # Decode private key
+    private_key_pem = private_key.replace('\\n', '\n')
+    
+    # Sign the policy
+    signature = hmac.new(
+        private_key_pem.encode('utf-8'),
+        policy.encode('utf-8'),
+        hashlib.sha1
+    ).digest()
+    
+    # Encode signature
+    signature_b64 = base64.b64encode(signature).decode('utf-8')
+    
+    return signature_b64
