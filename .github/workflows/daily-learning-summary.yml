@@ -20,6 +20,10 @@ jobs:
   track-daily-learning:
     name: 📖 Track Daily Learning
     runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.check-changes.outputs.has_changes }}
+      fishing-mode: ${{ steps.check-fishing-mode.outputs.fishing_mode }}
+      current-date: ${{ steps.analyze-work.outputs.current_date }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -398,33 +402,6 @@ jobs:
           echo "🔍 Please review at: https://staging.robertconsulting.net/learning.html"
           echo "🎣 Gone fishing page: https://staging.robertconsulting.net/gone-fishing.html"
 
-      - name: 🚀 Deploy to Production (Manual Approval Required)
-        if: steps.check-changes.outputs.has_changes == 'true'
-        environment: production-deployment
-        run: |
-          echo "🚀 Deploying validated learning page to production..."
-          
-          # Configure AWS credentials
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region us-east-1
-          
-          # Deploy updated learning page and related files to production S3
-          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
-            echo "🎣 Deploying gone fishing page and updated learning page to production..."
-            aws s3 sync website/ s3://robert-consulting-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
-          else
-            echo "📚 Deploying updated learning page to production..."
-            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-website/learning.html
-            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-website/css/pages/learning-topics.css
-          fi
-          
-          # Invalidate production CloudFront cache
-          echo "🔄 Invalidating production CloudFront cache..."
-          aws cloudfront create-invalidation --distribution-id E36DBYPHUUKB3V --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
-          
-          echo "✅ Learning page deployed to production successfully"
-          echo "🌐 Live at: https://robertconsulting.net/learning.html"
 
       - name: 📊 Daily Learning Summary
         run: |
@@ -481,3 +458,39 @@ jobs:
           echo "- All data sanitized for public display" >> $GITHUB_STEP_SUMMARY
           echo "- No sensitive information exposed" >> $GITHUB_STEP_SUMMARY
           echo "- High-level metrics only" >> $GITHUB_STEP_SUMMARY
+
+  deploy-to-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: track-daily-learning
+    if: needs.track-daily-learning.outputs.has-changes == 'true'
+    environment: production-deployment
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Production
+        run: |
+          echo "🚀 Deploying validated learning page to production..."
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy updated learning page and related files to production S3
+          if [ "${{ needs.track-daily-learning.outputs.fishing-mode }}" = "true" ]; then
+            echo "🎣 Deploying gone fishing page and updated learning page to production..."
+            aws s3 sync website/ s3://robert-consulting-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
+          else
+            echo "📚 Deploying updated learning page to production..."
+            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-website/learning.html
+            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-website/css/pages/learning-topics.css
+          fi
+          
+          # Invalidate production CloudFront cache
+          echo "🔄 Invalidating production CloudFront cache..."
+          aws cloudfront create-invalidation --distribution-id E36DBYPHUUKB3V --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
+          
+          echo "✅ Learning page deployed to production successfully"
+          echo "🌐 Live at: https://robertconsulting.net/learning.html"
