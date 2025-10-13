@@ -303,14 +303,14 @@ class UnifiedDashboard {
             
             // Fallback to hardcoded data if API is not available
             const user = {
-                public_repos: 3,
+                public_repos: 1, // Only 'tools' is public
                 followers: 0,
                 following: 1
             };
             
             const repos = [
-                { name: 'DevOps-Challenge', stargazers_count: 0, forks_count: 0, private: false, description: 'DevOps automation and infrastructure challenges', language: 'Shell', updated_at: new Date().toISOString() },
-                { name: 'nginx', stargazers_count: 0, forks_count: 0, private: false, description: 'Nginx configuration and optimization', language: 'Nginx', updated_at: new Date().toISOString() },
+                { name: 'robert-consulting.net', stargazers_count: 0, forks_count: 0, private: true, description: 'Professional consulting website with AWS infrastructure', language: 'HTML', updated_at: new Date().toISOString() },
+                { name: 'baileylessons.com', stargazers_count: 0, forks_count: 0, private: true, description: 'Educational platform for Bailey lessons', language: 'HTML', updated_at: new Date().toISOString() },
                 { name: 'tools', stargazers_count: 0, forks_count: 0, private: false, description: 'Development and deployment tools', language: 'Python', updated_at: new Date().toISOString() }
             ];
             
@@ -351,12 +351,12 @@ class UnifiedDashboard {
             });
             
             return {
-                totalCommits: user.public_repos > 0 ? '100+' : '0',
-                repositories: user.public_repos.toString(),
+                totalCommits: '270+', // Combined commits from all active projects
+                repositories: '3', // Total repositories (2 private + 1 public)
                 starsReceived: totalStars.toString(),
                 forks: totalForks.toString(),
-                pullRequests: '5+',
-                issuesResolved: '3+',
+                pullRequests: '25+',
+                issuesResolved: '15+',
                 recentActivity: {
                     commits: Math.min(recentRepos.length * 5, 15).toString(),
                     linesAdded: Math.floor(Math.random() * 1000) + 200,
@@ -369,12 +369,12 @@ class UnifiedDashboard {
             console.error('Error fetching GitHub statistics:', error);
             // Return fallback data if API fails - using realistic values
             return {
-                totalCommits: '100+',
+                totalCommits: '270+',
                 repositories: '3',
                 starsReceived: '0',
                 forks: '0',
-                pullRequests: '5+',
-                issuesResolved: '3+',
+                pullRequests: '25+',
+                issuesResolved: '15+',
                 recentActivity: {
                     commits: '15',
                     linesAdded: 500,
@@ -383,29 +383,29 @@ class UnifiedDashboard {
                 },
                 projects: [
                     {
-                        name: 'DevOps-Challenge',
-                        description: 'DevOps automation and infrastructure challenges',
+                        name: 'robert-consulting.net',
+                        description: 'Professional consulting website with AWS infrastructure',
                         stars: 0,
                         forks: 0,
-                        commits: 25,
-                        url: 'https://github.com/Necron-99/DevOps-Challenge',
-                        language: 'Shell'
+                        commits: 150,
+                        url: 'https://github.com/Necron-99/robert-consulting.net',
+                        language: 'HTML'
                     },
                     {
-                        name: 'nginx',
-                        description: 'Nginx configuration and optimization',
+                        name: 'baileylessons.com',
+                        description: 'Educational platform for Bailey lessons',
                         stars: 0,
                         forks: 0,
-                        commits: 15,
-                        url: 'https://github.com/Necron-99/nginx',
-                        language: 'Nginx'
+                        commits: 75,
+                        url: 'https://github.com/Necron-99/baileylessons.com',
+                        language: 'HTML'
                     },
                     {
                         name: 'tools',
                         description: 'Development and deployment tools',
                         stars: 0,
                         forks: 0,
-                        commits: 20,
+                        commits: 45,
                         url: 'https://github.com/Necron-99/tools',
                         language: 'Python'
                     }
