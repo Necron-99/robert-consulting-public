@@ -118,84 +118,36 @@
     <div class="container">
         <h1>🔒 Staging Access</h1>
         
-        <form id="accessForm">
-            <div class="form-group">
-                <label for="path">Path to Access:</label>
-                <input type="text" id="path" name="path" placeholder="/dashboard.html" value="/dashboard.html">
-            </div>
-            
-            <div class="form-group">
-                <label for="expiration">Access Duration:</label>
-                <select id="expiration" name="expiration">
-                    <option value="1">1 Hour</option>
-                    <option value="24" selected>24 Hours</option>
-                    <option value="168">1 Week</option>
-                </select>
-            </div>
-            
-            <button type="submit" id="generateBtn">Generate Access URL</button>
-        </form>
+        <div class="form-group">
+            <label for="path">Path to Access:</label>
+            <input type="text" id="path" name="path" placeholder="/dashboard.html" value="/dashboard.html">
+        </div>
+        
+        <button type="button" id="generateBtn">Generate Access URL</button>
         
         <div id="result" class="result" style="display: none;">
             <h3>✅ Access URL Generated</h3>
             <p><strong>URL:</strong> <a id="accessUrl" href="#" target="_blank"></a></p>
-            <p><strong>Expires:</strong> <span id="expiresAt"></span></p>
             <p><strong>Path:</strong> <span id="accessPath"></span></p>
+            <p><strong>Access Key:</strong> <code>staging-access-2025</code></p>
         </div>
     </div>
 
     <script>
-        document.getElementById('accessForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const generateBtn = document.getElementById('generateBtn');
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const path = document.getElementById('path').value;
             const result = document.getElementById('result');
             
-            // Show loading state
-            generateBtn.disabled = true;
-            generateBtn.textContent = 'Generating...';
-            result.style.display = 'none';
+            // Generate simple staging URL with access key
+            const stagingUrl = `https://staging.robertconsulting.net${path}?key=staging-access-2025`;
             
-            try {
-                const formData = new FormData(this);
-                const response = await fetch('/api/staging-url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        path: formData.get('path'),
-                        expiration_hours: parseInt(formData.get('expiration'))
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    // Show success result
-                    document.getElementById('accessUrl').href = data.signed_url;
-                    document.getElementById('accessUrl').textContent = data.signed_url;
-                    document.getElementById('expiresAt').textContent = new Date(data.expires_at).toLocaleString();
-                    document.getElementById('accessPath').textContent = data.path;
-                    
-                    result.className = 'result';
-                    result.style.display = 'block';
-                } else {
-                    // Show error result
-                    result.className = 'result error';
-                    result.innerHTML = `<h3>❌ Error</h3><p>${data.error || 'Failed to generate access URL'}</p>`;
-                    result.style.display = 'block';
-                }
-            } catch (error) {
-                // Show error result
-                result.className = 'result error';
-                result.innerHTML = `<h3>❌ Error</h3><p>Network error: ${error.message}</p>`;
-                result.style.display = 'block';
-            } finally {
-                // Reset button
-                generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate Access URL';
-            }
+            // Show result
+            document.getElementById('accessUrl').href = stagingUrl;
+            document.getElementById('accessUrl').textContent = stagingUrl;
+            document.getElementById('accessPath').textContent = path;
+            
+            result.className = 'result';
+            result.style.display = 'block';
         });
     </script>
 </body>

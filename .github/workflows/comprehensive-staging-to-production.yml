@@ -96,11 +96,12 @@ jobs:
         run: |
           echo "🌐 Running basic functionality tests..."
           
-          # Test main pages
+          # Test main pages with staging access key
           STAGING_URL="https://staging.robertconsulting.net"
+          ACCESS_KEY="staging-access-2025"
           
           # Test homepage
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/" | grep -q "200"; then
+          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/?key=$ACCESS_KEY" | grep -q "200"; then
             echo "✅ Homepage accessible"
             HOMEPAGE_OK=true
           else
@@ -109,7 +110,7 @@ jobs:
           fi
           
           # Test dashboard
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html" | grep -q "200"; then
+          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?key=$ACCESS_KEY" | grep -q "200"; then
             echo "✅ Dashboard accessible"
             DASHBOARD_OK=true
           else
@@ -118,7 +119,7 @@ jobs:
           fi
           
           # Test learning page
-          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html" | grep -q "200"; then
+          if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/learning.html?key=$ACCESS_KEY" | grep -q "200"; then
             echo "✅ Learning page accessible"
             LEARNING_OK=true
           else
@@ -126,7 +127,7 @@ jobs:
             LEARNING_OK=false
           fi
           
-          # Test CSS and JS loading
+          # Test CSS and JS loading (these don't need access key)
           if curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/css/main.css" | grep -q "200"; then
             echo "✅ CSS files loading"
             CSS_OK=true
@@ -159,11 +160,12 @@ jobs:
           echo "🔒 Testing security headers..."
           
           STAGING_URL="https://staging.robertconsulting.net"
+          ACCESS_KEY="staging-access-2025"
           SECURITY_SCORE=0
           MAX_SCORE=8
           
           # Test security headers
-          HEADERS=$(curl -s -I "$STAGING_URL/")
+          HEADERS=$(curl -s -I "$STAGING_URL/?key=$ACCESS_KEY")
           
           # Check for required security headers
           if echo "$HEADERS" | grep -qi "strict-transport-security"; then
@@ -239,9 +241,10 @@ jobs:
           echo "⚡ Running performance tests..."
           
           STAGING_URL="https://staging.robertconsulting.net"
+          ACCESS_KEY="staging-access-2025"
           
           # Test response time
-          RESPONSE_TIME=$(curl -s -o /dev/null -w "%{time_total}" "$STAGING_URL/")
+          RESPONSE_TIME=$(curl -s -o /dev/null -w "%{time_total}" "$STAGING_URL/?key=$ACCESS_KEY")
           RESPONSE_TIME_MS=$(echo "$RESPONSE_TIME * 1000" | bc -l | cut -d. -f1)
           
           echo "⚡ Response time: ${RESPONSE_TIME_MS}ms"
@@ -286,9 +289,10 @@ jobs:
           ./ZAP_2.14.0/zap.sh -daemon -host 0.0.0.0 -port 8080 &
           sleep 10
           
-          # Run baseline scan
+          # Run baseline scan with access key
           STAGING_URL="https://staging.robertconsulting.net"
-          ./ZAP_2.14.0/zap-cli.sh quick-scan --self-contained --start-options '-config api.disablekey=true' "$STAGING_URL"
+          ACCESS_KEY="staging-access-2025"
+          ./ZAP_2.14.0/zap-cli.sh quick-scan --self-contained --start-options '-config api.disablekey=true' "$STAGING_URL/?key=$ACCESS_KEY"
           
           # Get scan results
           SCAN_RESULTS=$(./ZAP_2.14.0/zap-cli.sh alerts --self-contained --start-options '-config api.disablekey=true')
