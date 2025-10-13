@@ -370,6 +370,62 @@ jobs:
           
           echo "✅ Daily learning update committed and pushed"
 
+      - name: 🧪 Deploy Updated Learning Page to Staging
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "🧪 Deploying updated learning page to staging for validation..."
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy updated learning page and related files to staging S3
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "🎣 Deploying gone fishing page and updated learning page to staging..."
+            aws s3 sync website/ s3://robert-consulting-staging-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
+          else
+            echo "📚 Deploying updated learning page to staging..."
+            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-staging-website/learning.html
+            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-staging-website/css/pages/learning-topics.css
+          fi
+          
+          # Invalidate staging CloudFront cache
+          echo "🔄 Invalidating staging CloudFront cache..."
+          aws cloudfront create-invalidation --distribution-id E23HB5TWK5BF44 --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
+          
+          echo "✅ Learning page deployed to staging successfully"
+          echo "🔍 Please review at: https://staging.robertconsulting.net/learning.html"
+          echo "🎣 Gone fishing page: https://staging.robertconsulting.net/gone-fishing.html"
+
+      - name: 🚀 Deploy to Production (Manual Approval Required)
+        if: steps.check-changes.outputs.has_changes == 'true'
+        environment: production-deployment
+        run: |
+          echo "🚀 Deploying validated learning page to production..."
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy updated learning page and related files to production S3
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "🎣 Deploying gone fishing page and updated learning page to production..."
+            aws s3 sync website/ s3://robert-consulting-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
+          else
+            echo "📚 Deploying updated learning page to production..."
+            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-website/learning.html
+            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-website/css/pages/learning-topics.css
+          fi
+          
+          # Invalidate production CloudFront cache
+          echo "🔄 Invalidating production CloudFront cache..."
+          aws cloudfront create-invalidation --distribution-id E36DBYPHUUKB3V --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
+          
+          echo "✅ Learning page deployed to production successfully"
+          echo "🌐 Live at: https://robertconsulting.net/learning.html"
+
       - name: 📊 Daily Learning Summary
         run: |
           echo "## 📚 Daily Learning Summary Complete" >> $GITHUB_STEP_SUMMARY
@@ -411,8 +467,12 @@ jobs:
             echo "- Added sanitized learning highlight" >> $GITHUB_STEP_SUMMARY
           fi
           echo "- Logged daily learning to persistent file" >> $GITHUB_STEP_SUMMARY
+          
           if [ "${{ steps.check-changes.outputs.has_changes }}" = "true" ]; then
             echo "- Committed and pushed changes" >> $GITHUB_STEP_SUMMARY
+            echo "- Deployed to staging for validation" >> $GITHUB_STEP_SUMMARY
+            echo "- Invalidated staging CloudFront cache" >> $GITHUB_STEP_SUMMARY
+            echo "- Awaiting manual approval for production deployment" >> $GITHUB_STEP_SUMMARY
           else
             echo "- No changes to commit" >> $GITHUB_STEP_SUMMARY
           fi
