@@ -1726,3 +1726,123 @@
         font-size: 1.2rem;
     }
 }
+
+/* Repository Cleanup Achievements Section */
+.cleanup-achievements-section {
+    background: var(--card-background);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--card-shadow);
+}
+
+.cleanup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.cleanup-card {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.cleanup-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.cleanup-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.cleanup-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.cleanup-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.cleanup-description {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.cleanup-summary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 8px;
+    padding: 2rem;
+    color: white;
+}
+
+.summary-highlight h4 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.impact-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.impact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.impact-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.impact-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Responsive Design for Cleanup Section */
+@media (max-width: 768px) {
+    .cleanup-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .impact-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .cleanup-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cleanup-value {
+        font-size: 1.5rem;
+    }
+    
+    .cleanup-summary {
+        padding: 1.5rem;
+    }
+}
