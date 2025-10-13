@@ -32,11 +32,20 @@ bootstrap.tf.backup
 
 # AWS CLI distribution
 awscliv2.zip
+aws/
 
 # AWS credentials and configuration
 .aws/
 aws-credentials.json
 aws-config.json
+aws-config
+credentials
+config
+
+# AWS Lambda deployment packages
+*.zip
+lambda-*.zip
+contact-form.zip
 
 # =============================================================================
 # SENSITIVE FILES
@@ -204,6 +213,15 @@ website/version-updater.js
 security-scan-report-*.md
 security-report-*.md
 *.security-report
+zap-report-*.html
+zap-report-*.json
+zap-report-*.xml
+
+# WAF rule files (temporary)
+waf-rules-*.json
+
+# Daily learning logs
+daily-learning-log.md
 
 # =============================================================================
 # TERRAFORM FILES TO KEEP IN SOURCE CONTROL

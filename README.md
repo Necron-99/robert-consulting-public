@@ -11,25 +11,53 @@ This framework provides a complete, production-ready serverless infrastructure s
 ```
 robert-consulting.net/
 ├── README.md                           # This file
-├── skeleton-client/                    # Skeleton client template
-│   ├── README.md                      # Skeleton template documentation
-│   ├── terraform.tfvars.example      # Client configuration template
-│   ├── main.tf                       # Main Terraform configuration
-│   ├── variables.tf                  # Input variables
-│   ├── outputs.tf                    # Output values
-│   ├── modules/                      # Reusable modules
-│   │   ├── networking/               # VPC, subnets, security groups
-│   │   ├── database/                # DynamoDB configuration
-│   │   ├── storage/                 # S3 buckets and CloudFront
-│   │   └── monitoring/              # CloudWatch and alerts
-│   └── scripts/                     # Utility scripts
-│       └── create-client.sh        # Client creation script
-└── clients/                        # Client directories (created dynamically)
-    └── [client-name]/              # Individual client configurations
-        ├── README.md               # Client-specific documentation
-        ├── terraform.tfvars       # Client configuration
-        ├── deploy.sh              # Client deployment script
-        └── CLIENT_SUMMARY.md      # Client summary
+├── .gitignore                         # Git ignore rules
+├── .eslintrc.json                     # ESLint configuration
+├── .stylelintrc.json                  # Stylelint configuration
+├── package.json                       # Node.js dependencies
+├── docs/                              # 📚 All documentation
+│   ├── README.md                      # Documentation index
+│   ├── guides/                        # Setup and configuration guides
+│   ├── reports/                       # Analysis and summary reports
+│   ├── deployment/                    # Deployment documentation
+│   ├── security/                      # Security documentation
+│   └── infrastructure/                # Infrastructure documentation
+├── scripts/                           # 🔧 Automation scripts
+│   ├── README.md                      # Scripts index
+│   ├── deployment/                    # Deployment scripts
+│   ├── security/                      # Security scripts
+│   ├── maintenance/                   # Maintenance scripts
+│   └── utilities/                     # Utility scripts
+├── config/                            # ⚙️ Configuration files
+│   ├── README.md                      # Configuration index
+│   ├── terraform/                     # Terraform configurations
+│   ├── aws/                          # AWS configurations
+│   └── github/                       # GitHub configurations
+├── website/                           # 🌐 Main website content
+│   ├── index.html                     # Homepage
+│   ├── dashboard.html                 # Dashboard page
+│   ├── learning.html                  # Learning page
+│   ├── css/                          # Stylesheets
+│   ├── js/                           # JavaScript files
+│   └── api/                          # API endpoints
+├── admin/                             # 🔐 Admin site
+│   ├── index.html                     # Admin dashboard
+│   ├── baileylessons/                 # Bailey Lessons admin
+│   └── js/                           # Admin JavaScript
+├── terraform/                         # 🏗️ Infrastructure as Code
+│   ├── infrastructure.tf              # Main infrastructure
+│   ├── staging-environment.tf         # Staging environment
+│   ├── admin-site.tf                  # Admin site infrastructure
+│   └── modules/                       # Reusable modules
+├── .github/                           # 🤖 GitHub Actions
+│   ├── workflows/                     # CI/CD workflows
+│   └── environments/                  # Environment configurations
+├── skeleton-client/                   # 📋 Client template
+├── client-template/                   # 📋 Client template
+├── client-content-template/           # 📋 Content template
+└── lambda/                            # ⚡ Lambda functions
+    ├── staging-token-generator/       # Staging access control
+    └── staging-url-generator/         # URL generation
 ```
 
 ## 💰 Cost Analysis
