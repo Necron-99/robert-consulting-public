@@ -80,10 +80,19 @@
 
 .hero-buttons {
   display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
+  gap: var(--space-6);
+  margin-top: var(--space-8);
   justify-content: flex-start;
   flex-wrap: wrap;
+}
+
+.hero-buttons .btn {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  min-width: 180px;
+  height: 48px;
+  border-radius: var(--radius-lg);
 }
 
 .hero-image {
