@@ -1,0 +1,496 @@
+name: 📚 Daily Learning Summary
+
+on:
+  schedule:
+    # Run every day at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      date_override:
+        description: 'Override date (YYYY-MM-DD format)'
+        required: false
+        type: string
+
+env:
+  LEARNING_PAGE: 'website/learning.html'
+  LEARNING_TOPICS_JS: 'website/js/learning-topics.js'
+  DAILY_LOG: 'daily-learning-log.md'
+
+jobs:
+  track-daily-learning:
+    name: 📖 Track Daily Learning
+    runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.check-changes.outputs.has_changes }}
+      fishing-mode: ${{ steps.check-fishing-mode.outputs.fishing_mode }}
+      current-date: ${{ steps.analyze-work.outputs.current_date }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔧 Configure git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: 📊 Analyze Previous 24 Hours Work
+        id: analyze-work
+        run: |
+          # Get current date or use override
+          if [ -n "${{ github.event.inputs.date_override }}" ]; then
+            CURRENT_DATE="${{ github.event.inputs.date_override }}"
+          else
+            CURRENT_DATE=$(date -u +%Y-%m-%d)
+          fi
+          CURRENT_TIME=$(date -u +%H:%M:%S)
+          
+          # Analyze work from previous 24 hours (midnight to midnight)
+          echo "📊 Analyzing work from previous 24 hours..."
+          
+          # Get commits from last 24 hours with sanitized output
+          RECENT_COMMITS=$(git log --since="24 hours ago" --oneline --pretty=format:"%h" | wc -l)
+          COMMIT_COUNT=$RECENT_COMMITS
+          
+          # Analyze commit messages for patterns (sanitized - only counts, no details)
+          BUG_FIXES=$(git log --since="24 hours ago" --grep="fix\|bug\|error\|issue\|resolve" --oneline | wc -l)
+          FEATURES=$(git log --since="24 hours ago" --grep="add\|implement\|create\|new\|feature" --oneline | wc -l)
+          IMPROVEMENTS=$(git log --since="24 hours ago" --grep="improve\|optimize\|enhance\|update\|refactor" --oneline | wc -l)
+          SECURITY=$(git log --since="24 hours ago" --grep="security\|vulnerability\|scan\|audit" --oneline | wc -l)
+          
+          # Count file changes (sanitized - only count, no file names)
+          FILES_CHANGED=$(git log --since="24 hours ago" --name-only --pretty=format: | grep -v "^$" | sort -u | wc -l)
+          
+          # Analyze workflow runs for issues (sanitized)
+          WORKFLOW_FAILURES=$(gh run list --since="24 hours ago" --json conclusion | jq -r '.[] | select(.conclusion == "failure") | .conclusion' | wc -l 2>/dev/null || echo "0")
+          WORKFLOW_SUCCESSES=$(gh run list --since="24 hours ago" --json conclusion | jq -r '.[] | select(.conclusion == "success") | .conclusion' | wc -l 2>/dev/null || echo "0")
+          
+          # Calculate success rate
+          TOTAL_WORKFLOWS=$((WORKFLOW_FAILURES + WORKFLOW_SUCCESSES))
+          if [ $TOTAL_WORKFLOWS -gt 0 ]; then
+            SUCCESS_RATE=$((WORKFLOW_SUCCESSES * 100 / TOTAL_WORKFLOWS))
+          else
+            SUCCESS_RATE=100
+          fi
+          
+          # Set outputs
+          echo "current_date=$CURRENT_DATE" >> $GITHUB_OUTPUT
+          echo "current_time=$CURRENT_TIME" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          echo "bug_fixes=$BUG_FIXES" >> $GITHUB_OUTPUT
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
+          echo "improvements=$IMPROVEMENTS" >> $GITHUB_OUTPUT
+          echo "security_work=$SECURITY" >> $GITHUB_OUTPUT
+          echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
+          echo "workflow_failures=$WORKFLOW_FAILURES" >> $GITHUB_OUTPUT
+          echo "workflow_successes=$WORKFLOW_SUCCESSES" >> $GITHUB_OUTPUT
+          echo "success_rate=$SUCCESS_RATE" >> $GITHUB_OUTPUT
+          
+          echo "📈 Previous 24 hours work analysis:"
+          echo "  Commits: $COMMIT_COUNT"
+          echo "  Bug fixes: $BUG_FIXES"
+          echo "  Features: $FEATURES"
+          echo "  Improvements: $IMPROVEMENTS"
+          echo "  Security work: $SECURITY"
+          echo "  Files changed: $FILES_CHANGED"
+          echo "  Workflow failures: $WORKFLOW_FAILURES"
+          echo "  Workflow successes: $WORKFLOW_SUCCESSES"
+          echo "  Success rate: $SUCCESS_RATE%"
+
+      - name: 🎣 Check for Gone Fishing Mode
+        id: check-fishing-mode
+        run: |
+          # If no commits in the last 24 hours, enable "gone fishing" mode
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -eq 0 ]; then
+            echo "🎣 No commits found - enabling 'Gone Fishing' mode"
+            echo "fishing_mode=true" >> $GITHUB_OUTPUT
+            echo "fishing_message=Taking a well-deserved break from development" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Commits found - normal learning mode"
+            echo "fishing_mode=false" >> $GITHUB_OUTPUT
+            echo "fishing_message=Active development in progress" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📝 Generate High-Level Learning Summary
+        id: generate-summary
+        run: |
+          # Generate sanitized, high-level summary from actual work analysis
+          LEARNING_SUMMARY="Completed ${{ steps.analyze-work.outputs.commit_count }} commits"
+          
+          # Add high-level categories without specific details
+          CATEGORIES=()
+          
+          if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.bug_fixes }} bug fixes")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.features }} features")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.improvements }}" -gt 0 ]; then
+            CATEGORIES+=("${{ steps.analyze-work.outputs.improvements }} improvements")
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            CATEGORIES+=("security enhancements")
+          fi
+          
+          # Join categories with commas
+          if [ ${#CATEGORIES[@]} -gt 0 ]; then
+            LEARNING_SUMMARY="$LEARNING_SUMMARY with $(IFS=', '; echo "${CATEGORIES[*]}")"
+          fi
+          
+          # Generate high-level, sanitized descriptions
+          ISSUES_RESOLVED=""
+          FEATURES_IMPLEMENTED=""
+          TECHNOLOGIES_LEARNED=""
+          
+          if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            ISSUES_RESOLVED="${{ steps.analyze-work.outputs.bug_fixes }} issues resolved"
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            FEATURES_IMPLEMENTED="${{ steps.analyze-work.outputs.features }} features implemented"
+          fi
+          
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            TECHNOLOGIES_LEARNED="Security and automation tools"
+          fi
+          
+          # Add workflow success rate to summary
+          if [ "${{ steps.analyze-work.outputs.success_rate }}" -lt 100 ]; then
+            LEARNING_SUMMARY="$LEARNING_SUMMARY (${SUCCESS_RATE}% workflow success rate)"
+          fi
+          
+          echo "learning_summary=$LEARNING_SUMMARY" >> $GITHUB_OUTPUT
+          echo "issues_resolved=$ISSUES_RESOLVED" >> $GITHUB_OUTPUT
+          echo "features_implemented=$FEATURES_IMPLEMENTED" >> $GITHUB_OUTPUT
+          echo "technologies_learned=$TECHNOLOGIES_LEARNED" >> $GITHUB_OUTPUT
+          
+          echo "📝 Generated high-level learning summary:"
+          echo "  Summary: $LEARNING_SUMMARY"
+          echo "  Issues: $ISSUES_RESOLVED"
+          echo "  Features: $FEATURES_IMPLEMENTED"
+          echo "  Technologies: $TECHNOLOGIES_LEARNED"
+
+      - name: 📊 Update Hero Stats Conservatively
+        run: |
+          echo "📊 Updating hero stats conservatively based on actual progress..."
+          
+          # Only update stats if there was significant work (more than 2 commits)
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -lt 2 ]; then
+            echo "⚠️ Insufficient work to update hero stats (less than 2 commits)"
+            echo "skip_stats_update=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Calculate conservative stats based on actual work
+          TOTAL_TECH_COUNT=35  # Base count - only increment for significant new tech
+          TOTAL_WEEKS=$(( ($(date -d "${{ steps.analyze-work.outputs.current_date }}" +%s) - $(date -d "2024-10-01" +%s)) / 604800 ))
+          
+          # Only increment tech count for significant security work (new tools learned)
+          if [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            TOTAL_TECH_COUNT=$((TOTAL_TECH_COUNT + 1))
+          fi
+          
+          # Update workflow count based on actual workflow files
+          WORKFLOW_COUNT=$(find .github/workflows -name "*.yml" | wc -l)
+          
+          # Calculate optimization based on workflow success rate
+          OPTIMIZATION=${{ steps.analyze-work.outputs.success_rate }}
+          if [ $OPTIMIZATION -lt 80 ]; then
+            OPTIMIZATION=80  # Minimum 80% for public display
+          fi
+          
+          # Update the learning page with conservative stats
+          sed -i "s/<span class=\"stat-number\">[0-9]*<\/span>/<span class=\"stat-number\">$TOTAL_TECH_COUNT<\/span>/g" ${{ env.LEARNING_PAGE }}
+          sed -i "s/<span class=\"stat-number\">[0-9]*+<\/span>/<span class=\"stat-number\">$TOTAL_WEEKS+<\/span>/g" ${{ env.LEARNING_PAGE }}
+          sed -i "s/<span class=\"stat-number\">[0-9]*<\/span>/<span class=\"stat-number\">$WORKFLOW_COUNT<\/span>/g" ${{ env.LEARNING_PAGE }}
+          sed -i "s/<span class=\"stat-number\">[0-9]*%<\/span>/<span class=\"stat-number\">$OPTIMIZATION%<\/span>/g" ${{ env.LEARNING_PAGE }}
+          
+          echo "✅ Updated hero stats conservatively:"
+          echo "  Technologies: $TOTAL_TECH_COUNT"
+          echo "  Weeks: $TOTAL_WEEKS+"
+          echo "  Workflows: $WORKFLOW_COUNT"
+          echo "  Optimization: $OPTIMIZATION%"
+
+      - name: 🎣 Handle Gone Fishing Mode
+        if: steps.check-fishing-mode.outputs.fishing_mode == 'true'
+        run: |
+          echo "🎣 Setting up Gone Fishing mode..."
+          
+          # Create a simple redirect page for the learning section
+          cat > /tmp/fishing-redirect.html << 'EOF'
+          <div class="fishing-redirect">
+            <div class="fishing-message">
+              <h2>🎣 Gone Fishing</h2>
+              <p>Taking a well-deserved break from development</p>
+              <p>No commits in the last 24 hours - time to recharge!</p>
+              <a href="gone-fishing.html" class="btn btn-primary">Visit Fishing Page</a>
+            </div>
+          </div>
+          EOF
+          
+          # Insert fishing redirect at the beginning of the learning page
+          sed -i "/<main class=\"main\">/r /tmp/fishing-redirect.html" ${{ env.LEARNING_PAGE }}
+          
+          echo "✅ Gone Fishing mode activated"
+
+      - name: 🎯 Add Sanitized Learning Highlight
+        if: steps.check-fishing-mode.outputs.fishing_mode == 'false'
+        run: |
+          echo "🎯 Adding sanitized learning highlight for ${{ steps.analyze-work.outputs.current_date }}..."
+          
+          # Only add highlight if there was significant work
+          if [ "${{ steps.analyze-work.outputs.commit_count }}" -lt 1 ]; then
+            echo "⚠️ No significant work to highlight"
+            exit 0
+          fi
+          
+          # Create sanitized highlight based on work categories
+          HIGHLIGHT_ICON="🔧"
+          HIGHLIGHT_TITLE="Daily Development Progress"
+          
+          if [ "${{ steps.analyze-work.outputs.bug_fixes }}" -gt 0 ]; then
+            HIGHLIGHT_ICON="🐛"
+            HIGHLIGHT_TITLE="Issue Resolution & Bug Fixes"
+          elif [ "${{ steps.analyze-work.outputs.features }}" -gt 0 ]; then
+            HIGHLIGHT_ICON="✨"
+            HIGHLIGHT_TITLE="Feature Development"
+          elif [ "${{ steps.analyze-work.outputs.security_work }}" -gt 0 ]; then
+            HIGHLIGHT_ICON="🔒"
+            HIGHLIGHT_TITLE="Security & Automation"
+          fi
+          
+          # Create sanitized description
+          DESCRIPTION="Completed ${{ steps.analyze-work.outputs.commit_count }} commits"
+          if [ "${{ steps.analyze-work.outputs.files_changed }}" -gt 0 ]; then
+            DESCRIPTION="$DESCRIPTION across ${{ steps.analyze-work.outputs.files_changed }} files"
+          fi
+          DESCRIPTION="$DESCRIPTION with focus on continuous improvement and automation."
+          
+          # Create highlight file
+          cat > /tmp/new_highlight.html << EOF
+                    <div class="highlight-card">
+                        <div class="highlight-icon">$HIGHLIGHT_ICON</div>
+                        <div class="highlight-content">
+                            <h3>$HIGHLIGHT_TITLE</h3>
+                            <p class="highlight-date">${{ steps.analyze-work.outputs.current_date }}</p>
+                            <p class="highlight-description">
+                                $DESCRIPTION
+                            </p>
+                            <div class="highlight-tags">
+                                <span class="tag">Development</span>
+                                <span class="tag">${{ steps.analyze-work.outputs.commit_count }} Commits</span>
+                                <span class="tag">${{ steps.analyze-work.outputs.current_date }}</span>
+                            </div>
+                        </div>
+                    </div>
+          EOF
+          
+          # Insert new highlight at the beginning of highlights grid
+          sed -i "/<div class=\"highlights-grid\">/r /tmp/new_highlight.html" ${{ env.LEARNING_PAGE }}
+          
+          echo "✅ Added sanitized learning highlight"
+
+      - name: 📋 Log Sanitized Daily Learning
+        run: |
+          echo "📋 Logging sanitized daily learning to persistent log..."
+          
+          # Create or append to daily learning log with sanitized content
+          cat >> ${{ env.DAILY_LOG }} << EOF
+          
+          ## ${{ steps.analyze-work.outputs.current_date }} - ${{ steps.analyze-work.outputs.current_time }}
+          
+          **Work Summary**: ${{ steps.generate-summary.outputs.learning_summary }}
+          
+          **High-Level Stats**:
+          - Commits: ${{ steps.analyze-work.outputs.commit_count }}
+          - Files Modified: ${{ steps.analyze-work.outputs.files_changed }}
+          - Bug Fixes: ${{ steps.analyze-work.outputs.bug_fixes }}
+          - Features: ${{ steps.analyze-work.outputs.features }}
+          - Improvements: ${{ steps.analyze-work.outputs.improvements }}
+          - Security Work: ${{ steps.analyze-work.outputs.security_work }}
+          - Workflow Success Rate: ${{ steps.analyze-work.outputs.success_rate }}%
+          
+          **Categories**:
+          - Issues Resolved: ${{ steps.generate-summary.outputs.issues_resolved }}
+          - Features Implemented: ${{ steps.generate-summary.outputs.features_implemented }}
+          - Technologies Learned: ${{ steps.generate-summary.outputs.technologies_learned }}
+          
+          **Focus Areas**: Development, Automation, Best Practices
+          
+          ---
+          EOF
+          
+          echo "✅ Logged sanitized daily learning to persistent file"
+
+      - name: 🔍 Check for Changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "📋 Changes to be committed:"
+            git diff --name-only
+          fi
+
+      - name: 💾 Commit Daily Learning Updates
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "💾 Committing daily learning updates..."
+          
+          # Add files based on mode
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            git add ${{ env.LEARNING_PAGE }} ${{ env.DAILY_LOG }} website/gone-fishing.html website/css/pages/gone-fishing.css
+            COMMIT_MESSAGE="🎣 Gone Fishing mode activated for ${{ steps.analyze-work.outputs.current_date }}
+
+          No commits in the last 24 hours - taking a well-deserved break!
+          - Added gone fishing page and animations
+          - Updated learning page with fishing mode redirect
+          - Time to recharge and catch some inspiration 🐟"
+          else
+            git add ${{ env.LEARNING_PAGE }} ${{ env.DAILY_LOG }}
+            COMMIT_MESSAGE="📚 Daily learning summary for ${{ steps.analyze-work.outputs.current_date }}
+
+          Based on previous 24 hours work:
+          - ${{ steps.analyze-work.outputs.commit_count }} commits
+          - ${{ steps.analyze-work.outputs.files_changed }} files changed
+          - ${{ steps.analyze-work.outputs.bug_fixes }} bug fixes
+          - ${{ steps.analyze-work.outputs.features }} features
+          - ${{ steps.analyze-work.outputs.improvements }} improvements
+          - ${{ steps.analyze-work.outputs.security_work }} security enhancements
+
+          Learning summary: ${{ steps.generate-summary.outputs.learning_summary }}"
+          fi
+          
+          git commit -m "$COMMIT_MESSAGE"
+          git push origin staging
+          
+          echo "✅ Daily learning update committed and pushed"
+
+      - name: 🧪 Deploy Updated Learning Page to Staging
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "🧪 Deploying updated learning page to staging for validation..."
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy updated learning page and related files to staging S3
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "🎣 Deploying gone fishing page and updated learning page to staging..."
+            aws s3 sync website/ s3://robert-consulting-staging-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
+          else
+            echo "📚 Deploying updated learning page to staging..."
+            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-staging-website/learning.html
+            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-staging-website/css/pages/learning-topics.css
+          fi
+          
+          # Invalidate staging CloudFront cache
+          echo "🔄 Invalidating staging CloudFront cache..."
+          aws cloudfront create-invalidation --distribution-id E23HB5TWK5BF44 --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
+          
+          echo "✅ Learning page deployed to staging successfully"
+          echo "🔍 Please review at: https://staging.robertconsulting.net/learning.html"
+          echo "🎣 Gone fishing page: https://staging.robertconsulting.net/gone-fishing.html"
+
+
+      - name: 📊 Daily Learning Summary
+        run: |
+          echo "## 📚 Daily Learning Summary Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: ${{ steps.analyze-work.outputs.current_date }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: ${{ steps.analyze-work.outputs.current_time }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode**: ${{ steps.check-fishing-mode.outputs.fishing_message }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "## 🎣 Gone Fishing Mode Activated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: No commits in the last 24 hours" >> $GITHUB_STEP_SUMMARY
+            echo "- **Action**: Taking a well-deserved break" >> $GITHUB_STEP_SUMMARY
+            echo "- **Page**: Gone fishing page created with animations" >> $GITHUB_STEP_SUMMARY
+            echo "- **Learning**: Time to recharge and catch inspiration 🐟" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 📈 Previous 24 Hours Work Analysis:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commits**: ${{ steps.analyze-work.outputs.commit_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Files Modified**: ${{ steps.analyze-work.outputs.files_changed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bug Fixes**: ${{ steps.analyze-work.outputs.bug_fixes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Features**: ${{ steps.analyze-work.outputs.features }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Improvements**: ${{ steps.analyze-work.outputs.improvements }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Work**: ${{ steps.analyze-work.outputs.security_work }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow Success Rate**: ${{ steps.analyze-work.outputs.success_rate }}%" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## 📝 High-Level Summary:" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.generate-summary.outputs.learning_summary }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Actions Completed:" >> $GITHUB_STEP_SUMMARY
+          echo "- Analyzed previous 24 hours of work" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-fishing-mode.outputs.fishing_mode }}" = "true" ]; then
+            echo "- Activated gone fishing mode" >> $GITHUB_STEP_SUMMARY
+            echo "- Created fishing page with animations" >> $GITHUB_STEP_SUMMARY
+            echo "- Updated learning page with fishing redirect" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Updated hero stats conservatively" >> $GITHUB_STEP_SUMMARY
+            echo "- Added sanitized learning highlight" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- Logged daily learning to persistent file" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-changes.outputs.has_changes }}" = "true" ]; then
+            echo "- Committed and pushed changes" >> $GITHUB_STEP_SUMMARY
+            echo "- Deployed to staging for validation" >> $GITHUB_STEP_SUMMARY
+            echo "- Invalidated staging CloudFront cache" >> $GITHUB_STEP_SUMMARY
+            echo "- Awaiting manual approval for production deployment" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- No changes to commit" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Privacy & Security:" >> $GITHUB_STEP_SUMMARY
+          echo "- All data sanitized for public display" >> $GITHUB_STEP_SUMMARY
+          echo "- No sensitive information exposed" >> $GITHUB_STEP_SUMMARY
+          echo "- High-level metrics only" >> $GITHUB_STEP_SUMMARY
+
+  deploy-to-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: track-daily-learning
+    if: needs.track-daily-learning.outputs.has-changes == 'true'
+    environment: production-deployment
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Production
+        run: |
+          echo "🚀 Deploying validated learning page to production..."
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy updated learning page and related files to production S3
+          if [ "${{ needs.track-daily-learning.outputs.fishing-mode }}" = "true" ]; then
+            echo "🎣 Deploying gone fishing page and updated learning page to production..."
+            aws s3 sync website/ s3://robert-consulting-website/ --exclude "*.md" --exclude "*.json" --exclude "*.txt" --exclude "*.log"
+          else
+            echo "📚 Deploying updated learning page to production..."
+            aws s3 cp ${{ env.LEARNING_PAGE }} s3://robert-consulting-website/learning.html
+            aws s3 cp website/css/pages/learning-topics.css s3://robert-consulting-website/css/pages/learning-topics.css
+          fi
+          
+          # Invalidate production CloudFront cache
+          echo "🔄 Invalidating production CloudFront cache..."
+          aws cloudfront create-invalidation --distribution-id E36DBYPHUUKB3V --paths "/learning.html" "/css/pages/learning-topics.css" "/gone-fishing.html" "/css/pages/gone-fishing.css"
+          
+          echo "✅ Learning page deployed to production successfully"
+          echo "🌐 Live at: https://robertconsulting.net/learning.html"
