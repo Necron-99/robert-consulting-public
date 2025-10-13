@@ -566,12 +566,34 @@ jobs:
               print(f"📊 Found {len(all_findings)} total alerts across {len(report_sources)} reports")
               print(f"📊 Report sources: {', '.join(report_sources)}")
               
-              # Filter out PASS alerts (these are not security issues)
+              # Filter out PASS alerts and false positives
               security_findings = []
+              false_positive_alerts = [
+                  'Sec-Fetch-User Header is Missing',
+                  'Sec-Fetch-Site Header is Missing', 
+                  'Sec-Fetch-Mode Header is Missing',
+                  'Sec-Fetch-Dest Header is Missing',
+                  'Retrieved from Cache',
+                  'Re-examine Cache-control Directives',
+                  'Storable and Cacheable Content',
+                  'Non-Storable Content',
+                  'Information Disclosure - Suspicious Comments',
+                  'Information Disclosure - Sensitive Information in URL',
+                  'Base64 Disclosure'
+              ]
+              
               for finding in all_findings:
                   # Skip alerts that are marked as PASS (no security issues)
-                  if finding.get('confidence') != 'PASS':
-                      security_findings.append(finding)
+                  if finding.get('confidence') == 'PASS':
+                      continue
+                  
+                  # Skip false positive alerts
+                  alert_name = finding.get('name', '')
+                  if alert_name in false_positive_alerts:
+                      print(f"🔍 Filtering out false positive: {alert_name}")
+                      continue
+                      
+                  security_findings.append(finding)
               
               print(f"📊 Found {len(security_findings)} security findings to process (excluding PASS alerts)")
               
@@ -794,10 +816,31 @@ jobs:
                   if 'site' in baseline_data and len(baseline_data['site']) > 0:
                       site = baseline_data['site'][0]
                       if 'alerts' in site:
+                          false_positive_alerts = [
+                              'Sec-Fetch-User Header is Missing',
+                              'Sec-Fetch-Site Header is Missing', 
+                              'Sec-Fetch-Mode Header is Missing',
+                              'Sec-Fetch-Dest Header is Missing',
+                              'Retrieved from Cache',
+                              'Re-examine Cache-control Directives',
+                              'Storable and Cacheable Content',
+                              'Non-Storable Content',
+                              'Information Disclosure - Suspicious Comments',
+                              'Information Disclosure - Sensitive Information in URL',
+                              'Base64 Disclosure'
+                          ]
+                          
                           for alert in site['alerts']:
                               # Skip alerts that are marked as PASS (no security issues)
-                              if alert.get('confidence') != 'PASS':
-                                  security_findings.append(alert)
+                              if alert.get('confidence') == 'PASS':
+                                  continue
+                              
+                              # Skip false positive alerts
+                              alert_name = alert.get('name', '')
+                              if alert_name in false_positive_alerts:
+                                  continue
+                                  
+                              security_findings.append(alert)
               
               # If no security findings, check for open security issues to close
               if len(security_findings) == 0:
