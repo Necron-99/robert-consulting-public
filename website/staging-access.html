@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staging Access - Robert Consulting</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background: #059669;
+        }
+        
+        button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: #10b981;
+        }
+        
+        .result a {
+            color: #60a5fa;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .result a:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Staging Access</h1>
+        
+        <form id="accessForm">
+            <div class="form-group">
+                <label for="path">Path to Access:</label>
+                <input type="text" id="path" name="path" placeholder="/dashboard.html" value="/dashboard.html">
+            </div>
+            
+            <div class="form-group">
+                <label for="expiration">Access Duration:</label>
+                <select id="expiration" name="expiration">
+                    <option value="1">1 Hour</option>
+                    <option value="24" selected>24 Hours</option>
+                    <option value="168">1 Week</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="generateBtn">Generate Access URL</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>✅ Access URL Generated</h3>
+            <p><strong>URL:</strong> <a id="accessUrl" href="#" target="_blank"></a></p>
+            <p><strong>Expires:</strong> <span id="expiresAt"></span></p>
+            <p><strong>Path:</strong> <span id="accessPath"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('accessForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const result = document.getElementById('result');
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            result.style.display = 'none';
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/api/staging-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        path: formData.get('path'),
+                        expiration_hours: parseInt(formData.get('expiration'))
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show success result
+                    document.getElementById('accessUrl').href = data.signed_url;
+                    document.getElementById('accessUrl').textContent = data.signed_url;
+                    document.getElementById('expiresAt').textContent = new Date(data.expires_at).toLocaleString();
+                    document.getElementById('accessPath').textContent = data.path;
+                    
+                    result.className = 'result';
+                    result.style.display = 'block';
+                } else {
+                    // Show error result
+                    result.className = 'result error';
+                    result.innerHTML = `<h3>❌ Error</h3><p>${data.error || 'Failed to generate access URL'}</p>`;
+                    result.style.display = 'block';
+                }
+            } catch (error) {
+                // Show error result
+                result.className = 'result error';
+                result.innerHTML = `<h3>❌ Error</h3><p>Network error: ${error.message}</p>`;
+                result.style.display = 'block';
+            } finally {
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Access URL';
+            }
+        });
+    </script>
+</body>
+</html>
