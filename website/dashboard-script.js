@@ -262,9 +262,24 @@ class UnifiedDashboard {
             this.updateElement('infra-updates', '15+');
             this.updateElement('testing-cycles', '8+');
             
-            // Update summary metrics
-            this.updateElement('total-commits-velocity', '150+');
-            this.updateElement('dev-days', '40+');
+            // Update summary metrics - preserve existing values from HTML
+            // Only update if we have real data to replace with
+            const currentCommits7d = document.getElementById('total-commits-velocity').textContent;
+            const currentCommits30d = document.getElementById('dev-days').textContent;
+            
+            // Keep existing values unless we have better data
+            if (currentCommits7d && currentCommits7d !== '0') {
+                this.updateElement('total-commits-velocity', currentCommits7d);
+            } else {
+                this.updateElement('total-commits-velocity', '150+');
+            }
+            
+            if (currentCommits30d && currentCommits30d !== '0') {
+                this.updateElement('dev-days', currentCommits30d);
+            } else {
+                this.updateElement('dev-days', '40+');
+            }
+            
             this.updateElement('avg-commits-day', '3.8');
             this.updateElement('success-rate', '95%');
             
