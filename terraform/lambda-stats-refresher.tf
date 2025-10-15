@@ -15,7 +15,6 @@ resource "aws_lambda_function" "stats_refresher" {
       GITHUB_TOKEN_SECRET_ID    = aws_secretsmanager_secret.github_token.name
       CLOUDFRONT_DISTRIBUTION_ID = "E36DBYPHUUKB3V"
       PROD_BUCKET              = "robert-consulting-website"
-      AWS_REGION               = "us-east-1"
       LOG_LEVEL                = "INFO"
     }
   }
