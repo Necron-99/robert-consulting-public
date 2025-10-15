@@ -141,59 +141,115 @@ class UnifiedDashboard {
     }
 
     /**
-     * Load cost monitoring data
+     * Load cost monitoring data from live stats
      */
     async loadCostData() {
         try {
             console.log('💰 Loading cost data...');
             
-            // Fetch real AWS data
-            const [costData, s3Metrics, cloudfrontMetrics, route53Metrics] = await Promise.all([
-                this.fetchCostData(),
-                this.fetchS3Metrics(),
-                this.fetchCloudFrontMetrics(),
-                this.fetchRoute53Metrics()
-            ]);
+            // Fetch live stats from S3
+            const stats = await this.fetchLiveStats();
+            
+            if (stats && stats.aws) {
+                // Use live AWS cost data
+                const totalCost = stats.aws.monthlyCostTotal || 0;
+                const services = stats.aws.services || {};
+                
+                // Calculate AWS Services total
+                const awsTotal = (services.s3 || 0) + (services.cloudfront || 0) + (services.lambda || 0) + 
+                               (services.route53 || 0) + (services.ses || 0) + (services.waf || 0) + 
+                               (services.cloudwatch || 0) + (services.other || 0);
+                
+                // Update cost displays with live data
+                this.updateElement('total-cost', `$${totalCost.toFixed(2)}`);
+                this.updateElement('total-monthly-cost', `$${totalCost.toFixed(2)}`);
+                this.updateElement('cost-trend', '+0.0%'); // Could be calculated from historical data
+                
+                // Update AWS Services total and Domain Registrar
+                this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
+                this.updateElement('registrar-cost', '$0.00'); // Domain registrar costs are annual, not monthly
+                
+                this.updateElement('s3-cost', `$${(services.s3 || 0).toFixed(2)}`);
+                this.updateElement('cloudfront-cost', `$${(services.cloudfront || 0).toFixed(2)}`);
+                this.updateElement('lambda-cost', `$${(services.lambda || 0).toFixed(2)}`);
+                this.updateElement('route53-cost', `$${(services.route53 || 0).toFixed(2)}`);
+                this.updateElement('ses-cost', `$${(services.ses || 0).toFixed(2)}`);
+                this.updateElement('waf-cost', `$${(services.waf || 0).toFixed(2)}`);
+                this.updateElement('cloudwatch-cost', `$${(services.cloudwatch || 0).toFixed(2)}`);
+                this.updateElement('other-cost', `$${(services.other || 0).toFixed(2)}`);
+                
+                // Update traffic metrics if available
+                if (stats.traffic) {
+                    this.updateElement('s3-storage', stats.traffic.s3?.storageGB ? `${stats.traffic.s3.storageGB} GB` : '0.00 GB');
+                    this.updateElement('s3-objects', stats.traffic.s3?.objects || '0');
+                    this.updateElement('cloudfront-requests', stats.traffic.cloudfront?.requests24h || '0');
+                    this.updateElement('cloudfront-bandwidth', stats.traffic.cloudfront?.bandwidth24h || '0 GB');
+                    this.updateElement('route53-queries', stats.traffic.route53?.queries24h || '0');
+                } else {
+                    // Fallback values
+                    this.updateElement('s3-storage', '0.00 GB');
+                    this.updateElement('s3-objects', '0');
+                    this.updateElement('cloudfront-requests', '0');
+                    this.updateElement('cloudfront-bandwidth', '0 GB');
+                    this.updateElement('route53-queries', '0');
+                }
+                
+                this.updateElement('lambda-invocations', '0'); // Could be added to stats
+                this.updateElement('lambda-duration', '0s');
+                this.updateElement('route53-health-checks', '0');
+                this.updateElement('ses-emails', '0');
+                this.updateElement('ses-bounces', '0');
+                this.updateElement('cost-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+                
+            } else {
+                // Fallback to existing cost calculation if live stats not available
+                const [costData, s3Metrics, cloudfrontMetrics, route53Metrics] = await Promise.all([
+                    this.fetchCostData(),
+                    this.fetchS3Metrics(),
+                    this.fetchCloudFrontMetrics(),
+                    this.fetchRoute53Metrics()
+                ]);
 
-            // Calculate AWS Services total
-            const awsTotal = costData.s3Cost + costData.cloudfrontCost + costData.lambdaCost + 
-                           costData.route53Cost + costData.sesCost + costData.wafCost + 
-                           costData.cloudwatchCost + costData.otherCost;
-            
-            // Update cost displays
-            this.updateElement('total-cost', `$${costData.totalMonthly.toFixed(2)}`);
-            this.updateElement('total-monthly-cost', `$${costData.totalMonthly.toFixed(2)}`);
-            this.updateElement('cost-trend', costData.trend);
-            
-            // Update AWS Services total and Domain Registrar
-            this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
-            this.updateElement('registrar-cost', '$0.00'); // Domain registrar costs are annual, not monthly
-            
-            this.updateElement('s3-cost', `$${costData.s3Cost.toFixed(2)}`);
-            this.updateElement('s3-storage', s3Metrics.storage);
-            this.updateElement('s3-objects', s3Metrics.objects);
-            
-            this.updateElement('cloudfront-cost', `$${costData.cloudfrontCost.toFixed(2)}`);
-            this.updateElement('cloudfront-requests', cloudfrontMetrics.requests);
-            this.updateElement('cloudfront-bandwidth', cloudfrontMetrics.bandwidth);
-            
-            this.updateElement('lambda-cost', `$${costData.lambdaCost.toFixed(2)}`);
-            this.updateElement('lambda-invocations', '0');
-            this.updateElement('lambda-duration', '0s');
-            
-            this.updateElement('route53-cost', `$${costData.route53Cost.toFixed(2)}`);
-            this.updateElement('route53-queries', route53Metrics.queries);
-            this.updateElement('route53-health-checks', route53Metrics.healthChecks);
-            
-            this.updateElement('waf-cost', `$${costData.wafCost.toFixed(2)}`);
-            this.updateElement('cloudwatch-cost', `$${costData.cloudwatchCost.toFixed(2)}`);
-            this.updateElement('other-cost', `$${costData.otherCost.toFixed(2)}`);
-            
-            this.updateElement('ses-cost', `$${costData.sesCost.toFixed(2)}`);
-            this.updateElement('ses-emails', '0');
-            this.updateElement('ses-bounces', '0');
-            
-            this.updateElement('cost-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+                // Calculate AWS Services total
+                const awsTotal = costData.s3Cost + costData.cloudfrontCost + costData.lambdaCost + 
+                               costData.route53Cost + costData.sesCost + costData.wafCost + 
+                               costData.cloudwatchCost + costData.otherCost;
+                
+                // Update cost displays
+                this.updateElement('total-cost', `$${costData.totalMonthly.toFixed(2)}`);
+                this.updateElement('total-monthly-cost', `$${costData.totalMonthly.toFixed(2)}`);
+                this.updateElement('cost-trend', costData.trend);
+                
+                // Update AWS Services total and Domain Registrar
+                this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
+                this.updateElement('registrar-cost', '$0.00'); // Domain registrar costs are annual, not monthly
+                
+                this.updateElement('s3-cost', `$${costData.s3Cost.toFixed(2)}`);
+                this.updateElement('s3-storage', s3Metrics.storage);
+                this.updateElement('s3-objects', s3Metrics.objects);
+                
+                this.updateElement('cloudfront-cost', `$${costData.cloudfrontCost.toFixed(2)}`);
+                this.updateElement('cloudfront-requests', cloudfrontMetrics.requests);
+                this.updateElement('cloudfront-bandwidth', cloudfrontMetrics.bandwidth);
+                
+                this.updateElement('lambda-cost', `$${costData.lambdaCost.toFixed(2)}`);
+                this.updateElement('lambda-invocations', '0');
+                this.updateElement('lambda-duration', '0s');
+                
+                this.updateElement('route53-cost', `$${costData.route53Cost.toFixed(2)}`);
+                this.updateElement('route53-queries', route53Metrics.queries);
+                this.updateElement('route53-health-checks', route53Metrics.healthChecks);
+                
+                this.updateElement('waf-cost', `$${costData.wafCost.toFixed(2)}`);
+                this.updateElement('cloudwatch-cost', `$${costData.cloudwatchCost.toFixed(2)}`);
+                this.updateElement('other-cost', `$${costData.otherCost.toFixed(2)}`);
+                
+                this.updateElement('ses-cost', `$${costData.sesCost.toFixed(2)}`);
+                this.updateElement('ses-emails', '0');
+                this.updateElement('ses-bounces', '0');
+                
+                this.updateElement('cost-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+            }
             
         } catch (error) {
             console.error('Error loading cost data:', error);
@@ -248,42 +304,66 @@ class UnifiedDashboard {
     }
 
     /**
-     * Load development velocity data
+     * Load development velocity data from live stats
      */
     async loadVelocityData() {
         try {
             console.log('🚀 Loading development velocity data...');
             
-            // Update velocity displays with current metrics
-            this.updateElement('features-implemented', '25+');
-            this.updateElement('bugs-fixed', '18+');
-            this.updateElement('improvements-made', '32+');
-            this.updateElement('security-updates', '12+');
-            this.updateElement('infra-updates', '15+');
-            this.updateElement('testing-cycles', '8+');
+            // Fetch live stats from S3
+            const stats = await this.fetchLiveStats();
             
-            // Update summary metrics - preserve existing values from HTML
-            // Only update if we have real data to replace with
-            const currentCommits7d = document.getElementById('total-commits-velocity').textContent;
-            const currentCommits30d = document.getElementById('dev-days').textContent;
-            
-            // Keep existing values unless we have better data
-            if (currentCommits7d && currentCommits7d !== '0') {
-                this.updateElement('total-commits-velocity', currentCommits7d);
+            if (stats && stats.github) {
+                // Update commit metrics with live data
+                this.updateElement('total-commits-velocity', stats.github.totalCommits7d || '0');
+                this.updateElement('dev-days', stats.github.totalCommits30d || '0');
+                
+                // Calculate average commits per day
+                const avgCommits = stats.github.totalCommits30d ? 
+                    (stats.github.totalCommits30d / 30).toFixed(1) : '0.0';
+                this.updateElement('avg-commits-day', avgCommits);
+                
+                // Update commit categories if available
+                if (stats.github.commitCategories) {
+                    this.updateElement('features-implemented', stats.github.commitCategories.feature || '0');
+                    this.updateElement('bugs-fixed', stats.github.commitCategories.bug || '0');
+                    this.updateElement('improvements-made', stats.github.commitCategories.improvement || '0');
+                    this.updateElement('security-updates', stats.github.commitCategories.security || '0');
+                    this.updateElement('infra-updates', stats.github.commitCategories.infrastructure || '0');
+                    this.updateElement('testing-cycles', stats.github.commitCategories.documentation || '0');
+                } else {
+                    // Fallback to static values if categories not available
+                    this.updateElement('features-implemented', '25+');
+                    this.updateElement('bugs-fixed', '18+');
+                    this.updateElement('improvements-made', '32+');
+                    this.updateElement('security-updates', '12+');
+                    this.updateElement('infra-updates', '15+');
+                    this.updateElement('testing-cycles', '8+');
+                }
+                
+                this.updateElement('success-rate', '95%');
+                this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
             } else {
-                this.updateElement('total-commits-velocity', '150+');
+                // Fallback to existing values if stats fetch fails
+                const currentCommits7d = document.getElementById('total-commits-velocity').textContent;
+                const currentCommits30d = document.getElementById('dev-days').textContent;
+                
+                if (currentCommits7d && currentCommits7d !== '0') {
+                    this.updateElement('total-commits-velocity', currentCommits7d);
+                } else {
+                    this.updateElement('total-commits-velocity', '150+');
+                }
+                
+                if (currentCommits30d && currentCommits30d !== '0') {
+                    this.updateElement('dev-days', currentCommits30d);
+                } else {
+                    this.updateElement('dev-days', '40+');
+                }
+                
+                this.updateElement('avg-commits-day', '3.8');
+                this.updateElement('success-rate', '95%');
+                this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
             }
-            
-            if (currentCommits30d && currentCommits30d !== '0') {
-                this.updateElement('dev-days', currentCommits30d);
-            } else {
-                this.updateElement('dev-days', '40+');
-            }
-            
-            this.updateElement('avg-commits-day', '3.8');
-            this.updateElement('success-rate', '95%');
-            
-            this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
             
         } catch (error) {
             console.error('Error loading velocity data:', error);
@@ -291,6 +371,32 @@ class UnifiedDashboard {
         }
     }
 
+
+    /**
+     * Fetch live statistics from S3
+     */
+    async fetchLiveStats() {
+        try {
+            const response = await fetch('/data/dashboard-stats.json', {
+                cache: 'no-cache',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const stats = await response.json();
+            console.log('📊 Live stats fetched successfully:', stats);
+            return stats;
+            
+        } catch (error) {
+            console.warn('⚠️ Failed to fetch live stats, using fallback data:', error.message);
+            return null;
+        }
+    }
 
     /**
      * Load Terraform infrastructure data

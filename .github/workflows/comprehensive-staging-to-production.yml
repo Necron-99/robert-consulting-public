@@ -1133,6 +1133,25 @@ jobs:
           echo "🔗 Production URL: https://robertconsulting.net"
           echo "🔄 Invalidation ID: $INVALIDATION_ID"
 
+      - name: 📊 Refresh Dashboard Statistics
+        run: |
+          echo "📊 Refreshing dashboard statistics..."
+          
+          # Invoke the stats refresher Lambda function
+          LAMBDA_RESPONSE=$(aws lambda invoke \
+            --function-name dashboard-stats-refresher \
+            --payload '{}' \
+            --cli-binary-format raw-in-base64-out \
+            /tmp/lambda-response.json)
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Dashboard statistics refreshed successfully"
+            cat /tmp/lambda-response.json
+          else
+            echo "❌ Failed to refresh dashboard statistics"
+            echo "Continuing deployment (non-critical failure)"
+          fi
+
       - name: 📊 Deployment Summary
         run: |
           echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
