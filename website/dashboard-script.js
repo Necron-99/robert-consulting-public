@@ -322,70 +322,52 @@ class UnifiedDashboard {
     }
 
     /**
-     * Load development velocity data from live stats
+     * Load development velocity data from API
      */
     async loadVelocityData() {
         try {
-            console.log('🚀 Loading development velocity data...');
+            console.log('🚀 Loading development velocity data from API...');
             
-            // Fetch live stats from S3
-            const stats = await this.fetchLiveStats();
+            // Fetch velocity data from API
+            const velocityData = await this.fetchVelocityStats();
+            const githubData = await this.fetchGitHubStats();
             
-            if (stats && stats.github) {
-                // Update commit metrics with live data
-                this.updateElement('total-commits-velocity', stats.github.totalCommits7d || '0');
-                this.updateElement('dev-days', stats.github.totalCommits30d || '0');
-                
-                // Calculate average commits per day
-                const avgCommits = stats.github.totalCommits30d ? 
-                    (stats.github.totalCommits30d / 30).toFixed(1) : '0.0';
-                this.updateElement('avg-commits-day', avgCommits);
-                
-                // Update commit categories if available
-                if (stats.github.commitCategories) {
-                    this.updateElement('features-implemented', stats.github.commitCategories.feature || '0');
-                    this.updateElement('bugs-fixed', stats.github.commitCategories.bug || '0');
-                    this.updateElement('improvements-made', stats.github.commitCategories.improvement || '0');
-                    this.updateElement('security-updates', stats.github.commitCategories.security || '0');
-                    this.updateElement('infra-updates', stats.github.commitCategories.infrastructure || '0');
-                    this.updateElement('testing-cycles', stats.github.commitCategories.documentation || '0');
-                } else {
-                    // Fallback to static values if categories not available
-                    this.updateElement('features-implemented', '25+');
-                    this.updateElement('bugs-fixed', '18+');
-                    this.updateElement('improvements-made', '32+');
-                    this.updateElement('security-updates', '12+');
-                    this.updateElement('infra-updates', '15+');
-                    this.updateElement('testing-cycles', '8+');
-                }
-                
-                this.updateElement('success-rate', '95%');
-                this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-            } else {
-                // Fallback to existing values if stats fetch fails
-                const currentCommits7d = document.getElementById('total-commits-velocity').textContent;
-                const currentCommits30d = document.getElementById('dev-days').textContent;
-                
-                if (currentCommits7d && currentCommits7d !== '0') {
-                    this.updateElement('total-commits-velocity', currentCommits7d);
-                } else {
-                    this.updateElement('total-commits-velocity', '150+');
-                }
-                
-                if (currentCommits30d && currentCommits30d !== '0') {
-                    this.updateElement('dev-days', currentCommits30d);
-                } else {
-                    this.updateElement('dev-days', '40+');
-                }
-                
-                this.updateElement('avg-commits-day', '3.8');
-                this.updateElement('success-rate', '95%');
-                this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-            }
+            // Update commit metrics with API data
+            this.updateElement('total-commits-velocity', githubData.commits.last7Days.toString());
+            this.updateElement('dev-days', githubData.commits.last30Days.toString());
+            
+            // Calculate average commits per day
+            const avgCommits = (githubData.commits.last30Days / 30).toFixed(1);
+            this.updateElement('avg-commits-day', avgCommits);
+            
+            // Update commit categories from API data
+            this.updateElement('features-implemented', githubData.development.features.toString());
+            this.updateElement('bugs-fixed', githubData.development.bugFixes.toString());
+            this.updateElement('improvements-made', githubData.development.improvements.toString());
+            this.updateElement('security-updates', '12+'); // Keep static for now
+            this.updateElement('infra-updates', '15+'); // Keep static for now
+            this.updateElement('testing-cycles', '8+'); // Keep static for now
+            
+            // Update velocity metrics
+            this.updateElement('success-rate', `${velocityData.deploymentSuccess}%`);
+            this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
             
         } catch (error) {
             console.error('Error loading velocity data:', error);
-            this.showAlert('error', 'Velocity Data Error', 'Failed to load development velocity data.');
+            // Fallback to static values
+            this.updateElement('total-commits-velocity', '15');
+            this.updateElement('dev-days', '65');
+            this.updateElement('avg-commits-day', '2.2');
+            this.updateElement('features-implemented', '5');
+            this.updateElement('bugs-fixed', '6');
+            this.updateElement('improvements-made', '4');
+            this.updateElement('security-updates', '12+');
+            this.updateElement('infra-updates', '15+');
+            this.updateElement('testing-cycles', '8+');
+            this.updateElement('success-rate', '98%');
+            this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (fallback)`);
+            
+            this.showAlert('warning', 'Velocity Data Warning', 'Using fallback velocity data. API may be temporarily unavailable.');
         }
     }
 
@@ -641,46 +623,18 @@ class UnifiedDashboard {
 
 
     /**
-     * Fetch real performance metrics
+     * Fetch real performance metrics from API
      */
     async fetchPerformanceMetrics() {
         try {
-            // Measure actual performance metrics
-            const startTime = performance.now();
+            // Fetch real-time data from the dashboard API
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
             
-            // Test website performance
-            const testUrl = 'https://robertconsulting.net/';
-            const response = await fetch(testUrl, {
-                method: 'HEAD',
-                mode: 'no-cors',
-                cache: 'no-cache'
-            });
-            
-            const loadTime = performance.now() - startTime;
-            
-            // Calculate performance scores based on actual metrics
-            const lcpScore = loadTime < 1000 ? 'good' : loadTime < 2500 ? 'needs-improvement' : 'poor';
-            const lcpValue = `${(loadTime / 1000).toFixed(1)}s`;
-            
-            return {
-                coreWebVitals: {
-                    lcp: { value: lcpValue, score: lcpScore },
-                    fid: { value: '45ms', score: 'good' }, // Would need real user interaction data
-                    cls: { value: '0.05', score: 'good' } // Would need real layout shift data
-                },
-                pageSpeed: {
-                    mobile: { score: Math.max(0, 100 - Math.floor(loadTime / 10)), grade: 'A' },
-                    desktop: { score: Math.max(0, 100 - Math.floor(loadTime / 15)), grade: 'A' }
-                },
-                resourceTiming: {
-                    dns: '12ms',
-                    connect: '45ms',
-                    ssl: '23ms',
-                    ttfb: `${Math.floor(loadTime * 0.3)}ms`,
-                    dom: `${Math.floor(loadTime * 0.5)}ms`,
-                    load: lcpValue
-                }
-            };
+            return data.performance;
         } catch (error) {
             console.error('Error fetching performance metrics:', error);
             // Fallback to reasonable defaults
@@ -698,10 +652,59 @@ class UnifiedDashboard {
                     dns: '12ms',
                     connect: '45ms',
                     ssl: '23ms',
-                    ttfb: '180ms',
-                    dom: '320ms',
+                    ttfb: '322ms',
+                    dom: '120ms',
                     load: '1.2s'
                 }
+            };
+        }
+    }
+
+    /**
+     * Fetch GitHub statistics from API
+     */
+    async fetchGitHubStats() {
+        try {
+            // Fetch real-time data from the dashboard API
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            return data.github;
+        } catch (error) {
+            console.error('Error fetching GitHub stats:', error);
+            return {
+                commits: { last7Days: 15, last30Days: 65 },
+                development: { features: 5, bugFixes: 6, improvements: 4 },
+                repositories: { total: 12, public: 8, private: 4 },
+                activity: { stars: 23, forks: 8, watchers: 5 }
+            };
+        }
+    }
+
+    /**
+     * Fetch velocity statistics from API
+     */
+    async fetchVelocityStats() {
+        try {
+            // Fetch real-time data from the dashboard API
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            return data.velocity;
+        } catch (error) {
+            console.error('Error fetching velocity stats:', error);
+            return {
+                velocity: 95,
+                testCoverage: 95,
+                deploymentSuccess: 98,
+                cycleTime: '1.5 days',
+                leadTime: '2.3 days'
             };
         }
     }
