@@ -377,7 +377,7 @@ class UnifiedDashboard {
      */
     async fetchLiveStats() {
         try {
-            const response = await fetch('/data/dashboard-stats.json', {
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data', {
                 cache: 'no-cache',
                 headers: {
                     'Accept': 'application/json'
