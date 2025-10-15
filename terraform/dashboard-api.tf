@@ -1,11 +1,18 @@
 # Dashboard API - Real-time AWS data via API Gateway + Lambda
 
+# Create the Lambda deployment package
+data "archive_file" "dashboard_api_zip" {
+  type        = "zip"
+  source_file = "../lambda/dashboard-api.js"
+  output_path = "dashboard-api.zip"
+}
+
 resource "aws_lambda_function" "dashboard_api" {
-  filename         = "dashboard-api.zip"
+  filename         = data.archive_file.dashboard_api_zip.output_path
   function_name    = "robert-consulting-dashboard-api"
   role            = aws_iam_role.dashboard_api_role.arn
   handler         = "dashboard-api.handler"
-  runtime         = "nodejs18.x"
+  runtime         = "nodejs20.x"
   timeout         = 30
   memory_size     = 256
 

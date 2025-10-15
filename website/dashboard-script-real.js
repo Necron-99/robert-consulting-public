@@ -9,7 +9,7 @@ class RealTimeDashboard {
         this.autoRefreshEnabled = true;
         this.refreshRate = 60000; // 1 minute
         this.lastUpdateTime = null;
-        this.apiBaseUrl = 'https://api.robertconsulting.net/prod/dashboard-data';
+        this.apiBaseUrl = 'https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data';
         
         this.init();
     }

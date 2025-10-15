@@ -15,12 +15,6 @@ if [ ! -f "lambda/dashboard-api.js" ]; then
     exit 1
 fi
 
-# Create deployment package
-echo "📦 Creating deployment package..."
-cd lambda
-zip -r dashboard-api.zip dashboard-api.js
-cd ..
-
 # Deploy using Terraform
 echo "🏗️ Deploying infrastructure with Terraform..."
 cd terraform
@@ -55,6 +49,6 @@ echo ""
 
 # Clean up
 echo "🧹 Cleaning up..."
-rm -f lambda/dashboard-api.zip
+rm -f dashboard-api.zip
 
 echo "🎉 Deployment complete!"
