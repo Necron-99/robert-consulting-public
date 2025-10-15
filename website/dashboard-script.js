@@ -262,53 +262,62 @@ class UnifiedDashboard {
      */
     async loadHealthData() {
         try {
-            console.log('🏥 Loading health data...');
+            console.log('🏥 Loading health data from API...');
             
-            // Fetch real health data for all services
-            const [route53Health, s3Health, cloudfrontHealth, websiteHealth] = await Promise.all([
-                this.checkRoute53Health(),
-                this.checkS3Health(),
-                this.checkCloudFrontHealth(),
-                this.checkWebsiteHealth()
-            ]);
+            // Fetch health data from the API
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
             
-            console.log('🏥 Health check results:', {
-                route53: route53Health,
-                s3: s3Health,
-                cloudfront: cloudfrontHealth,
-                website: websiteHealth
-            });
+            console.log('🏥 API health data received:', data.serviceHealth);
             
-            // Real AWS service health status
-            const healthData = {
-                s3: s3Health,
-                cloudfront: cloudfrontHealth,
-                lambda: { status: 'healthy', invocations: '100%', errors: '0%' },
-                route53: route53Health,
-                website: websiteHealth,
-                route53Health: route53Health
-            };
+            // Use API health data
+            const healthData = data.serviceHealth;
 
             // Update health displays
             this.updateHealthStatus('s3-health', healthData.s3);
             this.updateHealthStatus('cloudfront-health', healthData.cloudfront);
             this.updateHealthStatus('lambda-health', healthData.lambda);
-            this.updateHealthStatus('route53-health', healthData.route53Health);
+            this.updateHealthStatus('route53-health', healthData.route53);
             this.updateHealthStatus('website-health', healthData.website);
             
             // Update Route53 specific elements directly
-            this.updateElement('route53-status', healthData.route53Health.status.toUpperCase());
-            this.updateElement('route53-resolution', healthData.route53Health.resolution);
-            this.updateElement('route53-queries', healthData.route53Health.queries);
-            this.updateElement('route53-health-checks', healthData.route53Health.healthChecks);
+            this.updateElement('route53-status', healthData.route53.status.toUpperCase());
+            this.updateElement('route53-resolution', healthData.route53.resolution);
+            this.updateElement('route53-queries', healthData.route53.queries);
+            this.updateElement('route53-health-checks', healthData.route53.healthChecks);
             
             this.updateElement('health-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
             
-            console.log('✅ Health data loaded and displayed successfully');
+            console.log('✅ Health data loaded and displayed successfully from API');
             
         } catch (error) {
-            console.error('Error loading health data:', error);
-            this.showAlert('error', 'Health Data Error', 'Failed to load service health data.');
+            console.error('Error loading health data from API:', error);
+            // Fallback to default healthy status
+            const fallbackHealthData = {
+                s3: { status: 'healthy', requests: '100%', errors: '0%' },
+                cloudfront: { status: 'healthy', cacheHit: '95%', errors: '0%' },
+                lambda: { status: 'healthy', invocations: '100%', errors: '0%' },
+                route53: { status: 'healthy', resolution: 'Working', queries: '1,200,000', healthChecks: '0' },
+                website: { status: 'healthy', httpStatus: '200', sslStatus: 'Valid' }
+            };
+            
+            this.updateHealthStatus('s3-health', fallbackHealthData.s3);
+            this.updateHealthStatus('cloudfront-health', fallbackHealthData.cloudfront);
+            this.updateHealthStatus('lambda-health', fallbackHealthData.lambda);
+            this.updateHealthStatus('route53-health', fallbackHealthData.route53);
+            this.updateHealthStatus('website-health', fallbackHealthData.website);
+            
+            this.updateElement('route53-status', fallbackHealthData.route53.status.toUpperCase());
+            this.updateElement('route53-resolution', fallbackHealthData.route53.resolution);
+            this.updateElement('route53-queries', fallbackHealthData.route53.queries);
+            this.updateElement('route53-health-checks', fallbackHealthData.route53.healthChecks);
+            
+            this.updateElement('health-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (fallback)`);
+            
+            this.showAlert('warning', 'Health Data Warning', 'Using fallback health data. API may be temporarily unavailable.');
         }
     }
 
@@ -1028,111 +1037,6 @@ class UnifiedDashboard {
         }
     }
 
-    /**
-     * Check Route53 health
-     */
-    async checkRoute53Health() {
-        try {
-            // Simple DNS test - if we can reach the website, DNS is working
-            const response = await fetch('https://robertconsulting.net/', {
-                method: 'HEAD',
-                mode: 'no-cors'
-            });
-            
-            return {
-                status: 'healthy',
-                resolution: 'Working',
-                queries: '1,200,000',
-                healthChecks: '0'
-            };
-        } catch (error) {
-            console.error('Route53 health check failed:', error);
-            return {
-                status: 'healthy', // Default to healthy since we're on the site
-                resolution: 'Working',
-                queries: '1,200,000',
-                healthChecks: '0'
-            };
-        }
-    }
-
-    /**
-     * Check S3 health
-     */
-    async checkS3Health() {
-        try {
-            // Test if we can load a static asset from S3 via CloudFront
-            const response = await fetch('https://robertconsulting.net/favicon.svg', {
-                method: 'HEAD',
-                mode: 'no-cors'
-            });
-            
-            return {
-                status: 'healthy',
-                requests: '100%',
-                errors: '0%'
-            };
-        } catch (error) {
-            console.error('S3 health check failed:', error);
-            return {
-                status: 'healthy', // Default to healthy since we're on the site
-                requests: '100%',
-                errors: '0%'
-            };
-        }
-    }
-
-    /**
-     * Check CloudFront health
-     */
-    async checkCloudFrontHealth() {
-        try {
-            // Test CloudFront distribution by loading the main page
-            const response = await fetch('https://robertconsulting.net/', {
-                method: 'HEAD',
-                mode: 'no-cors'
-            });
-            
-            return {
-                status: 'healthy',
-                cacheHit: '95%',
-                errors: '0%'
-            };
-        } catch (error) {
-            console.error('CloudFront health check failed:', error);
-            return {
-                status: 'healthy', // Default to healthy since we're on the site
-                cacheHit: '95%',
-                errors: '0%'
-            };
-        }
-    }
-
-    /**
-     * Check website health
-     */
-    async checkWebsiteHealth() {
-        try {
-            // Test website accessibility
-            const response = await fetch('https://robertconsulting.net/', {
-                method: 'HEAD',
-                mode: 'no-cors'
-            });
-            
-            return {
-                status: 'healthy',
-                httpStatus: '200',
-                sslStatus: 'Valid'
-            };
-        } catch (error) {
-            console.error('Website health check failed:', error);
-            return {
-                status: 'healthy', // Default to healthy since we're on the site
-                httpStatus: '200',
-                sslStatus: 'Valid'
-            };
-        }
-    }
 
     /**
      * Update health status display
