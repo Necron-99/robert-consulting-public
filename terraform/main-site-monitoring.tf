@@ -24,16 +24,16 @@ locals {
 # SNS Topic for alerts
 resource "aws_sns_topic" "main_site_alerts" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   name = "main-site-security-alerts"
-  
+
   tags = local.monitoring_tags
 }
 
 # SNS Topic Subscription (Email)
 resource "aws_sns_topic_subscription" "main_site_email_alerts" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   topic_arn = aws_sns_topic.main_site_alerts[0].arn
   protocol  = "email"
   endpoint  = var.alert_email
@@ -42,10 +42,10 @@ resource "aws_sns_topic_subscription" "main_site_email_alerts" {
 # CloudWatch Log Group for WAF logs
 resource "aws_cloudwatch_log_group" "main_site_waf_logs" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   name              = "/aws/wafv2/main-site"
   retention_in_days = 30
-  
+
   tags = local.monitoring_tags
 }
 
@@ -56,7 +56,7 @@ resource "aws_cloudwatch_log_group" "main_site_waf_logs" {
 # WAF Blocked Requests Alert
 resource "aws_cloudwatch_metric_alarm" "waf_blocked_requests" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-waf-blocked-requests"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -67,19 +67,19 @@ resource "aws_cloudwatch_metric_alarm" "waf_blocked_requests" {
   threshold           = "10"
   alarm_description   = "This metric monitors blocked requests by WAF"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     WebACL = "rc-main-site-waf-398fb6"
     Region = "CloudFront"
   }
-  
+
   tags = local.monitoring_tags
 }
 
 # CloudFront 4xx Error Rate Alert
 resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx_errors" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-cloudfront-4xx-errors"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -90,18 +90,18 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx_errors" {
   threshold           = "5.0"
   alarm_description   = "This metric monitors 4xx error rate"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     DistributionId = "E36DBYPHUUKB3V"
   }
-  
+
   tags = local.monitoring_tags
 }
 
 # CloudFront 5xx Error Rate Alert
 resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-cloudfront-5xx-errors"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -112,11 +112,11 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
   threshold           = "1.0"
   alarm_description   = "This metric monitors 5xx error rate"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     DistributionId = "E36DBYPHUUKB3V"
   }
-  
+
   tags = local.monitoring_tags
 }
 
@@ -127,7 +127,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
 # CloudFront Cache Hit Ratio Alert
 resource "aws_cloudwatch_metric_alarm" "cloudfront_cache_hit_ratio" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-cloudfront-cache-hit-ratio"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "3"
@@ -138,18 +138,18 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_cache_hit_ratio" {
   threshold           = "80.0"
   alarm_description   = "This metric monitors cache hit ratio"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     DistributionId = "E36DBYPHUUKB3V"
   }
-  
+
   tags = local.monitoring_tags
 }
 
 # CloudFront Origin Response Time Alert
 resource "aws_cloudwatch_metric_alarm" "cloudfront_origin_response_time" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-cloudfront-origin-response-time"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -160,11 +160,11 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_origin_response_time" {
   threshold           = "1000"
   alarm_description   = "This metric monitors origin response time"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     DistributionId = "E36DBYPHUUKB3V"
   }
-  
+
   tags = local.monitoring_tags
 }
 
@@ -175,7 +175,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_origin_response_time" {
 # CloudFront Data Transfer Cost Alert
 resource "aws_cloudwatch_metric_alarm" "cloudfront_data_transfer" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-cloudfront-data-transfer"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -186,18 +186,18 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_data_transfer" {
   threshold           = "10737418240" # 10GB
   alarm_description   = "This metric monitors daily data transfer"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     DistributionId = "E36DBYPHUUKB3V"
   }
-  
+
   tags = local.monitoring_tags
 }
 
 # WAF Request Volume Alert
 resource "aws_cloudwatch_metric_alarm" "waf_request_volume" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-waf-request-volume"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -208,12 +208,12 @@ resource "aws_cloudwatch_metric_alarm" "waf_request_volume" {
   threshold           = "1000000" # 1M requests
   alarm_description   = "This metric monitors daily WAF request volume"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     WebACL = "rc-main-site-waf-398fb6"
     Region = "CloudFront"
   }
-  
+
   tags = local.monitoring_tags
 }
 
@@ -224,7 +224,7 @@ resource "aws_cloudwatch_metric_alarm" "waf_request_volume" {
 # Rate Limit Rule Triggered Alert
 resource "aws_cloudwatch_metric_alarm" "waf_rate_limit_triggered" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-waf-rate-limit-triggered"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -235,20 +235,20 @@ resource "aws_cloudwatch_metric_alarm" "waf_rate_limit_triggered" {
   threshold           = "5"
   alarm_description   = "This metric monitors rate limit rule triggers"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     WebACL = "rc-main-site-waf-398fb6"
     Region = "CloudFront"
     Rule   = "RateLimit"
   }
-  
+
   tags = local.monitoring_tags
 }
 
 # Suspicious User Agent Blocked Alert
 resource "aws_cloudwatch_metric_alarm" "waf_suspicious_ua_blocked" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   alarm_name          = "main-site-waf-suspicious-ua-blocked"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
@@ -259,13 +259,13 @@ resource "aws_cloudwatch_metric_alarm" "waf_suspicious_ua_blocked" {
   threshold           = "1"
   alarm_description   = "This metric monitors suspicious user agent blocks"
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
-  
+
   dimensions = {
     WebACL = "rc-main-site-waf-398fb6"
     Region = "CloudFront"
     Rule   = "BlockSuspiciousUserAgents"
   }
-  
+
   tags = local.monitoring_tags
 }
 

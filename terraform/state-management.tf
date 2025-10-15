@@ -18,11 +18,11 @@ locals {
 # State validation and drift detection
 resource "null_resource" "state_validation" {
   count = var.enable_state_validation ? 1 : 0
-  
+
   triggers = {
     # Trigger on any infrastructure changes
     infrastructure_hash = md5(jsonencode({
-      s3_buckets     = [
+      s3_buckets = [
         aws_s3_bucket.website_bucket.id,
         aws_s3_bucket.terraform_state.id
       ]
@@ -34,7 +34,7 @@ resource "null_resource" "state_validation" {
       ]
     }))
   }
-  
+
   provisioner "local-exec" {
     command = <<-EOT
       echo "Validating Terraform state..."
@@ -59,10 +59,10 @@ variable "enable_state_validation" {
 output "state_management_info" {
   description = "State management configuration information"
   value = {
-    backend_bucket    = "robert-consulting-terraform-state"
+    backend_bucket   = "robert-consulting-terraform-state"
     lock_table       = "terraform-state-lock"
-    region          = "us-east-1"
+    region           = "us-east-1"
     state_validation = var.enable_state_validation
-    prevent_destroy = true
+    prevent_destroy  = true
   }
 }

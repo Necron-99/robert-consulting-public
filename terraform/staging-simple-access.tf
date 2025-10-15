@@ -55,9 +55,9 @@ output "staging_access_info" {
   description = "Information about staging access"
   value = {
     access_secret = "staging-access-2025"
-    example_url = "https://staging.robertconsulting.net/dashboard.html?secret=staging-access-2025"
-    header_name = "x-staging-secret"
-    header_value = "staging-access-2025"
-    note = "Add ?secret=staging-access-2025 to any staging URL to access it"
+    example_url   = "https://staging.robertconsulting.net/dashboard.html?secret=staging-access-2025"
+    header_name   = "x-staging-secret"
+    header_value  = "staging-access-2025"
+    note          = "Add ?secret=staging-access-2025 to any staging URL to access it"
   }
 }

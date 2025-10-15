@@ -29,7 +29,7 @@ resource "random_id" "waf_suffix" {
 # WAF Web ACL for admin site protection
 resource "aws_wafv2_web_acl" "admin_protection" {
   count = var.admin_waf_enabled ? 1 : 0
-  
+
   name  = "rc-admin-waf-${random_id.waf_suffix.hex}"
   scope = "CLOUDFRONT"
 

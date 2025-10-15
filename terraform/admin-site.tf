@@ -137,9 +137,9 @@ resource "aws_cloudfront_function" "basic_auth" {
 }
 
 resource "aws_cloudfront_distribution" "admin" {
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "Admin Site"
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "Admin Site"
   default_root_object = "index.html"
 
   aliases = var.admin_domain_name != null && var.admin_acm_certificate_arn != null ? [var.admin_domain_name] : []

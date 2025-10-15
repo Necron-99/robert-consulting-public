@@ -4,7 +4,7 @@
 # SNS Topic for Alerts
 resource "aws_sns_topic" "alerts" {
   name = "robert-consulting-alerts"
-  
+
   tags = {
     Name        = "Robert Consulting Alerts"
     Environment = "production"
@@ -402,16 +402,16 @@ resource "aws_cloudwatch_metric_alarm" "s3_error_rate" {
 
 # Outputs
 output "cost_dashboard_url" {
-  value = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.cost_monitoring.dashboard_name}"
+  value       = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.cost_monitoring.dashboard_name}"
   description = "URL to the cost monitoring dashboard"
 }
 
 output "service_status_dashboard_url" {
-  value = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.service_status.dashboard_name}"
+  value       = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.service_status.dashboard_name}"
   description = "URL to the service status dashboard"
 }
 
 output "performance_dashboard_url" {
-  value = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.performance_monitoring.dashboard_name}"
+  value       = "https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:name=${aws_cloudwatch_dashboard.performance_monitoring.dashboard_name}"
   description = "URL to the performance monitoring dashboard"
 }

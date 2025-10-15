@@ -3,13 +3,13 @@
 
 # Lambda function for contact form processing
 resource "aws_lambda_function" "contact_form" {
-  filename         = "contact-form.zip"
-  function_name    = "contact-form-api"
-  role            = aws_iam_role.contact_form_lambda_role.arn
-  handler         = "contact-form.handler"
-  runtime         = "nodejs20.x"
-  timeout         = 30
-  memory_size     = 128
+  filename      = "contact-form.zip"
+  function_name = "contact-form-api"
+  role          = aws_iam_role.contact_form_lambda_role.arn
+  handler       = "contact-form.handler"
+  runtime       = "nodejs20.x"
+  timeout       = 30
+  memory_size   = 128
 
   environment {
     variables = {
@@ -96,16 +96,16 @@ resource "aws_api_gateway_resource" "contact_form" {
 
 # API Gateway method for POST requests
 resource "aws_api_gateway_method" "contact_form_post" {
-  rest_api_id   = aws_api_gateway_rest_api.contact_form_api.id
-  resource_id   = aws_api_gateway_resource.contact_form.id
-  http_method   = "POST"
-  authorization = "NONE"
+  rest_api_id      = aws_api_gateway_rest_api.contact_form_api.id
+  resource_id      = aws_api_gateway_resource.contact_form.id
+  http_method      = "POST"
+  authorization    = "NONE"
   api_key_required = true
-  
+
   # Add request validation
   request_parameters = {
     "method.request.header.Content-Type" = true
-    "method.request.header.X-API-Key"     = true
+    "method.request.header.X-API-Key"    = true
   }
 }
 
@@ -124,8 +124,8 @@ resource "aws_api_gateway_integration" "contact_form_post_integration" {
   http_method = aws_api_gateway_method.contact_form_post.http_method
 
   integration_http_method = "POST"
-  type                   = "AWS_PROXY"
-  uri                    = aws_lambda_function.contact_form.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.contact_form.invoke_arn
 }
 
 # CORS integration for OPTIONS method
@@ -204,26 +204,26 @@ resource "aws_api_gateway_stage" "contact_form_stage" {
 # API Gateway Usage Plan for rate limiting
 resource "aws_api_gateway_usage_plan" "contact_form_usage_plan" {
   name = "contact-form-usage-plan"
-  
+
   api_stages {
     api_id = aws_api_gateway_rest_api.contact_form_api.id
     stage  = aws_api_gateway_stage.contact_form_stage.stage_name
   }
-  
+
   quota_settings {
-    limit  = 1000  # 1000 requests per day
+    limit  = 1000 # 1000 requests per day
     period = "DAY"
   }
-  
+
   throttle_settings {
-    rate_limit  = 10  # 10 requests per second
-    burst_limit = 20  # Allow burst up to 20 requests
+    rate_limit  = 10 # 10 requests per second
+    burst_limit = 20 # Allow burst up to 20 requests
   }
 }
 
 # API Gateway API Key for authentication
 resource "aws_api_gateway_api_key" "contact_form_api_key" {
-  name = "contact-form-api-key"
+  name        = "contact-form-api-key"
   description = "API key for contact form endpoint"
 }
 
@@ -238,86 +238,86 @@ resource "aws_api_gateway_usage_plan_key" "contact_form_usage_plan_key" {
 resource "aws_wafv2_web_acl" "contact_form_waf" {
   name  = "contact-form-waf"
   scope = "REGIONAL"
-  
+
   default_action {
     allow {}
   }
-  
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = "contact-form-waf"
     sampled_requests_enabled   = true
   }
-  
+
   # Rate limiting rule
   rule {
     name     = "RateLimitRule"
     priority = 1
-    
+
     action {
       block {}
     }
-    
+
     statement {
       rate_based_statement {
         limit              = 100
         aggregate_key_type = "IP"
       }
     }
-    
+
     visibility_config {
       cloudwatch_metrics_enabled = true
       metric_name                = "RateLimitRule"
       sampled_requests_enabled   = true
     }
   }
-  
+
   # SQL injection protection
   rule {
     name     = "SQLInjectionRule"
     priority = 2
-    
+
     override_action {
       none {}
     }
-    
+
     statement {
       managed_rule_group_statement {
         vendor_name = "AWS"
         name        = "AWSManagedRulesSQLiRuleSet"
       }
     }
-    
+
     visibility_config {
       cloudwatch_metrics_enabled = true
       metric_name                = "SQLInjectionRule"
       sampled_requests_enabled   = true
     }
   }
-  
+
   # XSS protection
   rule {
     name     = "XSSRule"
     priority = 3
-    
+
     override_action {
       none {}
     }
-    
+
     statement {
       managed_rule_group_statement {
         vendor_name = "AWS"
         name        = "AWSManagedRulesCommonRuleSet"
       }
     }
-    
+
     visibility_config {
       cloudwatch_metrics_enabled = true
       metric_name                = "XSSRule"
       sampled_requests_enabled   = true
     }
   }
-  
+
   tags = {
     Name = "contact-form-waf"
   }

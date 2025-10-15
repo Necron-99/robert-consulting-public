@@ -23,7 +23,7 @@ resource "random_id" "main_waf_suffix" {
 # WAF Web ACL for main website protection
 resource "aws_wafv2_web_acl" "main_site" {
   count = var.main_site_waf_enabled ? 1 : 0
-  
+
   name  = "rc-main-site-waf-${random_id.main_waf_suffix.hex}"
   scope = "CLOUDFRONT"
 
@@ -65,7 +65,7 @@ resource "aws_wafv2_web_acl" "main_site" {
 
     statement {
       byte_match_statement {
-        search_string         = "sqlmap"
+        search_string = "sqlmap"
         field_to_match {
           single_header {
             name = "user-agent"

@@ -11,10 +11,10 @@ variable "staging_domain_name" {
 variable "staging_allowed_ips" {
   description = "List of IP addresses allowed to access staging environment"
   type        = list(string)
-  default     = [
+  default = [
     # Your personal IP address
     "73.251.19.77/32",
-    
+
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
     # "10.0.0.0/8",  # Example: VPN range
@@ -24,14 +24,14 @@ variable "staging_allowed_ips" {
 # S3 bucket for staging website hosting
 resource "aws_s3_bucket" "staging_website_bucket" {
   bucket = "robert-consulting-staging-website"
-  
+
   tags = {
     Name        = "Robert Consulting Staging Website"
     Environment = "Staging"
     Purpose     = "Staging Website Hosting"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -40,14 +40,14 @@ resource "aws_s3_bucket" "staging_website_bucket" {
 # S3 bucket for CloudFront access logs (to collect IP addresses)
 resource "aws_s3_bucket" "staging_access_logs" {
   bucket = "robert-consulting-staging-access-logs"
-  
+
   tags = {
     Name        = "Robert Consulting Staging Access Logs"
     Environment = "Staging"
     Purpose     = "CloudFront Access Logs for IP Collection"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -93,9 +93,9 @@ resource "aws_s3_bucket_ownership_controls" "staging_access_logs" {
 resource "aws_s3_bucket_public_access_block" "staging_access_logs" {
   bucket = aws_s3_bucket.staging_access_logs.id
 
-  block_public_acls       = false  # Allow ACL for CloudFront logging
+  block_public_acls       = false # Allow ACL for CloudFront logging
   block_public_policy     = true
-  ignore_public_acls      = false  # Allow ACL for CloudFront logging
+  ignore_public_acls      = false # Allow ACL for CloudFront logging
   restrict_public_buckets = true
 }
 
@@ -107,13 +107,13 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "CloudFrontAccessLogs"
-        Effect    = "Allow"
+        Sid    = "CloudFrontAccessLogs"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action    = "s3:PutObject"
-        Resource  = "${aws_s3_bucket.staging_access_logs.arn}/*"
+        Action   = "s3:PutObject"
+        Resource = "${aws_s3_bucket.staging_access_logs.arn}/*"
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
@@ -121,13 +121,13 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
         }
       },
       {
-        Sid       = "CloudFrontAccessLogsList"
-        Effect    = "Allow"
+        Sid    = "CloudFrontAccessLogsList"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action    = "s3:GetBucketAcl"
-        Resource  = aws_s3_bucket.staging_access_logs.arn
+        Action   = "s3:GetBucketAcl"
+        Resource = aws_s3_bucket.staging_access_logs.arn
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
@@ -207,7 +207,7 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
   security_headers_config {
     content_security_policy {
       content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://via.placeholder.com; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
-      override                 = false
+      override                = false
     }
     content_type_options {
       override = false
@@ -321,11 +321,11 @@ resource "aws_cloudfront_distribution" "staging_website" {
     # Apply security headers policy (identical to production)
     response_headers_policy_id = aws_cloudfront_response_headers_policy.staging_security_headers.id
 
-            # Associate CloudFront function for access control
-            function_association {
-              event_type   = "viewer-request"
-              function_arn = aws_cloudfront_function.staging_access_control.arn
-            }
+    # Associate CloudFront function for access control
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.staging_access_control.arn
+    }
 
     min_ttl     = 0
     default_ttl = 3600
@@ -368,7 +368,7 @@ resource "aws_cloudfront_distribution" "staging_website" {
 
 # SSL certificate for staging domain
 resource "aws_acm_certificate" "staging_ssl_cert" {
-  provider = aws.us_east_1  # CloudFront requires certificates in us-east-1
+  provider = aws.us_east_1 # CloudFront requires certificates in us-east-1
 
   domain_name       = var.staging_domain_name
   validation_method = "DNS"
@@ -489,7 +489,7 @@ resource "aws_wafv2_web_acl" "staging_waf" {
 
     statement {
       byte_match_statement {
-        search_string         = "sqlmap"
+        search_string = "sqlmap"
         field_to_match {
           single_header {
             name = "user-agent"

@@ -5,7 +5,7 @@
 # This will be used for certificate validation and domain management
 resource "aws_route53_zone" "main" {
   name = "robertconsulting.net"
-  
+
   tags = {
     Name        = "Robert Consulting Domain"
     Environment = "Production"
@@ -18,7 +18,7 @@ resource "aws_route53_zone" "main" {
 # Must be in us-east-1 for CloudFront compatibility
 resource "aws_acm_certificate" "wildcard" {
   provider = aws.us_east_1
-  
+
   domain_name               = "robertconsulting.net"
   subject_alternative_names = ["*.robertconsulting.net"]
   validation_method         = "DNS"
@@ -145,22 +145,22 @@ output "aws_dns_instructions" {
   description = "DNS records configured in Route 53 for robertconsulting.net"
   value = {
     root_domain = {
-      type = "A"
-      name = "robertconsulting.net"
+      type  = "A"
+      name  = "robertconsulting.net"
       value = "CloudFront Alias"
-      note = "Points to CloudFront distribution"
+      note  = "Points to CloudFront distribution"
     }
     www_subdomain = {
-      type = "CNAME"
-      name = "www.robertconsulting.net"
+      type  = "CNAME"
+      name  = "www.robertconsulting.net"
       value = "robertconsulting.net"
-      note = "WWW subdomain points to root domain"
+      note  = "WWW subdomain points to root domain"
     }
     api_subdomain = {
-      type = "CNAME"
-      name = "api.robertconsulting.net"
+      type  = "CNAME"
+      name  = "api.robertconsulting.net"
       value = "robertconsulting.net"
-      note = "Optional: for API subdomain"
+      note  = "Optional: for API subdomain"
     }
   }
 }

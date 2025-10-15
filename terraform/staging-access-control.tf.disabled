@@ -1,14 +1,16 @@
 # Staging Access Control - Simple Query Parameter Authentication
 # This provides secure access to staging without IP whitelisting issues
+# DISABLED: Missing staging-token-generator.zip file
 
+/*
 # Lambda function to generate access URLs for staging
 resource "aws_lambda_function" "staging_token_generator" {
-  filename         = "staging-token-generator.zip"
-  function_name    = "staging-token-generator"
-  role            = aws_iam_role.lambda_staging_token_role.arn
-  handler         = "index.handler"
-  runtime         = "python3.9"
-  timeout         = 30
+  filename      = "staging-token-generator.zip"
+  function_name = "staging-token-generator"
+  role          = aws_iam_role.lambda_staging_token_role.arn
+  handler       = "index.handler"
+  runtime       = "python3.9"
+  timeout       = 30
 
   environment {
     variables = {
@@ -81,8 +83,8 @@ resource "aws_api_gateway_integration" "staging_token_integration" {
   http_method = aws_api_gateway_method.staging_token_method.http_method
 
   integration_http_method = "POST"
-  type                   = "AWS_PROXY"
-  uri                    = aws_lambda_function.staging_token_generator.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.staging_token_generator.invoke_arn
 }
 
 # Lambda permission for API Gateway
@@ -117,4 +119,5 @@ output "staging_token_api_url" {
   description = "URL for staging token API"
   value       = "${aws_api_gateway_deployment.staging_token_deployment.invoke_url}/staging-token"
 }
+*/
 

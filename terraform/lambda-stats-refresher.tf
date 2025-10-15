@@ -2,20 +2,20 @@
 resource "aws_lambda_function" "stats_refresher" {
   filename         = "lambda/stats-refresher.zip"
   function_name    = "dashboard-stats-refresher"
-  role            = aws_iam_role.stats_refresher_role.arn
-  handler         = "index.handler"
+  role             = aws_iam_role.stats_refresher_role.arn
+  handler          = "index.handler"
   source_code_hash = data.archive_file.stats_refresher_zip.output_base64sha256
-  runtime         = "nodejs20.x"
-  timeout         = 30
-  memory_size     = 256
+  runtime          = "nodejs20.x"
+  timeout          = 30
+  memory_size      = 256
 
   environment {
     variables = {
-      GITHUB_USERNAME           = "Necron-99"
-      GITHUB_TOKEN_SECRET_ID    = aws_secretsmanager_secret.github_token.name
+      GITHUB_USERNAME            = "Necron-99"
+      GITHUB_TOKEN_SECRET_ID     = aws_secretsmanager_secret.github_token.name
       CLOUDFRONT_DISTRIBUTION_ID = "E36DBYPHUUKB3V"
-      PROD_BUCKET              = "robert-consulting-website"
-      LOG_LEVEL                = "INFO"
+      PROD_BUCKET                = "robert-consulting-website"
+      LOG_LEVEL                  = "INFO"
     }
   }
 
@@ -171,8 +171,8 @@ resource "aws_api_gateway_integration" "stats_refresher_integration" {
   http_method = aws_api_gateway_method.stats_refresher_method.http_method
 
   integration_http_method = "POST"
-  type                   = "AWS_PROXY"
-  uri                    = aws_lambda_function.stats_refresher.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.stats_refresher.invoke_arn
 }
 
 resource "aws_lambda_permission" "api_gateway_lambda" {
