@@ -193,10 +193,8 @@ resource "aws_lambda_function" "admin_auth" {
 data "archive_file" "admin_auth_zip" {
   type        = "zip"
   output_path = "/tmp/admin-auth.zip"
-  source {
-    content = file("${path.root}/lambda/admin-auth.js")
-    filename = "admin-auth.js"
-  }
+  source_dir  = "${path.module}/../lambda"
+  excludes    = ["package-lock.json", "node_modules"]
 }
 
 # IAM role for Lambda function
