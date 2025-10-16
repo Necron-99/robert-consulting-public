@@ -104,6 +104,11 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
       preload                    = true
       override                   = false
     }
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = false
+    }
   }
 
   custom_headers_config {
