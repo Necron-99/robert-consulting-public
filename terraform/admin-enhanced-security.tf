@@ -106,6 +106,11 @@ resource "aws_dynamodb_table" "admin_sessions" {
     type = "S"
   }
 
+  attribute {
+    name = "expires_at"
+    type = "S"
+  }
+
   global_secondary_index {
     name     = "user-ip-index"
     hash_key = "user_ip"
@@ -144,6 +149,11 @@ resource "aws_dynamodb_table" "admin_audit_log" {
 
   attribute {
     name = "user_ip"
+    type = "S"
+  }
+
+  attribute {
+    name = "action_type"
     type = "S"
   }
 
@@ -328,26 +338,9 @@ resource "aws_wafv2_web_acl" "admin_enhanced_protection" {
     }
 
     statement {
-      and_statement {
-        statement {
-          byte_match_statement {
-            search_string         = "/login"
-            field_to_match {
-              uri_path {}
-            }
-            text_transformation {
-              priority = 0
-              type     = "LOWERCASE"
-            }
-            positional_constraint = "CONTAINS"
-          }
-        }
-        statement {
-          rate_based_statement {
-            limit              = 5  # Max 5 login attempts per IP
-            aggregate_key_type = "IP"
-          }
-        }
+      rate_based_statement {
+        limit              = 5  # Max 5 login attempts per IP
+        aggregate_key_type = "IP"
       }
     }
 
