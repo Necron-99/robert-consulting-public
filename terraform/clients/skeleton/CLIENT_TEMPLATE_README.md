@@ -45,7 +45,7 @@ terraform apply
 │   ├── update-<client>-content.sh
 │   └── deploy-to-<client>.sh
 ├── .github/workflows/       # CI/CD workflows
-│   ├── application-deploy.yml
+│   ├── basic-client-deployment.yml  # Basic testing pipeline
 │   ├── terraform-plan.yml
 │   ├── terraform-apply.yml
 │   ├── cost-optimization.yml
