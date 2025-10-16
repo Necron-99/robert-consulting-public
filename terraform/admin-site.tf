@@ -115,7 +115,7 @@ resource "aws_s3_bucket_policy" "admin" {
 }
 
 locals {
-  cf_function_code = var.admin_enhanced_security_enabled ? <<EOT
+  enhanced_auth_code = <<EOT
 function handler(event) {
   var req = event.request;
   var headers = req.headers;
@@ -161,7 +161,8 @@ function getCookie(headers, name) {
   return null;
 }
 EOT
-  : <<EOT
+
+  basic_auth_code = <<EOT
 function handler(event) {
   var req = event.request;
   var headers = req.headers;
@@ -180,6 +181,8 @@ function handler(event) {
   return req;
 }
 EOT
+
+  cf_function_code = var.admin_enhanced_security_enabled ? local.enhanced_auth_code : local.basic_auth_code
 }
 
 resource "aws_cloudfront_function" "basic_auth" {
