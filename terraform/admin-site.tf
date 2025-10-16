@@ -37,6 +37,18 @@ variable "admin_basic_auth_password" {
   default     = "RobertSecure2025!"
 }
 
+variable "admin_enhanced_security_enabled" {
+  description = "Enable enhanced security features (MFA, IP restrictions, etc.)"
+  type        = bool
+  default     = true
+}
+
+variable "admin_allowed_ips" {
+  description = "List of IP addresses/CIDR blocks allowed to access the admin site"
+  type        = list(string)
+  default     = [] # Add your IP addresses here
+}
+
 locals {
   tags = {
     Project   = "AdminSite"
@@ -108,7 +120,53 @@ resource "aws_s3_bucket_policy" "admin" {
 }
 
 locals {
-  cf_function_code = <<EOT
+  cf_function_code = var.admin_enhanced_security_enabled ? <<EOT
+function handler(event) {
+  var req = event.request;
+  var headers = req.headers;
+  var uri = req.uri;
+
+  // Skip authentication for login page and static assets
+  if (uri === '/admin-login.html' || 
+      uri === '/admin-login' || 
+      uri === '/admin-mfa' ||
+      uri.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    return req;
+  }
+
+  // Check for session cookie
+  var sessionCookie = getCookie(headers, 'admin-session');
+  if (sessionCookie) {
+    // Session exists, allow access (session validation handled by Lambda@Edge)
+    return req;
+  }
+
+  // No session, redirect to login
+  return {
+    statusCode: 302,
+    statusDescription: 'Found',
+    headers: {
+      'location': { value: '/admin-login.html' },
+      'cache-control': { value: 'no-cache, no-store, must-revalidate' }
+    }
+  };
+}
+
+function getCookie(headers, name) {
+  var cookieHeader = headers.cookie;
+  if (!cookieHeader) return null;
+  
+  var cookies = cookieHeader.value.split(';');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].trim();
+    if (cookie.indexOf(name + '=') === 0) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+EOT
+  : <<EOT
 function handler(event) {
   var req = event.request;
   var headers = req.headers;
