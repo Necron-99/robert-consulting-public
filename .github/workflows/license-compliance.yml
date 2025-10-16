@@ -39,6 +39,7 @@ jobs:
           echo "✅ License check completed"
         else
           echo "ℹ️ No package.json found, skipping JavaScript license check"
+          echo "{}" > license-report.json
         fi
 
     - name: Check for GPL licenses (blocking)

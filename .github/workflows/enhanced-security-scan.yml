@@ -46,7 +46,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    if: contains(github.event.head_commit.modified, '.py') || contains(github.event.head_commit.added, '.py')
+    if: contains(github.event.head_commit.modified, '.py') || contains(github.event.head_commit.added, '.py') || contains(github.event.head_commit.modified, 'lambda/')
 
     steps:
     - name: Checkout repository
@@ -96,6 +96,7 @@ jobs:
         if [ -f "package.json" ]; then
           npm install --save-dev eslint-plugin-security eslint-plugin-no-secrets
         else
+          echo "ℹ️ No package.json found, creating minimal setup for ESLint security analysis"
           npm init -y
           npm install --save-dev eslint eslint-plugin-security eslint-plugin-no-secrets
         fi

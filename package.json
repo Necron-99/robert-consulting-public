@@ -1,0 +1,40 @@
+{
+  "name": "robert-consulting-infrastructure",
+  "version": "1.0.0",
+  "description": "Robert Consulting Infrastructure Framework - Complete serverless infrastructure setup with built-in cost optimization, monitoring, and security features",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "echo \"No linting specified\" && exit 0",
+    "build": "echo \"No build process specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Necron-99/robert-consulting-public.git"
+  },
+  "keywords": [
+    "infrastructure",
+    "terraform",
+    "aws",
+    "serverless",
+    "security",
+    "monitoring",
+    "cost-optimization",
+    "ci-cd",
+    "devops"
+  ],
+  "author": "Robert Bailey <rsbailey@necron99.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Necron-99/robert-consulting-public/issues"
+  },
+  "homepage": "https://github.com/Necron-99/robert-consulting-public#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-plugin-security": "^1.7.0",
+    "eslint-plugin-no-secrets": "^0.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
