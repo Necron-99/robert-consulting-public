@@ -169,7 +169,7 @@ resource "aws_lambda_function" "admin_auth" {
   function_name    = "rc-admin-auth-${random_id.security_suffix.hex}"
   role            = aws_iam_role.admin_auth_role.arn
   handler         = "admin-auth.handler"
-  runtime         = "nodejs20.x"
+  runtime         = "nodejs22.x"
   timeout         = 30
   memory_size     = 256
 

@@ -43,11 +43,6 @@ variable "admin_enhanced_security_enabled" {
   default     = true
 }
 
-variable "admin_allowed_ips" {
-  description = "List of IP addresses/CIDR blocks allowed to access the admin site"
-  type        = list(string)
-  default     = [] # Add your IP addresses here
-}
 
 locals {
   tags = {

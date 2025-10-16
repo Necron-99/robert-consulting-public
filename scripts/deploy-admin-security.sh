@@ -39,6 +39,13 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
+# Check Node.js version
+NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
+if [ "$NODE_VERSION" -lt 22 ]; then
+    echo -e "${YELLOW}⚠️  Node.js version is $NODE_VERSION, but Node.js 22+ is recommended for Lambda${NC}"
+    echo -e "${YELLOW}   Lambda now supports Node.js 22 LTS (Node.js 18 is EOL)${NC}"
+fi
+
 echo -e "${GREEN}✅ Prerequisites check passed${NC}"
 
 # Backup existing admin files
