@@ -7,7 +7,7 @@ This template provides a standardized structure for new client infrastructure re
 ### 1. Create New Client Repository
 ```bash
 # Clone this template
-git clone <template-repo-url> <client-name>-infrastructure
+git clone https://github.com/Necron-99/robert-consulting-public.git <client-name>-infrastructure
 cd <client-name>-infrastructure
 
 # Update repository name

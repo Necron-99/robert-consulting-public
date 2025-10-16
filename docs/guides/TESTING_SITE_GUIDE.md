@@ -330,8 +330,8 @@ export TESTING_BUCKET="robert-consulting-testing-$(date +%s)"
 - [Cost Explorer Documentation](https://docs.aws.amazon.com/cost-management/)
 
 ### Contact
-- **Repository**: [GitHub](https://github.com/Necron-99/robert-consulting.net)
-- **Issues**: [GitHub Issues](https://github.com/Necron-99/robert-consulting.net/issues)
+- **Repository**: [GitHub](https://github.com/Necron-99/robert-consulting-public)
+- **Issues**: [GitHub Issues](https://github.com/Necron-99/robert-consulting-public/issues)
 - **Production Site**: [robertconsulting.net](https://robertconsulting.net)
 
 ## 🎯 Best Practices

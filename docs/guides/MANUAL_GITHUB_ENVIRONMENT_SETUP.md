@@ -6,7 +6,7 @@ Since GitHub CLI is not available, here's how to manually set up the production 
 
 ### 1. Navigate to Repository Settings
 
-1. Go to your GitHub repository: `https://github.com/Necron-99/robert-consulting.net`
+1. Go to your GitHub repository: `https://github.com/Necron-99/robert-consulting-public`
 2. Click on **Settings** (in the repository navigation bar at the top)
 3. In the left sidebar, scroll down and click on **Environments**
 

@@ -1,6 +1,8 @@
 # Robert Consulting Infrastructure Framework
 
-This repository contains the skeleton client template for creating new client infrastructure using the Robert Consulting infrastructure framework.
+This repository contains the complete infrastructure framework and website for Robert Consulting. This is the public repository showcasing our infrastructure-as-code approach, client management system, and comprehensive CI/CD pipelines.
+
+**Repository:** [robert-consulting-public](https://github.com/Necron-99/robert-consulting-public)
 
 ## 🎯 Overview
 
@@ -9,7 +11,7 @@ This framework provides a complete, production-ready serverless infrastructure s
 ## 📁 Repository Structure
 
 ```
-robert-consulting.net/
+robert-consulting-public/
 ├── README.md                           # This file
 ├── .gitignore                         # Git ignore rules
 ├── .eslintrc.json                     # ESLint configuration
