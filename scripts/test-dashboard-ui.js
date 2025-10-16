@@ -50,7 +50,7 @@ async function testPageAccessibility() {
         }
         
         // Check if page contains expected elements (no service health section)
-        if (response.data.includes('SYSTEM STATUS')) {
+        if (response.data.includes('System Status')) {
             testResults.pageAccessibility.passed++;
             testResults.pageAccessibility.tests.push('✅ System Status section present');
         } else {
