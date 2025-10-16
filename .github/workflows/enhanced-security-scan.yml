@@ -32,9 +32,6 @@ jobs:
           p/javascript
           p/terraform
           p/python
-        generateSarif: "1"
-        generateGitlabSAST: "1"
-        generateCodeClimate: "1"
 
     - name: Upload Semgrep results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
