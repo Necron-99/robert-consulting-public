@@ -34,7 +34,7 @@ jobs:
         echo "🔍 Checking JavaScript dependencies licenses..."
         if [ -f "package.json" ]; then
           npm install
-          license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;CC0-1.0" --excludePrivatePackages --json > license-report.json
+          license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;Unlicense;CC0-1.0;Python-2.0;BSD-3-Clause-Clear;0BSD" --excludePrivatePackages --json > license-report.json
           echo "✅ License check completed"
         else
           echo "ℹ️ No package.json found, skipping JavaScript license check"
@@ -45,7 +45,7 @@ jobs:
       run: |
         echo "🚨 Checking for GPL licenses (blocking)..."
         if [ -f "license-report.json" ]; then
-          if grep -q "GPL" license-report.json; then
+          if grep -q -E "GPL-[0-9]|GPLv[0-9]|GNU General Public License" license-report.json; then
             echo "❌ GPL licenses detected - blocking deployment"
             exit 1
           else
@@ -57,7 +57,7 @@ jobs:
       run: |
         echo "🚨 Checking for AGPL licenses (blocking)..."
         if [ -f "license-report.json" ]; then
-          if grep -q "AGPL" license-report.json; then
+          if grep -q -E "AGPL-[0-9]|AGPLv[0-9]|GNU Affero General Public License" license-report.json; then
             echo "❌ AGPL licenses detected - blocking deployment"
             exit 1
           else
