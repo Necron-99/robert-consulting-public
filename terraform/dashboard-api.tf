@@ -15,6 +15,7 @@ resource "aws_lambda_function" "dashboard_api" {
   runtime         = "nodejs20.x"
   timeout         = 30
   memory_size     = 256
+  source_code_hash = data.archive_file.dashboard_api_zip.output_base64sha256
 
   environment {
     variables = {

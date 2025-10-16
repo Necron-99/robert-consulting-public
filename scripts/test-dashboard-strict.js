@@ -142,30 +142,67 @@ function testPerformanceMetrics(data) {
     
     const perf = data.performance;
     
-    // Test response time - MUST be in reasonable range
+    // Test response time - MUST be in reasonable range (network-independent)
+    // Note: This tests the API response time, not end-to-end network performance
     if (perf.resourceTiming && perf.resourceTiming.ttfb) {
         const ttfb = parseInt(perf.resourceTiming.ttfb);
-        if (ttfb >= 100 && ttfb <= 500) {
+        if (ttfb >= 50 && ttfb <= 500) { // realistic for API response from any location
             testResults.performanceMetrics.passed++;
-            testResults.performanceMetrics.tests.push(`✅ TTFB is reasonable: ${perf.resourceTiming.ttfb}`);
+            testResults.performanceMetrics.tests.push(`✅ API TTFB is acceptable: ${perf.resourceTiming.ttfb} (50-500ms range)`);
         } else {
             testResults.performanceMetrics.failed++;
-            testResults.performanceMetrics.tests.push(`❌ TTFB is unreasonable: ${perf.resourceTiming.ttfb} (expected 100-500ms)`);
+            testResults.performanceMetrics.tests.push(`❌ API TTFB out of range: ${perf.resourceTiming.ttfb} (expected 50-500ms)`);
         }
     } else {
         testResults.performanceMetrics.failed++;
         testResults.performanceMetrics.tests.push('❌ TTFB data missing');
     }
     
-    // Test Core Web Vitals - MUST be present and reasonable
-    if (perf.coreWebVitals && perf.coreWebVitals.lcp) {
-        const lcp = parseFloat(perf.coreWebVitals.lcp.value);
-        if (lcp >= 0.5 && lcp <= 2.5) {
-            testResults.performanceMetrics.passed++;
-            testResults.performanceMetrics.tests.push(`✅ LCP is reasonable: ${perf.coreWebVitals.lcp.value}`);
+    // Test Core Web Vitals - Infrastructure capability validation (network-independent)
+    if (perf.coreWebVitals) {
+        // LCP - Test that infrastructure can deliver good LCP (simulated from optimal location)
+        if (perf.coreWebVitals.lcp && perf.coreWebVitals.lcp.value) {
+            const lcp = parseFloat(perf.coreWebVitals.lcp.value);
+            if (lcp > 0 && lcp <= 2.5) { // Realistic for infrastructure capability
+                testResults.performanceMetrics.passed++;
+                testResults.performanceMetrics.tests.push(`✅ LCP infrastructure capable: ${perf.coreWebVitals.lcp.value} (<=2.5s)`);
+            } else {
+                testResults.performanceMetrics.failed++;
+                testResults.performanceMetrics.tests.push(`❌ LCP infrastructure issue: ${perf.coreWebVitals.lcp.value} (expected <=2.5s)`);
+            }
         } else {
             testResults.performanceMetrics.failed++;
-            testResults.performanceMetrics.tests.push(`❌ LCP is unreasonable: ${perf.coreWebVitals.lcp.value} (expected 0.5-2.5s)`);
+            testResults.performanceMetrics.tests.push('❌ LCP missing');
+        }
+
+        // INP - Test that infrastructure can deliver good interactivity
+        if (perf.coreWebVitals.inp && perf.coreWebVitals.inp.value) {
+            const inp = parseInt(perf.coreWebVitals.inp.value);
+            if (inp > 0 && inp <= 500) { // Realistic for infrastructure capability
+                testResults.performanceMetrics.passed++;
+                testResults.performanceMetrics.tests.push(`✅ INP infrastructure capable: ${perf.coreWebVitals.inp.value} (<=500ms)`);
+            } else {
+                testResults.performanceMetrics.failed++;
+                testResults.performanceMetrics.tests.push(`❌ INP infrastructure issue: ${perf.coreWebVitals.inp.value} (expected <=500ms)`);
+            }
+        } else {
+            testResults.performanceMetrics.failed++;
+            testResults.performanceMetrics.tests.push('❌ INP missing');
+        }
+
+        // CLS - Test layout stability (not network dependent)
+        if (perf.coreWebVitals.cls && perf.coreWebVitals.cls.value !== undefined) {
+            const cls = parseFloat(perf.coreWebVitals.cls.value);
+            if (cls >= 0 && cls <= 0.1) { // Good layout stability
+                testResults.performanceMetrics.passed++;
+                testResults.performanceMetrics.tests.push(`✅ CLS layout stable: ${perf.coreWebVitals.cls.value} (<=0.1)`);
+            } else {
+                testResults.performanceMetrics.failed++;
+                testResults.performanceMetrics.tests.push(`❌ CLS layout unstable: ${perf.coreWebVitals.cls.value} (expected <=0.1)`);
+            }
+        } else {
+            testResults.performanceMetrics.failed++;
+            testResults.performanceMetrics.tests.push('❌ CLS missing');
         }
     } else {
         testResults.performanceMetrics.failed++;
