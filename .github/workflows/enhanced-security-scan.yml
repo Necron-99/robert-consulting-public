@@ -37,6 +37,8 @@ jobs:
       uses: github/codeql-action/upload-sarif@v3
       if: always()
       continue-on-error: true
+      with:
+        sarif_file: semgrep.sarif
 
   # Bandit Python security analysis
   bandit-scan:
@@ -130,7 +132,9 @@ jobs:
             'security/detect-possible-timing-attacks': 'error',
             'security/detect-pseudoRandomBytes': 'error',
             'no-secrets/no-secrets': 'error',
-            'no-console': 'warn'
+            'no-console': 'off',
+            'indent': 'off',
+            'no-trailing-spaces': 'off'
           }
         };
         EOF

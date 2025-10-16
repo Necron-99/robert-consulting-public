@@ -2,18 +2,18 @@
 // Non-obvious way to navigate between main site and admin site
 
 class EasterEgg {
-    constructor() {
-        this.konamiCode = [
-            'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
-            'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
-            'KeyB', 'KeyA'
-        ];
-        this.userInput = [];
-        this.isActive = false;
-        this.timeout = null;
-        
-        this.init();
-    }
+  constructor() {
+    this.konamiCode = [
+      'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+      'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+      'KeyB', 'KeyA'
+    ];
+    this.userInput = [];
+    this.isActive = false;
+    this.timeout = null;
+    
+    this.init();
+  }
     
     init() {
         // Listen for keydown events
