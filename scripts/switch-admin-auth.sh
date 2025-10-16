@@ -26,7 +26,7 @@ case $AUTH_METHOD in
         aws cloudfront get-distribution-config --id "$ADMIN_DISTRIBUTION_ID" --query 'DistributionConfig' --output json > /tmp/dist_config.json
         
         # Add function association for basic auth
-        jq '.DefaultCacheBehavior.FunctionAssociations = {"Quantity": 1, "Items": [{"FunctionARN": "arn:aws:cloudfront::228480945348:function/rc-admin-basic-auth-fixed", "EventType": "viewer-request"}]}' /tmp/dist_config.json > /tmp/with_auth_config.json
+        jq '.DefaultCacheBehavior.FunctionAssociations = {"Quantity": 1, "Items": [{"FunctionARN": "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:function/rc-admin-basic-auth-fixed", "EventType": "viewer-request"}]}' /tmp/dist_config.json > /tmp/with_auth_config.json
         
         # Get current ETag
         ETAG=$(aws cloudfront get-distribution-config --id "$ADMIN_DISTRIBUTION_ID" --query 'ETag' --output text)

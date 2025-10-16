@@ -13,11 +13,11 @@ The remote management system consists of:
 ## Architecture
 
 ```
-Management Account (228480945348)
+Management Account ([REDACTED])
 ├── RobertClientManagementRole
 └── Remote Management Script
 
-Client Account (737915157697 - Bailey Lessons)
+Client Account ([REDACTED] - Bailey Lessons)
 ├── RobertRemoteManagementRole
 └── Client Infrastructure
 
@@ -156,7 +156,7 @@ aws iam list-roles --query 'Roles[?contains(RoleName, `Robert`)]'
 
 # Test role assumption manually
 aws sts assume-role \
-  --role-arn "arn:aws:iam::737915157697:role/RobertRemoteManagementRole" \
+  --role-arn "arn:aws:iam::[REDACTED]:role/RobertRemoteManagementRole" \
   --role-session-name "test-session" \
   --external-id "robert-consulting-remote-management"
 ```

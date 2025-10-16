@@ -82,7 +82,7 @@ cd infrastructure
 cat > terraform.tfvars << EOF
 client_name        = "baileylessons"
 client_domain      = "baileylessons.com"
-client_account_id  = "737915157697"
+client_account_id  = "[REDACTED]"
 aws_region         = "us-east-1"
 environment        = "production"
 
@@ -94,7 +94,7 @@ additional_domains = [
 # Adopt existing resources
 existing_cloudfront_distribution_id = "E23X7BS3VXFFFZ"
 existing_route53_zone_id            = "Z01009052GCOJI1M2TTF7"
-existing_acm_certificate_arn       = "arn:aws:acm:us-east-1:737915157697:certificate/443ea37e-fb03-4993-8e65-f7a10d25e32e"
+existing_acm_certificate_arn       = "arn:aws:acm:us-east-1:[REDACTED]:certificate/443ea37e-fb03-4993-8e65-f7a10d25e32e"
 
 enable_cloudfront  = true
 enable_waf         = true

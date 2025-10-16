@@ -27,7 +27,7 @@ fi
 
 # Assume role into Bailey Lessons client account
 echo "🔄 Assuming role into Bailey Lessons client account..."
-ROLE_ARN="arn:aws:iam::737915157697:role/OrganizationAccountAccessRole"
+ROLE_ARN="arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/OrganizationAccountAccessRole"
 SESSION_NAME="baileylessons-deployment-$(date +%s)"
 
 # Assume the role and get temporary credentials
@@ -41,7 +41,7 @@ if [ $? -ne 0 ]; then
     echo "❌ Error: Failed to assume role into Bailey Lessons account"
     echo "   Please check:"
     echo "   1. You have permission to assume the OrganizationAccountAccessRole"
-    echo "   2. The role exists in account 737915157697"
+    echo "   2. The role exists in account ${data.aws_caller_identity.current.account_id}"
     echo "   3. Your AWS credentials are properly configured"
     exit 1
 fi
@@ -58,7 +58,7 @@ export AWS_SESSION_TOKEN="$SESSION_TOKEN"
 
 # Verify we're now in the correct account
 CURRENT_ACCOUNT=$(aws sts get-caller-identity --query 'Account' --output text)
-EXPECTED_ACCOUNT="737915157697"
+EXPECTED_ACCOUNT="${data.aws_caller_identity.current.account_id}"
 
 if [ "$CURRENT_ACCOUNT" != "$EXPECTED_ACCOUNT" ]; then
     echo "❌ Error: Failed to assume role into Bailey Lessons account"

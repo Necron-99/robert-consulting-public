@@ -23,7 +23,7 @@ The admin site became inaccessible because:
 - ✅ **Set variables**:
   - `admin_domain_name = "admin.robertconsulting.net"`
   - `existing_route53_zone_id = "Z0232243368137F38UDI1"`
-  - `admin_acm_certificate_arn = "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"`
+  - `admin_acm_certificate_arn = "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"`
 
 ### **Applied Terraform Changes:**
 - ✅ **Route53 Record Created**: `admin.robertconsulting.net` → CloudFront distribution
@@ -74,7 +74,7 @@ aws_cloudfront_distribution.admin {
   aliases = ["admin.robertconsulting.net"]
   
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:228480945348:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:[REDACTED]:certificate/cefe26a0-b4b5-478a-bd79-6cdefe8bf45f"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
     cloudfront_default_certificate = false
@@ -94,7 +94,7 @@ aws_cloudfront_distribution.admin {
 
 ### **Bailey Lessons Integration:**
 - ✅ **Correct Repository**: Necron-99/baileylessons.com
-- ✅ **Correct AWS Account**: 737915157697
+- ✅ **Correct AWS Account**: [REDACTED]
 - ✅ **Correct S3 Bucket**: baileylessons-production-static
 - ✅ **Correct CloudFront**: E23X7BS3VXFFFZ
 - ✅ **Role Assumption**: OrganizationAccountAccessRole configured

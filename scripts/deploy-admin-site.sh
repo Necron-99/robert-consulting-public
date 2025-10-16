@@ -42,7 +42,7 @@ cat > /tmp/admin-bucket-policy.json << EOF
             "Resource": "arn:aws:s3:::$ADMIN_BUCKET/*",
             "Condition": {
                 "StringEquals": {
-                    "AWS:SourceArn": "arn:aws:cloudfront::228480945348:distribution/$CLOUDFRONT_DISTRIBUTION_ID"
+                    "AWS:SourceArn": "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/$CLOUDFRONT_DISTRIBUTION_ID"
                 }
             }
         }

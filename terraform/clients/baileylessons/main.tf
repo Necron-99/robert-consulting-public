@@ -31,7 +31,7 @@ provider "aws" {
   }
   # Temporarily use OrganizationAccountAccessRole to create remote management role
   assume_role {
-    role_arn = "arn:aws:iam::737915157697:role/OrganizationAccountAccessRole"
+    role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/OrganizationAccountAccessRole"
   }
 }
 

@@ -10,7 +10,7 @@ resource "aws_iam_role" "client_management_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::228480945348:user/terraform-user"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/terraform-user"
         }
         Action = "sts:AssumeRole"
       }
@@ -42,7 +42,7 @@ resource "aws_iam_role_policy" "client_management_policy" {
           "sts:AssumeRole"
         ]
         Resource = [
-          "arn:aws:iam::737915157697:role/RobertRemoteManagementRole",  # Bailey Lessons
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RobertRemoteManagementRole",  # Bailey Lessons
           "arn:aws:iam::*:role/RobertRemoteManagementRole"  # Future clients
         ]
         Condition = {

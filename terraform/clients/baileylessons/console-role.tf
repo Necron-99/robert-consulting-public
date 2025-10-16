@@ -8,7 +8,7 @@ resource "aws_iam_role" "console_access_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::228480945348:root"  # Management account
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"  # Management account
         }
         Action = "sts:AssumeRole"
         # No external ID required for console access

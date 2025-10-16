@@ -39,7 +39,7 @@ print_error() {
 get_client_account() {
     case "$1" in
         "baileylessons")
-            echo "737915157697"
+            echo "${data.aws_caller_identity.current.account_id}"
             ;;
         # Add more clients here as they're created
         # "client2")

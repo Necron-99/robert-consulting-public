@@ -16,9 +16,9 @@ I've updated the Bailey Lessons deployment scripts to automatically assume the r
 ### **Role Assumption Process:**
 ```bash
 # Each script now automatically:
-1. Assumes role: arn:aws:iam::737915157697:role/OrganizationAccountAccessRole
+1. Assumes role: arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole
 2. Sets temporary credentials as environment variables
-3. Verifies access to the correct account (737915157697)
+3. Verifies access to the correct account ([REDACTED])
 4. Proceeds with S3 and CloudFront operations
 ```
 
@@ -46,7 +46,7 @@ I've updated the Bailey Lessons deployment scripts to automatically assume the r
 ## 🔐 **Security Features**
 
 ### **Role Assumption:**
-- **Role ARN**: `arn:aws:iam::737915157697:role/OrganizationAccountAccessRole`
+- **Role ARN**: `arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole`
 - **Session Name**: Unique timestamp-based session names
 - **Temporary Credentials**: Short-lived credentials for security
 - **Account Verification**: Ensures correct account access
@@ -54,7 +54,7 @@ I've updated the Bailey Lessons deployment scripts to automatically assume the r
 ### **Access Control:**
 - **S3 Bucket**: `baileylessons-production-static`
 - **CloudFront**: `E23X7BS3VXFFFZ`
-- **Account**: `737915157697` (Bailey Lessons)
+- **Account**: `[REDACTED]` (Bailey Lessons)
 
 ---
 
@@ -63,7 +63,7 @@ I've updated the Bailey Lessons deployment scripts to automatically assume the r
 ### **Role Assumption Code:**
 ```bash
 # Assume role into Bailey Lessons client account
-ROLE_ARN="arn:aws:iam::737915157697:role/OrganizationAccountAccessRole"
+ROLE_ARN="arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole"
 SESSION_NAME="baileylessons-deployment-$(date +%s)"
 
 # Get temporary credentials
@@ -83,7 +83,7 @@ export AWS_SESSION_TOKEN="$SESSION_TOKEN"
 ```bash
 # Verify correct account
 CURRENT_ACCOUNT=$(aws sts get-caller-identity --query 'Account' --output text)
-EXPECTED_ACCOUNT="737915157697"
+EXPECTED_ACCOUNT="[REDACTED]"
 ```
 
 ---
@@ -101,9 +101,9 @@ EXPECTED_ACCOUNT="737915157697"
 ```
 🧪 Testing Bailey Lessons client account access...
 ✅ AWS CLI is configured
-📋 Current AWS account: 228480945348
+📋 Current AWS account: [REDACTED]
 🔄 Assuming role into Bailey Lessons client account...
-✅ Successfully assumed role into Bailey Lessons account (737915157697)
+✅ Successfully assumed role into Bailey Lessons account ([REDACTED])
 ✅ S3 bucket access successful: baileylessons-production-static
 ✅ CloudFront distribution access successful: E23X7BS3VXFFFZ
 🎉 All tests passed!
@@ -131,7 +131,7 @@ EXPECTED_ACCOUNT="737915157697"
 
 ### **Required Permissions:**
 - **Source Account**: Permission to assume `OrganizationAccountAccessRole`
-- **Target Account**: The role must exist in account `737915157697`
+- **Target Account**: The role must exist in account `[REDACTED]`
 - **AWS CLI**: Properly configured with credentials
 
 ### **Required Resources:**
@@ -170,7 +170,7 @@ open https://baileylessons.com
 ## 🎉 **Success Indicators**
 
 - ✅ **Role Assumption**: Successfully assumes role into client account
-- ✅ **Account Verification**: Confirms access to account 737915157697
+- ✅ **Account Verification**: Confirms access to account [REDACTED]
 - ✅ **S3 Access**: Can read/write to baileylessons-production-static
 - ✅ **CloudFront Access**: Can manage distribution E23X7BS3VXFFFZ
 - ✅ **Content Deployment**: Files successfully uploaded

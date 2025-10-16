@@ -24,7 +24,7 @@ All AWS account IDs have been successfully removed or redacted from public files
 ## 🔧 **Changes Applied**
 
 ### **Account ID Redaction:**
-- **Before:** `228480945348` (exposed in 12 files)
+- **Before:** `[REDACTED]` (exposed in 12 files)
 - **After:** `[REDACTED]` (secure placeholder)
 - **Method:** Systematic replacement across all files
 
@@ -48,7 +48,7 @@ All AWS account IDs have been successfully removed or redacted from public files
 
 ### **Final Verification:**
 ```bash
-grep -r "228480945348" . --exclude-dir=.git
+grep -r "[REDACTED]" . --exclude-dir=.git
 # Result: No files found
 ```
 

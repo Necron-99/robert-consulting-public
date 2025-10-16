@@ -10,7 +10,7 @@ The admin site's Bailey Lessons deployment page has been updated with the correc
 
 ### **Client Configuration Section:**
 - ✅ **Repository**: Updated from `username/baileylessons.com` to `Necron-99/baileylessons.com`
-- ✅ **AWS Account**: Added `737915157697` (Bailey Lessons client account)
+- ✅ **AWS Account**: Added `[REDACTED]` (Bailey Lessons client account)
 - ✅ **S3 Bucket**: Updated from `baileylessons-website` to `baileylessons-production-static`
 - ✅ **CloudFront Distribution**: Updated from `E1TD9DYEU1B2AJ` to `E23X7BS3VXFFFZ`
 
@@ -31,9 +31,9 @@ The admin site's Bailey Lessons deployment page has been updated with the correc
 ### **New Cross-Account Access Section:**
 - ✅ **Added detailed information** about the role assumption process
 - ✅ **Source Account**: Robert Consulting (this account)
-- ✅ **Target Account**: 737915157697 (Bailey Lessons)
+- ✅ **Target Account**: [REDACTED] (Bailey Lessons)
 - ✅ **Assumed Role**: OrganizationAccountAccessRole
-- ✅ **Role ARN**: arn:aws:iam::737915157697:role/OrganizationAccountAccessRole
+- ✅ **Role ARN**: arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole
 
 ---
 
@@ -57,7 +57,7 @@ The admin site's Bailey Lessons deployment page has been updated with the correc
 ```
 Client Name: baileylessons
 Repository: Necron-99/baileylessons.com
-AWS Account: 737915157697
+AWS Account: [REDACTED]
 S3 Bucket: baileylessons-production-static
 CloudFront Distribution: E23X7BS3VXFFFZ
 Domain: baileylessons.com
@@ -66,9 +66,9 @@ Domain: baileylessons.com
 ### **Cross-Account Access:**
 ```
 Source Account: Robert Consulting (this account)
-Target Account: 737915157697 (Bailey Lessons)
+Target Account: [REDACTED] (Bailey Lessons)
 Assumed Role: OrganizationAccountAccessRole
-Role ARN: arn:aws:iam::737915157697:role/OrganizationAccountAccessRole
+Role ARN: arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole
 ```
 
 ---
@@ -108,7 +108,7 @@ aws cloudfront get-distribution --id E23X7BS3VXFFFZ --query 'Distribution.Status
 
 ### **Accurate Information:**
 - ✅ **Correct Repository**: `Necron-99/baileylessons.com`
-- ✅ **Correct AWS Account**: `737915157697`
+- ✅ **Correct AWS Account**: `[REDACTED]`
 - ✅ **Correct S3 Bucket**: `baileylessons-production-static`
 - ✅ **Correct CloudFront ID**: `E23X7BS3VXFFFZ`
 
@@ -135,7 +135,7 @@ aws cloudfront get-distribution --id E23X7BS3VXFFFZ --query 'Distribution.Status
 - **URL**: https://baileylessons.com
 - **CloudFront ID**: E23X7BS3VXFFFZ
 - **S3 Bucket**: baileylessons-production-static
-- **AWS Account**: 737915157697
+- **AWS Account**: [REDACTED]
 
 ---
 

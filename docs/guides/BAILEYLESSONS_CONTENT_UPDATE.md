@@ -15,7 +15,7 @@ This guide shows you how to update the content for `baileylessons.com` by deploy
 ```
 
 This script will:
-1. **Assume Role** into Bailey Lessons client account (737915157697)
+1. **Assume Role** into Bailey Lessons client account ([REDACTED])
 2. Clone the `Necron-99/baileylessons.com` repository
 3. Deploy content to the existing S3 bucket (`baileylessons-production-static`)
 4. Create a CloudFront invalidation for distribution `E23X7BS3VXFFFZ`
@@ -35,7 +35,7 @@ This script will:
 ```
 
 This script will:
-1. **Assume Role** into Bailey Lessons client account (737915157697)
+1. **Assume Role** into Bailey Lessons client account ([REDACTED])
 2. Deploy local files to the S3 bucket
 3. Set appropriate cache headers
 4. Create CloudFront invalidation
@@ -103,7 +103,7 @@ aws cloudfront create-invalidation \
 - **S3 Bucket**: `baileylessons-production-static`
 - **CloudFront Distribution**: `E23X7BS3VXFFFZ`
 - **Domain**: `baileylessons.com`
-- **AWS Account**: `737915157697`
+- **AWS Account**: `[REDACTED]`
 
 ### **Repository:**
 - **GitHub**: `Necron-99/baileylessons.com`
@@ -226,7 +226,7 @@ aws cloudfront get-invalidation \
 **AWS CLI not configured:**
 ```bash
 aws configure
-# Enter your AWS credentials for account 737915157697
+# Enter your AWS credentials for account [REDACTED]
 ```
 
 **S3 bucket access denied:**
@@ -234,7 +234,7 @@ aws configure
 # Check your AWS credentials
 aws sts get-caller-identity
 
-# Verify you're using the correct account (737915157697)
+# Verify you're using the correct account ([REDACTED])
 ```
 
 **CloudFront invalidation failed:**
@@ -306,7 +306,7 @@ aws cloudfront create-invalidation \
 ./scripts/deploy-to-baileylessons.sh
 
 # Manual role assumption + S3 sync
-aws sts assume-role --role-arn arn:aws:iam::737915157697:role/OrganizationAccountAccessRole --role-session-name deployment
+aws sts assume-role --role-arn arn:aws:iam::[REDACTED]:role/OrganizationAccountAccessRole --role-session-name deployment
 aws s3 sync ./ s3://baileylessons-production-static/ --delete
 
 # Manual invalidation

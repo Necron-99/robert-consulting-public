@@ -11,7 +11,7 @@ This guide sets up a dedicated admin interface for Bailey Lessons that uses the 
 ### **Current Setup:**
 - **Main Website**: `baileylessons.com` (CloudFront: E23X7BS3VXFFFZ)
 - **Admin Interface**: `admin.baileylessons.com` (New CloudFront distribution)
-- **AWS Account**: 737915157697 (Bailey Lessons account)
+- **AWS Account**: [REDACTED] (Bailey Lessons account)
 - **Content Repository**: `Necron-99/baileylessons.com`
 
 ### **Admin Features:**
@@ -241,7 +241,7 @@ git clone https://github.com/Necron-99/baileylessons.com
 
 ### **✅ What This Achieves:**
 - **Dedicated Admin Interface**: Separate from robertconsulting.net
-- **Correct AWS Account**: Uses Bailey Lessons account (737915157697)
+- **Correct AWS Account**: Uses Bailey Lessons account ([REDACTED])
 - **Proper CloudFront**: Uses existing distribution E23X7BS3VXFFFZ
 - **Content Management**: Deploy from correct repository
 - **Security**: Enterprise-grade authentication

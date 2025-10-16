@@ -125,15 +125,15 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         properties = {
           title = "Active Alarms"
           alarms = [
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-blocked-requests",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-4xx-errors",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-5xx-errors",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-cache-hit-ratio",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-origin-response-time",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-data-transfer",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-request-volume",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-rate-limit-triggered",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-suspicious-ua-blocked"
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-blocked-requests",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-4xx-errors",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-5xx-errors",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-cache-hit-ratio",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-origin-response-time",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-data-transfer",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-request-volume",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-rate-limit-triggered",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-suspicious-ua-blocked"
           ]
         }
       }
