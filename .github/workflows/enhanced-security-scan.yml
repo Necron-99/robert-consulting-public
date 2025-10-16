@@ -1,0 +1,275 @@
+name: Enhanced Security Scanning
+
+on:
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+  schedule:
+    # Run enhanced security scan daily at 4:00 UTC
+    - cron: '0 4 * * *'
+
+jobs:
+  # Semgrep static analysis
+  semgrep-scan:
+    name: Semgrep Static Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run Semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/owasp-top-ten
+          p/javascript
+          p/terraform
+          p/python
+        generateSarif: "1"
+        generateGitlabSAST: "1"
+        generateCodeClimate: "1"
+
+    - name: Upload Semgrep results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: semgrep.sarif
+
+  # Bandit Python security analysis
+  bandit-scan:
+    name: Bandit Python Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    if: contains(github.event.head_commit.modified, '.py') || contains(github.event.head_commit.added, '.py')
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Bandit
+      run: pip install bandit[toml]
+
+    - name: Run Bandit
+      run: |
+        echo "🔍 Running Bandit Python security analysis..."
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . -f txt
+
+    - name: Upload Bandit results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+        retention-days: 30
+
+  # ESLint security analysis
+  eslint-security:
+    name: ESLint Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install ESLint security plugin
+      run: |
+        if [ -f "package.json" ]; then
+          npm install --save-dev eslint-plugin-security eslint-plugin-no-secrets
+        else
+          npm init -y
+          npm install --save-dev eslint eslint-plugin-security eslint-plugin-no-secrets
+        fi
+
+    - name: Create ESLint security config
+      run: |
+        cat > .eslintrc.security.js << 'EOF'
+        module.exports = {
+          "env": {
+            "browser": true,
+            "node": true,
+            "es2021": true
+          },
+          "extends": [
+            "eslint:recommended",
+            "plugin:security/recommended"
+          ],
+          "plugins": [
+            "security",
+            "no-secrets"
+          ],
+          "rules": {
+            "security/detect-object-injection": "error",
+            "security/detect-non-literal-regexp": "error",
+            "security/detect-unsafe-regex": "error",
+            "security/detect-buffer-noassert": "error",
+            "security/detect-child-process": "error",
+            "security/detect-disable-mustache-escape": "error",
+            "security/detect-eval-with-expression": "error",
+            "security/detect-no-csrf-before-method-override": "error",
+            "security/detect-non-literal-fs-filename": "error",
+            "security/detect-non-literal-require": "error",
+            "security/detect-non-literal-regexp": "error",
+            "security/detect-possible-timing-attacks": "error",
+            "security/detect-pseudoRandomBytes": "error",
+            "no-secrets/no-secrets": "error"
+          }
+        };
+        EOF
+
+    - name: Run ESLint security analysis
+      run: |
+        echo "🔍 Running ESLint security analysis..."
+        npx eslint . --config .eslintrc.security.js --format json --output-file eslint-security-report.json || true
+        npx eslint . --config .eslintrc.security.js
+
+    - name: Upload ESLint security results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: eslint-security-report
+        path: eslint-security-report.json
+        retention-days: 30
+
+  # Infrastructure security analysis
+  infrastructure-security:
+    name: Infrastructure Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: '1.6.0'
+
+    - name: Install Checkov
+      run: pip install checkov
+
+    - name: Run Checkov security analysis
+      run: |
+        echo "🔍 Running Checkov infrastructure security analysis..."
+        checkov -d terraform/ --framework terraform --output json --output-file-path checkov-report.json || true
+        checkov -d terraform/ --framework terraform
+
+    - name: Upload Checkov results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: checkov-security-report
+        path: checkov-report.json
+        retention-days: 30
+
+  # Docker security analysis (if Docker files exist)
+  docker-security:
+    name: Docker Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    if: contains(github.event.head_commit.modified, 'Dockerfile') || contains(github.event.head_commit.added, 'Dockerfile')
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Trivy
+      run: |
+        sudo apt-get update
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+
+    - name: Run Trivy Docker security scan
+      run: |
+        echo "🔍 Running Trivy Docker security analysis..."
+        for dockerfile in $(find . -name "Dockerfile*" -not -path "./.git/*"); do
+          echo "Scanning: $dockerfile"
+          trivy config --format json --output "trivy-docker-$(basename $dockerfile).json" "$dockerfile" || true
+          trivy config "$dockerfile"
+        done
+
+    - name: Upload Trivy Docker results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: trivy-docker-security-reports
+        path: trivy-docker-*.json
+        retention-days: 30
+
+  # Security summary
+  security-summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [semgrep-scan, bandit-scan, eslint-security, infrastructure-security, docker-security]
+    if: always()
+    permissions:
+      contents: read
+
+    steps:
+    - name: Download all security reports
+      uses: actions/download-artifact@v4
+      with:
+        path: security-reports
+
+    - name: Generate security summary
+      run: |
+        echo "🔒 Security Scan Summary" > security-summary.md
+        echo "=========================" >> security-summary.md
+        echo "" >> security-summary.md
+        echo "**Scan Date:** $(date)" >> security-summary.md
+        echo "**Repository:** ${{ github.repository }}" >> security-summary.md
+        echo "**Commit:** ${{ github.sha }}" >> security-summary.md
+        echo "" >> security-summary.md
+        
+        echo "## Scan Results" >> security-summary.md
+        echo "" >> security-summary.md
+        
+        if [ -d "security-reports" ]; then
+          echo "### Available Reports:" >> security-summary.md
+          find security-reports -name "*.json" -exec basename {} \; | sed 's/^/- /' >> security-summary.md
+        fi
+        
+        echo "" >> security-summary.md
+        echo "### Scan Status:" >> security-summary.md
+        echo "- Semgrep: ${{ needs.semgrep-scan.result }}" >> security-summary.md
+        echo "- Bandit: ${{ needs.bandit-scan.result }}" >> security-summary.md
+        echo "- ESLint Security: ${{ needs.eslint-security.result }}" >> security-summary.md
+        echo "- Infrastructure Security: ${{ needs.infrastructure-security.result }}" >> security-summary.md
+        echo "- Docker Security: ${{ needs.docker-security.result }}" >> security-summary.md
+
+    - name: Upload security summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-summary
+        path: security-summary.md
+        retention-days: 30

@@ -1,0 +1,131 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+  schedule:
+    # Run CodeQL analysis every day at 2:00 UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python', 'terraform' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+
+    - name: Upload CodeQL results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: ../results/${{ matrix.language }}/codeql-results.sarif
+
+  # Additional analysis for infrastructure files
+  infrastructure-analysis:
+    name: Infrastructure Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL for Terraform
+      uses: github/codeql-action/init@v3
+      with:
+        languages: terraform
+        queries: security-and-quality
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: '1.6.0'
+
+    - name: Terraform Format Check
+      run: |
+        cd terraform
+        terraform fmt -check -recursive
+        terraform init -backend=false
+        terraform validate
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:terraform"
+
+    - name: Upload Infrastructure Analysis Results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: ../results/terraform/codeql-results.sarif
+
+  # Security policy compliance check
+  security-policy-check:
+    name: Security Policy Compliance
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check for Security Policy
+      run: |
+        if [ ! -f "SECURITY.md" ]; then
+          echo "❌ SECURITY.md file not found"
+          exit 1
+        else
+          echo "✅ SECURITY.md file found"
+        fi
+
+    - name: Validate Security Headers
+      run: |
+        echo "🔍 Checking for security headers in website files..."
+        if grep -r "Content-Security-Policy" website/; then
+          echo "✅ Content-Security-Policy found"
+        else
+          echo "❌ Content-Security-Policy missing"
+          exit 1
+        fi
+
+    - name: Check for Hardcoded Secrets
+      run: |
+        echo "🔍 Scanning for potential hardcoded secrets..."
+        if grep -r -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md"; then
+          echo "❌ Potential hardcoded secrets found"
+          exit 1
+        else
+          echo "✅ No hardcoded secrets detected"
+        fi
