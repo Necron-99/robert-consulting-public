@@ -1,0 +1,81 @@
+[
+    {
+        "Name": "_37f063f6c71b754a528284c26b33f754.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 60,
+        "ResourceRecords": [
+            {
+                "Value": "_d37f01c25b91966c01698a7e06b06d15.xlfgrmvvlj.acm-validations.aws."
+            }
+        ]
+    },
+    {
+        "Name": "_amazonses.robertconsulting.net.",
+        "Type": "TXT",
+        "TTL": 600,
+        "ResourceRecords": [
+            {
+                "Value": "\"Wtocrc6OrS8zFntRif7TZoY9ZtePUJ+1ZukuvirT93U=\""
+            }
+        ]
+    },
+    {
+        "Name": "kubmbjw4eekfzwlt4hddh5rkd3w2x3ae._domainkey.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 600,
+        "ResourceRecords": [
+            {
+                "Value": "kubmbjw4eekfzwlt4hddh5rkd3w2x3ae.dkim.amazonses.com"
+            }
+        ]
+    },
+    {
+        "Name": "pyidquk2qprhvyp6ivcguvngr6kk3yna._domainkey.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 600,
+        "ResourceRecords": [
+            {
+                "Value": "pyidquk2qprhvyp6ivcguvngr6kk3yna.dkim.amazonses.com"
+            }
+        ]
+    },
+    {
+        "Name": "q5fdyxwrbeo4zjbkzxu6b4i3i5shyqjw._domainkey.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 600,
+        "ResourceRecords": [
+            {
+                "Value": "q5fdyxwrbeo4zjbkzxu6b4i3i5shyqjw.dkim.amazonses.com"
+            }
+        ]
+    },
+    {
+        "Name": "admin.robertconsulting.net.",
+        "Type": "A",
+        "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "d2vytd4g8dnppc.cloudfront.net.",
+            "EvaluateTargetHealth": false
+        }
+    },
+    {
+        "Name": "_314cf726b0cb8e4280d7b4d3c4d5966b.staging.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 60,
+        "ResourceRecords": [
+            {
+                "Value": "_194a9d6a955573d6ef604266407be509.xlfgrmvvlj.acm-validations.aws."
+            }
+        ]
+    },
+    {
+        "Name": "www.robertconsulting.net.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+            {
+                "Value": "robertconsulting.net"
+            }
+        ]
+    }
+]
