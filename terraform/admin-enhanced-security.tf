@@ -109,11 +109,13 @@ resource "aws_dynamodb_table" "admin_sessions" {
   global_secondary_index {
     name     = "user-ip-index"
     hash_key = "user_ip"
+    projection_type = "ALL"
   }
 
   global_secondary_index {
     name     = "expires-index"
     hash_key = "expires_at"
+    projection_type = "ALL"
   }
 
   ttl {
@@ -148,11 +150,13 @@ resource "aws_dynamodb_table" "admin_audit_log" {
   global_secondary_index {
     name     = "user-ip-index"
     hash_key = "user_ip"
+    projection_type = "ALL"
   }
 
   global_secondary_index {
     name     = "action-type-index"
     hash_key = "action_type"
+    projection_type = "ALL"
   }
 
   ttl {
@@ -190,7 +194,7 @@ data "archive_file" "admin_auth_zip" {
   type        = "zip"
   output_path = "/tmp/admin-auth.zip"
   source {
-    content = file("${path.module}/lambda/admin-auth.js")
+    content = file("${path.root}/lambda/admin-auth.js")
     filename = "admin-auth.js"
   }
 }
@@ -483,6 +487,12 @@ resource "aws_wafv2_web_acl" "admin_enhanced_protection" {
       metric_name                = "AdminSpecificProtection"
       sampled_requests_enabled   = true
     }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "AdminEnhancedProtection"
+    sampled_requests_enabled   = true
   }
 
   tags = local.security_tags
