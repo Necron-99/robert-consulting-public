@@ -182,7 +182,7 @@ jobs:
         # Filter out more false positives
         if [ -s "$temp_file" ]; then
           # Check if any real secrets remain after filtering
-          real_secrets=$(grep -v -E "(hash_key|range_key|content_id|category|timestamp|terraform\.tfstate|error\.html|clients/.*/terraform\.tfstate|your-github-token-here|staging-access-2025|K2JCJMDEHXQW47|cloudfront-staging-private-key|staging-jwt-secret)" "$temp_file" || true)
+          real_secrets=$(grep -v -E "(hash_key|range_key|content_id|category|timestamp|terraform\.tfstate|error\.html|clients/.*/terraform\.tfstate|your-github-token-here|staging-access-2025|K2JCJMDEHXQW47|cloudfront-staging-private-key|staging-jwt-secret|boto3\.client\('secretsmanager'\)|boto3\.client\(\"secretsmanager\"\)|\.client\('secretsmanager'\)|\.client\(\"secretsmanager\"\))" "$temp_file" || true)
           
           if [ -n "$real_secrets" ]; then
             echo "❌ Potential hardcoded secrets found:"
