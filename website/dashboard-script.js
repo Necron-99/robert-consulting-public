@@ -39,7 +39,6 @@ class UnifiedDashboard {
         document.getElementById('refresh-all')?.addEventListener('click', () => this.refreshAll());
         document.getElementById('refresh-status')?.addEventListener('click', () => this.loadStatusData());
         document.getElementById('refresh-costs')?.addEventListener('click', () => this.loadCostData());
-        document.getElementById('refresh-health')?.addEventListener('click', () => this.loadHealthData());
         document.getElementById('refresh-performance')?.addEventListener('click', () => this.loadPerformanceData());
         document.getElementById('refresh-velocity')?.addEventListener('click', () => this.loadVelocityData());
         document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
@@ -70,16 +69,15 @@ class UnifiedDashboard {
         console.log('📊 Loading all dashboard data...');
         
         try {
-            // Load all data in parallel for better performance
-            await Promise.all([
-                this.loadStatusData(),
-                this.loadCostData(),
-                this.loadHealthData(),
-                this.loadPerformanceData(),
-                this.loadVelocityData(),
-                this.loadTerraformData(),
-                this.loadMonitoringData()
-            ]);
+        // Load all data in parallel for better performance
+        await Promise.all([
+            this.loadStatusData(),
+            this.loadCostData(),
+            this.loadPerformanceData(),
+            this.loadVelocityData(),
+            this.loadTerraformData(),
+            this.loadMonitoringData()
+        ]);
             
             this.updateOverallStatus();
             this.updateLastUpdatedTime();
@@ -257,69 +255,6 @@ class UnifiedDashboard {
         }
     }
 
-    /**
-     * Load health monitoring data
-     */
-    async loadHealthData() {
-        try {
-            console.log('🏥 Loading health data from API...');
-            
-            // Fetch health data from the API
-            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            
-            console.log('🏥 API health data received:', data.serviceHealth);
-            
-            // Use API health data
-            const healthData = data.serviceHealth;
-
-            // Update health displays
-            this.updateHealthStatus('s3-health', healthData.s3);
-            this.updateHealthStatus('cloudfront-health', healthData.cloudfront);
-            this.updateHealthStatus('lambda-health', healthData.lambda);
-            this.updateHealthStatus('route53-health', healthData.route53);
-            this.updateHealthStatus('website-health', healthData.website);
-            
-            // Update Route53 specific elements directly
-            this.updateElement('route53-status', healthData.route53.status.toUpperCase());
-            this.updateElement('route53-resolution', healthData.route53.resolution);
-            this.updateElement('route53-queries', healthData.route53.queries);
-            this.updateElement('route53-health-checks', healthData.route53.healthChecks);
-            
-            this.updateElement('health-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-            
-            console.log('✅ Health data loaded and displayed successfully from API');
-            
-        } catch (error) {
-            console.error('Error loading health data from API:', error);
-            // Fallback to default healthy status
-            const fallbackHealthData = {
-                s3: { status: 'healthy', requests: '100%', errors: '0%' },
-                cloudfront: { status: 'healthy', cacheHit: '95%', errors: '0%' },
-                lambda: { status: 'healthy', invocations: '100%', errors: '0%' },
-                route53: { status: 'healthy', resolution: 'Working', queries: '1,200,000', healthChecks: '0' },
-                website: { status: 'healthy', httpStatus: '200', sslStatus: 'Valid' }
-            };
-            
-            this.updateHealthStatus('s3-health', fallbackHealthData.s3);
-            this.updateHealthStatus('cloudfront-health', fallbackHealthData.cloudfront);
-            this.updateHealthStatus('lambda-health', fallbackHealthData.lambda);
-            this.updateHealthStatus('route53-health', fallbackHealthData.route53);
-            this.updateHealthStatus('website-health', fallbackHealthData.website);
-            
-            this.updateElement('route53-status', fallbackHealthData.route53.status.toUpperCase());
-            this.updateElement('route53-resolution', fallbackHealthData.route53.resolution);
-            this.updateElement('route53-queries', fallbackHealthData.route53.queries);
-            this.updateElement('route53-health-checks', fallbackHealthData.route53.healthChecks);
-            
-            this.updateElement('health-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (fallback)`);
-            
-            this.showAlert('warning', 'Health Data Warning', 'Using fallback health data. API may be temporarily unavailable.');
-        }
-    }
 
     /**
      * Load development velocity data from API
@@ -1015,31 +950,6 @@ class UnifiedDashboard {
     }
 
 
-    /**
-     * Update health status display
-     */
-    updateHealthStatus(serviceId, healthData) {
-        const statusElement = document.getElementById(`${serviceId.replace('-health', '-status')}`);
-        if (statusElement) {
-            statusElement.textContent = healthData.status.toUpperCase();
-            statusElement.className = `health-status ${healthData.status}`;
-        }
-
-        // Update specific metrics for each service
-        if (serviceId === 's3-health') {
-            this.updateElement('s3-requests', healthData.requests);
-            this.updateElement('s3-errors', healthData.errors);
-        } else if (serviceId === 'cloudfront-health') {
-            this.updateElement('cloudfront-cache-hit', healthData.cacheHit);
-            this.updateElement('cloudfront-errors', healthData.errors);
-        } else if (serviceId === 'lambda-health') {
-            this.updateElement('lambda-invocations', healthData.invocations);
-            this.updateElement('lambda-errors', healthData.errors);
-        } else if (serviceId === 'website-health') {
-            this.updateElement('website-http-status', healthData.httpStatus);
-            this.updateElement('website-ssl-status', healthData.sslStatus);
-        }
-    }
 }
 
 // Initialize dashboard when DOM is loaded

@@ -220,20 +220,21 @@ jobs:
           # Verify Node.js version
           echo "Node.js version: $(node --version)"
           
-          # Run dashboard API tests
-          echo "🔍 Testing dashboard API endpoint..."
-          node scripts/test-dashboard.js
+          # Run strict dashboard API tests
+          echo "🔍 Testing dashboard API endpoint (strict mode)..."
+          node scripts/test-dashboard-strict.js
           
           if [ $? -eq 0 ]; then
-            echo "✅ Dashboard API tests passed"
+            echo "✅ Dashboard API tests passed (strict mode)"
             echo "dashboard-api-tests-passed=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Dashboard API tests failed"
+            echo "❌ Dashboard API tests failed (strict mode) - deployment blocked"
             echo "dashboard-api-tests-passed=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
           
-          # Run dashboard UI tests
-          echo "🌐 Testing dashboard UI..."
+          # Run dashboard UI tests (updated for no service health section)
+          echo "🌐 Testing dashboard UI (no service health section)..."
           node scripts/test-dashboard-ui.js
           
           if [ $? -eq 0 ]; then

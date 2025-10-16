@@ -49,13 +49,13 @@ async function testPageAccessibility() {
             testResults.pageAccessibility.tests.push(`❌ Dashboard page failed to load (${response.status})`);
         }
         
-        // Check if page contains expected elements
-        if (response.data.includes('SERVICE HEALTH')) {
+        // Check if page contains expected elements (no service health section)
+        if (response.data.includes('SYSTEM STATUS')) {
             testResults.pageAccessibility.passed++;
-            testResults.pageAccessibility.tests.push('✅ Service Health section present');
+            testResults.pageAccessibility.tests.push('✅ System Status section present');
         } else {
             testResults.pageAccessibility.failed++;
-            testResults.pageAccessibility.tests.push('❌ Service Health section missing');
+            testResults.pageAccessibility.tests.push('❌ System Status section missing');
         }
         
         if (response.data.includes('dashboard-script.js')) {
@@ -92,31 +92,30 @@ async function testScriptLoading() {
             testResults.scriptLoading.tests.push(`❌ Dashboard script failed to load (${response.status})`);
         }
         
-        // Check if script contains expected functions
-        if (response.data.includes('loadHealthData')) {
+        // Check if script contains expected functions (health functions removed)
+        if (response.data.includes('loadStatusData')) {
             testResults.scriptLoading.passed++;
-            testResults.scriptLoading.tests.push('✅ loadHealthData function present');
+            testResults.scriptLoading.tests.push('✅ loadStatusData function present');
         } else {
             testResults.scriptLoading.failed++;
-            testResults.scriptLoading.tests.push('❌ loadHealthData function missing');
+            testResults.scriptLoading.tests.push('❌ loadStatusData function missing');
         }
         
-        if (response.data.includes('updateHealthStatus')) {
+        if (response.data.includes('loadCostData')) {
             testResults.scriptLoading.passed++;
-            testResults.scriptLoading.tests.push('✅ updateHealthStatus function present');
+            testResults.scriptLoading.tests.push('✅ loadCostData function present');
         } else {
             testResults.scriptLoading.failed++;
-            testResults.scriptLoading.tests.push('❌ updateHealthStatus function missing');
+            testResults.scriptLoading.tests.push('❌ loadCostData function missing');
         }
         
-        // Check for duplicate functions
-        const updateHealthStatusCount = (response.data.match(/updateHealthStatus/g) || []).length;
-        if (updateHealthStatusCount === 1) {
+        // Verify health functions are removed
+        if (!response.data.includes('loadHealthData') && !response.data.includes('updateHealthStatus')) {
             testResults.scriptLoading.passed++;
-            testResults.scriptLoading.tests.push('✅ No duplicate updateHealthStatus functions');
+            testResults.scriptLoading.tests.push('✅ Health functions successfully removed');
         } else {
             testResults.scriptLoading.failed++;
-            testResults.scriptLoading.tests.push(`❌ Found ${updateHealthStatusCount} updateHealthStatus functions (should be 1)`);
+            testResults.scriptLoading.tests.push('❌ Health functions still present');
         }
         
     } catch (error) {
@@ -180,10 +179,10 @@ async function testApiIntegration() {
 }
 
 /**
- * Test health status UI elements
+ * Test system status UI elements (replaces health status)
  */
-async function testHealthStatusUI() {
-    console.log('\n🏥 Testing Health Status UI Elements...');
+async function testSystemStatusUI() {
+    console.log('\n🏥 Testing System Status UI Elements...');
     
     try {
         const response = await makeRequest(DASHBOARD_URL);
@@ -194,35 +193,32 @@ async function testHealthStatusUI() {
             return;
         }
         
-        // Check if health status elements exist in HTML
-        const services = ['s3', 'cloudfront', 'lambda', 'route53', 'website'];
+        // Check if system status elements exist in HTML
+        const statusElements = ['website-status', 'security-status', 'infrastructure-status', 'performance-status'];
         
-        services.forEach(service => {
-            const statusId = `id="${service}-status"`;
-            if (response.data.includes(statusId)) {
+        statusElements.forEach(element => {
+            const elementId = `id="${element}"`;
+            if (response.data.includes(elementId)) {
                 testResults.healthStatusUI.passed++;
-                testResults.healthStatusUI.tests.push(`✅ ${service}-status element exists in HTML`);
+                testResults.healthStatusUI.tests.push(`✅ ${element} element exists in HTML`);
             } else {
                 testResults.healthStatusUI.failed++;
-                testResults.healthStatusUI.tests.push(`❌ ${service}-status element missing from HTML`);
+                testResults.healthStatusUI.tests.push(`❌ ${element} element missing from HTML`);
             }
         });
         
-        // Check if health cards exist
-        services.forEach(service => {
-            const cardId = `id="${service}-health"`;
-            if (response.data.includes(cardId)) {
-                testResults.healthStatusUI.passed++;
-                testResults.healthStatusUI.tests.push(`✅ ${service}-health card exists in HTML`);
-            } else {
-                testResults.healthStatusUI.failed++;
-                testResults.healthStatusUI.tests.push(`❌ ${service}-health card missing from HTML`);
-            }
-        });
+        // Verify service health section is removed
+        if (!response.data.includes('Service Health') && !response.data.includes('service-health')) {
+            testResults.healthStatusUI.passed++;
+            testResults.healthStatusUI.tests.push('✅ Service Health section successfully removed');
+        } else {
+            testResults.healthStatusUI.failed++;
+            testResults.healthStatusUI.tests.push('❌ Service Health section still present');
+        }
         
     } catch (error) {
         testResults.healthStatusUI.failed++;
-        testResults.healthStatusUI.tests.push(`❌ Health status UI test failed: ${error.message}`);
+        testResults.healthStatusUI.tests.push(`❌ System status UI test failed: ${error.message}`);
     }
 }
 
@@ -268,7 +264,7 @@ async function runTests() {
         await testPageAccessibility();
         await testScriptLoading();
         await testApiIntegration();
-        await testHealthStatusUI();
+        await testSystemStatusUI();
         printResults();
     } catch (error) {
         console.error('❌ UI test execution failed:', error.message);

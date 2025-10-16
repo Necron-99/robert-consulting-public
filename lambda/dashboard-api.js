@@ -254,7 +254,7 @@ exports.handler = async (event, context) => {
             health: {
                 site: {
                     status: 'healthy',
-                    responseMs: performanceMetrics.resourceTiming.ttfb
+                    responseMs: parseInt(performanceMetrics.resourceTiming.ttfb.replace('ms', ''))
                 },
                 route53: {
                     queries24h: 1200000
