@@ -339,7 +339,7 @@ resource "aws_wafv2_web_acl" "admin_enhanced_protection" {
 
     statement {
       rate_based_statement {
-        limit              = 5  # Max 5 login attempts per IP
+        limit              = 10  # Max 10 login attempts per IP (AWS minimum)
         aggregate_key_type = "IP"
       }
     }
