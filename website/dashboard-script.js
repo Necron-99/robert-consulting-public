@@ -734,32 +734,6 @@ class UnifiedDashboard {
         }
     }
 
-    /**
-     * Update health status display
-     */
-    updateHealthStatus(elementId, data) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-
-        const statusElement = element.querySelector('.health-status');
-        const metrics = element.querySelectorAll('.metric-value');
-
-        if (statusElement) {
-            statusElement.textContent = data.status;
-            statusElement.className = `health-status ${data.status}`;
-        }
-
-        // Update metrics based on available data
-        if (data.requests) this.updateElement(`${elementId}-requests`, data.requests);
-        if (data.errors) this.updateElement(`${elementId}-errors`, data.errors);
-        if (data.cacheHit) this.updateElement(`${elementId}-cache-hit`, data.cacheHit);
-        if (data.invocations) this.updateElement(`${elementId}-invocations`, data.invocations);
-        if (data.resolution) this.updateElement(`${elementId}-resolution`, data.resolution);
-        if (data.queries) this.updateElement(`${elementId}-queries`, data.queries);
-        if (data.healthChecks) this.updateElement(`${elementId}-health-checks`, data.healthChecks);
-        if (data.http) this.updateElement(`${elementId}-http-status`, data.http);
-        if (data.ssl) this.updateElement(`${elementId}-ssl-status`, data.ssl);
-    }
 
     /**
      * Update performance metrics display

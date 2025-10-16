@@ -208,6 +208,73 @@ jobs:
             exit 1
           fi
 
+      - name: 📊 Dashboard Data Validation Tests
+        id: dashboard-tests
+        run: |
+          echo "📊 Running dashboard data validation tests..."
+          
+          # Install Node.js 22.20 LTS
+          curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          
+          # Verify Node.js version
+          echo "Node.js version: $(node --version)"
+          
+          # Run dashboard API tests
+          echo "🔍 Testing dashboard API endpoint..."
+          node scripts/test-dashboard.js
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Dashboard API tests passed"
+            echo "dashboard-api-tests-passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Dashboard API tests failed"
+            echo "dashboard-api-tests-passed=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Run dashboard UI tests
+          echo "🌐 Testing dashboard UI..."
+          node scripts/test-dashboard-ui.js
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Dashboard UI tests passed"
+            echo "dashboard-ui-tests-passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Dashboard UI tests failed"
+            echo "dashboard-ui-tests-passed=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Test staging dashboard specifically
+          echo "🧪 Testing staging dashboard functionality..."
+          STAGING_URL="https://d3guz3lq4sqlvl.cloudfront.net"
+          ACCESS_SECRET="staging-access-2025"
+          
+          # Test staging dashboard API
+          echo "Testing staging dashboard API..."
+          STAGING_API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data")
+          echo "Staging API status: $STAGING_API_STATUS"
+          
+          if [ "$STAGING_API_STATUS" = "200" ]; then
+            echo "✅ Staging dashboard API accessible"
+            echo "staging-api-accessible=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Staging dashboard API not accessible"
+            echo "staging-api-accessible=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Test staging dashboard page
+          echo "Testing staging dashboard page..."
+          STAGING_DASHBOARD_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/dashboard.html?secret=$ACCESS_SECRET")
+          echo "Staging dashboard status: $STAGING_DASHBOARD_STATUS"
+          
+          if [ "$STAGING_DASHBOARD_STATUS" = "200" ]; then
+            echo "✅ Staging dashboard page accessible"
+            echo "staging-dashboard-accessible=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Staging dashboard page not accessible"
+            echo "staging-dashboard-accessible=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: 🔒 Security Headers Test
         id: security-test
         run: |
