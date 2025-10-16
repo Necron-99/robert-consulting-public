@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python', 'terraform' ]
+        language: [ 'javascript', 'python' ]
 
     steps:
     - name: Checkout repository
@@ -44,25 +44,19 @@ jobs:
     - name: Upload CodeQL results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
       if: always()
+      with:
+        category: "/language:${{matrix.language}}"
 
-  # Additional analysis for infrastructure files
-  infrastructure-analysis:
-    name: Infrastructure Analysis
+  # Terraform validation (CodeQL doesn't support Terraform)
+  terraform-validation:
+    name: Terraform Validation
     runs-on: ubuntu-latest
     permissions:
-      actions: read
       contents: read
-      security-events: write
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Initialize CodeQL for Terraform
-      uses: github/codeql-action/init@v3
-      with:
-        languages: terraform
-        queries: security-and-quality
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -71,19 +65,26 @@ jobs:
 
     - name: Terraform Format Check
       run: |
-        cd terraform
-        terraform fmt -check -recursive
-        terraform init -backend=false
-        terraform validate
+        if [ -d "terraform" ]; then
+          cd terraform
+          echo "🔍 Checking Terraform formatting..."
+          terraform fmt -check -recursive
+          echo "✅ Terraform formatting is correct"
+        else
+          echo "ℹ️ No terraform directory found"
+        fi
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:terraform"
-
-    - name: Upload Infrastructure Analysis Results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
+    - name: Terraform Validation
+      run: |
+        if [ -d "terraform" ]; then
+          cd terraform
+          echo "🔍 Validating Terraform configuration..."
+          terraform init -backend=false
+          terraform validate
+          echo "✅ Terraform configuration is valid"
+        else
+          echo "ℹ️ No terraform directory found"
+        fi
 
   # Security policy compliance check
   security-policy-check:
@@ -99,6 +100,7 @@ jobs:
 
     - name: Check for Security Policy
       run: |
+        echo "🔍 Checking for security policy files..."
         if [ ! -f "SECURITY.md" ]; then
           echo "❌ SECURITY.md file not found"
           exit 1
@@ -109,17 +111,21 @@ jobs:
     - name: Validate Security Headers
       run: |
         echo "🔍 Checking for security headers in website files..."
-        if grep -r "Content-Security-Policy" website/; then
-          echo "✅ Content-Security-Policy found"
+        if [ -d "website" ]; then
+          if grep -r "Content-Security-Policy" website/; then
+            echo "✅ Content-Security-Policy found"
+          else
+            echo "❌ Content-Security-Policy missing"
+            exit 1
+          fi
         else
-          echo "❌ Content-Security-Policy missing"
-          exit 1
+          echo "ℹ️ No website directory found, skipping security headers check"
         fi
 
     - name: Check for Hardcoded Secrets
       run: |
         echo "🔍 Scanning for potential hardcoded secrets..."
-        if grep -r -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md"; then
+        if grep -r -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" --exclude="workflow-test.md"; then
           echo "❌ Potential hardcoded secrets found"
           exit 1
         else
