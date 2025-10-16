@@ -9,8 +9,8 @@ echo "🔍 AWS Account ID Cleanup Script"
 echo "================================"
 
 # Define the account IDs to remove
-ACCOUNT_ID_1="228480945348"
-ACCOUNT_ID_2="737915157697"
+ACCOUNT_ID_1="REMOVED_FOR_PUBLIC_REPO"
+ACCOUNT_ID_2="REMOVED_FOR_PUBLIC_REPO"
 
 # Backup directory
 BACKUP_DIR="backup/aws-account-cleanup-$(date +%Y%m%d-%H%M%S)"

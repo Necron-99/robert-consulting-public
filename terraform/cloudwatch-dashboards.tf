@@ -69,7 +69,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "Requests", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -87,7 +87,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -151,7 +151,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -169,7 +169,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -187,7 +187,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -205,7 +205,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -233,7 +233,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -251,7 +251,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -269,7 +269,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "Requests", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -287,7 +287,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -377,7 +377,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_error_rate" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = "CLOUDFRONT_DISTRIBUTION_ID"
   }
 }
 
