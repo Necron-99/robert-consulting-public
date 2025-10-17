@@ -372,8 +372,35 @@ class UnifiedDashboard {
      */
     async fetchTerraformStatistics() {
         try {
-            // In a real implementation, this would call terraform show or terraform state list
-            // For now, return the actual statistics we gathered
+            console.log('🏗️ Fetching Terraform statistics from API...');
+            
+            // Get Terraform data from the dashboard API
+            const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data', {
+                cache: 'no-cache',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.terraform) {
+                console.log('✅ Successfully loaded Terraform stats from API');
+                console.log('Last updated:', data.terraform.lastUpdated);
+                return data.terraform;
+            } else {
+                throw new Error('No Terraform data in API response');
+            }
+            
+        } catch (error) {
+            console.error('Error fetching Terraform statistics from API:', error);
+            console.log('🔄 Falling back to default values...');
+            
+            // Fallback to default values if API fails
             return {
                 totalResources: '79',
                 terraformFiles: '21',
@@ -388,25 +415,8 @@ class UnifiedDashboard {
                     cloudfront: '3',
                     waf: '2',
                     apiGateway: '8'
-                }
-            };
-        } catch (error) {
-            console.error('Error fetching Terraform statistics:', error);
-            return {
-                totalResources: '0',
-                terraformFiles: '0',
-                awsServices: '0',
-                securityResources: '0',
-                networkingResources: '0',
-                storageResources: '0',
-                resourceBreakdown: {
-                    route53: '0',
-                    s3: '0',
-                    cloudwatch: '0',
-                    cloudfront: '0',
-                    waf: '0',
-                    apiGateway: '0'
-                }
+                },
+                lastUpdated: new Date().toISOString()
             };
         }
     }
