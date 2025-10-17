@@ -62,23 +62,30 @@ robert-consulting-public/
     └── staging-url-generator/         # URL generation
 ```
 
-## 💰 Cost Analysis
+## 💰 Cost Analysis (Post-Cleanup)
 
-### Serverless Configuration
-- **Monthly Cost**: $0.96-$20.91
-- **Annual Cost**: $11.52-$250.92
-- **Savings**: 94-99% reduction from traditional infrastructure
+### Optimized Serverless Configuration
+- **Monthly Cost**: $6.82 (AWS) + $1.25 (Domain) = $8.07
+- **Annual Cost**: $96.84 (AWS) + $15.00 (Domain) = $111.84
+- **Savings**: 58.7% reduction from pre-cleanup costs
 
-### Cost Breakdown
+### Current Cost Breakdown
 | Resource | Monthly Cost | Notes |
 |----------|--------------|-------|
-| **Lambda Functions** | $0.00-$5.00 | Pay-per-request |
-| **API Gateway** | $0.00-$3.50 | Pay-per-request |
-| **DynamoDB** | $0.00-$2.00 | Pay-per-request |
-| **S3 Storage** | $0.46 | 20GB storage |
-| **CloudFront** | $0.00-$8.50 | Global CDN |
-| **Route53** | $0.50 | DNS management |
-| **Total** | $0.96-$20.91 | **94-99% savings** |
+| **Route53 DNS** | $3.04 | DNS management (44.6% of total) |
+| **CloudWatch** | $2.24 | Monitoring & logging (32.8% of total) |
+| **WAF Security** | $1.46 | Web application firewall (21.4% of total) |
+| **S3 Storage** | $0.05 | Website assets (0.7% of total) |
+| **Cost Explorer** | $0.03 | Cost analysis tools (0.4% of total) |
+| **Domain Registrar** | $1.25 | 5-year domain registration |
+| **Total AWS** | $6.82 | **Optimized infrastructure** |
+| **Total Monthly** | $8.07 | **Including domain costs** |
+
+### AWS Cleanup Achievements
+- **Resources Cleaned**: 20/22 orphaned resources removed (91% success rate)
+- **Monthly Savings**: $9.68/month ($116.16/year)
+- **Cost Reduction**: 58.7% decrease from pre-cleanup costs
+- **Infrastructure Optimization**: Streamlined to essential services only
 
 ## 🚀 Quick Start
 

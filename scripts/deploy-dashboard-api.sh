@@ -1,54 +1,53 @@
 #!/bin/bash
 
-# Deploy Dashboard API Lambda Function
-# This script packages and deploys the Lambda function for real-time AWS data
+# Deploy Dashboard API with Real AWS Data Integration
+# Updates the dashboard API Lambda function to fetch live data from AWS Cost Explorer
 
 set -e
 
-echo "🚀 Deploying Dashboard API Lambda Function"
-echo "=========================================="
+echo "🚀 Deploying Dashboard API with Real AWS Data Integration..."
 
-# Check if we're in the right directory
-if [ ! -f "lambda/dashboard-api.js" ]; then
-    echo "❌ Error: lambda/dashboard-api.js not found"
-    echo "Please run this script from the project root directory"
-    exit 1
-fi
+# Navigate to lambda directory
+cd "$(dirname "$0")/../lambda"
 
-# Deploy using Terraform
-echo "🏗️ Deploying infrastructure with Terraform..."
-cd terraform
+# Install dependencies
+echo "📦 Installing AWS SDK v3 dependencies..."
+npm install
 
-# Initialize Terraform if needed
-if [ ! -d ".terraform" ]; then
-    echo "🔧 Initializing Terraform..."
-    terraform init
-fi
+# Create deployment package
+echo "📦 Creating deployment package..."
+zip -r dashboard-api.zip dashboard-api.js node_modules/ package.json
 
-# Plan the deployment
-echo "📋 Planning Terraform deployment..."
-terraform plan -target=aws_lambda_function.dashboard_api -target=aws_api_gateway_rest_api.dashboard_api
+# Deploy to AWS Lambda
+echo "🚀 Deploying to AWS Lambda..."
+aws lambda update-function-code \
+    --function-name robert-consulting-dashboard-api \
+    --zip-file fileb://dashboard-api.zip \
+    --region us-east-1
 
-# Apply the changes
-echo "🚀 Applying Terraform changes..."
-terraform apply -target=aws_lambda_function.dashboard_api -target=aws_api_gateway_rest_api.dashboard_api -auto-approve
+# Update function configuration to ensure it has the right permissions
+echo "🔧 Updating Lambda function configuration..."
+aws lambda update-function-configuration \
+    --function-name robert-consulting-dashboard-api \
+    --timeout 30 \
+    --memory-size 256 \
+    --environment Variables='{"AWS_REGION":"us-east-1","LOG_LEVEL":"INFO"}' \
+    --region us-east-1
 
-# Get the API Gateway URL
-echo "📡 Getting API Gateway URL..."
-API_URL=$(terraform output -raw dashboard_api_url 2>/dev/null || echo "Not available")
+# Test the function
+echo "🧪 Testing the updated function..."
+aws lambda invoke \
+    --function-name robert-consulting-dashboard-api \
+    --region us-east-1 \
+    --payload '{}' \
+    response.json
 
-echo ""
-echo "✅ Dashboard API deployed successfully!"
-echo "🌐 API URL: $API_URL"
-echo ""
-echo "📝 Next steps:"
-echo "1. Update dashboard-script.js to use the new API URL"
-echo "2. Deploy the updated dashboard to S3"
-echo "3. Test the real-time data functionality"
-echo ""
+echo "📊 Function response:"
+cat response.json | jq '.'
 
 # Clean up
-echo "🧹 Cleaning up..."
-rm -f dashboard-api.zip
+rm -f dashboard-api.zip response.json
 
-echo "🎉 Deployment complete!"
+echo "✅ Dashboard API deployment completed successfully!"
+echo "🔗 API Endpoint: https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data"
+echo "📊 The dashboard will now fetch real-time AWS cost data from Cost Explorer"

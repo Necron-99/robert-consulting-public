@@ -165,7 +165,7 @@ class UnifiedDashboard {
                 
                 // Update AWS Services total and Domain Registrar
                 this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
-                this.updateElement('registrar-cost', '$1.25'); // Domain registrar: $75 for 5 years = $1.25/month
+                this.updateElement('registrar-cost', `$${(stats.aws.domainRegistrar || 1.25).toFixed(2)}`); // Domain registrar: $75 for 5 years = $1.25/month
                 
                 this.updateElement('s3-cost', `$${(services.s3 || 0).toFixed(2)}`);
                 this.updateElement('cloudfront-cost', `$${(services.cloudfront || 0).toFixed(2)}`);
