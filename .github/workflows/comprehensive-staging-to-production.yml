@@ -252,7 +252,7 @@ jobs:
           
           # Test staging dashboard API
           echo "Testing staging dashboard API..."
-          STAGING_API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data")
+          STAGING_API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://07btjjtidh.execute-api.us-east-1.amazonaws.com/prod/dashboard-data")
           echo "Staging API status: $STAGING_API_STATUS"
           
           if [ "$STAGING_API_STATUS" = "200" ]; then
