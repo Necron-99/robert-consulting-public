@@ -259,3 +259,4 @@ plex-recommendations/
 #
 # Only exclude the terraform/ directory if you want to ignore ALL terraform files
 # Otherwise, use specific patterns above to exclude only state and sensitive files.terraform/providers/
+plex-recommendations/
