@@ -227,6 +227,27 @@ waf-rules-*.json
 daily-learning-log.md
 
 # =============================================================================
+# TEST AND TEMPORARY FILES
+# =============================================================================
+
+# Test response files
+*-response.json
+*-test-response.json
+terraform-stats-response.json
+plex-stats-response.json
+
+# Temporary deployment files
+*-deployment-*.json
+*-temp-*.json
+
+# =============================================================================
+# SEPARATE PROJECTS
+# =============================================================================
+
+# Plex recommendations (separate project)
+plex-recommendations/
+
+# =============================================================================
 # TERRAFORM FILES TO KEEP IN SOURCE CONTROL
 # =============================================================================
 # The following Terraform files SHOULD be committed:
