@@ -395,12 +395,16 @@ body.dark-theme .nav-link {
 
 body.dark-theme .nav-link:hover {
   color: #ffffff !important;
-  background-color: #374151 !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid #4b5563 !important;
 }
 
 body.dark-theme .nav-link.active {
   color: #ffffff !important;
-  background-color: #4b5563 !important;
+  background-color: transparent !important;
+  border-bottom: 2px solid #4b5563 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 body.dark-theme .nav-menu {

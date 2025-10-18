@@ -4,14 +4,14 @@
 # S3 bucket for website hosting
 resource "aws_s3_bucket" "website_bucket" {
   bucket = "robert-consulting-website"
-  
+
   tags = {
     Name        = "Robert Consulting Website"
     Environment = "Production"
     Purpose     = "Static Website Hosting"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -82,83 +82,88 @@ resource "aws_s3_bucket_policy" "website_bucket" {
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "security-headers-policy"
 
-         security_headers_config {
-           content_security_policy {
-             content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content;"
-             override                 = false
-           }
-           content_type_options {
-             override = false
-           }
-           frame_options {
-             frame_option = "DENY"
-             override     = false
-           }
-           referrer_policy {
-             referrer_policy = "strict-origin-when-cross-origin"
-             override        = false
-           }
-           strict_transport_security {
-             access_control_max_age_sec = 31536000
-             include_subdomains         = true
-             preload                    = true
-             override                   = false
-           }
-         }
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://via.placeholder.com; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
+      override                = false
+    }
+    content_type_options {
+      override = false
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = false
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = false
+    }
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = false
+    }
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = false
+    }
+  }
 
-         custom_headers_config {
-           items {
-             header   = "Permissions-Policy"
-             value    = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-             override = false
-           }
-           items {
-             header   = "Cross-Origin-Embedder-Policy"
-             value    = "require-corp"
-             override = false
-           }
-           items {
-             header   = "Cross-Origin-Opener-Policy"
-             value    = "same-origin"
-             override = false
-           }
-           items {
-             header   = "Cross-Origin-Resource-Policy"
-             value    = "same-origin"
-             override = false
-           }
-           items {
-             header   = "X-DNS-Prefetch-Control"
-             value    = "off"
-             override = false
-           }
-           items {
-             header   = "X-Download-Options"
-             value    = "noopen"
-             override = false
-           }
-           items {
-             header   = "X-Permitted-Cross-Domain-Policies"
-             value    = "none"
-             override = false
-           }
-         }
+  custom_headers_config {
+    items {
+      header   = "Permissions-Policy"
+      value    = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Embedder-Policy"
+      value    = "require-corp"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Opener-Policy"
+      value    = "same-origin"
+      override = false
+    }
+    items {
+      header   = "Cross-Origin-Resource-Policy"
+      value    = "same-origin"
+      override = false
+    }
+    items {
+      header   = "X-DNS-Prefetch-Control"
+      value    = "off"
+      override = false
+    }
+    items {
+      header   = "X-Download-Options"
+      value    = "noopen"
+      override = false
+    }
+    items {
+      header   = "X-Permitted-Cross-Domain-Policies"
+      value    = "none"
+      override = false
+    }
+  }
 
-         # Remove server headers to prevent information disclosure
-         remove_headers_config {
-           items {
-             header = "Server"
-           }
-           items {
-             header = "X-Powered-By"
-           }
-           items {
-             header = "X-AspNet-Version"
-           }
-           items {
-             header = "X-AspNetMvc-Version"
-           }
-         }
+  # Remove server headers to prevent information disclosure
+  remove_headers_config {
+    items {
+      header = "Server"
+    }
+    items {
+      header = "X-Powered-By"
+    }
+    items {
+      header = "X-AspNet-Version"
+    }
+    items {
+      header = "X-AspNetMvc-Version"
+    }
+  }
 }
 
 # CloudFront distribution
@@ -216,14 +221,14 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   aliases = ["robertconsulting.net", "www.robertconsulting.net"]
-  
+
   tags = {
     Name        = "Robert Consulting Website CDN"
     Environment = "Production"
     Purpose     = "Content Delivery"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }

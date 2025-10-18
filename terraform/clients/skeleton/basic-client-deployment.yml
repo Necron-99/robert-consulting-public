@@ -1,0 +1,400 @@
+name: 🚀 Basic Client Deployment Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'content/**'
+      - 'scripts/**'
+      - '.github/workflows/basic-client-deployment.yml'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests and deploy directly to production'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: 'us-east-1'
+  S3_BUCKET: '${{ vars.S3_BUCKET_NAME }}'
+  CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+  CLIENT_NAME: '${{ vars.CLIENT_NAME }}'
+
+jobs:
+  # Stage 1: Deploy to Staging
+  deploy-to-staging:
+    name: 🧪 Deploy to Staging
+    runs-on: ubuntu-latest
+    outputs:
+      staging-url: ${{ steps.deploy.outputs.staging-url }}
+      deployment-id: ${{ steps.deploy.outputs.deployment-id }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🚀 Deploy to Staging
+        id: deploy
+        run: |
+          echo "🚀 Deploying ${{ env.CLIENT_NAME }} to staging environment..."
+          
+          # Deploy content to staging S3 bucket
+          aws s3 sync content/website/ s3://${{ env.CLIENT_NAME }}-staging-static/ \
+            --exclude "*.md" \
+            --exclude "*.json" \
+            --exclude "*.txt" \
+            --exclude "*.log"
+          
+          # Create CloudFront invalidation for staging
+          STAGING_DISTRIBUTION_ID="${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}"
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id $STAGING_DISTRIBUTION_ID \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          
+          echo "staging-url=https://staging.${{ env.CLIENT_NAME }}.com" >> $GITHUB_OUTPUT
+          echo "deployment-id=$INVALIDATION_ID" >> $GITHUB_OUTPUT
+          
+          echo "✅ ${{ env.CLIENT_NAME }} staging deployment completed"
+          echo "🔗 Staging URL: https://staging.${{ env.CLIENT_NAME }}.com"
+          echo "🔄 Invalidation ID: $INVALIDATION_ID"
+
+      - name: ⏳ Wait for CloudFront propagation
+        run: |
+          echo "⏳ Waiting for CloudFront cache to propagate..."
+          sleep 30
+
+  # Stage 2: Basic Testing
+  basic-testing:
+    name: 🧪 Basic Testing Suite
+    runs-on: ubuntu-latest
+    needs: deploy-to-staging
+    if: ${{ !inputs.skip_tests }}
+    permissions:
+      contents: read
+      security-events: write
+    outputs:
+      tests-passed: ${{ steps.test-results.outputs.all-tests-passed }}
+      security-score: ${{ steps.security-test.outputs.security-score }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🌐 Basic Functionality Tests
+        id: basic-tests
+        run: |
+          echo "🌐 Running basic functionality tests for ${{ env.CLIENT_NAME }}..."
+          
+          # Test main pages
+          STAGING_URL="https://staging.${{ env.CLIENT_NAME }}.com"
+          
+          echo "🔍 Testing ${{ env.CLIENT_NAME }} staging environment..."
+          echo "STAGING_URL: $STAGING_URL"
+          
+          # Test homepage
+          echo "Testing ${{ env.CLIENT_NAME }} homepage..."
+          HOMEPAGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/")
+          echo "Homepage status code: $HOMEPAGE_STATUS"
+          
+          if [ "$HOMEPAGE_STATUS" = "200" ]; then
+            echo "✅ ${{ env.CLIENT_NAME }} homepage accessible"
+            HOMEPAGE_OK=true
+          else
+            echo "❌ ${{ env.CLIENT_NAME }} homepage not accessible (status: $HOMEPAGE_STATUS)"
+            HOMEPAGE_OK=false
+          fi
+          
+          # Test CSS and JS loading
+          echo "Testing ${{ env.CLIENT_NAME }} CSS files..."
+          CSS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/css/main.css")
+          echo "CSS status code: $CSS_STATUS"
+          if [ "$CSS_STATUS" = "200" ]; then
+            echo "✅ ${{ env.CLIENT_NAME }} CSS files loading"
+            CSS_OK=true
+          else
+            echo "❌ ${{ env.CLIENT_NAME }} CSS files not loading (status: $CSS_STATUS)"
+            CSS_OK=false
+          fi
+          
+          echo "Testing ${{ env.CLIENT_NAME }} JS files..."
+          JS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/js/main.js")
+          echo "JS status code: $JS_STATUS"
+          if [ "$JS_STATUS" = "200" ]; then
+            echo "✅ ${{ env.CLIENT_NAME }} JS files loading"
+            JS_OK=true
+          else
+            echo "❌ ${{ env.CLIENT_NAME }} JS files not loading (status: $JS_STATUS)"
+            JS_OK=false
+          fi
+          
+          # Overall result
+          if [ "$HOMEPAGE_OK" = "true" ] && [ "$CSS_OK" = "true" ] && [ "$JS_OK" = "true" ]; then
+            echo "basic-tests-passed=true" >> $GITHUB_OUTPUT
+            echo "✅ All ${{ env.CLIENT_NAME }} basic functionality tests passed"
+          else
+            echo "basic-tests-passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Some ${{ env.CLIENT_NAME }} basic functionality tests failed"
+            exit 1
+          fi
+
+      - name: 🔒 Security Headers Test
+        id: security-test
+        run: |
+          echo "🔒 Testing ${{ env.CLIENT_NAME }} security headers..."
+          
+          STAGING_URL="https://staging.${{ env.CLIENT_NAME }}.com"
+          SECURITY_SCORE=0
+          MAX_SCORE=8
+          
+          # Test security headers
+          HEADERS=$(curl -s -I "$STAGING_URL/")
+          
+          # Check for required security headers
+          if echo "$HEADERS" | grep -qi "strict-transport-security"; then
+            echo "✅ HSTS header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ HSTS header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "x-frame-options"; then
+            echo "✅ X-Frame-Options header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ X-Frame-Options header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "x-content-type-options"; then
+            echo "✅ X-Content-Type-Options header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ X-Content-Type-Options header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "x-xss-protection"; then
+            echo "✅ X-XSS-Protection header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ X-XSS-Protection header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "referrer-policy"; then
+            echo "✅ Referrer-Policy header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ Referrer-Policy header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "content-security-policy"; then
+            echo "✅ Content-Security-Policy header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ Content-Security-Policy header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "permissions-policy"; then
+            echo "✅ Permissions-Policy header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ Permissions-Policy header missing"
+          fi
+          
+          if echo "$HEADERS" | grep -qi "cross-origin-embedder-policy"; then
+            echo "✅ Cross-Origin-Embedder-Policy header present"
+            SECURITY_SCORE=$((SECURITY_SCORE + 1))
+          else
+            echo "❌ Cross-Origin-Embedder-Policy header missing"
+          fi
+          
+          echo "🔒 ${{ env.CLIENT_NAME }} Security Score: $SECURITY_SCORE/$MAX_SCORE"
+          echo "security-score=$SECURITY_SCORE" >> $GITHUB_OUTPUT
+          
+          if [ $SECURITY_SCORE -eq $MAX_SCORE ]; then
+            echo "✅ Perfect security score for ${{ env.CLIENT_NAME }}!"
+          elif [ $SECURITY_SCORE -ge 6 ]; then
+            echo "⚠️ Good security score for ${{ env.CLIENT_NAME }}, but room for improvement"
+          else
+            echo "❌ Poor security score for ${{ env.CLIENT_NAME }} - needs attention"
+          fi
+
+      - name: 🔍 Basic Security Scan
+        id: security-scan
+        run: |
+          echo "🔍 Running basic security scan for ${{ env.CLIENT_NAME }}..."
+          
+          STAGING_URL="https://staging.${{ env.CLIENT_NAME }}.com"
+          
+          # Test for common security issues
+          echo "Testing for common security vulnerabilities..."
+          
+          # Test for directory traversal
+          TRAVERSAL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/../../../etc/passwd")
+          if [ "$TRAVERSAL_STATUS" = "404" ] || [ "$TRAVERSAL_STATUS" = "403" ]; then
+            echo "✅ Directory traversal protection working"
+            TRAVERSAL_OK=true
+          else
+            echo "❌ Directory traversal vulnerability detected"
+            TRAVERSAL_OK=false
+          fi
+          
+          # Test for information disclosure
+          INFO_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/.env")
+          if [ "$INFO_STATUS" = "404" ] || [ "$INFO_STATUS" = "403" ]; then
+            echo "✅ Information disclosure protection working"
+            INFO_OK=true
+          else
+            echo "❌ Information disclosure vulnerability detected"
+            INFO_OK=false
+          fi
+          
+          # Overall security scan result
+          if [ "$TRAVERSAL_OK" = "true" ] && [ "$INFO_OK" = "true" ]; then
+            echo "✅ Basic security scan passed for ${{ env.CLIENT_NAME }}"
+            echo "security-scan-passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Basic security scan failed for ${{ env.CLIENT_NAME }}"
+            echo "security-scan-passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: 📊 Performance Tests
+        id: performance-test
+        run: |
+          echo "📊 Running ${{ env.CLIENT_NAME }} performance tests..."
+          
+          STAGING_URL="https://staging.${{ env.CLIENT_NAME }}.com"
+          
+          # Test response time
+          echo "Testing ${{ env.CLIENT_NAME }} response time..."
+          RESPONSE_TIME=$(curl -o /dev/null -s -w "%{time_total}" "$STAGING_URL/")
+          echo "Response time: ${RESPONSE_TIME}s"
+          
+          # Performance thresholds (more lenient for basic testing)
+          if (( $(echo "$RESPONSE_TIME < 3.0" | bc -l) )); then
+            echo "✅ ${{ env.CLIENT_NAME }} response time is excellent (< 3.0s)"
+            PERFORMANCE_SCORE=100
+          elif (( $(echo "$RESPONSE_TIME < 5.0" | bc -l) )); then
+            echo "✅ ${{ env.CLIENT_NAME }} response time is good (< 5.0s)"
+            PERFORMANCE_SCORE=80
+          elif (( $(echo "$RESPONSE_TIME < 8.0" | bc -l) )); then
+            echo "⚠️ ${{ env.CLIENT_NAME }} response time is acceptable (< 8.0s)"
+            PERFORMANCE_SCORE=60
+          else
+            echo "❌ ${{ env.CLIENT_NAME }} response time is poor (> 8.0s)"
+            PERFORMANCE_SCORE=20
+          fi
+          
+          echo "📊 ${{ env.CLIENT_NAME }} Performance Score: $PERFORMANCE_SCORE/100"
+          echo "performance-score=$PERFORMANCE_SCORE" >> $GITHUB_OUTPUT
+
+      - name: 🚨 Security Blocking Check
+        id: security-blocking-check
+        run: |
+          echo "🚨 Running ${{ env.CLIENT_NAME }} security blocking check..."
+          
+          # Get security score from previous step
+          SECURITY_SCORE=${{ steps.security-test.outputs.security-score }}
+          SECURITY_SCAN_PASSED=${{ steps.security-scan.outputs.security-scan-passed }}
+          
+          echo "Security Score: $SECURITY_SCORE/8"
+          echo "Security Scan: $SECURITY_SCAN_PASSED"
+          
+          # Block deployment if critical security issues
+          if [ "$SECURITY_SCAN_PASSED" = "false" ]; then
+            echo "❌ CRITICAL: Security vulnerabilities found in ${{ env.CLIENT_NAME }} - blocking deployment"
+            echo "security-check-passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          elif [ $SECURITY_SCORE -lt 4 ]; then
+            echo "❌ CRITICAL: Poor security headers score for ${{ env.CLIENT_NAME }} - blocking deployment"
+            echo "security-check-passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ ${{ env.CLIENT_NAME }} security check passed - deployment allowed"
+            echo "security-check-passed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📋 Test Results Summary
+        id: test-results
+        run: |
+          echo "📋 ${{ env.CLIENT_NAME }} Test Results Summary:"
+          echo "Basic Tests: ${{ steps.basic-tests.outputs.basic-tests-passed }}"
+          echo "Security Score: ${{ steps.security-test.outputs.security-score }}/8"
+          echo "Performance Score: ${{ steps.performance-test.outputs.performance-score }}/100"
+          echo "Security Scan: ${{ steps.security-scan.outputs.security-scan-passed }}"
+          echo "Security Check: ${{ steps.security-blocking-check.outputs.security-check-passed }}"
+          
+          # Overall test result
+          if [ "${{ steps.basic-tests.outputs.basic-tests-passed }}" = "true" ] && \
+             [ "${{ steps.security-blocking-check.outputs.security-check-passed }}" = "true" ] && \
+             [ "${{ steps.security-scan.outputs.security-scan-passed }}" = "true" ]; then
+            echo "✅ All ${{ env.CLIENT_NAME }} tests passed - ready for production"
+            echo "all-tests-passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Some ${{ env.CLIENT_NAME }} tests failed - blocking production deployment"
+            echo "all-tests-passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+  # Stage 3: Deploy to Production
+  deploy-to-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-to-staging, basic-testing]
+    if: ${{ needs.basic-testing.outputs.tests-passed == 'true' }}
+    environment: 'production'
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🚀 Deploy ${{ env.CLIENT_NAME }} to Production
+        run: |
+          echo "🚀 Deploying ${{ env.CLIENT_NAME }} to production..."
+          
+          # Deploy content to production S3 bucket
+          aws s3 sync content/website/ s3://${{ env.S3_BUCKET }}/ \
+            --exclude "*.md" \
+            --exclude "*.json" \
+            --exclude "*.txt" \
+            --exclude "*.log"
+          
+          # Create CloudFront invalidation for production
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          
+          echo "✅ ${{ env.CLIENT_NAME }} production deployment completed"
+          echo "🔗 Production URL: https://${{ env.CLIENT_NAME }}.com"
+          echo "🔄 Invalidation ID: $INVALIDATION_ID"
+
+      - name: 🎉 Deployment Success Notification
+        run: |
+          echo "🎉 ${{ env.CLIENT_NAME }} deployment to production successful!"
+          echo "📊 Test Results:"
+          echo "  - Security Score: ${{ needs.basic-testing.outputs.security-score }}/8"
+          echo "  - Performance Score: ${{ needs.basic-testing.outputs.performance-score }}/100"
+          echo "  - All Tests: PASSED"
+          echo "🔗 Live Site: https://${{ env.CLIENT_NAME }}.com"

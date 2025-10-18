@@ -1,6 +1,6 @@
 @echo off
 REM Update Current CloudFront Distribution with SSL Certificate
-REM This script updates your existing CloudFront distribution (E36DBYPHUUKB3V) with SSL certificate
+REM This script updates your existing CloudFront distribution (CLOUDFRONT_DISTRIBUTION_ID) with SSL certificate
 
 echo 🔒 Updating CloudFront Distribution with SSL Certificate
 echo =======================================================
@@ -66,7 +66,7 @@ echo ✅ SSL Certificate validated successfully
 
 REM Step 4: Update CloudFront Distribution
 echo 📜 Step 4: Updating CloudFront Distribution...
-echo Updating distribution E36DBYPHUUKB3V with SSL certificate
+echo Updating distribution CLOUDFRONT_DISTRIBUTION_ID with SSL certificate
 
 terraform apply -target=aws_cloudfront_distribution.website -auto-approve
 if %errorlevel% neq 0 (

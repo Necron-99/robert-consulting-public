@@ -1,6 +1,8 @@
 # Robert Consulting Infrastructure Framework
 
-This repository contains the skeleton client template for creating new client infrastructure using the Robert Consulting infrastructure framework.
+This repository contains the complete infrastructure framework and website for Robert Consulting. This is the public repository showcasing our infrastructure-as-code approach, client management system, and comprehensive CI/CD pipelines.
+
+**Repository:** [robert-consulting-public](https://github.com/Necron-99/robert-consulting-public)
 
 ## 🎯 Overview
 
@@ -9,46 +11,81 @@ This framework provides a complete, production-ready serverless infrastructure s
 ## 📁 Repository Structure
 
 ```
-robert-consulting.net/
+robert-consulting-public/
 ├── README.md                           # This file
-├── skeleton-client/                    # Skeleton client template
-│   ├── README.md                      # Skeleton template documentation
-│   ├── terraform.tfvars.example      # Client configuration template
-│   ├── main.tf                       # Main Terraform configuration
-│   ├── variables.tf                  # Input variables
-│   ├── outputs.tf                    # Output values
-│   ├── modules/                      # Reusable modules
-│   │   ├── networking/               # VPC, subnets, security groups
-│   │   ├── database/                # DynamoDB configuration
-│   │   ├── storage/                 # S3 buckets and CloudFront
-│   │   └── monitoring/              # CloudWatch and alerts
-│   └── scripts/                     # Utility scripts
-│       └── create-client.sh        # Client creation script
-└── clients/                        # Client directories (created dynamically)
-    └── [client-name]/              # Individual client configurations
-        ├── README.md               # Client-specific documentation
-        ├── terraform.tfvars       # Client configuration
-        ├── deploy.sh              # Client deployment script
-        └── CLIENT_SUMMARY.md      # Client summary
+├── .gitignore                         # Git ignore rules
+├── .eslintrc.json                     # ESLint configuration
+├── .stylelintrc.json                  # Stylelint configuration
+├── package.json                       # Node.js dependencies
+├── docs/                              # 📚 All documentation
+│   ├── README.md                      # Documentation index
+│   ├── guides/                        # Setup and configuration guides
+│   ├── reports/                       # Analysis and summary reports
+│   ├── deployment/                    # Deployment documentation
+│   ├── security/                      # Security documentation
+│   └── infrastructure/                # Infrastructure documentation
+├── scripts/                           # 🔧 Automation scripts
+│   ├── README.md                      # Scripts index
+│   ├── deployment/                    # Deployment scripts
+│   ├── security/                      # Security scripts
+│   ├── maintenance/                   # Maintenance scripts
+│   └── utilities/                     # Utility scripts
+├── config/                            # ⚙️ Configuration files
+│   ├── README.md                      # Configuration index
+│   ├── terraform/                     # Terraform configurations
+│   ├── aws/                          # AWS configurations
+│   └── github/                       # GitHub configurations
+├── website/                           # 🌐 Main website content
+│   ├── index.html                     # Homepage
+│   ├── dashboard.html                 # Dashboard page
+│   ├── learning.html                  # Learning page
+│   ├── css/                          # Stylesheets
+│   ├── js/                           # JavaScript files
+│   └── api/                          # API endpoints
+├── admin/                             # 🔐 Admin site
+│   ├── index.html                     # Admin dashboard
+│   ├── baileylessons/                 # Bailey Lessons admin
+│   └── js/                           # Admin JavaScript
+├── terraform/                         # 🏗️ Infrastructure as Code
+│   ├── infrastructure.tf              # Main infrastructure
+│   ├── staging-environment.tf         # Staging environment
+│   ├── admin-site.tf                  # Admin site infrastructure
+│   └── modules/                       # Reusable modules
+├── .github/                           # 🤖 GitHub Actions
+│   ├── workflows/                     # CI/CD workflows
+│   └── environments/                  # Environment configurations
+├── skeleton-client/                   # 📋 Client template
+├── client-template/                   # 📋 Client template
+├── client-content-template/           # 📋 Content template
+└── lambda/                            # ⚡ Lambda functions
+    ├── staging-token-generator/       # Staging access control
+    └── staging-url-generator/         # URL generation
 ```
 
-## 💰 Cost Analysis
+## 💰 Cost Analysis (Post-Cleanup)
 
-### Serverless Configuration
-- **Monthly Cost**: $0.96-$20.91
-- **Annual Cost**: $11.52-$250.92
-- **Savings**: 94-99% reduction from traditional infrastructure
+### Optimized Serverless Configuration
+- **Monthly Cost**: $6.82 (AWS) + $1.25 (Domain) = $8.07
+- **Annual Cost**: $96.84 (AWS) + $15.00 (Domain) = $111.84
+- **Savings**: 58.7% reduction from pre-cleanup costs
 
-### Cost Breakdown
+### Current Cost Breakdown
 | Resource | Monthly Cost | Notes |
 |----------|--------------|-------|
-| **Lambda Functions** | $0.00-$5.00 | Pay-per-request |
-| **API Gateway** | $0.00-$3.50 | Pay-per-request |
-| **DynamoDB** | $0.00-$2.00 | Pay-per-request |
-| **S3 Storage** | $0.46 | 20GB storage |
-| **CloudFront** | $0.00-$8.50 | Global CDN |
-| **Route53** | $0.50 | DNS management |
-| **Total** | $0.96-$20.91 | **94-99% savings** |
+| **Route53 DNS** | $3.04 | DNS management (44.6% of total) |
+| **CloudWatch** | $2.24 | Monitoring & logging (32.8% of total) |
+| **WAF Security** | $1.46 | Web application firewall (21.4% of total) |
+| **S3 Storage** | $0.05 | Website assets (0.7% of total) |
+| **Cost Explorer** | $0.03 | Cost analysis tools (0.4% of total) |
+| **Domain Registrar** | $1.25 | 5-year domain registration |
+| **Total AWS** | $6.82 | **Optimized infrastructure** |
+| **Total Monthly** | $8.07 | **Including domain costs** |
+
+### AWS Cleanup Achievements
+- **Resources Cleaned**: 20/22 orphaned resources removed (91% success rate)
+- **Monthly Savings**: $9.68/month ($116.16/year)
+- **Cost Reduction**: 58.7% decrease from pre-cleanup costs
+- **Infrastructure Optimization**: Streamlined to essential services only
 
 ## 🚀 Quick Start
 

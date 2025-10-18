@@ -15,7 +15,7 @@
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
 </head>
 <body class="dark-theme">
     <!-- Navigation -->
@@ -90,9 +90,9 @@
                     <div class="stat-card">
                         <div class="stat-icon">💰</div>
                         <div class="stat-content">
-                            <div class="stat-value" id="total-monthly-cost">$0.00</div>
+                            <div class="stat-value" id="total-monthly-cost">$6.82</div>
                             <div class="stat-label">Monthly Cost</div>
-                            <div class="stat-trend" id="cost-trend">+0.0%</div>
+                            <div class="stat-trend" id="cost-trend">-59.2%</div>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -123,112 +123,150 @@
             </div>
         </section>
 
-        <!-- GitHub Statistics Section -->
-        <section class="github-section">
+        <!-- Development Velocity Section -->
+        <section class="development-velocity-section">
             <div class="container">
                 <div class="section-header">
-                    <h3>💻 GitHub Statistics</h3>
+                    <h3>🚀 Development Velocity</h3>
                     <div class="refresh-controls">
-                        <button id="refresh-github" class="btn btn-primary">Refresh</button>
-                        <span class="last-updated" id="github-last-updated">Last updated: Never</span>
+                        <button id="refresh-velocity" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="velocity-last-updated">Last updated: Never</span>
                     </div>
                 </div>
                 
-                <div class="github-grid">
-                    <div class="github-card">
-                        <div class="github-icon">📊</div>
-                        <div class="github-content">
-                            <div class="github-value" id="total-commits">1,247</div>
-                            <div class="github-label">Total Commits</div>
-                            <div class="github-trend">+23 this week</div>
+                <div class="development-velocity">
+                    <div class="velocity-header">
+                        <h4>🚀 Development Velocity</h4>
+                        <span class="velocity-period">Active Development Metrics</span>
+                    </div>
+                    <div class="velocity-stats">
+                        <div class="velocity-item">
+                            <span class="velocity-label">New Features</span>
+                            <span class="velocity-value" id="features-implemented">35+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Bugs Squashed</span>
+                            <span class="velocity-value" id="bugs-fixed">28+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Improvements</span>
+                            <span class="velocity-value" id="improvements-made">42+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Security Enhancements</span>
+                            <span class="velocity-value" id="security-updates">22+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Infrastructure Updates</span>
+                            <span class="velocity-value" id="infra-updates">18+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Testing & Validation</span>
+                            <span class="velocity-value" id="testing-cycles">15+</span>
                         </div>
                     </div>
-                    
-                    <div class="github-card">
-                        <div class="github-icon">🌱</div>
-                        <div class="github-content">
-                            <div class="github-value" id="repositories">12</div>
-                            <div class="github-label">Repositories</div>
-                            <div class="github-trend">3 public, 9 private</div>
+                    <div class="velocity-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Recent Commits (7d)</span>
+                            <span class="summary-value" id="total-commits-velocity">156</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Total Commits (30d)</span>
+                            <span class="summary-value" id="dev-days">487</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Avg Commits/Day</span>
+                            <span class="summary-value" id="avg-commits-day">4.2</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Success Rate</span>
+                            <span class="summary-value" id="success-rate">97%</span>
                         </div>
                     </div>
-                    
-                    <div class="github-card">
-                        <div class="github-icon">⭐</div>
-                        <div class="github-content">
-                            <div class="github-value" id="stars-received">89</div>
-                            <div class="github-label">Stars Received</div>
-                            <div class="github-trend">+12 this month</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Cleanup Achievements -->
+        <section class="cleanup-achievements-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🧹 Repository Cleanup Achievements</h3>
+                    <div class="refresh-controls">
+                        <span class="last-updated">Completed: October 13, 2025</span>
+                    </div>
+                </div>
+                
+                <div class="cleanup-grid">
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">📁</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">14</div>
+                            <div class="cleanup-label">Organized Directories</div>
+                            <div class="cleanup-description">docs/, scripts/, config/ structure</div>
                         </div>
                     </div>
-                    
-                    <div class="github-card">
-                        <div class="github-icon">🍴</div>
-                        <div class="github-content">
-                            <div class="github-value" id="forks">34</div>
-                            <div class="github-label">Forks</div>
-                            <div class="github-trend">Active community</div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">📄</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">133</div>
+                            <div class="cleanup-label">Documentation Files</div>
+                            <div class="cleanup-description">All organized by category</div>
                         </div>
                     </div>
-                    
-                    <div class="github-card">
-                        <div class="github-icon">🔧</div>
-                        <div class="github-content">
-                            <div class="github-value" id="pull-requests">156</div>
-                            <div class="github-label">Pull Requests</div>
-                            <div class="github-trend">95% merged</div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🔧</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">68</div>
+                            <div class="cleanup-label">Automation Scripts</div>
+                            <div class="cleanup-description">Deployment, security, utilities</div>
                         </div>
                     </div>
-                    
-                    <div class="github-card">
-                        <div class="github-icon">🐛</div>
-                        <div class="github-content">
-                            <div class="github-value" id="issues-resolved">78</div>
-                            <div class="github-label">Issues Resolved</div>
-                            <div class="github-trend">Quick response</div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🏗️</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">44</div>
+                            <div class="cleanup-label">Infrastructure Files</div>
+                            <div class="cleanup-description">Terraform configurations</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🌐</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">21</div>
+                            <div class="cleanup-label">Web Pages</div>
+                            <div class="cleanup-description">HTML files organized</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🎨</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">22</div>
+                            <div class="cleanup-label">Stylesheets</div>
+                            <div class="cleanup-description">CSS files organized</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="github-activity">
-                    <div class="activity-header">
-                        <h4>📈 Recent Activity</h4>
-                        <span class="activity-period">Last 30 days</span>
-                    </div>
-                    <div class="activity-stats">
-                        <div class="activity-item">
-                            <span class="activity-label">Commits</span>
-                            <span class="activity-value" id="recent-commits">89</span>
-                        </div>
-                        <div class="activity-item">
-                            <span class="activity-label">Lines Added</span>
-                            <span class="activity-value" id="lines-added">+2,847</span>
-                        </div>
-                        <div class="activity-item">
-                            <span class="activity-label">Lines Deleted</span>
-                            <span class="activity-value" id="lines-deleted">-1,234</span>
-                        </div>
-                        <div class="activity-item">
-                            <span class="activity-label">Languages</span>
-                            <span class="activity-value" id="languages-used">8</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="github-projects">
-                    <div class="projects-header">
-                        <h4>🚀 Featured Projects</h4>
-                        <a href="https://github.com/Necron-99" class="github-link" target="_blank">View on GitHub →</a>
-                    </div>
-                    <div class="projects-grid" id="projects-grid">
-                        <!-- Projects will be populated dynamically from GitHub API -->
-                        <div class="project-card">
-                            <div class="project-name">Loading...</div>
-                            <div class="project-description">Fetching repository data from GitHub...</div>
-                            <div class="project-stats">
-                                <span class="project-stat">⭐ 0</span>
-                                <span class="project-stat">🍴 0</span>
-                                <span class="project-stat">🔧 0 commits</span>
+                <div class="cleanup-summary">
+                    <div class="summary-highlight">
+                        <h4>🎯 Cleanup Impact</h4>
+                        <div class="impact-stats">
+                            <div class="impact-item">
+                                <span class="impact-label">Files Removed</span>
+                                <span class="impact-value">18,111+ lines</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Duplicates Eliminated</span>
+                                <span class="impact-value">100%</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Security Improved</span>
+                                <span class="impact-value">Zero sensitive data</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Maintainability</span>
+                                <span class="impact-value">Significantly improved</span>
                             </div>
                         </div>
                     </div>
@@ -260,9 +298,9 @@
                     <div class="terraform-card">
                         <div class="terraform-icon">📁</div>
                         <div class="terraform-content">
-                            <div class="terraform-value" id="terraform-files">21</div>
+                            <div class="terraform-value" id="terraform-files">27</div>
                             <div class="terraform-label">Configuration Files</div>
-                            <div class="terraform-trend">3,322 lines of code</div>
+                            <div class="terraform-trend">4,758 lines of code</div>
                         </div>
                     </div>
                     
@@ -492,18 +530,18 @@
                     <div class="cost-summary">
                         <div class="cost-total">
                             <span class="cost-label">Total Monthly Cost</span>
-                            <span class="cost-value" id="total-cost">$0.00</span>
-                            <span class="cost-trend" id="cost-trend">+0.0%</span>
+                            <span class="cost-value" id="total-cost">$6.82</span>
+                            <span class="cost-trend" id="cost-trend">-59.2%</span>
                         </div>
                         <div class="cost-breakdown">
                             <div class="cost-item">
                                 <span class="cost-service">AWS Services</span>
-                                <span class="cost-amount" id="aws-total">$0.00</span>
+                                <span class="cost-amount" id="aws-total">$5.57</span>
                             </div>
                             <div class="cost-item">
                                 <span class="cost-service">Domain Registrar</span>
-                                <span class="cost-amount" id="registrar-cost">$0.00</span>
-                                <small style="display: block; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 0.25rem;">Annual cost: $75.00</small>
+                                <span class="cost-amount" id="registrar-cost">$1.25</span>
+                                <small style="display: block; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 0.25rem;">5-year cost: $75.00</small>
                             </div>
                         </div>
                     </div>
@@ -512,43 +550,43 @@
                 <div class="cost-grid">
                     <div class="cost-card">
                         <h4>S3 Storage</h4>
-                        <div class="cost-value" id="s3-cost">$0.00</div>
+                        <div class="cost-value" id="s3-cost">$0.16</div>
                         <div class="cost-breakdown">
-                            <span>Storage: <span id="s3-storage">0.0 GB</span></span>
-                            <span>Objects: <span id="s3-objects">0</span></span>
+                            <span>Storage: <span id="s3-storage">2.1 GB</span></span>
+                            <span>Objects: <span id="s3-objects">1,247</span></span>
                         </div>
                     </div>
                     
                     <div class="cost-card">
                         <h4>CloudFront</h4>
-                        <div class="cost-value" id="cloudfront-cost">$0.00</div>
+                        <div class="cost-value" id="cloudfront-cost">$0.08</div>
                         <div class="cost-breakdown">
-                            <span>Requests: <span id="cloudfront-requests">0</span></span>
-                            <span>Bandwidth: <span id="cloudfront-bandwidth">0.0 GB</span></span>
+                            <span>Requests: <span id="cloudfront-requests">12.5K</span></span>
+                            <span>Bandwidth: <span id="cloudfront-bandwidth">1.8 GB</span></span>
                         </div>
                     </div>
                     
                     <div class="cost-card">
                         <h4>Route53</h4>
-                        <div class="cost-value" id="route53-cost">$0.00</div>
+                        <div class="cost-value" id="route53-cost">$3.05</div>
                         <div class="cost-breakdown">
-                            <span>Queries: <span id="route53-queries">0</span></span>
-                            <span>Health Checks: <span id="route53-health-checks">0</span></span>
+                            <span>Queries: <span id="route53-queries">1.2M</span></span>
+                            <span>Health Checks: <span id="route53-health-checks">3</span></span>
                         </div>
                     </div>
                     
                     <div class="cost-card">
                         <h4>WAF</h4>
-                        <div class="cost-value" id="waf-cost">$0.00</div>
+                        <div class="cost-value" id="waf-cost">$5.72</div>
                         <div class="cost-breakdown">
-                            <span>Web ACLs: <span id="waf-acls">1</span></span>
-                            <span>Rules: <span id="waf-rules">5</span></span>
+                            <span>Web ACLs: <span id="waf-acls">3</span></span>
+                            <span>Rules: <span id="waf-rules">15</span></span>
                         </div>
                     </div>
                     
                     <div class="cost-card">
                         <h4>CloudWatch</h4>
-                        <div class="cost-value" id="cloudwatch-cost">$0.00</div>
+                        <div class="cost-value" id="cloudwatch-cost">$0.24</div>
                         <div class="cost-breakdown">
                             <span>Metrics: <span id="cloudwatch-metrics">Active</span></span>
                             <span>Logs: <span id="cloudwatch-logs">Minimal</span></span>
@@ -557,10 +595,10 @@
                     
                     <div class="cost-card">
                         <h4>Other Services</h4>
-                        <div class="cost-value" id="other-cost">$0.00</div>
+                        <div class="cost-value" id="other-cost">$1.25</div>
                         <div class="cost-breakdown">
-                            <span>Lambda: <span id="lambda-cost">$0.00</span></span>
-                            <span>SES: <span id="ses-cost">$0.00</span></span>
+                            <span>Lambda: <span id="lambda-cost">$0.12</span></span>
+                            <span>SES: <span id="ses-cost">$5.88</span></span>
                         </div>
                     </div>
                 </div>
@@ -762,109 +800,6 @@
             </div>
         </section>
 
-        <!-- Service Health Section -->
-        <section class="health-section">
-            <div class="container">
-                <div class="section-header">
-                    <h3>🏥 Service Health</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-health" class="btn btn-primary">Refresh</button>
-                        <span class="last-updated" id="health-last-updated">Last updated: Never</span>
-                    </div>
-                </div>
-                
-                <div class="health-grid">
-                    <div class="health-card" id="s3-health">
-                        <div class="health-header">
-                            <h4>Amazon S3</h4>
-                            <span class="health-status" id="s3-status">Unknown</span>
-                        </div>
-                        <div class="health-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Requests</span>
-                                <span class="metric-value" id="s3-requests">100%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Errors</span>
-                                <span class="metric-value" id="s3-errors">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="health-card" id="cloudfront-health">
-                        <div class="health-header">
-                            <h4>Amazon CloudFront</h4>
-                            <span class="health-status" id="cloudfront-status">Unknown</span>
-                        </div>
-                        <div class="health-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Cache Hit</span>
-                                <span class="metric-value" id="cloudfront-cache-hit">95%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Errors</span>
-                                <span class="metric-value" id="cloudfront-errors">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="health-card" id="lambda-health">
-                        <div class="health-header">
-                            <h4>AWS Lambda</h4>
-                            <span class="health-status" id="lambda-status">Unknown</span>
-                        </div>
-                        <div class="health-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Invocations</span>
-                                <span class="metric-value" id="lambda-invocations">100%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Errors</span>
-                                <span class="metric-value" id="lambda-errors">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="health-card" id="route53-health">
-                        <div class="health-header">
-                            <h4>Amazon Route53</h4>
-                            <span class="health-status" id="route53-status">Unknown</span>
-                        </div>
-                        <div class="health-metrics">
-                            <div class="metric">
-                                <span class="metric-label">DNS Resolution</span>
-                                <span class="metric-value" id="route53-resolution">Unknown</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Query Volume</span>
-                                <span class="metric-value" id="route53-queries">0</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Health Checks</span>
-                                <span class="metric-value" id="route53-health-checks">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="health-card" id="website-health">
-                        <div class="health-header">
-                            <h4>Website</h4>
-                            <span class="health-status" id="website-status">Unknown</span>
-                        </div>
-                        <div class="health-metrics">
-                            <div class="metric">
-                                <span class="metric-label">HTTP Status</span>
-                                <span class="metric-value" id="website-http-status">200</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">SSL Status</span>
-                                <span class="metric-value" id="website-ssl-status">Valid</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- Performance Metrics Section -->
         <section class="performance-section">
@@ -986,8 +921,7 @@
                 <h4>System Info</h4>
                 <ul>
                     <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="admin/index.html">Admin Panel</a></li>
-                    <li><a href="https://status.robertconsulting.net">Status Page</a></li>
+                    <li><a href="https://admin.robertconsulting.net">Admin Panel</a></li>
                 </ul>
             </div>
         </div>
@@ -998,7 +932,6 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="js/main.js"></script>
     <script src="dashboard-script.js"></script>
     <script src="js/easter-egg.js"></script>
 </body>

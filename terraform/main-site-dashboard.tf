@@ -3,7 +3,7 @@
 
 resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
   count = var.monitoring_enabled ? 1 : 0
-  
+
   dashboard_name = "MainSite-Monitoring"
 
   dashboard_body = jsonencode({
@@ -16,11 +16,11 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-           metrics = [
-             ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
-             [".", "4xxErrorRate", ".", ".", ".", "."],
-             [".", "5xxErrorRate", ".", ".", ".", "."]
-           ]
+          metrics = [
+            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+            [".", "4xxErrorRate", ".", ".", ".", "."],
+            [".", "5xxErrorRate", ".", ".", ".", "."]
+          ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
@@ -49,10 +49,10 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-           metrics = [
-             ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
-             [".", "BytesUploaded", ".", ".", ".", "."]
-           ]
+          metrics = [
+            ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+            [".", "BytesUploaded", ".", ".", ".", "."]
+          ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
@@ -105,9 +105,9 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-           metrics = [
-             ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"]
-           ]
+          metrics = [
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"]
+          ]
           view    = "timeSeries"
           stacked = false
           region  = "us-east-1"
@@ -123,17 +123,17 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
         height = 6
 
         properties = {
-          title  = "Active Alarms"
+          title = "Active Alarms"
           alarms = [
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-blocked-requests",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-4xx-errors",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-5xx-errors",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-cache-hit-ratio",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-origin-response-time",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-cloudfront-data-transfer",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-request-volume",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-rate-limit-triggered",
-            "arn:aws:cloudwatch:us-east-1:228480945348:alarm:main-site-waf-suspicious-ua-blocked"
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-blocked-requests",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-4xx-errors",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-5xx-errors",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-cache-hit-ratio",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-origin-response-time",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-cloudfront-data-transfer",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-request-volume",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-rate-limit-triggered",
+            "arn:aws:cloudwatch:us-east-1:${data.aws_caller_identity.current.account_id}:alarm:main-site-waf-suspicious-ua-blocked"
           ]
         }
       }

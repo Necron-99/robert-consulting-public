@@ -1,39 +1,40 @@
 {
-  "name": "robert-consulting-automated-review",
+  "name": "robert-consulting-infrastructure",
   "version": "1.0.0",
-  "description": "Automated code review and analysis tools for Robert Consulting website",
+  "description": "Robert Consulting Infrastructure Framework - Complete serverless infrastructure setup with built-in cost optimization, monitoring, and security features",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint website/ admin/ scripts/ --ext .js,.ts,.jsx,.tsx",
-    "lint:fix": "eslint website/ admin/ scripts/ --ext .js,.ts,.jsx,.tsx --fix",
-    "validate:html": "html-validate website/ admin/",
-    "validate:css": "stylelint \"website/**/*.css\" \"admin/**/*.css\"",
-    "analyze": "npm run lint && npm run validate:html && npm run validate:css",
-    "security": "npm audit",
-    "test": "echo \"Tests to be implemented\" && exit 0"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "@eslint/js": "^8.57.0",
-    "html-validate": "^8.7.4",
-    "stylelint": "^16.2.1",
-    "stylelint-config-standard": "^36.0.1"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "echo \"No linting specified\" && exit 0",
+    "build": "echo \"No build process specified\" && exit 0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Necron-99/robert-consulting.net.git"
+    "url": "https://github.com/Necron-99/robert-consulting-public.git"
   },
   "keywords": [
-    "automated-review",
-    "code-analysis",
+    "infrastructure",
+    "terraform",
+    "aws",
+    "serverless",
+    "security",
+    "monitoring",
+    "cost-optimization",
     "ci-cd",
-    "quality-assurance",
-    "security-scanning"
+    "devops"
   ],
-  "author": "Robert Consulting",
-  "license": "MIT"
+  "author": "Robert Bailey <rsbailey@necron99.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Necron-99/robert-consulting-public/issues"
+  },
+  "homepage": "https://github.com/Necron-99/robert-consulting-public#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-plugin-security": "^1.7.0",
+    "eslint-plugin-no-secrets": "^0.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

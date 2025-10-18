@@ -1,0 +1,86 @@
+name: 🧪 Workflow Test
+
+on:
+  push:
+    branches: [ staging ]
+  workflow_dispatch:
+
+jobs:
+  test-basic-functionality:
+    name: Test Basic Workflow Functionality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Test file operations
+      run: |
+        echo "Testing basic file operations..."
+        echo "Current directory: $(pwd)"
+        echo "Files in repository:"
+        ls -la
+        echo "✅ Basic file operations working"
+        
+    - name: 🐍 Test Python availability
+      run: |
+        echo "Testing Python availability..."
+        python3 --version
+        echo "✅ Python is available"
+        
+    - name: 📦 Test Node.js availability
+      run: |
+        echo "Testing Node.js availability..."
+        node --version
+        npm --version
+        echo "✅ Node.js is available"
+        
+    - name: 🔧 Test Terraform availability
+      run: |
+        echo "Testing Terraform availability..."
+        terraform --version || echo "ℹ️ Terraform not available (expected in some environments)"
+        echo "✅ Terraform test completed"
+        
+    - name: 📋 Test package.json
+      run: |
+        echo "Testing package.json..."
+        if [ -f "package.json" ]; then
+          echo "✅ package.json exists"
+          cat package.json | jq '.name, .version' || echo "ℹ️ jq not available, but package.json exists"
+        else
+          echo "❌ package.json not found"
+          exit 1
+        fi
+        
+    - name: 🏗️ Test Terraform files
+      run: |
+        echo "Testing Terraform files..."
+        if [ -d "terraform" ]; then
+          echo "✅ terraform directory exists"
+          echo "Terraform files:"
+          find terraform -name "*.tf" | head -5
+        else
+          echo "❌ terraform directory not found"
+          exit 1
+        fi
+        
+    - name: 🌐 Test website files
+      run: |
+        echo "Testing website files..."
+        if [ -d "website" ]; then
+          echo "✅ website directory exists"
+          echo "Website files:"
+          find website -name "*.html" | head -5
+        else
+          echo "❌ website directory not found"
+          exit 1
+        fi
+        
+    - name: 📊 Test summary
+      run: |
+        echo "🎉 Workflow Test Summary:"
+        echo "========================="
+        echo "✅ All basic functionality tests passed"
+        echo "✅ Repository structure is correct"
+        echo "✅ Required files and directories exist"
+        echo "✅ Environment is properly configured"

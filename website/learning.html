@@ -10,7 +10,7 @@
     <!-- Security Headers - Handled by CloudFront Response Headers Policy -->
     
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/pages/learning-topics.css">
+    <link rel="stylesheet" href="css/pages/learning-consolidated.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@
                 </p>
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <span class="stat-number">35+</span>
+                            <span class="stat-number">40+</span>
                             <span class="stat-label">Technologies</span>
                         </div>
                         <div class="stat-item">
@@ -82,8 +82,8 @@
                             <span class="stat-label">Workflows</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">100%</span>
-                            <span class="stat-label">Optimized</span>
+                            <span class="stat-number">🎬</span>
+                            <span class="stat-label">AI Projects</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">🔒</span>
@@ -104,13 +104,28 @@
             
             <div class="highlights-grid">
                 <div class="highlight-card featured">
+                    <div class="highlight-icon">🎬</div>
+                    <div class="highlight-content">
+                        <h3>Plex Movie Recommendations System</h3>
+                        <p class="highlight-date">October 2025</p>
+                        <p class="highlight-description">
+                            AI-powered movie recommendations with 40-60% accuracy improvement and <$1/year cost.
+                        </p>
+                        <div class="highlight-tags">
+                            <span class="tag">AI/ML</span>
+                            <span class="tag">AWS Lambda</span>
+                            <span class="tag">Cost Optimization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-card">
                     <div class="highlight-icon">🚀</div>
                     <div class="highlight-content">
                         <h3>Streamlined CI/CD Pipeline</h3>
                         <p class="highlight-date">October 2025</p>
                         <p class="highlight-description">
-                            Successfully consolidated 9 GitHub Actions workflows into 3 focused, efficient pipelines. 
-                            Achieved 67% reduction in workflow complexity while maintaining full functionality.
+                            Consolidated 9 workflows into 3 focused pipelines with 67% complexity reduction.
                         </p>
                         <div class="highlight-tags">
                             <span class="tag">GitHub Actions</span>
@@ -126,8 +141,7 @@
                         <h3>Advanced Security Implementation</h3>
                         <p class="highlight-date">October 2025</p>
                         <p class="highlight-description">
-                            Implemented comprehensive security headers, OWASP ZAP integration, and automated 
-                            vulnerability scanning with GitHub issue creation.
+                            Comprehensive security headers, OWASP ZAP integration, and automated vulnerability scanning.
                         </p>
                         <div class="highlight-tags">
                             <span class="tag">Security</span>
@@ -143,8 +157,7 @@
                         <h3>Staging Environment Setup</h3>
                         <p class="highlight-date">October 2025</p>
                         <p class="highlight-description">
-                            Created production-mirror staging environment with comprehensive testing, 
-                            IP whitelisting, and automated deployment validation.
+                            Production-mirror staging environment with comprehensive testing and automated deployment validation.
                         </p>
                         <div class="highlight-tags">
                             <span class="tag">Infrastructure</span>
@@ -153,63 +166,11 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="highlight-card">
-                    <div class="highlight-icon">📊</div>
-                    <div class="highlight-content">
-                        <h3>Monitoring & Observability</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Established CloudWatch dashboards, cost monitoring, and real-time 
-                            performance tracking with automated alerting.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">Monitoring</span>
-                            <span class="tag">CloudWatch</span>
-                            <span class="tag">Observability</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="highlight-card">
-                    <div class="highlight-icon">🎨</div>
-                    <div class="highlight-content">
-                        <h3>Interactive Learning Interface</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Built dynamic topic exploration with search, filtering, and responsive 
-                            design for enhanced user experience.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">UX/UI</span>
-                            <span class="tag">JavaScript</span>
-                            <span class="tag">Responsive</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="highlight-card">
-                    <div class="highlight-icon">⚡</div>
-                    <div class="highlight-content">
-                        <h3>Performance Optimization</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Achieved sub-2-second load times through CloudFront optimization, 
-                            image compression, and efficient caching strategies.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">Performance</span>
-                            <span class="tag">CloudFront</span>
-                            <span class="tag">Optimization</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="highlights-footer">
                 <p class="highlights-note">
-                    💡 <strong>Continuous Learning:</strong> Each highlight represents a milestone in understanding 
-                    modern web development, cloud infrastructure, and DevOps best practices.
+                    🎬 <strong>Coming Soon:</strong> Interactive Plex Movie Recommendations demonstration page.
                 </p>
             </div>
         </div>
@@ -230,22 +191,21 @@
                 </div>
                 
                 <div class="filter-tabs">
-                    <button class="filter-tab active" data-filter="all">All Topics</button>
+                    <button class="filter-tab active" data-filter="all">All Categories</button>
+                    <button class="filter-tab" data-filter="current">Current Projects</button>
                     <button class="filter-tab" data-filter="technologies">Technologies</button>
-                    <button class="filter-tab" data-filter="methodologies">Methodologies</button>
-                    <button class="filter-tab" data-filter="features">Features</button>
-                    <button class="filter-tab" data-filter="lessons">Lessons</button>
-                    <button class="filter-tab" data-filter="future">Future Goals</button>
+                    <button class="filter-tab" data-filter="security">Security</button>
+                    <button class="filter-tab" data-filter="methodologies">Learning</button>
                 </div>
                 
                 <div class="topic-stats">
                     <span class="stat-item">
-                        <span class="stat-number" id="total-topics">0</span>
-                        <span class="stat-label">Total Topics</span>
+                        <span class="stat-number" id="total-topics">6</span>
+                        <span class="stat-label">Categories</span>
                     </span>
                     <span class="stat-item">
                         <span class="stat-number" id="filtered-topics">0</span>
-                        <span class="stat-label">Showing</span>
+                        <span class="stat-label">Topics</span>
                     </span>
                 </div>
             </div>
@@ -257,6 +217,10 @@
         <div class="container">
             <div class="topics-grid" id="topics-grid">
                 <!-- Topics will be dynamically loaded by JavaScript -->
+                <div id="loading-message" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <p>🎯 Loading consolidated learning topics...</p>
+                    <p><small>If this message persists, there may be a JavaScript issue.</small></p>
+                </div>
             </div>
         </div>
     </section>
@@ -304,8 +268,6 @@
     <script src="security-config.js"></script>
     <script src="js/navigation.js"></script>
     <script src="js/easter-egg.js"></script>
-    <script src="js/learning-topics.js"></script>
+    <script src="js/learning-topics-consolidated.js"></script>
 </body>
 </html>
-# Test comment
-# Test GitHub Actions access

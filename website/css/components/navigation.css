@@ -69,14 +69,19 @@
 
 .nav-link:hover {
   color: var(--text-primary);
-  background-color: var(--background-secondary);
+  background-color: transparent;
   text-decoration: none;
+  border-bottom: 1px solid #4b5563;
 }
 
 .nav-link.active {
-  color: var(--primary-color);
-  background-color: var(--primary-light);
-  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+  font-weight: var(--font-weight-semibold) !important;
+  border-bottom: 2px solid #4b5563 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .nav-link:focus {
@@ -267,9 +272,13 @@
 
 /* Accessibility */
 .nav-link[aria-current="page"] {
-  color: var(--primary-color);
-  background-color: var(--primary-light);
-  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+  font-weight: var(--font-weight-semibold) !important;
+  border-bottom: 2px solid var(--accent-color) !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .nav-link[aria-expanded="true"] {

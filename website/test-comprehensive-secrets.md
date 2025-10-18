@@ -1,1 +1,0 @@
-# Test comprehensive secrets detection

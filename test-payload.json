@@ -1,4 +1,0 @@
-{
-  "httpMethod": "POST",
-  "body": "{\"name\":\"Test User\",\"email\":\"test@example.com\",\"subject\":\"Test Migration\",\"message\":\"Testing Node.js 20 migration\"}"
-}

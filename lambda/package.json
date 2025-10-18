@@ -1,12 +1,30 @@
 {
-  "name": "contact-form-lambda",
+  "name": "admin-auth-lambda",
   "version": "1.0.0",
-  "description": "AWS Lambda function for processing contact form submissions",
-  "main": "contact-form.js",
+  "description": "Enhanced admin authentication Lambda function",
+  "main": "admin-auth.js",
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.450.0"
+    "@aws-sdk/client-cloudwatch": "^3.0.0",
+    "@aws-sdk/client-cost-explorer": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.911.0",
+    "aws-sdk": "^2.1691.0",
+    "bcryptjs": "^2.4.3",
+    "speakeasy": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
-    "deploy": "zip -r contact-form.zip . && aws lambda update-function-code --function-name contact-form-api --zip-file fileb://contact-form.zip"
-  }
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "authentication",
+    "mfa",
+    "security"
+  ],
+  "author": "Robert Consulting",
+  "license": "MIT"
 }

@@ -10,7 +10,7 @@ resource "aws_iam_role" "client_deployment_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::228480945348:root"  # Management account
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"  # Management account
         }
         Action = "sts:AssumeRole"
         Condition = {

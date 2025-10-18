@@ -22,6 +22,9 @@ terraform.tfstate.*.backup
 .terraform/
 .terraform.lock.hcl
 
+# Terraform provider files (large binary files)
+.terraform/providers/
+
 # Terraform backend backup files
 backend.tf.backup
 bootstrap.tf.backup
@@ -32,11 +35,20 @@ bootstrap.tf.backup
 
 # AWS CLI distribution
 awscliv2.zip
+aws/
 
 # AWS credentials and configuration
 .aws/
 aws-credentials.json
 aws-config.json
+aws-config
+credentials
+config
+
+# AWS Lambda deployment packages
+*.zip
+lambda-*.zip
+contact-form.zip
 
 # =============================================================================
 # SENSITIVE FILES
@@ -204,6 +216,36 @@ website/version-updater.js
 security-scan-report-*.md
 security-report-*.md
 *.security-report
+zap-report-*.html
+zap-report-*.json
+zap-report-*.xml
+
+# WAF rule files (temporary)
+waf-rules-*.json
+
+# Daily learning logs
+daily-learning-log.md
+
+# =============================================================================
+# TEST AND TEMPORARY FILES
+# =============================================================================
+
+# Test response files
+*-response.json
+*-test-response.json
+terraform-stats-response.json
+plex-stats-response.json
+
+# Temporary deployment files
+*-deployment-*.json
+*-temp-*.json
+
+# =============================================================================
+# SEPARATE PROJECTS
+# =============================================================================
+
+# Plex recommendations (separate project)
+plex-recommendations/
 
 # =============================================================================
 # TERRAFORM FILES TO KEEP IN SOURCE CONTROL
@@ -216,4 +258,5 @@ security-report-*.md
 # - Documentation files
 #
 # Only exclude the terraform/ directory if you want to ignore ALL terraform files
-# Otherwise, use specific patterns above to exclude only state and sensitive files
+# Otherwise, use specific patterns above to exclude only state and sensitive files.terraform/providers/
+plex-recommendations/

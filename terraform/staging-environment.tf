@@ -11,87 +11,27 @@ variable "staging_domain_name" {
 variable "staging_allowed_ips" {
   description = "List of IP addresses allowed to access staging environment"
   type        = list(string)
-  default     = [
+  default = [
     # Your personal IP address
     "73.251.19.77/32",
-    
-    # GitHub Actions IP ranges (current 2025 ranges from GitHub API)
-    "4.148.0.0/16",       # GitHub Actions - Primary range
-    "4.149.0.0/18",       # GitHub Actions - Secondary range
-    "4.149.64.0/19",      # GitHub Actions - Range
-    "4.149.96.0/19",      # GitHub Actions - Range
-    "4.149.128.0/17",     # GitHub Actions - Range
-    "4.150.0.0/18",       # GitHub Actions - Range
-    "4.150.64.0/18",      # GitHub Actions - Range
-    "4.150.128.0/18",     # GitHub Actions - Range
-    "4.150.192.0/19",     # GitHub Actions - Range
-    "4.150.224.0/19",     # GitHub Actions - Range
-    "4.151.0.0/16",       # GitHub Actions - Range
-    "4.152.0.0/15",       # GitHub Actions - Range
-    "4.154.0.0/15",       # GitHub Actions - Range
-    "4.156.0.0/15",       # GitHub Actions - Range
-    "4.175.0.0/16",       # GitHub Actions - Range
-    "4.180.0.0/16",       # GitHub Actions - Range
-    "4.207.0.0/16",       # GitHub Actions - Range
-    "4.208.0.0/15",       # GitHub Actions - Range
-    "4.210.0.0/17",       # GitHub Actions - Range
-    "4.210.128.0/17",     # GitHub Actions - Range
-    
-    # GitHub Actions macOS ranges
-    "13.105.117.0/31",    # GitHub Actions macOS
-    "13.105.117.10/31",   # GitHub Actions macOS
-    "13.105.117.100/31",  # GitHub Actions macOS
-    "13.105.117.102/31",  # GitHub Actions macOS
-    "13.105.117.104/31",  # GitHub Actions macOS
-    "13.105.117.106/31",  # GitHub Actions macOS
-    "13.105.117.108/31",  # GitHub Actions macOS
-    "13.105.117.110/31",  # GitHub Actions macOS
-    "13.105.117.112/31",  # GitHub Actions macOS
-    "13.105.117.114/31",  # GitHub Actions macOS
-    "13.105.117.116/31",  # GitHub Actions macOS
-    "13.105.117.118/31",  # GitHub Actions macOS
-    "13.105.117.12/31",   # GitHub Actions macOS
-    "13.105.117.120/31",  # GitHub Actions macOS
-    "13.105.117.122/31",  # GitHub Actions macOS
-    "13.105.117.124/31",  # GitHub Actions macOS
-    "13.105.117.126/31",  # GitHub Actions macOS
-    "13.105.117.128/31",  # GitHub Actions macOS
-    "13.105.117.130/31",  # GitHub Actions macOS
-    "13.105.117.132/31",  # GitHub Actions macOS
-    
-    # Specific IPs found in access logs (for reference)
-    "52.161.82.81/32",    # Found in access logs
-    "52.165.250.242/32",  # Found in access logs
-    "40.116.73.179/32",   # Found in access logs
-    "40.76.191.160/32",   # Found in access logs
-    "135.119.38.36/32",   # Found in access logs
-    "64.236.169.131/32",  # Found in access logs
-    "68.154.54.36/32",    # Found in access logs
-    
-    # Current GitHub Actions runner IP
-    "57.151.137.208/32",  # GitHub Actions runner IP (2025-10-12)
-    
-    # Legacy GitHub Actions ranges (for compatibility)
-    "140.82.112.0/20",    # GitHub Actions - Legacy range
-    "185.199.108.0/22",   # GitHub Actions - Legacy range
-    "192.30.252.0/22",    # GitHub Actions - Legacy range
-    
+
     # Add additional IP addresses here as needed
     # "5.6.7.8/32",  # Example: Your office IP
+    # "10.0.0.0/8",  # Example: VPN range
   ]
 }
 
 # S3 bucket for staging website hosting
 resource "aws_s3_bucket" "staging_website_bucket" {
   bucket = "robert-consulting-staging-website"
-  
+
   tags = {
     Name        = "Robert Consulting Staging Website"
     Environment = "Staging"
     Purpose     = "Staging Website Hosting"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -100,14 +40,14 @@ resource "aws_s3_bucket" "staging_website_bucket" {
 # S3 bucket for CloudFront access logs (to collect IP addresses)
 resource "aws_s3_bucket" "staging_access_logs" {
   bucket = "robert-consulting-staging-access-logs"
-  
+
   tags = {
     Name        = "Robert Consulting Staging Access Logs"
     Environment = "Staging"
     Purpose     = "CloudFront Access Logs for IP Collection"
     ManagedBy   = "Terraform"
   }
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -153,9 +93,9 @@ resource "aws_s3_bucket_ownership_controls" "staging_access_logs" {
 resource "aws_s3_bucket_public_access_block" "staging_access_logs" {
   bucket = aws_s3_bucket.staging_access_logs.id
 
-  block_public_acls       = false  # Allow ACL for CloudFront logging
+  block_public_acls       = false # Allow ACL for CloudFront logging
   block_public_policy     = true
-  ignore_public_acls      = false  # Allow ACL for CloudFront logging
+  ignore_public_acls      = false # Allow ACL for CloudFront logging
   restrict_public_buckets = true
 }
 
@@ -167,13 +107,13 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "CloudFrontAccessLogs"
-        Effect    = "Allow"
+        Sid    = "CloudFrontAccessLogs"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action    = "s3:PutObject"
-        Resource  = "${aws_s3_bucket.staging_access_logs.arn}/*"
+        Action   = "s3:PutObject"
+        Resource = "${aws_s3_bucket.staging_access_logs.arn}/*"
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
@@ -181,13 +121,13 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
         }
       },
       {
-        Sid       = "CloudFrontAccessLogsList"
-        Effect    = "Allow"
+        Sid    = "CloudFrontAccessLogsList"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action    = "s3:GetBucketAcl"
-        Resource  = aws_s3_bucket.staging_access_logs.arn
+        Action   = "s3:GetBucketAcl"
+        Resource = aws_s3_bucket.staging_access_logs.arn
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
@@ -266,8 +206,8 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
 
   security_headers_config {
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content;"
-      override                 = false
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://via.placeholder.com; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
+      override                = false
     }
     content_type_options {
       override = false
@@ -285,6 +225,11 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
       include_subdomains         = true
       preload                    = true
       override                   = false
+    }
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = false
     }
   }
 
@@ -381,6 +326,12 @@ resource "aws_cloudfront_distribution" "staging_website" {
     # Apply security headers policy (identical to production)
     response_headers_policy_id = aws_cloudfront_response_headers_policy.staging_security_headers.id
 
+    # Associate CloudFront function for access control
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.staging_access_control.arn
+    }
+
     min_ttl     = 0
     default_ttl = 3600
     max_ttl     = 86400
@@ -422,7 +373,7 @@ resource "aws_cloudfront_distribution" "staging_website" {
 
 # SSL certificate for staging domain
 resource "aws_acm_certificate" "staging_ssl_cert" {
-  provider = aws.us_east_1  # CloudFront requires certificates in us-east-1
+  provider = aws.us_east_1 # CloudFront requires certificates in us-east-1
 
   domain_name       = var.staging_domain_name
   validation_method = "DNS"
@@ -484,30 +435,30 @@ resource "aws_wafv2_web_acl" "staging_waf" {
   scope = "CLOUDFRONT"
 
   default_action {
-    block {}
+    allow {}
   }
 
-  # IP-based access control (restrict to allowed IPs)
-  rule {
-    name     = "AllowSpecificIPs"
-    priority = 1
-
-    action {
-      allow {}
-    }
-
-    statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.staging_allowed_ips.arn
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "AllowSpecificIPs"
-      sampled_requests_enabled   = true
-    }
-  }
+  # IP-based access control disabled - using secret-based access control instead
+  # rule {
+  #   name     = "AllowSpecificIPs"
+  #   priority = 1
+  #
+  #   action {
+  #     allow {}
+  #   }
+  #
+  #   statement {
+  #     ip_set_reference_statement {
+  #       arn = aws_wafv2_ip_set.staging_allowed_ips.arn
+  #     }
+  #   }
+  #
+  #   visibility_config {
+  #     cloudwatch_metrics_enabled = true
+  #     metric_name                = "AllowSpecificIPs"
+  #     sampled_requests_enabled   = true
+  #   }
+  # }
 
   # Rate limiting (same as production)
   rule {
@@ -543,7 +494,7 @@ resource "aws_wafv2_web_acl" "staging_waf" {
 
     statement {
       byte_match_statement {
-        search_string         = "sqlmap"
+        search_string = "sqlmap"
         field_to_match {
           single_header {
             name = "user-agent"

@@ -1,0 +1,27 @@
+{
+  "name": "dashboard-stats-refresher",
+  "version": "1.0.0",
+  "description": "Lambda function to refresh dashboard statistics with live data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.490.0",
+    "@aws-sdk/client-cloudwatch": "^3.490.0",
+    "@aws-sdk/client-cost-explorer": "^3.490.0",
+    "@aws-sdk/client-secrets-manager": "^3.490.0",
+    "@aws-sdk/client-s3": "^3.490.0"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "dashboard",
+    "statistics",
+    "github",
+    "cloudwatch"
+  ],
+  "author": "Robert Consulting",
+  "license": "MIT"
+}
+

@@ -28,7 +28,7 @@ cat > terraform/admin-waf.tfvars << EOF
 admin_domain_name = "admin.robertconsulting.net"
 admin_allowed_ips = $ALLOWED_IPS
 existing_route53_zone_id = "Z1D633PJN98FT9"  # robertconsulting.net zone
-admin_acm_certificate_arn = "arn:aws:acm:us-east-1:228480945348:certificate/bd248f13-f64f-45b0-8ca8-0321c48650da"
+admin_acm_certificate_arn = "arn:aws:acm:us-east-1:${data.aws_caller_identity.current.account_id}:certificate/bd248f13-f64f-45b0-8ca8-0321c48650da"
 EOF
 
 echo "✅ Configuration saved to terraform/admin-waf.tfvars"
