@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test</title>
+    <link rel="stylesheet" href="css/main.css?v=6">
+    <style>
+        body { 
+            padding: 20px; 
+            background: var(--background-primary);
+            color: var(--text-primary);
+        }
+        .test-info {
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--background-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-primary);
+        }
+        
+        /* AGGRESSIVE OVERRIDE - Force navigation to be transparent */
+        .nav-link.active {
+            background-color: transparent !important;
+            background: none !important;
+            background-image: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-bottom: 2px solid #4b5563 !important;
+            border-radius: 0 !important;
+        }
+        
+        .nav-link:hover {
+            background-color: transparent !important;
+            background: none !important;
+            background-image: none !important;
+            border-bottom: 1px solid #4b5563 !important;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="test-info">
+        <h2>Navigation Active State Test</h2>
+        <p>If the CSS is working, the "Learning" tab should have:</p>
+        <ul>
+            <li>✅ Transparent background (no gray background)</li>
+            <li>✅ Thin dark gray underline at the bottom</li>
+            <li>✅ No borders or shadows</li>
+            <li>✅ Semibold font weight</li>
+        </ul>
+        <p><strong>Hover Test:</strong> When you hover over any navigation link, it should show a subtle dark gray underline (not a bright white or gray background).</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">Learning Journey</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" style="background: none !important; background-color: transparent !important; border: none !important; border-bottom: 2px solid #4b5563 !important;">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="test-info">
+        <h3>CSS Variables Check:</h3>
+        <p>Accent Color: <span style="color: var(--accent-color); font-weight: bold;">var(--accent-color)</span></p>
+        <p>Text Primary: <span style="color: var(--text-primary);">var(--text-primary)</span></p>
+        <p>Background Primary: <span style="background: var(--background-primary); padding: 4px 8px; border-radius: 4px;">var(--background-primary)</span></p>
+    </div>
+</body>
+</html>

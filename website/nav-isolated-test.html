@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isolated Navigation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .navbar {
+            background: #1f2937;
+            padding: 16px;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo h2 {
+            margin: 0;
+            color: #f9fafb;
+        }
+        
+        .nav-tagline {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 8px;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            color: #d1d5db;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #f9fafb;
+            background-color: transparent;
+            border-bottom: 1px solid #4b5563;
+        }
+        
+        .nav-link.active {
+            color: #f9fafb;
+            background-color: transparent;
+            font-weight: 600;
+            border-bottom: 2px solid #4b5563;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .test-info {
+            margin: 20px 0;
+            padding: 20px;
+            background: #1f2937;
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h2>🔬 Isolated Navigation Test</h2>
+        <p><strong>This page has NO external CSS files.</strong> If the "Learning" tab still shows a gray background, there's a browser issue.</p>
+        <p>The "Learning" tab should have:</p>
+        <ul>
+            <li>✅ Transparent background</li>
+            <li>✅ Dark gray underline (#4b5563)</li>
+            <li>✅ No borders or shadows</li>
+        </ul>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">Learning Journey</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link">Home</a></li>
+                <li><a href="#" class="nav-link">About</a></li>
+                <li><a href="#" class="nav-link active">Learning</a></li>
+                <li><a href="#" class="nav-link">Dashboard</a></li>
+                <li><a href="#" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="test-info">
+        <h3>Browser Developer Tools Check:</h3>
+        <p>Right-click on the "Learning" tab and select "Inspect Element". Check the computed styles:</p>
+        <ul>
+            <li>background-color should be "transparent" or "rgba(0, 0, 0, 0)"</li>
+            <li>border-bottom should be "2px solid rgb(75, 85, 99)"</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Page - Consolidated Preview</title>
+    <link rel="stylesheet" href="css/main.css?v=2">
+    <link rel="stylesheet" href="css/pages/learning-consolidated.css?v=2">
+    <style>
+        body { padding: 20px; }
+        .preview-header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 20px;
+            background: var(--background-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
+        }
+        .preview-header h1 { 
+            color: var(--text-primary); 
+            margin-bottom: 10px; 
+        }
+        .preview-header p { 
+            color: var(--text-secondary); 
+            margin-bottom: 8px;
+        }
+        .preview-header p:last-child {
+            color: var(--accent-color);
+            font-style: italic;
+        }
+        
+        /* Force navigation active state to be subtle */
+        .nav-link.active {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-bottom: 2px solid var(--accent-color) !important;
+            border-radius: 0 !important;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">Learning Journey</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="preview-header">
+        <h1>🎯 Consolidated Learning Page Preview</h1>
+        <p>Category-based approach with expandable sub-topics</p>
+        <p><strong>Note:</strong> The "Learning" tab now has a subtle dark gradient instead of the jarring white highlight!</p>
+    </div>
+
+    <!-- Current Projects Category (Featured) -->
+    <div class="category-card featured">
+        <div class="category-header" onclick="toggleCategory('current-projects')">
+            <div class="category-icon">🎬</div>
+            <div class="category-content">
+                <h3 class="category-title">Current Projects</h3>
+                <p class="category-description">Active development work and recent achievements</p>
+                <div class="category-meta">
+                    <span class="status-badge status-active">Active</span>
+                    <span class="topic-count">3 topics</span>
+                </div>
+            </div>
+            <div class="expand-icon">▼</div>
+        </div>
+        
+        <div class="category-topics">
+            <div class="sub-topic status-completed">
+                <div class="sub-topic-header">
+                    <div class="sub-topic-icon">🎬</div>
+                    <div class="sub-topic-content">
+                        <h4 class="sub-topic-title">Plex Movie Recommendations</h4>
+                        <p class="sub-topic-description">AI-powered movie recommendation system using Plex watch history, TMDB API, and AWS Lambda</p>
+                        <div class="achievements">
+                            <span class="achievement">40-60% accuracy improvement</span>
+                            <span class="achievement"><$1/year cost</span>
+                            <span class="achievement">90% cost reduction</span>
+                        </div>
+                    </div>
+                    <div class="sub-topic-status">
+                        <span class="status-badge status-completed">Completed</span>
+                    </div>
+                </div>
+                <div class="sub-topic-tags">
+                    <span class="tag">ai</span>
+                    <span class="tag">recommendations</span>
+                    <span class="tag">plex</span>
+                    <span class="tag">tmdb</span>
+                    <span class="tag">aws-lambda</span>
+                </div>
+            </div>
+            
+            <div class="sub-topic status-completed">
+                <div class="sub-topic-header">
+                    <div class="sub-topic-icon">📊</div>
+                    <div class="sub-topic-content">
+                        <h4 class="sub-topic-title">Dashboard API Development</h4>
+                        <p class="sub-topic-description">Real-time dashboard with live AWS cost data, GitHub statistics, and infrastructure monitoring</p>
+                        <div class="achievements">
+                            <span class="achievement">Live AWS cost data</span>
+                            <span class="achievement">Real-time GitHub stats</span>
+                            <span class="achievement">Infrastructure monitoring</span>
+                        </div>
+                    </div>
+                    <div class="sub-topic-status">
+                        <span class="status-badge status-completed">Completed</span>
+                    </div>
+                </div>
+                <div class="sub-topic-tags">
+                    <span class="tag">aws</span>
+                    <span class="tag">api</span>
+                    <span class="tag">real-time</span>
+                    <span class="tag">monitoring</span>
+                </div>
+            </div>
+            
+            <div class="view-all-link">
+                <a href="#">View All Current Projects Topics →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cloud & Infrastructure Category -->
+    <div class="category-card">
+        <div class="category-header" onclick="toggleCategory('cloud-infrastructure')">
+            <div class="category-icon">☁️</div>
+            <div class="category-content">
+                <h3 class="category-title">Cloud & Infrastructure</h3>
+                <p class="category-description">AWS services, infrastructure as code, and cost optimization</p>
+                <div class="category-meta">
+                    <span class="status-badge status-proficient">Proficient</span>
+                    <span class="topic-count">4 topics</span>
+                </div>
+            </div>
+            <div class="expand-icon">▼</div>
+        </div>
+        
+        <div class="category-topics">
+            <div class="sub-topic status-proficient">
+                <div class="sub-topic-header">
+                    <div class="sub-topic-icon">☁️</div>
+                    <div class="sub-topic-content">
+                        <h4 class="sub-topic-title">AWS Services</h4>
+                        <p class="sub-topic-description">S3, CloudFront, Route 53, IAM, Lambda, and cost optimization</p>
+                    </div>
+                    <div class="sub-topic-status">
+                        <span class="status-badge status-proficient">Proficient</span>
+                    </div>
+                </div>
+                <div class="sub-topic-tags">
+                    <span class="tag">cloud</span>
+                    <span class="tag">aws</span>
+                    <span class="tag">infrastructure</span>
+                    <span class="tag">s3</span>
+                    <span class="tag">lambda</span>
+                </div>
+            </div>
+            
+            <div class="view-all-link">
+                <a href="#">View All Cloud & Infrastructure Topics →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security & DevSecOps Category -->
+    <div class="category-card">
+        <div class="category-header" onclick="toggleCategory('security-devsecops')">
+            <div class="category-icon">🔒</div>
+            <div class="category-content">
+                <h3 class="category-title">Security & DevSecOps</h3>
+                <p class="category-description">Security implementation, compliance, and secure development practices</p>
+                <div class="category-meta">
+                    <span class="status-badge status-proficient">Proficient</span>
+                    <span class="topic-count">3 topics</span>
+                </div>
+            </div>
+            <div class="expand-icon">▼</div>
+        </div>
+        
+        <div class="category-topics">
+            <div class="sub-topic status-proficient">
+                <div class="sub-topic-header">
+                    <div class="sub-topic-icon">🔒</div>
+                    <div class="sub-topic-content">
+                        <h4 class="sub-topic-title">Security Headers & Compliance</h4>
+                        <p class="sub-topic-description">HTTPS, CSP headers, authentication, and security best practices</p>
+                    </div>
+                    <div class="sub-topic-status">
+                        <span class="status-badge status-proficient">Proficient</span>
+                    </div>
+                </div>
+                <div class="sub-topic-tags">
+                    <span class="tag">security</span>
+                    <span class="tag">https</span>
+                    <span class="tag">authentication</span>
+                    <span class="tag">csp</span>
+                </div>
+            </div>
+            
+            <div class="view-all-link">
+                <a href="#">View All Security & DevSecOps Topics →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCategory(categoryId) {
+            const category = document.querySelector(`[data-category="${categoryId}"]`);
+            const topics = category.querySelector('.category-topics');
+            const icon = category.querySelector('.expand-icon');
+            
+            if (topics.classList.contains('expanded')) {
+                topics.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                topics.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+    </script>
+</body>
+</html>
