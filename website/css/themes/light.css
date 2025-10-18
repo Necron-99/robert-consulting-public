@@ -107,12 +107,16 @@
   
   .dark-theme .nav-link:hover {
     color: #ffffff !important;
-    background-color: #374151 !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid #4b5563 !important;
   }
   
   .dark-theme .nav-link.active {
     color: #ffffff !important;
-    background-color: #4b5563 !important;
+    background-color: transparent !important;
+    border-bottom: 2px solid #4b5563 !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   
   /* Mobile menu overrides for dark theme */
@@ -145,12 +149,16 @@
   
   body.dark-theme .nav-link:hover {
     color: #ffffff !important;
-    background-color: #374151 !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--accent-color) !important;
   }
   
   body.dark-theme .nav-link.active {
     color: #ffffff !important;
-    background-color: #4b5563 !important;
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--accent-color) !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   
   /* Status page specific overrides */
@@ -178,13 +186,17 @@
   body.dark-theme[class*="status"] .nav-link:hover,
   body.dark-theme .nav-link:hover {
     color: #ffffff !important;
-    background-color: #374151 !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--accent-color) !important;
   }
   
   body.dark-theme[class*="status"] .nav-link.active,
   body.dark-theme .nav-link.active {
     color: #ffffff !important;
-    background-color: #4b5563 !important;
+    background-color: transparent !important;
+    border-bottom: 2px solid var(--accent-color) !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 }
 
