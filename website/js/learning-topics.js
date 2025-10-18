@@ -143,6 +143,16 @@ class LearningTopics {
                 tags: ['best-practices', 'guidelines', 'standards'],
                 type: 'technology'
             },
+            {
+                id: 'plex-recommendations',
+                title: 'Plex Movie Recommendations',
+                description: 'AI-powered movie recommendation system using Plex watch history, TMDB API, and AWS Lambda',
+                category: 'technologies',
+                subcategory: 'AI & Machine Learning',
+                icon: '🎬',
+                tags: ['ai', 'recommendations', 'plex', 'tmdb', 'aws-lambda', 'machine-learning'],
+                type: 'technology'
+            },
 
             // Methodology Topics
             {
@@ -337,6 +347,16 @@ class LearningTopics {
                 subcategory: 'Development',
                 icon: '🔧',
                 tags: ['git', 'repository', 'maintenance', 'corruption'],
+                type: 'lesson'
+            },
+            {
+                id: 'plex-recommendations-lessons',
+                title: 'Plex Recommendations Project Lessons',
+                description: 'Building a complete AI recommendation system taught valuable lessons about API integration, cost optimization, and repository management',
+                category: 'lessons',
+                subcategory: 'AI & Development',
+                icon: '🎬',
+                tags: ['ai', 'recommendations', 'api-integration', 'cost-optimization', 'repository-management'],
                 type: 'lesson'
             },
 
