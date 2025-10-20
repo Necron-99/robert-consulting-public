@@ -172,7 +172,7 @@ async function validateSession(sessionToken, clientIP) {
       TableName: SESSIONS_TABLE_NAME,
       Key: {
         sessionId: sessionToken,
-        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }
+        createdAt: {$gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}
       }
     }).promise();
     
@@ -223,16 +223,19 @@ async function validateSession(sessionToken, clientIP) {
 }
 
 // Main handler
-exports.handler = async (event) => {
+exports.handler = async(event) => {
   const request = event.Records[0].cf.request;
   const headers = request.headers;
   const uri = request.uri;
   const method = request.method;
   
   // Extract client information
-  const clientIP = headers['x-forwarded-for'] ? 
-    headers['x-forwarded-for'][0].value.split(',')[0].trim() : 
-    headers['cf-connecting-ip'] ? headers['cf-connecting-ip'][0].value : 'unknown';
+  let clientIP = 'unknown';
+  if (headers['x-forwarded-for']) {
+    clientIP = headers['x-forwarded-for'][0].value.split(',')[0].trim();
+  } else if (headers['cf-connecting-ip']) {
+    clientIP = headers['cf-connecting-ip'][0].value;
+  }
   
   const userAgent = headers['user-agent'] ? headers['user-agent'][0].value : 'unknown';
   
@@ -250,7 +253,7 @@ exports.handler = async (event) => {
         status: '403',
         statusDescription: 'Forbidden',
         headers: {
-          'content-type': [{ key: 'Content-Type', value: 'text/plain' }]
+          'content-type': [{key: 'Content-Type', value: 'text/plain'}]
         },
         body: 'Access denied: IP not allowed'
       };
