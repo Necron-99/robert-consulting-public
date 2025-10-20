@@ -1,4 +1,4 @@
-name: Enhanced Security Scanning
+name: Enhanced Security Scan (DEPRECATED - Use security-scan-modern.yml)ning
 
 on:
   push:
