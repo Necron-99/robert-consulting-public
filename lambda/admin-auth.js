@@ -207,7 +207,7 @@ async function validateSession(sessionToken, clientIP) {
       TableName: SESSIONS_TABLE_NAME,
       Key: {
         sessionId: sessionToken,
-        created_at: result.Item.created_at
+        createdAt: result.Item.createdAt
       },
       UpdateExpression: 'SET last_activity = :activity',
       ExpressionAttributeValues: {
@@ -245,8 +245,8 @@ exports.handler = async(event) => {
     // Check IP restrictions
     if (!isIPAllowed(clientIP, config.allowed_ips)) {
       await logAuditEvent('IP_BLOCKED', {
-        client_ip: clientIP,
-        allowed_ips: config.allowed_ips
+        clientIp: clientIP,
+        allowedIps: config.allowed_ips
       }, clientIP, userAgent);
       
       return {
@@ -322,8 +322,8 @@ async function handleLogin(request, clientIP, userAgent, config) {
     // Check for brute force attempts
     if (await checkBruteForceAttempts(clientIP)) {
       await logAuditEvent('BRUTE_FORCE_BLOCKED', {
-        client_ip: clientIP,
-        lockout_duration: config.lockout_duration
+        clientIp: clientIP,
+        lockoutDuration: config.lockout_duration
       }, clientIP, userAgent);
       
       return {
@@ -335,7 +335,7 @@ async function handleLogin(request, clientIP, userAgent, config) {
         },
         body: JSON.stringify({
           error: 'Too many failed attempts',
-          retry_after: config.lockout_duration
+          retryAfter: config.lockout_duration
         })
       };
     }
@@ -357,11 +357,11 @@ async function handleLogin(request, clientIP, userAgent, config) {
         status: '401',
         statusDescription: 'Unauthorized',
         headers: {
-          'content-type': [{ key: 'Content-Type', value: 'application/json' }]
+          'content-type': [{key: 'Content-Type', value: 'application/json'}]
         },
         body: JSON.stringify({
           error: 'Invalid credentials',
-          mfa_required: MFA_ENABLED
+          mfaRequired: MFA_ENABLED
         })
       };
     }
@@ -376,11 +376,11 @@ async function handleLogin(request, clientIP, userAgent, config) {
         status: '200',
         statusDescription: 'OK',
         headers: {
-          'content-type': [{ key: 'Content-Type', value: 'application/json' }]
+          'content-type': [{key: 'Content-Type', value: 'application/json'}]
         },
         body: JSON.stringify({
           success: true,
-          mfa_required: true,
+          mfaRequired: true,
           message: 'MFA verification required'
         })
       };
@@ -391,14 +391,14 @@ async function handleLogin(request, clientIP, userAgent, config) {
     
     await logAuditEvent('LOGIN_SUCCESS', {
       username: credentials.username,
-      session_id: sessionToken
+      sessionId: sessionToken
     }, clientIP, userAgent);
     
     return {
       status: '200',
       statusDescription: 'OK',
       headers: {
-        'content-type': [{ key: 'Content-Type', value: 'application/json' }],
+        'content-type': [{key: 'Content-Type', value: 'application/json'}],
         'set-cookie': [{
           key: 'Set-Cookie',
           value: `admin-session=${sessionToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=${config.session_timeout * 60}`
@@ -421,7 +421,7 @@ async function handleLogin(request, clientIP, userAgent, config) {
       status: '500',
       statusDescription: 'Internal Server Error',
       headers: {
-        'content-type': [{ key: 'Content-Type', value: 'application/json' }]
+        'content-type': [{key: 'Content-Type', value: 'application/json'}]
       },
       body: JSON.stringify({
         error: 'Login service unavailable'
@@ -448,7 +448,7 @@ async function handleMFAVerification(request, clientIP, userAgent, config) {
         status: '401',
         statusDescription: 'Unauthorized',
         headers: {
-          'content-type': [{ key: 'Content-Type', value: 'application/json' }]
+          'content-type': [{key: 'Content-Type', value: 'application/json'}]
         },
         body: JSON.stringify({
           error: 'Invalid MFA token'
@@ -460,14 +460,14 @@ async function handleMFAVerification(request, clientIP, userAgent, config) {
     const sessionToken = await createSession(clientIP, userAgent);
     
     await logAuditEvent('MFA_SUCCESS', {
-      session_id: sessionToken
+      sessionId: sessionToken
     }, clientIP, userAgent);
     
     return {
       status: '200',
       statusDescription: 'OK',
       headers: {
-        'content-type': [{ key: 'Content-Type', value: 'application/json' }],
+        'content-type': [{key: 'Content-Type', value: 'application/json'}],
         'set-cookie': [{
           key: 'Set-Cookie',
           value: `admin-session=${sessionToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=${config.session_timeout * 60}`
@@ -490,7 +490,7 @@ async function handleMFAVerification(request, clientIP, userAgent, config) {
       status: '500',
       statusDescription: 'Internal Server Error',
       headers: {
-        'content-type': [{ key: 'Content-Type', value: 'application/json' }]
+        'content-type': [{key: 'Content-Type', value: 'application/json'}]
       },
       body: JSON.stringify({
         error: 'MFA service unavailable'
