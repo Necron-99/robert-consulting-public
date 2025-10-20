@@ -18,7 +18,7 @@ async function loadBlueprint() {
     
     // Test staging site
     await testSitePerformance(page, 'https://d3guz3lq4sqlvl.cloudfront.net/?secret=<staging-secret>', 'Staging');
-};
+}
 
 async function testSitePerformance(page, url, environment) {
     log.info(`Testing ${environment} site performance: ${url}`);

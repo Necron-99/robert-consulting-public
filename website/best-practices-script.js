@@ -303,7 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function setCategoryData(categories, categoryName, data) {
     // Use a safe approach to set category data
     if (categories && typeof categories === 'object') {
-        categories[categoryName] = data;
+        // Use Object.assign to safely set the property
+        Object.assign(categories, {[categoryName]: data});
     }
 }
 
