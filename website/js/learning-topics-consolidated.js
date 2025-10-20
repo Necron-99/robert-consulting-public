@@ -404,22 +404,22 @@ class ConsolidatedLearningTopics {
 
     getStatusClass(status) {
         const statusMap = {
-            'active': 'status-active',
-            'completed': 'status-completed',
-            'proficient': 'status-proficient',
-            'learning': 'status-learning',
-            'planned': 'status-planned'
+            active: 'status-active',
+            completed: 'status-completed',
+            proficient: 'status-proficient',
+            learning: 'status-learning',
+            planned: 'status-planned'
         };
         return statusMap[status] || 'status-default';
     }
 
     getStatusText(status) {
         const statusMap = {
-            'active': 'Active',
-            'completed': 'Completed',
-            'proficient': 'Proficient',
-            'learning': 'Learning',
-            'planned': 'Planned'
+            active: 'Active',
+            completed: 'Completed',
+            proficient: 'Proficient',
+            learning: 'Learning',
+            planned: 'Planned'
         };
         return statusMap[status] || 'Unknown';
     }
