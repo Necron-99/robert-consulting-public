@@ -28,11 +28,11 @@ class DynamicVersionManager {
             commit: this.getGitCommit() || 'unknown',
             branch: this.getGitBranch() || 'main',
             workflow: 'Dynamic Generation',
-            run_id: 'dynamic',
-            run_number: '1',
+            runId: 'dynamic',
+            runNumber: '1',
             actor: 'system',
             repository: 'Necron-99/robert-consulting.net',
-            event_name: 'dynamic',
+            eventName: 'dynamic',
             security: {
                 status: 'secure',
                 dependencies: 'up-to-date',
@@ -41,9 +41,12 @@ class DynamicVersionManager {
                 high: '0',
                 medium: '0',
                 low: '0',
-                last_scan: buildDate,
+                lastScan: buildDate,
+                // eslint-disable-next-line camelcase
                 scan_duration: '30',
+                // eslint-disable-next-line camelcase
                 secrets_found: '0',
+                // eslint-disable-next-line camelcase
                 cdn_issues: '0'
             },
             changelog: [
@@ -78,14 +81,19 @@ class DynamicVersionManager {
             technical: {
                 framework: 'Vanilla HTML/CSS/JS',
                 responsive: true,
+                // eslint-disable-next-line camelcase
                 seo_optimized: true,
+                // eslint-disable-next-line camelcase
                 performance_optimized: true,
+                // eslint-disable-next-line camelcase
                 ci_cd: 'GitHub Actions',
                 deployment: 'Automated',
                 security: 'Monitored',
                 accessibility: 'WCAG AA Compliant',
                 theme: 'Dark with Light Toggle',
+                // eslint-disable-next-line camelcase
                 version_system: 'Dynamic Runtime Generation',
+                // eslint-disable-next-line camelcase
                 last_updated: buildDate
             }
         };
@@ -180,7 +188,7 @@ class DynamicVersionManager {
      */
     displayVersionInfo() {
         if (this.versionData) {
-            console.log(`%cRobert Consulting Website`, 'color: #1a365d; font-weight: bold; font-size: 16px;');
+            console.log('%cRobert Consulting Website', 'color: #1a365d; font-weight: bold; font-size: 16px;');
             console.log(`%cVersion: ${this.versionData.version}`, 'color: #38a169; font-weight: bold;');
             console.log(`%cBuild: ${this.versionData.build}`, 'color: #2c5282;');
             console.log(`%cRelease: ${this.versionData.release}`, 'color: #d69e2e;');
@@ -189,7 +197,7 @@ class DynamicVersionManager {
             console.log(`%cSecurity: ${this.versionData.security.status}`, 'color: #38a169;');
             console.log(`%cVulnerabilities: ${this.versionData.security.vulnerabilities}`, 'color: #e53e3e;');
             console.log(`%cFeatures: ${this.versionData.features.length} features`, 'color: #4a5568;');
-            console.log(`%cSystem: Dynamic Runtime Generation`, 'color: #9ca3af;');
+            console.log('%cSystem: Dynamic Runtime Generation', 'color: #9ca3af;');
         }
     }
 

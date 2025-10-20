@@ -451,20 +451,20 @@ function getDataSection(data, section) {
 /**
  * Get test result safely
  */
-function getTestResult(testResults, category) {
+function getTestResult(testResultsObj, category) {
     switch (category) {
         case 'apiEndpoint':
-            return testResults.apiEndpoint;
+            return testResultsObj.apiEndpoint;
         case 'systemStatus':
-            return testResults.systemStatus;
+            return testResultsObj.systemStatus;
         case 'performanceMetrics':
-            return testResults.performanceMetrics;
+            return testResultsObj.performanceMetrics;
         case 'costData':
-            return testResults.costData;
+            return testResultsObj.costData;
         case 'githubStats':
-            return testResults.githubStats;
+            return testResultsObj.githubStats;
         case 'dataIntegrity':
-            return testResults.dataIntegrity;
+            return testResultsObj.dataIntegrity;
         default:
             return {passed: 0, failed: 0, tests: []};
     }

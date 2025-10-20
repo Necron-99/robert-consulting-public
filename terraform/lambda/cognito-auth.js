@@ -12,7 +12,7 @@ const ADMIN_DOMAIN = '${admin_domain}';
 // Cognito endpoints
 const COGNITO_DOMAIN = `https://rc-admin-${USER_POOL_ID.split('_')[1]}.auth.us-east-1.amazoncognito.com`;
 
-exports.handler = async (event) => {
+exports.handler = async(event) => {
     const request = event.Records[0].cf.request;
     const headers = request.headers;
     
@@ -41,7 +41,7 @@ exports.handler = async (event) => {
         status: '302',
         statusDescription: 'Found',
         headers: {
-            'location': [{
+            location: [{
                 key: 'Location',
                 value: `${COGNITO_DOMAIN}/login?client_id=${USER_POOL_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=https://${ADMIN_DOMAIN}/callback`
             }],
@@ -58,7 +58,7 @@ function getCookie(headers, name) {
     if (!cookieHeader) return null;
     
     const cookies = cookieHeader[0].value.split(';');
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
         const [key, value] = cookie.trim().split('=');
         if (key === name) return value;
     }
@@ -90,7 +90,7 @@ async function handleCallback(request) {
                 status: '302',
                 statusDescription: 'Found',
                 headers: {
-                    'location': [{
+                    location: [{
                         key: 'Location',
                         value: `https://${ADMIN_DOMAIN}/`
                     }],
@@ -112,9 +112,12 @@ async function handleCallback(request) {
 async function exchangeCodeForTokens(code) {
     return new Promise((resolve, reject) => {
         const postData = querystring.stringify({
+            // eslint-disable-next-line camelcase
             grant_type: 'authorization_code',
+            // eslint-disable-next-line camelcase
             client_id: USER_POOL_CLIENT_ID,
             code: code,
+            // eslint-disable-next-line camelcase
             redirect_uri: `https://${ADMIN_DOMAIN}/callback`
         });
         
@@ -131,7 +134,9 @@ async function exchangeCodeForTokens(code) {
         
         const req = https.request(options, (res) => {
             let data = '';
-            res.on('data', (chunk) => data += chunk);
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
             res.on('end', () => {
                 try {
                     const tokens = JSON.parse(data);

@@ -27,12 +27,12 @@ module.exports = {
     'security/detect-pseudoRandomBytes': 'error',
     'no-secrets/no-secrets': 'error',
     'no-console': 'off',
-    'indent': 'off',
+    indent: 'off',
     'no-trailing-spaces': 'off',
     'linebreak-style': 'off',
     'no-new': 'off',
     'operator-linebreak': 'off',
-    'curly': 'off',
+    curly: 'off',
     'no-use-before-define': 'off',
     'prefer-arrow-callback': 'off'
   }

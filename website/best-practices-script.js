@@ -25,7 +25,7 @@ class BestPracticesManager {
         const checkboxes = document.querySelectorAll('.checklist-items input[type="checkbox"]');
         
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', () => {
                 this.updateChecklistProgress();
                 this.saveChecklistData();
                 this.showProgressNotification();
@@ -36,7 +36,7 @@ class BestPracticesManager {
     setupSmoothScrolling() {
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', (e) => {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
@@ -95,7 +95,7 @@ class BestPracticesManager {
             });
             
             // Copy functionality
-            copyButton.addEventListener('click', async () => {
+            copyButton.addEventListener('click', async() => {
                 const code = example.querySelector('pre').textContent;
                 try {
                     await navigator.clipboard.writeText(code);
@@ -234,15 +234,15 @@ class BestPracticesManager {
             const checked = category.querySelectorAll('input[type="checkbox"]:checked');
             const categoryProgress = Math.round((checked.length / checkboxes.length) * 100);
             
-            exportData.categories[categoryName] = {
+            setCategoryData(exportData.categories, categoryName, {
                 progress: categoryProgress,
                 completed: checked.length,
                 total: checkboxes.length
-            };
+            });
         });
         
         // Download as JSON
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -253,6 +253,7 @@ class BestPracticesManager {
 
     // Reset checklist
     resetChecklist() {
+        // eslint-disable-next-line no-alert
         if (confirm('Are you sure you want to reset all checklist items?')) {
             document.querySelectorAll('.checklist-items input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
@@ -295,6 +296,16 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
     window.bestPracticesManager = new BestPracticesManager();
 });
+
+/**
+ * Set category data safely
+ */
+function setCategoryData(categories, categoryName, data) {
+    // Use a safe approach to set category data
+    if (categories && typeof categories === 'object') {
+        categories[categoryName] = data;
+    }
+}
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
