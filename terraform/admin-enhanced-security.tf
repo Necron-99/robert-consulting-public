@@ -128,6 +128,10 @@ resource "aws_dynamodb_table" "admin_sessions" {
     enabled        = true
   }
 
+  server_side_encryption {
+    enabled = true
+  }
+
   tags = local.security_tags
 }
 
@@ -174,6 +178,10 @@ resource "aws_dynamodb_table" "admin_audit_log" {
     enabled        = true
   }
 
+  server_side_encryption {
+    enabled = true
+  }
+
   tags = local.security_tags
 }
 
@@ -194,6 +202,10 @@ resource "aws_lambda_function" "admin_auth" {
       AUDIT_TABLE_NAME          = aws_dynamodb_table.admin_audit_log.name
       MFA_ENABLED               = var.admin_mfa_enabled
     }
+  }
+
+  tracing_config {
+    mode = "Active"
   }
 
   tags = local.security_tags

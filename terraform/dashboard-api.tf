@@ -23,6 +23,10 @@ resource "aws_lambda_function" "dashboard_api" {
     }
   }
 
+  tracing_config {
+    mode = "Active"
+  }
+
   tags = {
     Name        = "Dashboard API"
     Project     = "Robert Consulting"

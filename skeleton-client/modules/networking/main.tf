@@ -27,6 +27,8 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
   availability_zone       = var.availability_zones[count.index]
+  # Note: Public IP assignment is intentional for public subnets
+  # Resources in public subnets need public IPs for internet access
   map_public_ip_on_launch = true
 
   tags = merge(var.common_tags, {

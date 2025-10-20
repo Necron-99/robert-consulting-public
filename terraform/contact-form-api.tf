@@ -17,6 +17,10 @@ resource "aws_lambda_function" "contact_form" {
     }
   }
 
+  tracing_config {
+    mode = "Active"
+  }
+
   tags = {
     Name        = "Contact Form API"
     Environment = "Production"

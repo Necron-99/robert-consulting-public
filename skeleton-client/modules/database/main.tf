@@ -64,6 +64,9 @@ resource "aws_db_instance" "main" {
   auto_minor_version_upgrade = true
   deletion_protection        = var.environment == "production"
 
+  # Logging configuration
+  enabled_cloudwatch_logs_exports = ["error", "general", "slow-query"]
+
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-${var.environment}-db"
   })
@@ -179,6 +182,9 @@ resource "aws_db_instance" "main_with_params" {
   # Cost optimization
   auto_minor_version_upgrade = true
   deletion_protection        = var.environment == "production"
+
+  # Logging configuration
+  enabled_cloudwatch_logs_exports = ["error", "general", "slow-query"]
 
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-${var.environment}-db-optimized"

@@ -19,6 +19,10 @@ resource "aws_lambda_function" "stats_refresher" {
     }
   }
 
+  tracing_config {
+    mode = "Active"
+  }
+
   tags = {
     Name        = "dashboard-stats-refresher"
     Environment = "production"
