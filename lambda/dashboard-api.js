@@ -543,7 +543,6 @@ async function fetchRealAWSCosts() {
 /**
  * Get development velocity statistics based on real GitHub data
  */
- */
 async function getVelocityStats() {
     try {
         // Simulate velocity metrics

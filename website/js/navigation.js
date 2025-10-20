@@ -134,8 +134,9 @@ document.addEventListener('keydown', function(event) {
 document.addEventListener('keydown', function(event) {
   const navMenu = document.getElementById('nav-menu');
   const navLinks = document.querySelectorAll('.nav-link');
+  const hamburger = document.getElementById('hamburger');
   
-      if (navMenu.classList.contains('active')) {
+  if (navMenu && navMenu.classList.contains('active')) {
     const firstLink = navLinks[0];
     const lastLink = navLinks[navLinks.length - 1];
     

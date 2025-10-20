@@ -3,10 +3,10 @@
  * Sends emails via AWS SES
  */
 
-const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
-const ses = new SESClient({ region: 'us-east-1' });
+const {SESClient, SendEmailCommand} = require('@aws-sdk/client-ses');
+const ses = new SESClient({region: 'us-east-1'});
 
-exports.handler = async (event) => {
+exports.handler = async(event) => {
     // Enable CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -20,14 +20,14 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ message: 'CORS preflight' })
+            body: JSON.stringify({message: 'CORS preflight'})
         };
     }
 
     try {
         // Parse the request body
         const body = JSON.parse(event.body);
-        const { name, email, subject, message } = body;
+        const {name, email, subject, message} = body;
 
         // Validate required fields
         if (!name || !email || !subject || !message) {
@@ -47,7 +47,7 @@ exports.handler = async (event) => {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ error: 'Invalid email format' })
+                body: JSON.stringify({error: 'Invalid email format'})
             };
         }
 

@@ -127,7 +127,8 @@ class APIConfig {
         const required = ['name', 'email', 'subject', 'message'];
         
         for (const field of required) {
-            if (!data[field] || data[field].trim().length === 0) {
+            const fieldValue = data[field];
+            if (!fieldValue || fieldValue.trim().length === 0) {
                 return false;
             }
         }
