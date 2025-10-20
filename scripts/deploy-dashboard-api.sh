@@ -31,7 +31,6 @@ aws lambda update-function-configuration \
     --function-name robert-consulting-dashboard-api \
     --timeout 30 \
     --memory-size 256 \
-    --environment Variables='{"AWS_REGION":"us-east-1","LOG_LEVEL":"INFO"}' \
     --region us-east-1
 
 # Test the function
