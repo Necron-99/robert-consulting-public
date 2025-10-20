@@ -29,7 +29,7 @@ resource "aws_subnet" "public" {
   availability_zone       = var.availability_zones[count.index]
   # Note: Public IP assignment is intentional for public subnets
   # Resources in public subnets need public IPs for internet access
-  # semgrep:disable terraform.aws.security.aws-subnet-has-public-ip-address
+  # nosemgrep: terraform.aws.security.aws-subnet-has-public-ip-address
   map_public_ip_on_launch = true
 
   tags = merge(var.common_tags, {

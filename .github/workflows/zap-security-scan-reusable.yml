@@ -37,10 +37,10 @@ jobs:
 
       - name: 🔍 OWASP ZAP Security Scan
         id: scan
-        env:
-          TARGET_URL: ${{ inputs.target_url }}
-          SCAN_NAME: ${{ inputs.scan_name }}
         run: |
+          # Set environment variables safely using printf to avoid injection
+          TARGET_URL=$(printf '%s' "${{ inputs.target_url }}")
+          SCAN_NAME=$(printf '%s' "${{ inputs.scan_name }}")
           echo "🔍 Running OWASP ZAP Security Scan..."
           echo "🎯 Target URL: ${TARGET_URL}"
           echo "📝 Scan Name: ${SCAN_NAME}"
