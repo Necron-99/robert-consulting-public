@@ -285,7 +285,7 @@ exports.handler = async(event) => {
       status: '302',
       statusDescription: 'Found',
       headers: {
-        'location': [{
+        location: [{
           key: 'Location',
           value: '/admin-login.html'
         }],
@@ -309,7 +309,7 @@ exports.handler = async(event) => {
       status: '500',
       statusDescription: 'Internal Server Error',
       headers: {
-        'content-type': [{ key: 'Content-Type', value: 'text/plain' }]
+        'content-type': [{key: 'Content-Type', value: 'text/plain'}]
       },
       body: 'Authentication service unavailable'
     };
@@ -330,8 +330,8 @@ async function handleLogin(request, clientIP, userAgent, config) {
         status: '429',
         statusDescription: 'Too Many Requests',
         headers: {
-          'content-type': [{ key: 'Content-Type', value: 'application/json' }],
-          'retry-after': [{ key: 'Retry-After', value: config.lockout_duration.toString() }]
+          'content-type': [{key: 'Content-Type', value: 'application/json'}],
+          'retry-after': [{key: 'Retry-After', value: config.lockout_duration.toString()}]
         },
         body: JSON.stringify({
           error: 'Too many failed attempts',
