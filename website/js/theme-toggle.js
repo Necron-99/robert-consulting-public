@@ -54,7 +54,7 @@ class ThemeToggle {
         
         // Dispatch custom event
         window.dispatchEvent(new CustomEvent('themeChanged', { 
-            detail: { theme: theme } 
+            detail: {theme: theme} 
         }));
     }
     

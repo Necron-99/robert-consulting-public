@@ -403,31 +403,42 @@ class ConsolidatedLearningTopics {
     }
 
     getStatusClass(status) {
-        const statusMap = {
-            'active': 'status-active',
-            'completed': 'status-completed',
-            'proficient': 'status-proficient',
-            'learning': 'status-learning',
-            'planned': 'status-planned'
-        };
-        return statusMap[status] || 'status-default';
+        switch (status) {
+            case 'active':
+                return 'status-active';
+            case 'completed':
+                return 'status-completed';
+            case 'proficient':
+                return 'status-proficient';
+            case 'learning':
+                return 'status-learning';
+            case 'planned':
+                return 'status-planned';
+            default:
+                return 'status-default';
+        }
     }
 
     getStatusText(status) {
-        const statusMap = {
-            'active': 'Active',
-            'completed': 'Completed',
-            'proficient': 'Proficient',
-            'learning': 'Learning',
-            'planned': 'Planned'
-        };
-        return statusMap[status] || 'Unknown';
+        switch (status) {
+            case 'active':
+                return 'Active';
+            case 'completed':
+                return 'Completed';
+            case 'proficient':
+                return 'Proficient';
+            case 'learning':
+                return 'Learning';
+            case 'planned':
+                return 'Planned';
+            default:
+                return 'Unknown';
+        }
     }
 
     updateStats() {
         const totalCategories = this.categories.length;
         const totalTopics = this.categories.reduce((sum, cat) => sum + cat.subTopics.length, 0);
-        const activeProjects = this.categories.filter(cat => cat.status === 'active').length;
         
         const totalTopicsEl = document.getElementById('total-topics');
         const filteredTopicsEl = document.getElementById('filtered-topics');

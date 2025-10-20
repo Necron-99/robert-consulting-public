@@ -46,6 +46,6 @@
   }
 
   setTimeout(updateVersionDisplay, 500);
-})();
+}());
 
 

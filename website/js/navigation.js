@@ -147,12 +147,10 @@ document.addEventListener('keydown', function(event) {
           event.preventDefault();
           hamburger.focus();
         }
-      } else {
+      } else if (document.activeElement === lastLink) {
         // Tab (forward)
-        if (document.activeElement === lastLink) {
-          event.preventDefault();
-          hamburger.focus();
-        }
+        event.preventDefault();
+        hamburger.focus();
       }
     }
   }

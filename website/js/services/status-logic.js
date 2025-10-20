@@ -119,6 +119,236 @@ class StatusLogicService {
     }
 
     /**
+     * Safely increment status count
+     */
+    incrementStatusCount(statusCounts, status) {
+        switch (status) {
+            case 'red':
+                statusCounts.red++;
+                break;
+            case 'yellow':
+                statusCounts.yellow++;
+                break;
+            case 'green':
+                statusCounts.green++;
+                break;
+            case 'unknown':
+                statusCounts.unknown++;
+                break;
+            default:
+                statusCounts.unknown++;
+        }
+    }
+
+    /**
+     * Get description safely
+     */
+    getDescriptionSafely(descriptions, stage, status) {
+        const stageDescriptions = this.getStageDescriptions(descriptions, stage);
+        if (!stageDescriptions) return 'Status unknown';
+        
+        switch (status) {
+            case 'green':
+                return stageDescriptions.green || 'Status unknown';
+            case 'yellow':
+                return stageDescriptions.yellow || 'Status unknown';
+            case 'red':
+                return stageDescriptions.red || 'Status unknown';
+            default:
+                return 'Status unknown';
+        }
+    }
+
+    /**
+     * Get stage descriptions safely
+     */
+    getStageDescriptions(descriptions, stage) {
+        switch (stage) {
+            case 'development':
+                return descriptions.development;
+            case 'testing':
+                return descriptions.testing;
+            case 'staging':
+                return descriptions.staging;
+            case 'security':
+                return descriptions.security;
+            case 'deployment':
+                return descriptions.deployment;
+            case 'monitoring':
+                return descriptions.monitoring;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get stage weight safely
+     */
+    getStageWeight(weights, stage) {
+        switch (stage) {
+            case 'development':
+                return weights.development || 0;
+            case 'testing':
+                return weights.testing || 0;
+            case 'staging':
+                return weights.staging || 0;
+            case 'security':
+                return weights.security || 0;
+            case 'deployment':
+                return weights.deployment || 0;
+            case 'monitoring':
+                return weights.monitoring || 0;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Get status score safely
+     */
+    getStatusScore(status) {
+        switch (status) {
+            case 'green':
+                return 1.0;
+            case 'yellow':
+                return 0.5;
+            case 'red':
+                return 0.0;
+            case 'unknown':
+                return 0.25;
+            default:
+                return 0.25;
+        }
+    }
+
+    /**
+     * Get actions safely
+     */
+    getActionsSafely(actions, stage, status) {
+        const stageActions = this.getStageActions(actions, stage);
+        if (!stageActions) return ['Check status', 'Review logs'];
+        
+        switch (status) {
+            case 'green':
+                return stageActions.green || ['Check status', 'Review logs'];
+            case 'yellow':
+                return stageActions.yellow || ['Check status', 'Review logs'];
+            case 'red':
+                return stageActions.red || ['Check status', 'Review logs'];
+            default:
+                return ['Check status', 'Review logs'];
+        }
+    }
+
+    /**
+     * Get stage actions safely
+     */
+    getStageActions(actions, stage) {
+        switch (stage) {
+            case 'development':
+                return actions.development;
+            case 'testing':
+                return actions.testing;
+            case 'staging':
+                return actions.staging;
+            case 'security':
+                return actions.security;
+            case 'deployment':
+                return actions.deployment;
+            case 'monitoring':
+                return actions.monitoring;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Get stage status safely
+     */
+    getStageStatus(statuses, stage) {
+        switch (stage) {
+            case 'development':
+                return statuses.development;
+            case 'testing':
+                return statuses.testing;
+            case 'staging':
+                return statuses.staging;
+            case 'security':
+                return statuses.security;
+            case 'deployment':
+                return statuses.deployment;
+            case 'monitoring':
+                return statuses.monitoring;
+            default:
+                return 'unknown';
+        }
+    }
+
+    /**
+     * Calculate trend safely
+     */
+    calculateTrend(current, previous) {
+        if (current > previous) {
+            return 'improving';
+        } else if (current < previous) {
+            return 'declining';
+        } else {
+            return 'stable';
+        }
+    }
+
+    /**
+     * Set stage trend safely
+     */
+    setStageTrend(trends, stage, trend) {
+        switch (stage) {
+            case 'development':
+                trends.development = trend;
+                break;
+            case 'testing':
+                trends.testing = trend;
+                break;
+            case 'staging':
+                trends.staging = trend;
+                break;
+            case 'security':
+                trends.security = trend;
+                break;
+            case 'deployment':
+                trends.deployment = trend;
+                break;
+            case 'monitoring':
+                trends.monitoring = trend;
+                break;
+            default:
+                // Ignore unknown stages
+                break;
+        }
+    }
+
+    /**
+     * Get required fields safely
+     */
+    getRequiredFields(requiredFields, stage) {
+        switch (stage) {
+            case 'development':
+                return requiredFields.development || [];
+            case 'testing':
+                return requiredFields.testing || [];
+            case 'staging':
+                return requiredFields.staging || [];
+            case 'security':
+                return requiredFields.security || [];
+            case 'deployment':
+                return requiredFields.deployment || [];
+            case 'monitoring':
+                return requiredFields.monitoring || [];
+            default:
+                return [];
+        }
+    }
+
+    /**
      * Get status rules for a stage safely
      */
     getStatusRules(stage) {
@@ -172,7 +402,7 @@ class StatusLogicService {
         };
 
         Object.values(stageStatuses).forEach(status => {
-            statusCounts[status]++;
+            this.incrementStatusCount(statusCounts, status);
         });
 
         // Overall status logic
@@ -211,13 +441,18 @@ class StatusLogicService {
      * Get status priority for sorting
      */
     getStatusPriority(status) {
-        const priorities = {
-            red: 4,
-            yellow: 3,
-            green: 2,
-            unknown: 1
-        };
-        return priorities[status] || 0;
+        switch (status) {
+            case 'red':
+                return 3;
+            case 'yellow':
+                return 2;
+            case 'green':
+                return 1;
+            case 'unknown':
+                return 0;
+            default:
+                return 0;
+        }
     }
 
     /**
@@ -257,7 +492,7 @@ class StatusLogicService {
             }
         };
 
-        return descriptions[stage]?.[status] || 'Status unknown';
+        return this.getDescriptionSafely(descriptions, stage, status);
     }
 
     /**
@@ -297,7 +532,7 @@ class StatusLogicService {
             }
         };
 
-        return actions[stage]?.[status] || ['Check status', 'Review logs'];
+        return this.getActionsSafely(actions, stage, status);
     }
 
     /**
@@ -317,7 +552,7 @@ class StatusLogicService {
         let totalWeight = 0;
 
         Object.entries(stageStatuses).forEach(([stage, status]) => {
-            const weight = weights[stage] || 0;
+            const weight = this.getStageWeight(weights, stage);
             const score = this.getStatusScore(status);
             totalScore += score * weight;
             totalWeight += weight;
@@ -326,18 +561,6 @@ class StatusLogicService {
         return totalWeight > 0 ? Math.round(totalScore / totalWeight) : 0;
     }
 
-    /**
-     * Get numeric score for status
-     */
-    getStatusScore(status) {
-        const scores = {
-            green: 100,
-            yellow: 60,
-            red: 0,
-            unknown: 30
-        };
-        return scores[status] || 0;
-    }
 
     /**
      * Get status trend
@@ -346,16 +569,11 @@ class StatusLogicService {
         const trends = {};
         
         Object.keys(currentStatuses).forEach(stage => {
-            const current = this.getStatusScore(currentStatuses[stage]);
-            const previous = this.getStatusScore(previousStatuses[stage] || 'unknown');
+            const current = this.getStatusScore(this.getStageStatus(currentStatuses, stage));
+            const previous = this.getStatusScore(this.getStageStatus(previousStatuses, stage) || 'unknown');
             
-            if (current > previous) {
-                trends[stage] = 'improving';
-            } else if (current < previous) {
-                trends[stage] = 'declining';
-            } else {
-                trends[stage] = 'stable';
-            }
+            const trend = this.calculateTrend(current, previous);
+            this.setStageTrend(trends, stage, trend);
         });
 
         return trends;
@@ -374,7 +592,7 @@ class StatusLogicService {
             monitoring: ['uptime', 'responseTime', 'errorRate', 'alerts']
         };
 
-        const fields = requiredFields[stage] || [];
+        const fields = this.getRequiredFields(requiredFields, stage);
         const missing = fields.filter(field => !(field in data));
         
         if (missing.length > 0) {

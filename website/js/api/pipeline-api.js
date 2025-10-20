@@ -92,12 +92,12 @@ class PipelineAPI {
                     lastRun: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
                     duration: '4m 23s',
                     steps: [
-                        { name: 'Checkout', status: 'success', duration: '12s' },
-                        { name: 'Setup Node', status: 'success', duration: '45s' },
-                        { name: 'Install Dependencies', status: 'success', duration: '1m 12s' },
-                        { name: 'Run Tests', status: 'success', duration: '2m 15s' },
-                        { name: 'Build', status: 'success', duration: '45s' },
-                        { name: 'Deploy', status: 'success', duration: '1m 30s' }
+                        {name: 'Checkout', status: 'success', duration: '12s'},
+                        {name: 'Setup Node', status: 'success', duration: '45s'},
+                        {name: 'Install Dependencies', status: 'success', duration: '1m 12s'},
+                        {name: 'Run Tests', status: 'success', duration: '2m 15s'},
+                        {name: 'Build', status: 'success', duration: '45s'},
+                        {name: 'Deploy', status: 'success', duration: '1m 30s'}
                     ]
                 },
                 {
@@ -108,9 +108,9 @@ class PipelineAPI {
                     lastRun: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
                     duration: '3m 45s',
                     steps: [
-                        { name: 'CodeQL Analysis', status: 'success', duration: '2m 30s' },
-                        { name: 'Dependency Check', status: 'success', duration: '45s' },
-                        { name: 'Secret Scan', status: 'success', duration: '30s' }
+                        {name: 'CodeQL Analysis', status: 'success', duration: '2m 30s'},
+                        {name: 'Dependency Check', status: 'success', duration: '45s'},
+                        {name: 'Secret Scan', status: 'success', duration: '30s'}
                     ]
                 }
             ],

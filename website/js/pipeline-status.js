@@ -12,7 +12,9 @@ class PipelineStatusMeter {
         this.previousStatuses = {};
         
         // Initialize API and status logic services
+        // eslint-disable-next-line no-undef
         this.api = new PipelineAPI();
+        // eslint-disable-next-line no-undef
         this.statusLogic = new StatusLogicService();
         
         this.init();
@@ -85,12 +87,57 @@ class PipelineStatusMeter {
     }
 
     /**
+     * Get stage by name safely
+     */
+    getStage(stageName) {
+        switch (stageName) {
+            case 'build':
+                return this.stages.build;
+            case 'test':
+                return this.stages.test;
+            case 'deploy':
+                return this.stages.deploy;
+            case 'security':
+                return this.stages.security;
+            case 'performance':
+                return this.stages.performance;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Set stage data safely
+     */
+    setStage(stageName, stageData) {
+        switch (stageName) {
+            case 'build':
+                this.stages.build = stageData;
+                break;
+            case 'test':
+                this.stages.test = stageData;
+                break;
+            case 'deploy':
+                this.stages.deploy = stageData;
+                break;
+            case 'security':
+                this.stages.security = stageData;
+                break;
+            case 'performance':
+                this.stages.performance = stageData;
+                break;
+            default:
+                console.warn(`Unknown stage: ${stageName}`);
+        }
+    }
+
+    /**
      * Handle pipeline update
      */
     handlePipelineUpdate(data) {
         console.log('📡 Pipeline update received:', data);
         
-        if (data.stage && this.stages[data.stage]) {
+        if (data.stage && this.getStage(data.stage)) {
             this.updateStageFromAPI(data.stage, data);
         }
     }
@@ -224,9 +271,9 @@ class PipelineStatusMeter {
                     lastDeploy: '15 minutes ago'
                 },
                 health: {
-                    api: awsData.services.lambda?.status === 'healthy' ? '✅ Healthy' : '❌ Unhealthy',
+                    api: this.getHealthStatus(awsData.services.lambda?.status, '✅ Healthy', '❌ Unhealthy'),
                     database: '✅ Connected',
-                    cdn: awsData.services.cloudfront?.status === 'healthy' ? '✅ Optimized' : '❌ Issues',
+                    cdn: this.getHealthStatus(awsData.services.cloudfront?.status, '✅ Optimized', '❌ Issues'),
                     ssl: '✅ Valid'
                 }
             };
@@ -339,7 +386,7 @@ class PipelineStatusMeter {
      * Update a specific stage
      */
     async updateStage(stageName) {
-        const stage = this.stages[stageName];
+        const stage = this.getStage(stageName);
         if (!stage) return;
 
         // Simulate API call - replace with actual data sources
@@ -359,11 +406,9 @@ class PipelineStatusMeter {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        const stage = this.stages[stageName];
+        const stage = this.getStage(stageName);
         
         // Simulate some dynamic changes
-        const now = new Date();
-        const random = Math.random();
         
         switch (stageName) {
             case 'development':
@@ -443,7 +488,53 @@ class PipelineStatusMeter {
         statusElement.classList.add(stageData.status);
         
         // Update stage data
-        this.stages[stageName] = stageData;
+        this.setStage(stageName, stageData);
+    }
+
+    /**
+     * Get health status safely
+     */
+    getHealthStatus(status, healthyText, unhealthyText) {
+        return status === 'healthy' ? healthyText : unhealthyText;
+    }
+
+    /**
+     * Get status icon safely
+     */
+    getStatusIcon(status) {
+        switch (status) {
+            case 'critical':
+                return '🔴';
+            case 'warning':
+                return '🟡';
+            case 'green':
+            default:
+                return '🟢';
+        }
+    }
+
+    /**
+     * Get detail value safely
+     */
+    getDetailValue(details, key) {
+        switch (key) {
+            case 'status':
+                return details.status;
+            case 'progress':
+                return details.progress;
+            case 'duration':
+                return details.duration;
+            case 'lastRun':
+                return details.lastRun;
+            case 'nextRun':
+                return details.nextRun;
+            case 'errors':
+                return details.errors;
+            case 'warnings':
+                return details.warnings;
+            default:
+                return '';
+        }
     }
 
     /**
@@ -456,7 +547,8 @@ class PipelineStatusMeter {
         Object.keys(details).forEach(key => {
             const element = document.getElementById(`${stageName}-${key}`);
             if (element) {
-                element.textContent = details[key];
+                const value = this.getDetailValue(details, key);
+                element.textContent = value;
             }
         });
     }
@@ -493,8 +585,7 @@ class PipelineStatusMeter {
         
         if (statusIndicator) {
             statusIndicator.className = `status-indicator overall-${overallStatus}`;
-            statusIndicator.textContent = overallStatus === 'critical' ? '🔴' : 
-                                       overallStatus === 'warning' ? '🟡' : '🟢';
+            statusIndicator.textContent = this.getStatusIcon(overallStatus);
         }
         
         if (statusText) {
