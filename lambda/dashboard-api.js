@@ -4,6 +4,52 @@
  * Node.js 20.x - Simple version with fallback data
  */
 
+const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
+// const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
+const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
+
+// Initialize AWS clients
+const cloudwatchClient = new CloudWatchClient({region: 'us-east-1'});
+// const costExplorerClient = new CostExplorerClient({region: 'us-east-1'});
+const secretsManagerClient = new SecretsManagerClient({region: 'us-east-1'});
+
+/**
+ * Get GitHub token from Secrets Manager
+ */
+async function getGitHubToken() {
+    try {
+        const command = new GetSecretValueCommand({
+            SecretId: 'github-token'
+        });
+        const response = await secretsManagerClient.send(command);
+        return response.SecretString;
+    } catch (error) {
+        console.log('GitHub token not found in Secrets Manager, using environment variable');
+        return null;
+    }
+}
+
+/**
+ * Helper functions for score calculations
+ */
+function getLCPScore(load) {
+    if (load <= 1800) return 'good';
+    if (load <= 2500) return 'needs-improvement';
+    return 'poor';
+}
+
+function getINPScore(inp) {
+    if (inp <= 200) return 'good';
+    if (inp <= 500) return 'needs-improvement';
+    return 'poor';
+}
+
+function getCLSScore(cls) {
+    if (cls <= 0.05) return 'good';
+    if (cls <= 0.25) return 'needs-improvement';
+    return 'poor';
+}
+
 /**
  * Check service health
  */
@@ -101,22 +147,22 @@ async function checkServiceHealth() {
         
         // Process Lambda metrics
         let lambdaInvocations = 0;
-        let lambdaErrors = 0;
-        let lambdaErrorRate = '0%';
+        // let lambdaErrors = 0; // For future use
+        // let lambdaErrorRate = '0%'; // For future use
         
         if (lambdaResponse && lambdaResponse.MetricDataResults) {
             const invocationsResult = lambdaResponse.MetricDataResults.find(r => r.Id === 'invocations');
-            const errorsResult = lambdaResponse.MetricDataResults.find(r => r.Id === 'errors');
+            // const errorsResult = lambdaResponse.MetricDataResults.find(r => r.Id === 'errors');
             
             if (invocationsResult && invocationsResult.Values && invocationsResult.Values.length > 0) {
                 lambdaInvocations = Math.round(invocationsResult.Values[0]);
             }
-            if (errorsResult && errorsResult.Values && errorsResult.Values.length > 0) {
-                lambdaErrors = Math.round(errorsResult.Values[0]);
-            }
+            // if (errorsResult && errorsResult.Values && errorsResult.Values.length > 0) {
+            //     lambdaErrors = Math.round(errorsResult.Values[0]);
+            // }
             
             if (lambdaInvocations > 0) {
-                lambdaErrorRate = `${((lambdaErrors / lambdaInvocations) * 100).toFixed(1)}%`;
+                // lambdaErrorRate = `${((lambdaErrors / lambdaInvocations) * 100).toFixed(1)}%`;
             }
         }
         
@@ -141,8 +187,9 @@ async function checkServiceHealth() {
         }
         
         // Determine health status based on metrics
-        const lambdaStatus = lambdaErrorRate === '0%' ? 'healthy' : 'degraded';
-        const route53Status = route53Queries > 0 ? 'healthy' : 'unknown';
+        // Service status indicators (for future use)
+        // const lambdaStatus = lambdaErrorRate === '0%' ? 'healthy' : 'degraded';
+        // const route53Status = route53Queries > 0 ? 'healthy' : 'unknown';
         return {
             s3: {
                 status: 'healthy',
@@ -162,7 +209,7 @@ async function checkServiceHealth() {
             route53: {
                 status: 'healthy',
                 resolution: 'Working',
-                queries: '1,200,000',
+                queries: route53Queries.toString(),
                 healthChecks: '0'
             },
             website: {
@@ -175,11 +222,11 @@ async function checkServiceHealth() {
         console.error('Error checking service health:', error);
         // Return default healthy status if health checks fail
         return {
-            s3: { status: 'healthy', requests: '100%', errors: '0%' },
-            cloudfront: { status: 'healthy', cacheHit: '95%', errors: '0%' },
-            lambda: { status: 'healthy', invocations: '100%', errors: '0%' },
-            route53: { status: 'healthy', resolution: 'Working', queries: '1,200,000', healthChecks: '0' },
-            website: { status: 'healthy', httpStatus: '200', sslStatus: 'Valid' }
+            s3: {status: 'healthy', requests: '100%', errors: '0%'},
+            cloudfront: {status: 'healthy', cacheHit: '95%', errors: '0%'},
+            lambda: {status: 'healthy', invocations: '100%', errors: '0%'},
+            route53: {status: 'healthy', resolution: 'Working', queries: '1,200,000', healthChecks: '0'},
+            website: {status: 'healthy', httpStatus: '200', sslStatus: 'Valid'}
         };
     }
 }
@@ -190,7 +237,7 @@ async function checkServiceHealth() {
 async function getPerformanceMetrics() {
     try {
         // Simulate performance measurement tuned to "excellent site" targets
-        const startTime = Date.now();
+        // const startTime = Date.now(); // For future performance tracking
         
         // Simulate infrastructure performance (network-independent)
         const dns = Math.floor(Math.random() * 10) + 5; // 5-15ms
@@ -204,13 +251,13 @@ async function getPerformanceMetrics() {
         
         return {
             coreWebVitals: {
-                lcp: { value: `${(load / 1000).toFixed(1)}s`, score: load <= 1800 ? 'good' : load <= 2500 ? 'needs-improvement' : 'poor' },
-                inp: { value: `${inp}ms`, score: inp <= 200 ? 'good' : inp <= 500 ? 'needs-improvement' : 'poor' },
-                cls: { value: cls, score: parseFloat(cls) <= 0.05 ? 'good' : parseFloat(cls) <= 0.25 ? 'needs-improvement' : 'poor' }
+                lcp: {value: `${(load / 1000).toFixed(1)}s`, score: getLCPScore(load)},
+                inp: {value: `${inp}ms`, score: getINPScore(inp)},
+                cls: {value: cls, score: getCLSScore(parseFloat(cls))}
             },
             pageSpeed: {
-                mobile: { score: Math.max(0, 100 - Math.floor(load / 10)), grade: 'A' },
-                desktop: { score: Math.max(0, 100 - Math.floor(load / 15)), grade: 'A' }
+                mobile: {score: Math.max(0, 100 - Math.floor(load / 10)), grade: 'A'},
+                desktop: {score: Math.max(0, 100 - Math.floor(load / 15)), grade: 'A'}
             },
             resourceTiming: {
                 dns: `${dns}ms`,
@@ -225,13 +272,13 @@ async function getPerformanceMetrics() {
         console.error('Error getting performance metrics:', error);
         return {
             coreWebVitals: {
-                lcp: { value: '1.2s', score: 'good' },
-                inp: { value: '120ms', score: 'good' },
-                cls: { value: '0.04', score: 'good' }
+                lcp: {value: '1.2s', score: 'good'},
+                inp: {value: '120ms', score: 'good'},
+                cls: {value: '0.04', score: 'good'}
             },
             pageSpeed: {
-                mobile: { score: 95, grade: 'A' },
-                desktop: { score: 98, grade: 'A' }
+                mobile: {score: 95, grade: 'A'},
+                desktop: {score: 98, grade: 'A'}
             },
             resourceTiming: {
                 dns: '12ms',
@@ -258,7 +305,7 @@ async function getGitHubStats() {
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         
         const headers = {
-            'Accept': 'application/vnd.github.v3+json'
+            Accept: 'application/vnd.github.v3+json'
         };
         
         if (githubToken) {
@@ -267,7 +314,7 @@ async function getGitHubStats() {
         
         // Fetch user repositories (use authenticated endpoint for private repos)
         const apiUrl = githubToken 
-            ? `https://api.github.com/user/repos?per_page=100&sort=updated&visibility=all`
+            ? 'https://api.github.com/user/repos?per_page=100&sort=updated&visibility=all'
             : `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`;
         
         const reposResponse = await fetch(apiUrl, {
@@ -386,10 +433,10 @@ async function getGitHubStats() {
     } catch (error) {
         console.error('Error getting GitHub stats:', error);
         return {
-            commits: { last7Days: 15, last30Days: 65 },
-            development: { features: 5, bugFixes: 6, improvements: 4 },
-            repositories: { total: 12, public: 8, private: 4 },
-            activity: { stars: 23, forks: 8, watchers: 5 }
+            commits: {last7Days: 15, last30Days: 65},
+            development: {features: 5, bugFixes: 6, improvements: 4},
+            repositories: {total: 12, public: 8, private: 4},
+            activity: {stars: 23, forks: 8, watchers: 5}
         };
     }
 }
@@ -397,7 +444,7 @@ async function getGitHubStats() {
 /**
  * Fetch real AWS cost data from Cost Explorer
  */
-async function fetchRealAWSCosts() {
+/* async function fetchRealAWSCosts() {
     try {
         console.log('💰 Fetching real AWS cost data...');
         
@@ -477,7 +524,7 @@ async function fetchRealAWSCosts() {
         };
         
         // Merge with actual services data
-        const finalServices = { ...defaultServices, ...services };
+        const finalServices = {...defaultServices, ...services};
         
         const calculatedMonthlyCost = Math.round((totalCost - registrarCost) * 100) / 100;
         
@@ -538,7 +585,7 @@ async function fetchRealAWSCosts() {
             }
         };
     }
-}
+} */
 
 /**
  * Get development velocity statistics based on real GitHub data
@@ -572,7 +619,7 @@ async function getVelocityStats() {
 /**
  * Main Lambda handler
  */
-exports.handler = async (event, context) => {
+exports.handler = async(event) => {
     try {
         console.log('Dashboard API request received:', JSON.stringify(event, null, 2));
 
@@ -589,7 +636,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ message: 'CORS preflight' })
+                body: JSON.stringify({message: 'CORS preflight'})
             };
         }
 
@@ -624,20 +671,20 @@ exports.handler = async (event, context) => {
             traffic: {
                 cloudfront: {
                     requests24h: 12500,
-                    bandwidth24h: "1.8GB"
+                    bandwidth24h: '1.8GB'
                 },
                 s3: {
                     objects: 1247,
-                    storageGB: "2.1"
+                    storageGB: '2.1'
                 }
             },
             health: {
                 site: {
                     status: 'healthy',
-                    responseMs: parseInt(performanceMetrics.resourceTiming.ttfb.replace('ms', ''))
+                    responseMs: parseInt(performanceMetrics.resourceTiming.ttfb.replace('ms', ''), 10)
                 },
                 route53: {
-                    queries24h: parseInt(serviceHealth.route53.queries)
+                    queries24h: parseInt(serviceHealth.route53.queries, 10)
                 }
             },
             serviceHealth: serviceHealth,
@@ -670,3 +717,4 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
