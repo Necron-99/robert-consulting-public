@@ -9,20 +9,19 @@ const https = require('https');
 
 // Test configuration
 const API_URL = 'https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data';
-const DASHBOARD_URL = 'https://robertconsulting.net/dashboard.html';
 
 // Expected values - these must match exactly or test fails
 const EXPECTED_COST_TOTAL = 16.50;
 const EXPECTED_SERVICES = ['s3', 'cloudfront', 'route53', 'waf', 'cloudwatch', 'lambda', 'ses', 'other'];
 
 // Test results
-let testResults = {
-    apiEndpoint: { passed: 0, failed: 0, tests: [] },
-    systemStatus: { passed: 0, failed: 0, tests: [] },
-    performanceMetrics: { passed: 0, failed: 0, tests: [] },
-    costData: { passed: 0, failed: 0, tests: [] },
-    githubStats: { passed: 0, failed: 0, tests: [] },
-    dataIntegrity: { passed: 0, failed: 0, tests: [] }
+const testResults = {
+    apiEndpoint: {passed: 0, failed: 0, tests: []},
+    systemStatus: {passed: 0, failed: 0, tests: []},
+    performanceMetrics: {passed: 0, failed: 0, tests: []},
+    costData: {passed: 0, failed: 0, tests: []},
+    githubStats: {passed: 0, failed: 0, tests: []},
+    dataIntegrity: {passed: 0, failed: 0, tests: []}
 };
 
 /**
@@ -32,7 +31,9 @@ function makeRequest(url) {
     return new Promise((resolve, reject) => {
         https.get(url, (res) => {
             let data = '';
-            res.on('data', (chunk) => data += chunk);
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
             res.on('end', () => {
                 try {
                     resolve(JSON.parse(data));
@@ -55,7 +56,7 @@ async function testApiEndpoint() {
         
         // Test 1: Response structure - MUST have all required sections
         const requiredSections = ['aws', 'traffic', 'health', 'performance', 'github', 'velocity'];
-        const missingSections = requiredSections.filter(section => !data[section]);
+        const missingSections = requiredSections.filter(section => !getDataSection(data, section));
         
         if (missingSections.length === 0) {
             testResults.apiEndpoint.passed++;
@@ -145,7 +146,7 @@ function testPerformanceMetrics(data) {
     // Test response time - MUST be in reasonable range (network-independent)
     // Note: This tests the API response time, not end-to-end network performance
     if (perf.resourceTiming && perf.resourceTiming.ttfb) {
-        const ttfb = parseInt(perf.resourceTiming.ttfb);
+        const ttfb = parseInt(perf.resourceTiming.ttfb, 10);
         if (ttfb >= 50 && ttfb <= 500) { // realistic for API response from any location
             testResults.performanceMetrics.passed++;
             testResults.performanceMetrics.tests.push(`✅ API TTFB is acceptable: ${perf.resourceTiming.ttfb} (50-500ms range)`);
@@ -177,7 +178,7 @@ function testPerformanceMetrics(data) {
 
         // INP - Test that infrastructure can deliver good interactivity
         if (perf.coreWebVitals.inp && perf.coreWebVitals.inp.value) {
-            const inp = parseInt(perf.coreWebVitals.inp.value);
+            const inp = parseInt(perf.coreWebVitals.inp.value, 10);
             if (inp > 0 && inp <= 500) { // Realistic for infrastructure capability
                 testResults.performanceMetrics.passed++;
                 testResults.performanceMetrics.tests.push(`✅ INP infrastructure capable: ${perf.coreWebVitals.inp.value} (<=500ms)`);
@@ -235,12 +236,13 @@ function testCostData(data) {
     
     // Test individual services - MUST all be present and positive
     EXPECTED_SERVICES.forEach(service => {
-        if (aws.services[service] !== undefined && aws.services[service] >= 0) {
+        const serviceCost = getServiceCost(aws.services, service);
+        if (serviceCost !== undefined && serviceCost >= 0) {
             testResults.costData.passed++;
-            testResults.costData.tests.push(`✅ ${service} cost present: $${aws.services[service]}`);
+            testResults.costData.tests.push(`✅ ${service} cost present: $${serviceCost}`);
         } else {
             testResults.costData.failed++;
-            testResults.costData.tests.push(`❌ ${service} cost missing or negative: $${aws.services[service] || 'undefined'}`);
+            testResults.costData.tests.push(`❌ ${service} cost missing or negative: $${serviceCost || 'undefined'}`);
         }
     });
 }
@@ -274,7 +276,7 @@ function testGitHubStats(data) {
         testResults.githubStats.tests.push(`✅ Development activity present: ${github.development.features} features, ${github.development.bugFixes} bug fixes`);
     } else {
         testResults.githubStats.failed++;
-        testResults.githubStats.tests.push(`❌ Development activity missing or invalid`);
+        testResults.githubStats.tests.push('❌ Development activity missing or invalid');
     }
 }
 
@@ -300,7 +302,7 @@ function testDataIntegrity(data) {
     
     let hasNullValues = false;
     criticalFields.forEach(field => {
-        const value = field.split('.').reduce((obj, key) => obj?.[key], data);
+        const value = getNestedValue(data, field);
         if (value === null || value === undefined) {
             testResults.dataIntegrity.failed++;
             testResults.dataIntegrity.tests.push(`❌ Critical field is null/undefined: ${field}`);
@@ -373,7 +375,7 @@ function printResults() {
     console.log('==================================');
     
     Object.keys(testResults).forEach(category => {
-        const result = testResults[category];
+        const result = getTestResult(testResults, category);
         const total = result.passed + result.failed;
         const percentage = total > 0 ? Math.round((result.passed / total) * 100) : 0;
         
@@ -422,6 +424,132 @@ async function runTests() {
         console.error('❌ Test execution failed:', error.message);
         process.exit(1);
     }
+}
+
+/**
+ * Get data section safely
+ */
+function getDataSection(data, section) {
+    switch (section) {
+        case 'aws':
+            return data.aws;
+        case 'traffic':
+            return data.traffic;
+        case 'health':
+            return data.health;
+        case 'performance':
+            return data.performance;
+        case 'github':
+            return data.github;
+        case 'velocity':
+            return data.velocity;
+        default:
+            return null;
+    }
+}
+
+/**
+ * Get test result safely
+ */
+function getTestResult(testResults, category) {
+    switch (category) {
+        case 'apiEndpoint':
+            return testResults.apiEndpoint;
+        case 'systemStatus':
+            return testResults.systemStatus;
+        case 'performanceMetrics':
+            return testResults.performanceMetrics;
+        case 'costData':
+            return testResults.costData;
+        case 'githubStats':
+            return testResults.githubStats;
+        case 'dataIntegrity':
+            return testResults.dataIntegrity;
+        default:
+            return {passed: 0, failed: 0, tests: []};
+    }
+}
+
+/**
+ * Get service cost safely
+ */
+function getServiceCost(services, service) {
+    switch (service) {
+        case 's3':
+            return services.s3;
+        case 'cloudfront':
+            return services.cloudfront;
+        case 'route53':
+            return services.route53;
+        case 'waf':
+            return services.waf;
+        case 'cloudwatch':
+            return services.cloudwatch;
+        case 'lambda':
+            return services.lambda;
+        case 'ses':
+            return services.ses;
+        case 'other':
+            return services.other;
+        default:
+            return undefined;
+    }
+}
+
+/**
+ * Get nested value safely
+ */
+function getNestedValue(data, field) {
+    const keys = field.split('.');
+    let value = data;
+    
+    for (const key of keys) {
+        if (value && typeof value === 'object') {
+            switch (key) {
+                case 'aws':
+                    value = value.aws;
+                    break;
+                case 'monthlyCostTotal':
+                    value = value?.monthlyCostTotal;
+                    break;
+                case 'health':
+                    value = value?.health;
+                    break;
+                case 'site':
+                    value = value?.site;
+                    break;
+                case 'status':
+                    value = value?.status;
+                    break;
+                case 'performance':
+                    value = value?.performance;
+                    break;
+                case 'resourceTiming':
+                    value = value?.resourceTiming;
+                    break;
+                case 'ttfb':
+                    value = value?.ttfb;
+                    break;
+                case 'github':
+                    value = value?.github;
+                    break;
+                case 'commits':
+                    value = value?.commits;
+                    break;
+                case 'last7Days':
+                    value = value?.last7Days;
+                    break;
+                default:
+                    value = undefined;
+                    break;
+            }
+        } else {
+            value = undefined;
+            break;
+        }
+    }
+    
+    return value;
 }
 
 // Run tests
