@@ -1221,19 +1221,23 @@ jobs:
           fi
 
       - name: 📊 Deployment Summary
+        env:
+          SKIP_TESTS: ${{ inputs.skip_tests }}
+          SECURITY_SCORE: ${{ needs.comprehensive-testing.outputs.security-score }}
+          PERFORMANCE_SCORE: ${{ needs.comprehensive-testing.outputs.performance-score }}
         run: |
           echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Deployment Details:" >> $GITHUB_STEP_SUMMARY
           echo "- **Staging URL**: https://d3guz3lq4sqlvl.cloudfront.net" >> $GITHUB_STEP_SUMMARY
           echo "- **Production URL**: https://robertconsulting.net" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tests Skipped**: ${{ inputs.skip_tests }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests Skipped**: $SKIP_TESTS" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ inputs.skip_tests }}" != "true" ]; then
+          if [ "$SKIP_TESTS" != "true" ]; then
             echo "### 🧪 Test Results:" >> $GITHUB_STEP_SUMMARY
-            echo "- **Security Score**: ${{ needs.comprehensive-testing.outputs.security-score }}/8" >> $GITHUB_STEP_SUMMARY
-            echo "- **Performance Score**: ${{ needs.comprehensive-testing.outputs.performance-score }}/100" >> $GITHUB_STEP_SUMMARY
+            echo "- **Security Score**: $SECURITY_SCORE/8" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Score**: $PERFORMANCE_SCORE/100" >> $GITHUB_STEP_SUMMARY
             echo "- **All Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
           fi
           

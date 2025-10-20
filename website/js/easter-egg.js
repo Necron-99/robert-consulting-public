@@ -176,7 +176,8 @@ class EasterEgg {
         
         // Navigate after a brief delay
         setTimeout(() => {
-            window.location.href = adminUrl;
+            // Use a safer navigation method
+            window.location.assign(adminUrl);
         }, 2000);
     }
     
