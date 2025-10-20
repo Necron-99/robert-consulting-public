@@ -119,10 +119,30 @@ class StatusLogicService {
     }
 
     /**
+     * Get status rules for a stage safely
+     */
+    getStatusRules(stage) {
+        switch (stage) {
+            case 'build':
+                return this.statusRules.build;
+            case 'test':
+                return this.statusRules.test;
+            case 'deploy':
+                return this.statusRules.deploy;
+            case 'security':
+                return this.statusRules.security;
+            case 'performance':
+                return this.statusRules.performance;
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Determine status for a specific stage
      */
     determineStatus(stage, data) {
-        const rules = this.statusRules[stage];
+        const rules = this.getStatusRules(stage);
         if (!rules) {
             console.warn(`No status rules found for stage: ${stage}`);
             return 'unknown';
