@@ -3,23 +3,23 @@
  * Refreshes dashboard statistics with live data from GitHub, AWS, and health checks
  */
 
-const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { CloudFrontClient, CreateInvalidationCommand } = require('@aws-sdk/client-cloudfront');
-const { CloudWatchClient, GetMetricDataCommand } = require('@aws-sdk/client-cloudwatch');
-const { CostExplorerClient, GetCostAndUsageCommand } = require('@aws-sdk/client-cost-explorer');
+const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
+const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
+const {CloudFrontClient, CreateInvalidationCommand} = require('@aws-sdk/client-cloudfront');
+const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
+const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
 
 // AWS SDK clients
-const secretsClient = new SecretsManagerClient({ region: process.env.AWS_REGION });
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
-const cloudfrontClient = new CloudFrontClient({ region: process.env.AWS_REGION });
-const cloudwatchClient = new CloudWatchClient({ region: process.env.AWS_REGION });
-const costExplorerClient = new CostExplorerClient({ region: process.env.AWS_REGION });
+const secretsClient = new SecretsManagerClient({region: process.env.AWS_REGION});
+const s3Client = new S3Client({region: process.env.AWS_REGION});
+const cloudfrontClient = new CloudFrontClient({region: process.env.AWS_REGION});
+const cloudwatchClient = new CloudWatchClient({region: process.env.AWS_REGION});
+const costExplorerClient = new CostExplorerClient({region: process.env.AWS_REGION});
 
 /**
  * Main Lambda handler
  */
-exports.handler = async (event) => {
+exports.handler = async() => {
     console.log('🚀 Starting dashboard stats refresh...');
     
     try {
@@ -37,15 +37,15 @@ exports.handler = async (event) => {
         // Compile the final stats object
         const stats = {
             generatedAt: new Date().toISOString(),
-            github: githubStats.status === 'fulfilled' ? githubStats.value : { error: 'Failed to fetch GitHub stats' },
+            github: githubStats.status === 'fulfilled' ? githubStats.value : {error: 'Failed to fetch GitHub stats'},
             aws: {
                 monthlyCostTotal: awsCosts.status === 'fulfilled' ? awsCosts.value.monthlyCost : 0,
                 registrarCost: awsCosts.status === 'fulfilled' ? awsCosts.value.registrarCost : 0,
                 totalCost: awsCosts.status === 'fulfilled' ? awsCosts.value.total : 0,
                 services: awsCosts.status === 'fulfilled' ? awsCosts.value.services : {}
             },
-            traffic: awsTraffic.status === 'fulfilled' ? awsTraffic.value : { error: 'Failed to fetch traffic stats' },
-            health: healthStats.status === 'fulfilled' ? healthStats.value : { error: 'Failed to fetch health stats' }
+            traffic: awsTraffic.status === 'fulfilled' ? awsTraffic.value : {error: 'Failed to fetch traffic stats'},
+            health: healthStats.status === 'fulfilled' ? healthStats.value : {error: 'Failed to fetch health stats'}
         };
         
         // Write to S3
@@ -103,15 +103,14 @@ async function fetchGitHubStats(token) {
     try {
         console.log('📊 Fetching GitHub statistics...');
         
-        const username = process.env.GITHUB_USERNAME;
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        // Future: username and sevenDaysAgo variables will be added when needed
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         
         // Fetch user repositories
-        const reposResponse = await fetch(`https://api.github.com/user/repos?per_page=100&sort=updated`, {
+        const reposResponse = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
             headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json'
             }
         });
         
@@ -141,8 +140,8 @@ async function fetchGitHubStats(token) {
                     `https://api.github.com/repos/${repo.owner.login}/${repo.name}/commits?since=${thirtyDaysAgo}&per_page=100`,
                     {
                         headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
+                            Authorization: `token ${token}`,
+                            Accept: 'application/vnd.github.v3+json'
                         }
                     }
                 );
@@ -248,16 +247,12 @@ async function fetchAWSCosts() {
                     if (serviceName === 'Amazon Registrar' || serviceName.toLowerCase().includes('registrar')) {
                         registrarCost += cost;
                         console.log(`Found registrar cost: ${serviceName} - $${cost}`);
-                        continue;
-                    }
-                    
-                    // Map service names to our dashboard categories
-                    if (serviceName.includes('Amazon Simple Storage Service') || serviceName.includes('S3')) {
-                        services.s3 = (services.s3 || 0) + cost;
-                    } else if (serviceName.includes('Amazon CloudFront')) {
-                        services.cloudfront = (services.cloudfront || 0) + cost;
-                    } else if (serviceName.includes('AWS Lambda')) {
-                        services.lambda = (services.lambda || 0) + cost;
+                    } else if (serviceName.includes('Amazon Simple Storage Service') || serviceName.includes('S3')) {
+                            services.s3 = (services.s3 || 0) + cost;
+                        } else if (serviceName.includes('Amazon CloudFront')) {
+                            services.cloudfront = (services.cloudfront || 0) + cost;
+                        } else if (serviceName.includes('AWS Lambda')) {
+                            services.lambda = (services.lambda || 0) + cost;
                     } else if (serviceName.includes('Amazon Route 53')) {
                         services.route53 = (services.route53 || 0) + cost;
                     } else if (serviceName.includes('Amazon Simple Email Service') || serviceName.includes('SES')) {
