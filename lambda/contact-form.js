@@ -21,6 +21,31 @@ function escapeHtml(text) {
         .replace(/'/g, '&#39;');
 }
 
+/**
+ * Generate safe HTML email template
+ */
+function generateEmailHtml(name, email, subject, message) {
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
+    
+    return [
+        '<html>',
+        '    <body>',
+        '        <h2>New Contact Form Submission</h2>',
+        `        <p><strong>Name:</strong> ${safeName}</p>`,
+        `        <p><strong>Email:</strong> ${safeEmail}</p>`,
+        `        <p><strong>Subject:</strong> ${safeSubject}</p>`,
+        '        <p><strong>Message:</strong></p>',
+        `        <p>${safeMessage}</p>`,
+        '        <hr>',
+        '        <p><em>Sent from robertconsulting.net contact form</em></p>',
+        '    </body>',
+        '</html>'
+    ].join('\n');
+}
+
 exports.handler = async(event) => {
     // Enable CORS
     const headers = {
@@ -79,20 +104,7 @@ exports.handler = async(event) => {
                 },
                 Body: {
                     Html: {
-                        Data: `
-                            <html>
-                                <body>
-                                    <h2>New Contact Form Submission</h2>
-                                    <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-                                    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-                                    <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-                                    <p><strong>Message:</strong></p>
-                                    <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
-                                    <hr>
-                                    <p><em>Sent from robertconsulting.net contact form</em></p>
-                                </body>
-                            </html>
-                        `,
+                        Data: generateEmailHtml(name, email, subject, message),
                         Charset: 'UTF-8'
                     },
                     Text: {

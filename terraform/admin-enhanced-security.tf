@@ -84,6 +84,22 @@ resource "random_password" "session_key" {
   special = true
 }
 
+# KMS key for DynamoDB encryption
+resource "aws_kms_key" "dynamodb_encryption" {
+  description             = "KMS key for DynamoDB table encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = merge(local.security_tags, {
+    Name = "rc-admin-dynamodb-encryption"
+  })
+}
+
+resource "aws_kms_alias" "dynamodb_encryption" {
+  name          = "alias/rc-admin-dynamodb-encryption"
+  target_key_id = aws_kms_key.dynamodb_encryption.key_id
+}
+
 # DynamoDB table for session management and audit logging
 resource "aws_dynamodb_table" "admin_sessions" {
   name           = "rc-admin-sessions-${random_id.security_suffix.hex}"
@@ -129,7 +145,8 @@ resource "aws_dynamodb_table" "admin_sessions" {
   }
 
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_id  = aws_kms_key.dynamodb_encryption.arn
   }
 
   tags = local.security_tags
@@ -179,7 +196,8 @@ resource "aws_dynamodb_table" "admin_audit_log" {
   }
 
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_id  = aws_kms_key.dynamodb_encryption.arn
   }
 
   tags = local.security_tags

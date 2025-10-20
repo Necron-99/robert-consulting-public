@@ -42,8 +42,8 @@ jobs:
           SCAN_NAME: ${{ inputs.scan_name }}
         run: |
           echo "🔍 Running OWASP ZAP Security Scan..."
-          echo "🎯 Target URL: $TARGET_URL"
-          echo "📝 Scan Name: $SCAN_NAME"
+          echo "🎯 Target URL: ${TARGET_URL}"
+          echo "📝 Scan Name: ${SCAN_NAME}"
           
           # Create reports directory
           mkdir -p reports
@@ -61,7 +61,7 @@ jobs:
             --user root \
             -t ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
-            -t "$TARGET_URL" \
+            -t "${TARGET_URL}" \
             -J "${SCAN_NAME}-report.json" \
             -r "${SCAN_NAME}-report.html" \
             -x "${SCAN_NAME}-report.xml" \
@@ -117,8 +117,8 @@ jobs:
           cp reports/*.xml . 2>/dev/null || echo "⚠️ No XML reports to copy"
           
           echo "📋 ZAP scan summary:"
-          echo "Target: $TARGET_URL"
-          echo "Scan Name: $SCAN_NAME"
+          echo "Target: ${TARGET_URL}"
+          echo "Scan Name: ${SCAN_NAME}"
           echo "Exit Code: $ZAP_EXIT_CODE (scan completed successfully)"
           echo "Scan Passed: $SCAN_PASSED"
           echo "Reports: Available in artifacts"
@@ -156,8 +156,8 @@ jobs:
         run: |
           echo "## 🔒 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Scanned:** $TARGET_URL" >> $GITHUB_STEP_SUMMARY
-          echo "**Scan Name:** $SCAN_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Scanned:** ${TARGET_URL}" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Name:** ${SCAN_NAME}" >> $GITHUB_STEP_SUMMARY
           echo "**Scan Type:** Baseline" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "**Exit Code:** $ZAP_EXIT_CODE" >> $GITHUB_STEP_SUMMARY
