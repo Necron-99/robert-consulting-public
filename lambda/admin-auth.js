@@ -39,13 +39,13 @@ function generateSessionToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-// Generate MFA secret for user
-function generateMFASecret() {
-  return speakeasy.generateSecret({
-    name: 'Robert Consulting Admin',
-    issuer: 'Robert Consulting'
-  });
-}
+// Generate MFA secret for user (currently unused)
+// function generateMFASecret() {
+//   return speakeasy.generateSecret({
+//     name: 'Robert Consulting Admin',
+//     issuer: 'Robert Consulting'
+//   });
+// }
 
 // Verify MFA token
 function verifyMFAToken(token, secret) {
@@ -79,13 +79,13 @@ function isIPInCIDR(ip, cidr) {
   const [network, prefixLength] = cidr.split('/');
   const ipNum = ipToNumber(ip);
   const networkNum = ipToNumber(network);
-  const mask = (0xffffffff << (32 - parseInt(prefixLength))) >>> 0;
+  const mask = (0xffffffff << (32 - parseInt(prefixLength, 10))) >>> 0;
   
   return (ipNum & mask) === (networkNum & mask);
 }
 
 function ipToNumber(ip) {
-  return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0) >>> 0;
+  return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
 }
 
 // Log audit event
@@ -98,12 +98,12 @@ async function logAuditEvent(eventType, details, clientIP, userAgent) {
       TableName: AUDIT_TABLE_NAME,
       Item: {
         timestamp: timestamp,
-        action_id: actionId,
-        action_type: eventType,
-        user_ip: clientIP,
-        user_agent: userAgent,
+        actionId: actionId,
+        actionType: eventType,
+        userIp: clientIP,
+        userAgent: userAgent,
         details: JSON.stringify(details),
-        expires_at: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1 year
+        expiresAt: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1 year
       }
     }).promise();
   } catch (error) {
@@ -120,8 +120,8 @@ async function checkBruteForceAttempts(clientIP) {
     const result = await dynamodb.query({
       TableName: AUDIT_TABLE_NAME,
       IndexName: 'user-ip-index',
-      KeyConditionExpression: 'user_ip = :ip',
-      FilterExpression: 'action_type = :type AND #timestamp > :cutoff',
+      KeyConditionExpression: 'userIp = :ip',
+      FilterExpression: 'actionType = :type AND #timestamp > :cutoff',
       ExpressionAttributeNames: {
         '#timestamp': 'timestamp'
       },
@@ -149,12 +149,12 @@ async function createSession(clientIP, userAgent) {
     await dynamodb.put({
       TableName: SESSIONS_TABLE_NAME,
       Item: {
-        session_id: sessionToken,
-        created_at: new Date().toISOString(),
-        user_ip: clientIP,
-        user_agent: userAgent,
-        expires_at: expiresAt,
-        last_activity: new Date().toISOString()
+        sessionId: sessionToken,
+        createdAt: new Date().toISOString(),
+        userIp: clientIP,
+        userAgent: userAgent,
+        expiresAt: expiresAt,
+        lastActivity: new Date().toISOString()
       }
     }).promise();
     
@@ -171,8 +171,8 @@ async function validateSession(sessionToken, clientIP) {
     const result = await dynamodb.get({
       TableName: SESSIONS_TABLE_NAME,
       Key: {
-        session_id: sessionToken,
-        created_at: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }
+        sessionId: sessionToken,
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }
       }
     }).promise();
     
@@ -181,23 +181,23 @@ async function validateSession(sessionToken, clientIP) {
     }
     
     // Check if session is expired
-    if (Date.now() / 1000 > result.Item.expires_at) {
+    if (Date.now() / 1000 > result.Item.expiresAt) {
       await dynamodb.delete({
         TableName: SESSIONS_TABLE_NAME,
         Key: {
-          session_id: sessionToken,
-          created_at: result.Item.created_at
+          sessionId: sessionToken,
+          createdAt: result.Item.createdAt
         }
       }).promise();
       return false;
     }
     
     // Check IP match
-    if (result.Item.user_ip !== clientIP) {
+    if (result.Item.userIp !== clientIP) {
       await logAuditEvent('SESSION_IP_MISMATCH', {
-        session_id: sessionToken,
-        expected_ip: result.Item.user_ip,
-        actual_ip: clientIP
+        sessionId: sessionToken,
+        expectedIp: result.Item.userIp,
+        actualIp: clientIP
       }, clientIP, '');
       return false;
     }
@@ -206,7 +206,7 @@ async function validateSession(sessionToken, clientIP) {
     await dynamodb.update({
       TableName: SESSIONS_TABLE_NAME,
       Key: {
-        session_id: sessionToken,
+        sessionId: sessionToken,
         created_at: result.Item.created_at
       },
       UpdateExpression: 'SET last_activity = :activity',

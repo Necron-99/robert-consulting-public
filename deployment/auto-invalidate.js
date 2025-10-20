@@ -94,24 +94,26 @@ if (require.main === module) {
                 .catch(error => console.error('Error:', error));
             break;
             
-        case 'files':
+        case 'files': {
             const files = args.slice(1);
             invalidator.invalidateFiles(files)
                 .then(result => console.log('Invalidation created:', result.Invalidation.Id))
                 .catch(error => console.error('Error:', error));
             break;
+        }
             
-        case 'status':
+        case 'status': {
             const invalidationId = args[1];
             invalidator.checkInvalidationStatus(invalidationId)
                 .then(status => console.log('Status:', status.Status))
                 .catch(error => console.error('Error:', error));
             break;
+        }
             
         default:
             console.log('Usage:');
             console.log('  node auto-invalidate.js all');
             console.log('  node auto-invalidate.js files index.html learning.html');
-            console.log('  node auto-invalidate.js status I1ODCEPB8MEPURGPH0W0I2EFYO');
+            console.log('  node auto-invalidate.js status <invalidation-id>');
     }
 }

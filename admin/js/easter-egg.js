@@ -53,7 +53,12 @@ class EasterEgg {
             return false;
         }
         
-        return this.userInput.every((key, index) => key === this.konamiCode[index]);
+        for (let i = 0; i < this.userInput.length; i++) {
+            if (this.userInput[i] !== this.konamiCode[i]) {
+                return false;
+            }
+        }
+        return true;
     }
     
     activateEasterEgg() {
