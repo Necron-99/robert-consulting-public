@@ -206,7 +206,7 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
 
   security_headers_config {
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://via.placeholder.com; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
+      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://via.placeholder.com; connect-src 'self' https://*.amazonaws.com; object-src 'none'; base-uri 'self'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
       override                = false
     }
     content_type_options {
@@ -267,6 +267,26 @@ resource "aws_cloudfront_response_headers_policy" "staging_security_headers" {
     items {
       header   = "X-Permitted-Cross-Domain-Policies"
       value    = "none"
+      override = false
+    }
+    items {
+      header   = "Sec-Fetch-Dest"
+      value    = "document"
+      override = false
+    }
+    items {
+      header   = "Sec-Fetch-Mode"
+      value    = "navigate"
+      override = false
+    }
+    items {
+      header   = "Sec-Fetch-Site"
+      value    = "none"
+      override = false
+    }
+    items {
+      header   = "Sec-Fetch-User"
+      value    = "?1"
       override = false
     }
   }
