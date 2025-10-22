@@ -43,6 +43,36 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://robertconsulting.net/blog-posts/devsecops-security-scanning-pipeline.html</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://robertconsulting.net/blog-posts/database-devops-sql-server-automation.html</loc>
+    <lastmod>2025-10-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://robertconsulting.net/blog-posts/aws-well-architected-framework-implementation.html</loc>
+    <lastmod>2025-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://robertconsulting.net/blog-posts/terragrunt-best-practices-enterprise-iac.html</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://robertconsulting.net/blog-posts/kubernetes-cicd-argocd-gitops.html</loc>
+    <lastmod>2025-10-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://robertconsulting.net/blog-posts/aws-cost-optimization.html</loc>
     <lastmod>2025-01-27</lastmod>
     <changefreq>monthly</changefreq>
