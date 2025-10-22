@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://robertconsulting.net/sitemap.xml
+
+# Block access to sensitive areas
+Disallow: /dashboard.html
+Disallow: /admin/
+Disallow: /private/
+Disallow: /.git/
+Disallow: /terraform/
+Disallow: /demo/
+
+# Allow important pages
+Allow: /index.html
+Allow: /learning.html
+Allow: /best-practices.html
+Allow: /status.html
+Allow: /monitoring.html
+
+# Crawl delay (optional)
+Crawl-delay: 1
