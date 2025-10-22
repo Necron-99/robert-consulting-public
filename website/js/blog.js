@@ -19,6 +19,39 @@ class BlogManager {
         this.posts = [
             {
                 id: 1,
+                title: "AWS Lambda Cold Start Optimization: From 3 Seconds to 200ms",
+                excerpt: "Learn proven strategies to eliminate AWS Lambda cold starts and achieve sub-200ms response times. Includes connection pooling, provisioned concurrency, and memory optimization techniques.",
+                content: "blog-posts/aws-lambda-cold-start-optimization.html",
+                date: "2025-01-27",
+                category: "aws",
+                tags: ["AWS Lambda", "Performance", "Optimization", "Cold Start", "Connection Pooling", "Serverless"],
+                icon: "⚡",
+                readTime: "7 min read"
+            },
+            {
+                id: 2,
+                title: "Terraform Module Design Patterns: Building Reusable Infrastructure Components",
+                excerpt: "Master Terraform module design with proven patterns for reusability, maintainability, and scalability. Learn best practices for variable design, output patterns, and module composition.",
+                content: "blog-posts/terraform-module-design-patterns.html",
+                date: "2025-01-28",
+                category: "terraform",
+                tags: ["Terraform", "Infrastructure as Code", "Module Design", "Best Practices", "Reusable Components", "IaC Patterns"],
+                icon: "🏗️",
+                readTime: "12 min read"
+            },
+            {
+                id: 3,
+                title: "GitOps with GitHub Actions: Automating Terraform Deployments",
+                excerpt: "Learn how to implement GitOps workflows using GitHub Actions to automate Terraform deployments with proper approval gates, security scanning, and rollback capabilities.",
+                content: "blog-posts/gitops-github-actions-terraform.html",
+                date: "2025-01-29",
+                category: "cicd",
+                tags: ["GitOps", "GitHub Actions", "Terraform", "Automation", "Deployment", "CI/CD"],
+                icon: "🚀",
+                readTime: "9 min read"
+            },
+            {
+                id: 4,
                 title: "AWS Cost Optimization: 5 Strategies That Saved My Client $50K Annually",
                 excerpt: "Learn how to implement intelligent caching, S3 lifecycle policies, and Lambda optimization to dramatically reduce AWS costs while maintaining performance.",
                 content: "blog-posts/aws-cost-optimization.html",

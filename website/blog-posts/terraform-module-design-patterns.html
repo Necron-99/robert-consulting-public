@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Module Design Patterns: Building Reusable Infrastructure Components - Robert Consulting</title>
+    <meta name="description" content="Master Terraform module design with proven patterns for reusability, maintainability, and scalability. Learn best practices for variable design, output patterns, and module composition.">
+    <meta name="keywords" content="Terraform modules, Infrastructure as Code, module design, reusable components, Terraform best practices, IaC patterns">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://robertconsulting.net/blog-posts/terraform-module-design-patterns.html">
+    <meta property="og:title" content="Terraform Module Design Patterns: Building Reusable Infrastructure Components">
+    <meta property="og:description" content="Master Terraform module design with proven patterns for reusability, maintainability, and scalability. Learn best practices for variable design, output patterns, and module composition.">
+    <meta property="og:site_name" content="Robert Consulting">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://robertconsulting.net/blog-posts/terraform-module-design-patterns.html">
+    <meta property="twitter:title" content="Terraform Module Design Patterns: Building Reusable Infrastructure Components">
+    <meta property="twitter:description" content="Master Terraform module design with proven patterns for reusability, maintainability, and scalability. Learn best practices for variable design, output patterns, and module composition.">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Terraform Module Design Patterns: Building Reusable Infrastructure Components",
+      "description": "Master Terraform module design with proven patterns for reusability, maintainability, and scalability. Learn best practices for variable design, output patterns, and module composition.",
+      "author": {
+        "@type": "Person",
+        "name": "Robert Consulting"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Robert Consulting",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://robertconsulting.net/favicon.svg"
+        }
+      },
+      "datePublished": "2025-01-28",
+      "dateModified": "2025-01-28",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://robertconsulting.net/blog-posts/terraform-module-design-patterns.html"
+      },
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "Terraform"
+        },
+        {
+          "@type": "Thing",
+          "name": "Infrastructure as Code"
+        },
+        {
+          "@type": "Thing",
+          "name": "Module Design"
+        }
+      ],
+      "keywords": "Terraform modules, Infrastructure as Code, module design, reusable components, Terraform best practices, IaC patterns"
+    }
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://robertconsulting.net/blog-posts/terraform-module-design-patterns.html">
+    
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Blog Post Styles -->
+    <style>
+        .blog-post-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .blog-post-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .blog-post-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .blog-post-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .blog-post-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        .blog-post-content h2 {
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .blog-post-content h3 {
+            font-size: 1.4rem;
+            margin: 30px 0 15px 0;
+            color: #444;
+        }
+        
+        .blog-post-content p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .blog-post-content ul, .blog-post-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+        
+        .blog-post-content li {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .highlight-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .blog-post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 40px 0;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .blog-tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .blog-post-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-post-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .blog-post-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .blog-post-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">DevSecOps & Cloud Engineering</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../dashboard.html" class="nav-link">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#experience" class="nav-link">Experience</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Blog Post Hero -->
+    <section class="blog-post-hero">
+        <div class="container">
+            <h1>🏗️ Terraform Module Design Patterns: Building Reusable Infrastructure Components</h1>
+            <div class="blog-post-meta">
+                <div class="blog-post-meta-item">
+                    <span>📅</span>
+                    <span>January 28, 2025</span>
+                </div>
+                <div class="blog-post-meta-item">
+                    <span>⏱️</span>
+                    <span>12 min read</span>
+                </div>
+                <div class="blog-post-meta-item">
+                    <span>🏷️</span>
+                    <span>TERRAFORM</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Post Content -->
+    <article class="blog-post-content">
+        <p>Well-designed Terraform modules are the foundation of maintainable Infrastructure as Code. After building hundreds of modules for clients, I've identified key patterns that make modules truly reusable, maintainable, and scalable. Here are the proven design patterns that will transform your Terraform modules from one-off scripts into enterprise-grade infrastructure components.</p>
+
+        <h2>The Foundation: Module Structure</h2>
+        
+        <p>Every well-designed module follows a consistent structure that promotes clarity and reusability:</p>
+
+        <div class="code-block">
+            <pre>modules/aws-s3-bucket/
+├── main.tf              # Primary resources
+├── variables.tf         # Input variables
+├── outputs.tf          # Output values
+├── versions.tf         # Provider requirements
+├── README.md           # Documentation
+└── examples/           # Usage examples
+    ├── basic/
+    │   └── main.tf
+    └── advanced/
+        └── main.tf</pre>
+        </div>
+
+        <div class="highlight-box">
+            <h3>💡 Module Design Principles</h3>
+            <p><strong>Single Responsibility:</strong> Each module should have one clear purpose<br>
+            <strong>Composability:</strong> Modules should work together seamlessly<br>
+            <strong>Flexibility:</strong> Support multiple use cases through variables<br>
+            <strong>Documentation:</strong> Clear examples and variable descriptions</p>
+        </div>
+
+        <h2>Pattern 1: Flexible Variable Design</h2>
+        
+        <p>The key to reusable modules is thoughtful variable design. Here's how to create variables that support multiple use cases:</p>
+
+        <div class="code-block">
+            <pre># variables.tf - Flexible S3 bucket module
+variable "bucket_name" {
+  description = "Name of the S3 bucket"
+  type        = string
+  validation {
+    condition     = can(regex("^[a-z0-9][a-z0-9-]*[a-z0-9]$", var.bucket_name))
+    error_message = "Bucket name must be lowercase, alphanumeric, and may contain hyphens."
+  }
+}
+
+variable "versioning" {
+  description = "Enable versioning for the S3 bucket"
+  type        = bool
+  default     = false
+}
+
+variable "lifecycle_rules" {
+  description = "List of lifecycle rules for the S3 bucket"
+  type = list(object({
+    id     = string
+    status = string
+    transitions = optional(list(object({
+      days          = number
+      storage_class = string
+    })), [])
+    expiration = optional(object({
+      days = number
+    }), null)
+  }))
+  default = []
+}
+
+variable "tags" {
+  description = "A map of tags to assign to the bucket"
+  type        = map(string)
+  default     = {}
+}</pre>
+        </div>
+
+        <h2>Pattern 2: Conditional Resource Creation</h2>
+        
+        <p>Use count and for_each to create resources conditionally based on input variables:</p>
+
+        <div class="code-block">
+            <pre># main.tf - Conditional resource creation
+resource "aws_s3_bucket" "this" {
+  bucket = var.bucket_name
+  tags   = var.tags
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  count  = var.versioning ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  count  = length(var.lifecycle_rules) > 0 ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+
+  dynamic "rule" {
+    for_each = var.lifecycle_rules
+    content {
+      id     = rule.value.id
+      status = rule.value.status
+
+      dynamic "transition" {
+        for_each = rule.value.transitions
+        content {
+          days          = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = rule.value.expiration != null ? [rule.value.expiration] : []
+        content {
+          days = expiration.value.days
+        }
+      }
+    }
+  }
+}</pre>
+        </div>
+
+        <h2>Pattern 3: Comprehensive Output Design</h2>
+        
+        <p>Design outputs that provide all the information consumers might need:</p>
+
+        <div class="code-block">
+            <pre># outputs.tf - Comprehensive outputs
+output "bucket_id" {
+  description = "The name of the bucket"
+  value       = aws_s3_bucket.this.id
+}
+
+output "bucket_arn" {
+  description = "The ARN of the bucket"
+  value       = aws_s3_bucket.this.arn
+}
+
+output "bucket_domain_name" {
+  description = "The bucket domain name"
+  value       = aws_s3_bucket.this.bucket_domain_name
+}
+
+output "bucket_regional_domain_name" {
+  description = "The bucket region-specific domain name"
+  value       = aws_s3_bucket.this.bucket_regional_domain_name
+}
+
+output "bucket_website_endpoint" {
+  description = "The website endpoint, if the bucket is configured with a website"
+  value       = try(aws_s3_bucket_website_configuration.this[0].website_endpoint, null)
+}</pre>
+        </div>
+
+        <h2>Pattern 4: Module Composition</h2>
+        
+        <p>Build complex infrastructure by composing smaller, focused modules:</p>
+
+        <div class="code-block">
+            <pre># main.tf - Web application module composition
+module "vpc" {
+  source = "./modules/vpc"
+  
+  name               = "${var.app_name}-vpc"
+  cidr               = var.vpc_cidr
+  availability_zones = var.availability_zones
+  tags               = var.tags
+}
+
+module "alb" {
+  source = "./modules/alb"
+  
+  name               = "${var.app_name}-alb"
+  vpc_id             = module.vpc.vpc_id
+  subnets            = module.vpc.public_subnet_ids
+  security_groups    = [module.alb_sg.security_group_id]
+  tags               = var.tags
+}
+
+module "ecs_cluster" {
+  source = "./modules/ecs-cluster"
+  
+  name = "${var.app_name}-cluster"
+  tags = var.tags
+}
+
+module "ecs_service" {
+  source = "./modules/ecs-service"
+  
+  name            = "${var.app_name}-service"
+  cluster_id      = module.ecs_cluster.cluster_id
+  task_definition = module.task_definition.task_definition_arn
+  desired_count   = var.desired_count
+  subnets         = module.vpc.private_subnet_ids
+  security_groups = [module.ecs_sg.security_group_id]
+  target_group_arn = module.alb.target_group_arn
+  tags            = var.tags
+}</pre>
+        </div>
+
+        <h2>Pattern 5: Data Source Integration</h2>
+        
+        <p>Use data sources to make modules work with existing infrastructure:</p>
+
+        <div class="code-block">
+            <pre># data.tf - Integration with existing resources
+data "aws_vpc" "existing" {
+  count = var.vpc_id != null ? 1 : 0
+  id    = var.vpc_id
+}
+
+data "aws_subnets" "existing" {
+  count = var.subnet_ids != null ? 1 : 0
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+}
+
+# variables.tf - Flexible VPC configuration
+variable "vpc_id" {
+  description = "ID of existing VPC to use. If not provided, a new VPC will be created"
+  type        = string
+  default     = null
+}
+
+variable "subnet_ids" {
+  description = "List of subnet IDs to use. If not provided, subnets will be created"
+  type        = list(string)
+  default     = null
+}</pre>
+        </div>
+
+        <h2>Pattern 6: Validation and Constraints</h2>
+        
+        <p>Add validation to catch errors early and provide clear feedback:</p>
+
+        <div class="code-block">
+            <pre># variables.tf - Input validation
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.micro"
+  
+  validation {
+    condition = can(regex("^[a-z][0-9][a-z]?\\.", var.instance_type))
+    error_message = "Instance type must be a valid EC2 instance type."
+  }
+}
+
+variable "min_capacity" {
+  description = "Minimum number of instances"
+  type        = number
+  default     = 1
+  
+  validation {
+    condition     = var.min_capacity >= 0
+    error_message = "Minimum capacity must be 0 or greater."
+  }
+}
+
+variable "max_capacity" {
+  description = "Maximum number of instances"
+  type        = number
+  default     = 10
+  
+  validation {
+    condition     = var.max_capacity >= var.min_capacity
+    error_message = "Maximum capacity must be greater than or equal to minimum capacity."
+  }
+}</pre>
+        </div>
+
+        <h2>Pattern 7: Local Values for Complex Logic</h2>
+        
+        <p>Use locals to simplify complex expressions and improve readability:</p>
+
+        <div class="code-block">
+            <pre># locals.tf - Complex logic simplification
+locals {
+  # Standardized naming
+  name_prefix = "${var.project}-${var.environment}"
+  
+  # Common tags
+  common_tags = merge(var.tags, {
+    Project     = var.project
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  })
+  
+  # Conditional resource names
+  resource_names = {
+    vpc         = var.vpc_name != null ? var.vpc_name : "${local.name_prefix}-vpc"
+    subnet      = var.subnet_name != null ? var.subnet_name : "${local.name_prefix}-subnet"
+    security_group = var.sg_name != null ? var.sg_name : "${local.name_prefix}-sg"
+  }
+  
+  # CIDR calculations
+  subnet_cidrs = [
+    for i in range(var.availability_zone_count) : 
+    cidrsubnet(var.vpc_cidr, 8, i)
+  ]
+}</pre>
+        </div>
+
+        <h2>Pattern 8: Provider Configuration</h2>
+        
+        <p>Specify provider requirements to ensure compatibility:</p>
+
+        <div class="code-block">
+            <pre># versions.tf - Provider requirements
+terraform {
+  required_version = ">= 1.0"
+  
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Optional: Provider configuration
+provider "aws" {
+  region = var.aws_region
+  
+  default_tags {
+    tags = local.common_tags
+  }
+}</pre>
+        </div>
+
+        <h2>Real-World Example: Complete Module</h2>
+        
+        <p>Here's a complete example of a well-designed RDS module:</p>
+
+        <div class="code-block">
+            <pre># modules/rds-postgres/main.tf
+resource "aws_db_instance" "this" {
+  identifier = var.identifier
+  
+  engine         = "postgres"
+  engine_version = var.engine_version
+  instance_class = var.instance_class
+  
+  allocated_storage     = var.allocated_storage
+  max_allocated_storage = var.max_allocated_storage
+  storage_type          = var.storage_type
+  storage_encrypted     = var.storage_encrypted
+  
+  db_name  = var.database_name
+  username = var.username
+  password = var.password
+  
+  vpc_security_group_ids = var.security_group_ids
+  db_subnet_group_name   = aws_db_subnet_group.this.name
+  
+  backup_retention_period = var.backup_retention_period
+  backup_window          = var.backup_window
+  maintenance_window     = var.maintenance_window
+  
+  skip_final_snapshot = var.skip_final_snapshot
+  deletion_protection = var.deletion_protection
+  
+  tags = var.tags
+}
+
+resource "aws_db_subnet_group" "this" {
+  name       = "${var.identifier}-subnet-group"
+  subnet_ids = var.subnet_ids
+  
+  tags = merge(var.tags, {
+    Name = "${var.identifier}-subnet-group"
+  })
+}</pre>
+        </div>
+
+        <h2>Testing Your Modules</h2>
+        
+        <p>Include comprehensive examples and test your modules thoroughly:</p>
+
+        <div class="code-block">
+            <pre># examples/basic/main.tf
+module "rds_postgres" {
+  source = "../../"
+  
+  identifier     = "my-app-db"
+  instance_class = "db.t3.micro"
+  
+  database_name = "myapp"
+  username      = "admin"
+  password      = "SecurePassword123!"
+  
+  subnet_ids         = ["subnet-12345", "subnet-67890"]
+  security_group_ids = ["sg-12345"]
+  
+  tags = {
+    Environment = "dev"
+    Project     = "my-app"
+  }
+}</pre>
+        </div>
+
+        <div class="highlight-box">
+            <h3>📊 Module Design Benefits</h3>
+            <p><strong>Reusability:</strong> Use the same module across multiple environments<br>
+            <strong>Consistency:</strong> Standardized infrastructure patterns<br>
+            <strong>Maintainability:</strong> Update once, apply everywhere<br>
+            <strong>Testing:</strong> Validate changes in isolation<br>
+            <strong>Documentation:</strong> Self-documenting infrastructure</p>
+        </div>
+
+        <h2>Best Practices Summary</h2>
+        
+        <ol>
+            <li><strong>Design for reusability</strong> - Support multiple use cases</li>
+            <li><strong>Use consistent naming</strong> - Follow established conventions</li>
+            <li><strong>Validate inputs</strong> - Catch errors early with validation rules</li>
+            <li><strong>Provide comprehensive outputs</strong> - Give consumers what they need</li>
+            <li><strong>Document everything</strong> - Include examples and descriptions</li>
+            <li><strong>Test thoroughly</strong> - Validate with multiple scenarios</li>
+            <li><strong>Version your modules</strong> - Use semantic versioning</li>
+            <li><strong>Compose modules</strong> - Build complex infrastructure from simple parts</li>
+        </ol>
+
+        <p>Well-designed Terraform modules are the building blocks of scalable Infrastructure as Code. By following these patterns, you'll create modules that are not just reusable, but truly maintainable and enterprise-ready.</p>
+
+        <div class="blog-post-tags">
+            <span class="blog-tag">Terraform</span>
+            <span class="blog-tag">Infrastructure as Code</span>
+            <span class="blog-tag">Module Design</span>
+            <span class="blog-tag">Best Practices</span>
+            <span class="blog-tag">Reusable Components</span>
+            <span class="blog-tag">IaC Patterns</span>
+        </div>
+
+        <div class="blog-post-navigation">
+            <a href="../blog.html" class="nav-link">← Back to Blog</a>
+            <a href="../index.html#contact" class="nav-link">Get Terraform Module Help →</a>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Robert Consulting</h3>
+                    <p>DevSecOps and cloud engineering solutions for organizations. Specializing in AWS, Terraform, CI/CD automation, and compliance frameworks.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="../index.html#services">Cloud Infrastructure</a></li>
+                        <li><a href="../index.html#services">CI/CD Automation</a></li>
+                        <li><a href="../index.html#services">Security & Compliance</a></li>
+                        <li><a href="../index.html#services">Database DevOps</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="../learning.html">Learning Journey</a></li>
+                        <li><a href="../blog.html">Blog</a></li>
+                        <li><a href="../status.html">Status Page</a></li>
+                        <li><a href="../monitoring.html">Monitoring</a></li>
+                        <li><a href="../best-practices.html">Best Practices</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Information</h4>
+                    <p>info@robertconsulting.net</p>
+                    <p>(434) 227-8323</p>
+                    <p><a href="https://robertconsulting.net" target="_blank" rel="noopener noreferrer">robertconsulting.net</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script defer src="../js/navigation.js"></script>
+</body>
+</html>
