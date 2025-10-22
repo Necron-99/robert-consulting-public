@@ -89,6 +89,71 @@
   outline-offset: 2px;
 }
 
+/* Dropdown Menu Styles */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-toggle::after {
+  content: '▼';
+  margin-left: var(--space-1);
+  font-size: 0.7em;
+  transition: transform var(--transition-fast);
+}
+
+.dropdown:hover .dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all var(--transition-fast);
+  z-index: 1000;
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) 0;
+}
+
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-link {
+  display: block;
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+}
+
+.dropdown-link:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-secondary);
+  text-decoration: none;
+}
+
+.dropdown-link:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
 /* Mobile Navigation */
 .hamburger {
   display: none;
@@ -163,6 +228,31 @@
     margin-bottom: var(--space-3);
     text-align: left;
     display: block;
+  }
+  
+  /* Mobile Dropdown Styles */
+  .dropdown-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    margin-top: var(--space-2);
+  }
+  
+  .dropdown-link {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+  }
+  
+  .dropdown-toggle::after {
+    display: none;
   }
 }
 
