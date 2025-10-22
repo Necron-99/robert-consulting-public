@@ -14,6 +14,257 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Plex Recommendations Styles -->
+    <style>
+        /* Plex Recommendations Section Styles */
+        .plex-recommendations-showcase {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            margin-top: 30px;
+        }
+
+        .plex-showcase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .plex-showcase-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="plex" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23plex)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .plex-showcase-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .plex-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .plex-status {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-completed {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-live {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            border: 1px solid rgba(0, 123, 255, 0.3);
+        }
+
+        .plex-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 25px;
+            background: #f8f9fa;
+        }
+
+        .plex-stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .plex-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .plex-stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .plex-stat-card .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .plex-stat-card .stat-label {
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .plex-achievements, .plex-tech-stack, .plex-lessons, .plex-repository, .plex-cta {
+            padding: 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .plex-cta {
+            border-bottom: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .plex-achievements h4, .plex-tech-stack h4, .plex-lessons h4, .plex-repository h4, .plex-cta h4 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .achievements-list, .lessons-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .achievement-item, .lesson-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .repo-info p {
+            margin-bottom: 15px;
+        }
+
+        .repo-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .repo-info a:hover {
+            text-decoration: underline;
+        }
+
+        .repo-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .repo-stat {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            color: #5a6fd8;
+        }
+
+        @media (max-width: 768px) {
+            .plex-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px;
+            }
+            
+            .plex-showcase-header {
+                padding: 25px 20px;
+            }
+            
+            .plex-showcase-header h3 {
+                font-size: 1.5rem;
+            }
+            
+            .plex-achievements, .plex-tech-stack, .plex-lessons, .plex-repository, .plex-cta {
+                padding: 20px;
+            }
+            
+            .tech-tags {
+                justify-content: center;
+            }
+            
+            .repo-stats {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body class="dark-theme">
     <!-- Navigation -->
@@ -170,10 +421,119 @@
                 </div>
             </div>
 
-            <div class="highlights-footer">
-                <p class="highlights-note">
-                    🎬 <strong>Coming Soon:</strong> Interactive Plex Movie Recommendations demonstration page.
-                </p>
+            <!-- Plex Recommendations Showcase -->
+            <div class="plex-recommendations-showcase">
+                <div class="plex-showcase-header">
+                    <h3>🎬 Plex Movie Recommendations</h3>
+                    <p class="plex-subtitle">AI-Powered Movie Recommendation System</p>
+                    <div class="plex-status">
+                        <span class="status-badge status-completed">✅ Completed</span>
+                        <span class="status-badge status-live">🌐 Live Demo</span>
+                    </div>
+                </div>
+
+                <div class="plex-stats-grid">
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-number">40-60%</div>
+                            <div class="stat-label">Accuracy Improvement</div>
+                        </div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-number">&lt;$1</div>
+                            <div class="stat-label">Annual Cost</div>
+                        </div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-number">1,000+</div>
+                            <div class="stat-label">Items Processed</div>
+                        </div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-number">90%</div>
+                            <div class="stat-label">Cost Reduction</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plex-achievements">
+                    <h4>🏆 Key Achievements</h4>
+                    <div class="achievements-list">
+                        <div class="achievement-item">
+                            <strong>Complete System Architecture:</strong> Local data collection + cloud processing with AWS Lambda, S3, and TMDB API integration
+                        </div>
+                        <div class="achievement-item">
+                            <strong>Cost Optimization:</strong> Intelligent caching, S3 Intelligent Tiering, and Lambda optimization for minimal costs
+                        </div>
+                        <div class="achievement-item">
+                            <strong>Rich Metadata Integration:</strong> TMDB API for cast, director, and similar movie data with comprehensive error handling
+                        </div>
+                        <div class="achievement-item">
+                            <strong>Public Repository:</strong> Clean, documented, and production-ready codebase with MIT license
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plex-tech-stack">
+                    <h4>🛠️ Technology Stack</h4>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">AWS Lambda</span>
+                        <span class="tech-tag">AWS S3</span>
+                        <span class="tech-tag">TMDB API</span>
+                        <span class="tech-tag">Plex API</span>
+                        <span class="tech-tag">CloudWatch</span>
+                        <span class="tech-tag">Terraform</span>
+                        <span class="tech-tag">GitHub</span>
+                    </div>
+                </div>
+
+                <div class="plex-lessons">
+                    <h4>🧠 Lessons Learned</h4>
+                    <div class="lessons-list">
+                        <div class="lesson-item">
+                            <strong>API Integration & Authentication:</strong> Implemented secure token management with fallback mechanisms for API failures. Always implement rate limiting for external APIs and design for graceful degradation.
+                        </div>
+                        <div class="lesson-item">
+                            <strong>Cost Optimization Strategies:</strong> Achieved 90% cost reduction through S3 Intelligent Tiering, Lambda optimization, intelligent caching, and data compression. Real-world AWS cost management is crucial for production systems.
+                        </div>
+                        <div class="lesson-item">
+                            <strong>Data Processing & Performance:</strong> Processed 308 items with 60% data compression and sub-second response times. Python for data extraction, Node.js for Lambda functions, and JSON for complex data structures.
+                        </div>
+                        <div class="lesson-item">
+                            <strong>Repository Management:</strong> Maintained a clean, documented, and production-ready codebase with comprehensive setup guides and proper security practices for sensitive data protection.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plex-repository">
+                    <h4>📁 Public Repository</h4>
+                    <div class="repo-info">
+                        <p><strong>Repository:</strong> <a href="https://github.com/Necron-99/plex-recommendations" target="_blank">github.com/Necron-99/plex-recommendations</a></p>
+                        <div class="repo-stats">
+                            <span class="repo-stat">⭐ Public Repository</span>
+                            <span class="repo-stat">🔧 MIT License</span>
+                            <span class="repo-stat">📊 Active Development</span>
+                            <span class="repo-stat">🐍 Python & Node.js</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plex-cta">
+                    <h4>🎬 Experience the Live Demo</h4>
+                    <p>See the Plex Movie Recommendations system in action with real-time recommendations and cost optimization metrics.</p>
+                    <a href="https://plex.robertconsulting.net" class="cta-button" target="_blank">
+                        🚀 Visit Live Demo
+                    </a>
+                </div>
             </div>
         </div>
     </section>

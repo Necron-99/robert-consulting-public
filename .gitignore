@@ -242,3 +242,15 @@ plex-recommendations/
 
 # Test artifacts
 response*.json
+
+# =============================================================================
+# MOCKUP AND DEVELOPMENT FILES
+# =============================================================================
+
+# Mockup files (not for production)
+*-mockup.html
+*-mockup.css
+*-mockup.js
+plex-recommendations-mockup.html
+plex-recommendations-section.html
+plex-recommendations-styles.css
