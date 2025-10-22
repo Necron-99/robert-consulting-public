@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="databaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Database Icon -->
+  <circle cx="50" cy="50" r="45" fill="url(#databaseGradient)" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Database cylinder -->
+  <ellipse cx="50" cy="35" rx="20" ry="8" fill="#fff"/>
+  <rect x="30" y="35" width="40" height="30" fill="#fff"/>
+  <ellipse cx="50" cy="65" rx="20" ry="8" fill="#fff"/>
+  
+  <!-- Database lines -->
+  <line x1="30" y1="45" x2="70" y2="45" stroke="url(#databaseGradient)" stroke-width="2"/>
+  <line x1="30" y1="55" x2="70" y2="55" stroke="url(#databaseGradient)" stroke-width="2"/>
+  
+  <!-- Connection dots -->
+  <circle cx="25" cy="50" r="3" fill="#fff"/>
+  <circle cx="75" cy="50" r="3" fill="#fff"/>
+  
+  <!-- Database text -->
+  <text x="50" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#fff">DB</text>
+</svg>

@@ -80,6 +80,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
     <!-- Using local Font Awesome icons to reduce external requests -->
+    
+    <!-- Image Optimization Styles -->
+    <style>
+        .professional-photo-img {
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .professional-photo-img:hover {
+            transform: scale(1.05);
+        }
+        
+        .service-icon-img {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        
+        .service-icon-img:hover {
+            transform: scale(1.1);
+            filter: brightness(1.1);
+        }
+        
+        .service-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body class="dark-theme">
     <!-- Navigation -->
@@ -159,9 +188,12 @@
             <div class="hero-image">
                 <div class="hero-graphic">
                     <div class="professional-photo">
-                        <div class="photo-placeholder">
-                            <div class="icon-user-tie"></div>
-                        </div>
+                        <img src="images/professional-photo.svg" 
+                             alt="Robert Consulting - Professional DevSecOps and Cloud Engineering consultant with expertise in AWS, Terraform, and CI/CD automation" 
+                             width="200" 
+                             height="200"
+                             loading="eager"
+                             class="professional-photo-img">
                     </div>
                 </div>
             </div>
@@ -178,7 +210,12 @@
             <div class="services-grid">
                 <div class="service-card">
                     <div class="service-icon">
-                        <div class="icon-laptop"></div>
+                        <img src="images/aws-icon.svg" 
+                             alt="AWS Cloud Infrastructure Design - Scalable and secure cloud architecture with Infrastructure as Code" 
+                             width="80" 
+                             height="80"
+                             loading="lazy"
+                             class="service-icon-img">
                     </div>
                     <h3>Cloud Infrastructure Design</h3>
                     <p>Design and deploy secure, scalable AWS infrastructure with Infrastructure as Code. Specializing in multi-account architectures, landing zones, and cost optimization strategies.</p>
@@ -190,7 +227,12 @@
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
-                        <div class="icon-cogs"></div>
+                        <img src="images/cicd-icon.svg" 
+                             alt="CI/CD Automation Pipeline - Continuous integration and deployment with GitHub Actions and GitOps workflows" 
+                             width="80" 
+                             height="80"
+                             loading="lazy"
+                             class="service-icon-img">
                     </div>
                     <h3>CI/CD Automation</h3>
                     <p>Build and optimize CI/CD pipelines with GitHub Actions, GitLab CI, and Jenkins. Implement GitOps workflows with automated testing, security scanning, and deployment strategies.</p>
@@ -202,7 +244,12 @@
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
-                        <div class="icon-chart-bar"></div>
+                        <img src="images/security-icon.svg" 
+                             alt="Security and Compliance - FedRAMP, NIST 800-53, and SOC 2 compliance frameworks with security scanning and policy enforcement" 
+                             width="80" 
+                             height="80"
+                             loading="lazy"
+                             class="service-icon-img">
                     </div>
                     <h3>Security &amp; Compliance</h3>
                     <p>Implement security frameworks and compliance standards including FedRAMP, NIST 800-53, and SOC 2. Deploy security scanning, policy enforcement, and audit automation.</p>
@@ -214,7 +261,12 @@
                 </div>
                 <div class="service-card">
                     <div class="service-icon">
-                        <div class="icon-users"></div>
+                        <img src="images/database-icon.svg" 
+                             alt="Database DevOps - SQL Server and PostgreSQL automation with CI/CD integration, schema management, and backup strategies" 
+                             width="80" 
+                             height="80"
+                             loading="lazy"
+                             class="service-icon-img">
                     </div>
                     <h3>Database DevOps</h3>
                     <p>Automate SQL Server provisioning, schema management, and backup strategies. Integrate database operations into CI/CD pipelines with monitoring and alerting.</p>
