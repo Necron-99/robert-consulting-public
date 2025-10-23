@@ -10,6 +10,9 @@ resource "aws_s3_bucket" "website_bucket" {
     Environment = "Production"
     Purpose     = "Static Website Hosting"
     ManagedBy   = "Terraform"
+    Security    = "High"
+    Compliance  = "SOC2"
+    DataClass   = "Public"
   }
 
   lifecycle {
@@ -269,6 +272,9 @@ resource "aws_cloudfront_distribution" "website" {
     Environment = "Production"
     Purpose     = "Content Delivery"
     ManagedBy   = "Terraform"
+    Security    = "High"
+    Compliance  = "SOC2"
+    DataClass   = "Public"
   }
 
   lifecycle {
