@@ -98,6 +98,8 @@ jobs:
       security-events: read
       issues: write
       pull-requests: write
+      # Required for accessing Dependabot and CodeQL alerts
+      actions: read
 
     steps:
     - name: 📥 Checkout repository
@@ -105,111 +107,46 @@ jobs:
 
     - name: 🔍 Check for security alerts by severity
       id: security-check
-      uses: actions/github-script@v7
-      with:
-        script: |
-          try {
-            console.log('🔍 Attempting to access security alerts...');
-            
-            // Get Dependabot alerts by severity
-            const { data: dependabotCritical } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['critical']
-            });
-
-            const { data: dependabotHigh } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['high']
-            });
-
-            const { data: dependabotMedium } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['medium']
-            });
-
-            const { data: dependabotLow } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['low']
-            });
-
-            // Get CodeQL alerts by severity
-            const { data: codeqlCritical } = await github.rest.codeScanning.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['critical']
-            });
-
-            const { data: codeqlHigh } = await github.rest.codeScanning.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['high']
-            });
-
-            const { data: codeqlMedium } = await github.rest.codeScanning.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['medium']
-            });
-
-            const { data: codeqlLow } = await github.rest.codeScanning.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['low']
-            });
-
-            // Calculate totals
-            const criticalCount = dependabotCritical.length + codeqlCritical.length;
-            const highCount = dependabotHigh.length + codeqlHigh.length;
-            const mediumCount = dependabotMedium.length + codeqlMedium.length;
-            const lowCount = dependabotLow.length + codeqlLow.length;
-            const totalCount = criticalCount + highCount + mediumCount + lowCount;
-            
-            console.log(`✅ Security Alert Summary:`);
-            console.log(`  Critical: ${criticalCount} (${dependabotCritical.length} Dependabot, ${codeqlCritical.length} CodeQL)`);
-            console.log(`  High: ${highCount} (${dependabotHigh.length} Dependabot, ${codeqlHigh.length} CodeQL)`);
-            console.log(`  Medium: ${mediumCount} (${dependabotMedium.length} Dependabot, ${codeqlMedium.length} CodeQL)`);
-            console.log(`  Low: ${lowCount} (${dependabotLow.length} Dependabot, ${codeqlLow.length} CodeQL)`);
-            console.log(`  Total: ${totalCount}`);
-            
-            return {
-              critical_count: criticalCount,
-              high_count: highCount,
-              medium_count: mediumCount,
-              low_count: lowCount,
-              total_count: totalCount,
-              has_critical_high: (criticalCount + highCount) > 0,
-              has_medium_low: (mediumCount + lowCount) > 0,
-              has_any_alerts: totalCount > 0
-            };
-          } catch (error) {
-            console.log('⚠️ Error accessing security alerts:', error.message);
-            console.log('This may be due to insufficient permissions or disabled security features.');
-            console.log('Continuing with safe defaults...');
-            
-            // Return safe defaults when API calls fail
-            return {
-              critical_count: 0,
-              high_count: 0,
-              medium_count: 0,
-              low_count: 0,
-              total_count: 0,
-              has_critical_high: false,
-              has_medium_low: false,
-              has_any_alerts: false
-            };
-          }
+      run: |
+        echo "🔍 Checking security alerts using GitHub CLI..."
+        
+        # Check Dependabot alerts
+        echo "📊 Checking Dependabot alerts..."
+        DEPENDABOT_CRITICAL=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "critical") | .number' | wc -l)
+        DEPENDABOT_HIGH=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "high") | .number' | wc -l)
+        DEPENDABOT_MEDIUM=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "medium") | .number' | wc -l)
+        DEPENDABOT_LOW=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "low") | .number' | wc -l)
+        
+        # Check CodeQL alerts
+        echo "📊 Checking CodeQL alerts..."
+        CODEQL_CRITICAL=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "critical") | .number' | wc -l)
+        CODEQL_HIGH=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "high") | .number' | wc -l)
+        CODEQL_MEDIUM=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "medium") | .number' | wc -l)
+        CODEQL_LOW=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "low") | .number' | wc -l)
+        
+        # Calculate totals
+        CRITICAL_COUNT=$((DEPENDABOT_CRITICAL + CODEQL_CRITICAL))
+        HIGH_COUNT=$((DEPENDABOT_HIGH + CODEQL_HIGH))
+        MEDIUM_COUNT=$((DEPENDABOT_MEDIUM + CODEQL_MEDIUM))
+        LOW_COUNT=$((DEPENDABOT_LOW + CODEQL_LOW))
+        TOTAL_COUNT=$((CRITICAL_COUNT + HIGH_COUNT + MEDIUM_COUNT + LOW_COUNT))
+        
+        echo "✅ Security Alert Summary:"
+        echo "  Critical: $CRITICAL_COUNT ($DEPENDABOT_CRITICAL Dependabot, $CODEQL_CRITICAL CodeQL)"
+        echo "  High: $HIGH_COUNT ($DEPENDABOT_HIGH Dependabot, $CODEQL_HIGH CodeQL)"
+        echo "  Medium: $MEDIUM_COUNT ($DEPENDABOT_MEDIUM Dependabot, $CODEQL_MEDIUM CodeQL)"
+        echo "  Low: $LOW_COUNT ($DEPENDABOT_LOW Dependabot, $CODEQL_LOW CodeQL)"
+        echo "  Total: $TOTAL_COUNT"
+        
+        # Set outputs
+        echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+        echo "high_count=$HIGH_COUNT" >> $GITHUB_OUTPUT
+        echo "medium_count=$MEDIUM_COUNT" >> $GITHUB_OUTPUT
+        echo "low_count=$LOW_COUNT" >> $GITHUB_OUTPUT
+        echo "total_count=$TOTAL_COUNT" >> $GITHUB_OUTPUT
+        echo "has_critical_high=$([ $((CRITICAL_COUNT + HIGH_COUNT)) -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "has_medium_low=$([ $((MEDIUM_COUNT + LOW_COUNT)) -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "has_any_alerts=$([ $TOTAL_COUNT -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
     - name: 📝 Create security issues based on severity
       if: steps.security-check.outputs.has_any_alerts == 'true'
@@ -354,108 +291,58 @@ jobs:
       contents: read
       security-events: read
       issues: write
+      # Required for accessing Dependabot and CodeQL alerts
+      actions: read
 
     steps:
     - name: 📥 Checkout repository
       uses: actions/checkout@v4
 
     - name: 📊 Generate security status report
-      uses: actions/github-script@v7
-      with:
-        script: |
-          try {
-            console.log('📊 Generating security status report...');
-            
-            const { data: dependabotAlerts } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            });
-
-            const { data: codeqlAlerts } = await github.rest.codeScanning.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            });
-
-            // Group alerts by severity
-            const dependabotBySeverity = dependabotAlerts.reduce((acc, alert) => {
-              acc[alert.security_advisory.severity] = (acc[alert.security_advisory.severity] || 0) + 1;
-              return acc;
-            }, {});
-
-            const codeqlBySeverity = codeqlAlerts.reduce((acc, alert) => {
-              acc[alert.rule.severity] = (acc[alert.rule.severity] || 0) + 1;
-              return acc;
-            }, {});
-
-            const report = [
-              '## 🔒 Security Status Report',
-              '',
-              '### 📊 Current Vulnerabilities',
-              '',
-              '#### Dependabot Alerts',
-              `- **Critical:** ${dependabotBySeverity.critical || 0}`,
-              `- **High:** ${dependabotBySeverity.high || 0}`,
-              `- **Medium:** ${dependabotBySeverity.medium || 0}`,
-              `- **Low:** ${dependabotBySeverity.low || 0}`,
-              '',
-              '#### CodeQL Alerts',
-              `- **Critical:** ${codeqlBySeverity.critical || 0}`,
-              `- **High:** ${codeqlBySeverity.high || 0}`,
-              `- **Medium:** ${codeqlBySeverity.medium || 0}`,
-              `- **Low:** ${codeqlBySeverity.low || 0}`,
-              '',
-              '### 🎯 Security Status',
-              '',
-              (dependabotBySeverity.critical > 0 || codeqlBySeverity.critical > 0) ? '🚨 **CRITICAL ISSUES DETECTED** - Immediate action required' : '✅ No critical vulnerabilities',
-              (dependabotBySeverity.high > 0 || codeqlBySeverity.high > 0) ? '⚠️ **HIGH SEVERITY ISSUES** - Address before production' : '✅ No high severity vulnerabilities',
-              '',
-              '### 📋 Security Sources',
-              '- [Dependabot Alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/dependabot)',
-              '- [CodeQL Alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/code-scanning)',
-              '- [Security Overview](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security)',
-              '',
-              '---',
-              '*This report is automatically generated by the Security Management workflow*'
-            ].join('\n');
-
-            console.log('✅ Security status report generated successfully');
-            console.log(report);
-            
-            // Update the workflow summary
-            await core.summary
-              .addHeading('Security Status Report')
-              .addRaw(report)
-              .write();
-          } catch (error) {
-            console.log('⚠️ Error generating security status report:', error.message);
-            console.log('This may be due to insufficient permissions or disabled security features.');
-            
-            const fallbackReport = [
-              '## 🔒 Security Status Report',
-              '',
-              '⚠️ **Unable to access security alerts**',
-              '',
-              'The security status report could not be generated due to:',
-              `- Error: ${error.message}`,
-              '- This may be due to insufficient permissions or disabled security features',
-              '',
-              '### 🔧 Troubleshooting',
-              '',
-              '1. **Check repository permissions:** Ensure the workflow has access to security events',
-              '2. **Verify security features:** Ensure Dependabot and CodeQL are enabled',
-              '3. **Review workflow permissions:** Check the `permissions` section in the workflow',
-              '',
-              '*This report is automatically generated by the Security Management workflow*'
-            ].join('\n');
-            
-            console.log('📊 Generated fallback security report');
-            console.log(fallbackReport);
-            
-            // Update the workflow summary with fallback report
-            await core.summary
-              .addHeading('Security Status Report (Error)')
-              .addRaw(fallbackReport)
-              .write();
-          }
+      run: |
+        echo "📊 Generating security status report using GitHub CLI..."
+        
+        # Get security alert counts
+        DEPENDABOT_CRITICAL=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "critical") | .number' | wc -l)
+        DEPENDABOT_HIGH=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "high") | .number' | wc -l)
+        DEPENDABOT_MEDIUM=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "medium") | .number' | wc -l)
+        DEPENDABOT_LOW=$(gh api repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state == "open" and .security_advisory.severity == "low") | .number' | wc -l)
+        
+        CODEQL_CRITICAL=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "critical") | .number' | wc -l)
+        CODEQL_HIGH=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "high") | .number' | wc -l)
+        CODEQL_MEDIUM=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "medium") | .number' | wc -l)
+        CODEQL_LOW=$(gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open" and .rule.severity == "low") | .number' | wc -l)
+        
+        # Generate report
+        cat >> $GITHUB_STEP_SUMMARY << EOF
+        ## 🔒 Security Status Report
+        
+        ### 📊 Current Vulnerabilities
+        
+        #### Dependabot Alerts
+        - **Critical:** $DEPENDABOT_CRITICAL
+        - **High:** $DEPENDABOT_HIGH
+        - **Medium:** $DEPENDABOT_MEDIUM
+        - **Low:** $DEPENDABOT_LOW
+        
+        #### CodeQL Alerts
+        - **Critical:** $CODEQL_CRITICAL
+        - **High:** $CODEQL_HIGH
+        - **Medium:** $CODEQL_MEDIUM
+        - **Low:** $CODEQL_LOW
+        
+        ### 🎯 Security Status
+        
+        $([ $((DEPENDABOT_CRITICAL + CODEQL_CRITICAL)) -gt 0 ] && echo '🚨 **CRITICAL ISSUES DETECTED** - Immediate action required' || echo '✅ No critical vulnerabilities')
+        $([ $((DEPENDABOT_HIGH + CODEQL_HIGH)) -gt 0 ] && echo '⚠️ **HIGH SEVERITY ISSUES** - Address before production' || echo '✅ No high severity vulnerabilities')
+        
+        ### 📋 Security Sources
+        - [Dependabot Alerts](https://github.com/${{ github.repository }}/security/dependabot)
+        - [CodeQL Alerts](https://github.com/${{ github.repository }}/security/code-scanning)
+        - [Security Overview](https://github.com/${{ github.repository }}/security)
+        
+        ---
+        *This report is automatically generated by the Security Management workflow*
+        EOF
+        
+        echo "✅ Security status report generated successfully"
