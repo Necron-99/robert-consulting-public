@@ -1,0 +1,39 @@
+{
+  "name": "robert-consulting-automated-review",
+  "version": "1.0.0",
+  "description": "Automated code review and analysis tools for Robert Consulting website",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint website/ admin/ scripts/ --ext .js,.ts,.jsx,.tsx",
+    "lint:fix": "eslint website/ admin/ scripts/ --ext .js,.ts,.jsx,.tsx --fix",
+    "validate:html": "html-validate website/ admin/",
+    "validate:css": "stylelint \"website/**/*.css\" \"admin/**/*.css\"",
+    "analyze": "npm run lint && npm run validate:html && npm run validate:css",
+    "security": "npm audit",
+    "test": "echo \"Tests to be implemented\" && exit 0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "@eslint/js": "^8.57.0",
+    "html-validate": "^8.7.4",
+    "stylelint": "^16.2.1",
+    "stylelint-config-standard": "^36.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Necron-99/robert-consulting.net.git"
+  },
+  "keywords": [
+    "automated-review",
+    "code-analysis",
+    "ci-cd",
+    "quality-assurance",
+    "security-scanning"
+  ],
+  "author": "Robert Consulting",
+  "license": "MIT"
+}
