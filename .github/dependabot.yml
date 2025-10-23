@@ -18,6 +18,11 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    groups:
+      npm-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -37,6 +42,11 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    groups:
+      github-actions:
+        update-types:
+          - "minor"
+          - "patch"
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -75,6 +85,11 @@ updates:
     labels:
       - "dependencies"
       - "terraform"
+    groups:
+      terraform-providers:
+        update-types:
+          - "minor"
+          - "patch"
 
   # Enable version updates for Python (if any Python files exist)
   - package-ecosystem: "pip"
