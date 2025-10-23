@@ -97,9 +97,6 @@ jobs:
       security-events: read
       issues: write
       pull-requests: write
-      dependabot: read
-      code-scanning: read
-      vulnerability-alerts: read
 
     steps:
     - name: 📥 Checkout repository
@@ -356,9 +353,6 @@ jobs:
       contents: read
       security-events: read
       issues: write
-      dependabot: read
-      code-scanning: read
-      vulnerability-alerts: read
 
     steps:
     - name: 📥 Checkout repository
