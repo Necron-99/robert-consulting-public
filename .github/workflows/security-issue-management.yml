@@ -226,44 +226,46 @@ jobs:
             labels.push('low');
           }
           
-          const issueBody = `## 🔒 Security Vulnerabilities Detected
-
-**Total Vulnerabilities:** ${totalCount}
-- **🔴 Critical:** ${criticalCount}
-- **🟠 High:** ${highCount}
-- **🟡 Medium:** ${mediumCount}
-- **🟢 Low:** ${lowCount}
-
-### 📊 Vulnerability Breakdown
-
-#### Critical & High Severity (${criticalCount + highCount})
-${(criticalCount + highCount) > 0 ? '🚨 **IMMEDIATE ACTION REQUIRED** - These vulnerabilities should be addressed before production deployment.' : '✅ No critical or high severity vulnerabilities found.'}
-
-#### Medium & Low Severity (${mediumCount + lowCount})
-${(mediumCount + lowCount) > 0 ? '⚠️ These vulnerabilities should be addressed in upcoming releases.' : '✅ No medium or low severity vulnerabilities found.'}
-
-### 🎯 Action Required
-
-1. **Review** all security alerts in the [Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
-2. **Priority Order:**
-   - 🔴 **Critical/High:** Address immediately (blocks production deployment)
-   - 🟡 **Medium:** Address in next release cycle
-   - 🟢 **Low:** Address when convenient
-3. **Update** dependencies with known vulnerabilities
-4. **Fix** code quality issues identified by CodeQL
-
-### 🔄 Auto-Update
-
-This issue will be automatically updated when new vulnerabilities are detected and closed when all issues are resolved.
-
-### 📋 Security Sources
-- **Dependabot:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/dependabot)
-- **CodeQL:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning)
-- **Trivy:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
-- **Snyk:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
-
----
-*Last updated: ${new Date().toISOString()}*`;
+          const issueBody = [
+            '## 🔒 Security Vulnerabilities Detected',
+            '',
+            `**Total Vulnerabilities:** ${totalCount}`,
+            `- **🔴 Critical:** ${criticalCount}`,
+            `- **🟠 High:** ${highCount}`,
+            `- **🟡 Medium:** ${mediumCount}`,
+            `- **🟢 Low:** ${lowCount}`,
+            '',
+            '### 📊 Vulnerability Breakdown',
+            '',
+            `#### Critical & High Severity (${criticalCount + highCount})`,
+            (criticalCount + highCount) > 0 ? '🚨 **IMMEDIATE ACTION REQUIRED** - These vulnerabilities should be addressed before production deployment.' : '✅ No critical or high severity vulnerabilities found.',
+            '',
+            `#### Medium & Low Severity (${mediumCount + lowCount})`,
+            (mediumCount + lowCount) > 0 ? '⚠️ These vulnerabilities should be addressed in upcoming releases.' : '✅ No medium or low severity vulnerabilities found.',
+            '',
+            '### 🎯 Action Required',
+            '',
+            '1. **Review** all security alerts in the [Security tab](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security)',
+            '2. **Priority Order:**',
+            '   - 🔴 **Critical/High:** Address immediately (blocks production deployment)',
+            '   - 🟡 **Medium:** Address in next release cycle',
+            '   - 🟢 **Low:** Address when convenient',
+            '3. **Update** dependencies with known vulnerabilities',
+            '4. **Fix** code quality issues identified by CodeQL',
+            '',
+            '### 🔄 Auto-Update',
+            '',
+            'This issue will be automatically updated when new vulnerabilities are detected and closed when all issues are resolved.',
+            '',
+            '### 📋 Security Sources',
+            '- **Dependabot:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/dependabot)',
+            '- **CodeQL:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/code-scanning)',
+            '- **Trivy:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security)',
+            '- **Snyk:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security)',
+            '',
+            '---',
+            '*Last updated: ' + new Date().toISOString() + '*'
+          ].join('\n');
 
           if (existingIssues.length > 0) {
             console.log('Security issue already exists, updating...');
@@ -320,15 +322,17 @@ This issue will be automatically updated when new vulnerabilities are detected a
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: `## ✅ Security Issue Resolved
-
-All high and critical security vulnerabilities have been addressed!
-
-**Status:** No active high/critical security alerts found
-**Action:** Issue automatically closed
-**Date:** ${new Date().toISOString()}
-
-The security scanning will continue to monitor for new vulnerabilities. If new issues are detected, a new security issue will be automatically created.`
+              body: [
+                '## ✅ Security Issue Resolved',
+                '',
+                'All high and critical security vulnerabilities have been addressed!',
+                '',
+                '**Status:** No active high/critical security alerts found',
+                '**Action:** Issue automatically closed',
+                `**Date:** ${new Date().toISOString()}`,
+                '',
+                'The security scanning will continue to monitor for new vulnerabilities. If new issues are detected, a new security issue will be automatically created.'
+              ].join('\n')
             });
           }
           
@@ -400,33 +404,35 @@ The security scanning will continue to monitor for new vulnerabilities. If new i
               state: 'open'
             });
             
-            const blockingBody = `## 🚫 Production Deployment Blocked
-
-**Blocking Issues:** ${blockingCount}
-- **🔴 Critical:** ${dependabotCritical.length + codeqlCritical.length}
-- **🟠 High:** ${dependabotHigh.length + codeqlHigh.length}
-
-### 🚨 Deployment Status
-**BLOCKED** - Production deployment cannot proceed until critical and high severity security issues are resolved.
-
-### 📋 Blocking Issues
-- **Dependabot Critical:** ${dependabotCritical.length} issues
-- **Dependabot High:** ${dependabotHigh.length} issues  
-- **CodeQL Critical:** ${codeqlCritical.length} issues
-- **CodeQL High:** ${codeqlHigh.length} issues
-
-### 🎯 Required Actions
-1. **Review** all critical and high severity alerts in the [Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
-2. **Address** all blocking issues before attempting production deployment
-3. **Re-run** security scans to verify fixes
-4. **Update** this issue when issues are resolved
-
-### 📋 Security Sources
-- **Dependabot:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/dependabot)
-- **CodeQL:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning)
-
----
-*Last updated: ${new Date().toISOString()}*`;
+            const blockingBody = [
+              '## 🚫 Production Deployment Blocked',
+              '',
+              `**Blocking Issues:** ${blockingCount}`,
+              `- **🔴 Critical:** ${dependabotCritical.length + codeqlCritical.length}`,
+              `- **🟠 High:** ${dependabotHigh.length + codeqlHigh.length}`,
+              '',
+              '### 🚨 Deployment Status',
+              '**BLOCKED** - Production deployment cannot proceed until critical and high severity security issues are resolved.',
+              '',
+              '### 📋 Blocking Issues',
+              `- **Dependabot Critical:** ${dependabotCritical.length} issues`,
+              `- **Dependabot High:** ${dependabotHigh.length} issues`,
+              `- **CodeQL Critical:** ${codeqlCritical.length} issues`,
+              `- **CodeQL High:** ${codeqlHigh.length} issues`,
+              '',
+              '### 🎯 Required Actions',
+              '1. **Review** all critical and high severity alerts in the [Security tab](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security)',
+              '2. **Address** all blocking issues before attempting production deployment',
+              '3. **Re-run** security scans to verify fixes',
+              '4. **Update** this issue when issues are resolved',
+              '',
+              '### 📋 Security Sources',
+              '- **Dependabot:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/dependabot)',
+              '- **CodeQL:** [View alerts](https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/security/code-scanning)',
+              '',
+              '---',
+              '*Last updated: ' + new Date().toISOString() + '*'
+            ].join('\n');
 
             if (existingIssues.length > 0) {
               // Update existing blocking issue
@@ -467,19 +473,21 @@ The security scanning will continue to monitor for new vulnerabilities. If new i
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `## ✅ Deployment Block Removed
-
-**Resolution Date:** ${new Date().toISOString()}
-
-### Resolution Details
-All critical and high severity security issues have been resolved. Production deployment is no longer blocked.
-
-### Next Steps
-- Monitor future security scans to ensure no new blocking issues are introduced
-- This issue will be automatically closed
-
----
-*Resolved by Security Issue Management workflow*`
+                body: [
+                  '## ✅ Deployment Block Removed',
+                  '',
+                  `**Resolution Date:** ${new Date().toISOString()}`,
+                  '',
+                  '### Resolution Details',
+                  'All critical and high severity security issues have been resolved. Production deployment is no longer blocked.',
+                  '',
+                  '### Next Steps',
+                  '- Monitor future security scans to ensure no new blocking issues are introduced',
+                  '- This issue will be automatically closed',
+                  '',
+                  '---',
+                  '*Resolved by Security Issue Management workflow*'
+                ].join('\n')
               });
               
               await github.rest.issues.update({
@@ -535,28 +543,30 @@ All critical and high severity security issues have been resolved. Production de
             return acc;
           }, {});
 
-          const report = `## 🔒 Security Status Report
-
-### 📊 Current Vulnerabilities
-
-#### Dependabot Alerts: ${dependabotAlerts.length} total
-${Object.entries(dependabotBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts'}
-
-#### CodeQL Alerts: ${codeqlAlerts.length} total
-${Object.entries(codeqlBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts'}
-
-### 🎯 Priority Actions
-${dependabotAlerts.length + codeqlAlerts.length === 0 ? 
-  '✅ **No security vulnerabilities detected** - Repository is secure!' : 
-  '⚠️ **Action required** - Please address the vulnerabilities listed above'}
-
-### 📈 Security Trends
-- **Total Open Issues**: ${dependabotAlerts.length + codeqlAlerts.length}
-- **High/Critical Issues**: ${(dependabotBySeverity.high || 0) + (dependabotBySeverity.critical || 0) + (codeqlBySeverity.high || 0) + (codeqlBySeverity.critical || 0)}
-- **Last Updated**: ${new Date().toISOString()}
-
----
-*This report is automatically generated by the Security Issue Management workflow*`;
+          const report = [
+            '## 🔒 Security Status Report',
+            '',
+            '### 📊 Current Vulnerabilities',
+            '',
+            `#### Dependabot Alerts: ${dependabotAlerts.length} total`,
+            Object.entries(dependabotBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts',
+            '',
+            `#### CodeQL Alerts: ${codeqlAlerts.length} total`,
+            Object.entries(codeqlBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts',
+            '',
+            '### 🎯 Priority Actions',
+            dependabotAlerts.length + codeqlAlerts.length === 0 ? 
+              '✅ **No security vulnerabilities detected** - Repository is secure!' : 
+              '⚠️ **Action required** - Please address the vulnerabilities listed above',
+            '',
+            '### 📈 Security Trends',
+            `- **Total Open Issues**: ${dependabotAlerts.length + codeqlAlerts.length}`,
+            `- **High/Critical Issues**: ${(dependabotBySeverity.high || 0) + (dependabotBySeverity.critical || 0) + (codeqlBySeverity.high || 0) + (codeqlBySeverity.critical || 0)}`,
+            `- **Last Updated**: ${new Date().toISOString()}`,
+            '',
+            '---',
+            '*This report is automatically generated by the Security Issue Management workflow*'
+          ].join('\n');
 
           console.log(report);
           
@@ -607,16 +617,18 @@ ${dependabotAlerts.length + codeqlAlerts.length === 0 ?
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `## 📁 Archive Notice
-
-This security issue has been resolved for ${daysSinceClosed} days and can be archived.
-
-**Status:** Resolved and stable
-**Days since resolution:** ${daysSinceClosed}
-**Action:** Consider archiving this issue
-
----
-*This is an automated notice from the Security Issue Management workflow*`
+                body: [
+                  '## 📁 Archive Notice',
+                  '',
+                  `This security issue has been resolved for ${daysSinceClosed} days and can be archived.`,
+                  '',
+                  '**Status:** Resolved and stable',
+                  `**Days since resolution:** ${daysSinceClosed}`,
+                  '**Action:** Consider archiving this issue',
+                  '',
+                  '---',
+                  '*This is an automated notice from the Security Issue Management workflow*'
+                ].join('\n')
               });
             }
           }
