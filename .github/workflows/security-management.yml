@@ -1,5 +1,6 @@
 name: 🔒 Security Management
-# Force workflow update - trigger security scanning
+# Security vulnerability scanning and issue management
+# Updated: Force GitHub to recognize this as a new workflow
 
 on:
   push:
