@@ -259,6 +259,9 @@ resource "aws_cloudfront_distribution" "website" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
+  # Enable WAF for security
+  web_acl_id = aws_wafv2_web_acl.main_website_waf.arn
+
   aliases = ["robertconsulting.net", "www.robertconsulting.net"]
 
   tags = {
@@ -270,6 +273,148 @@ resource "aws_cloudfront_distribution" "website" {
 
   lifecycle {
     prevent_destroy = true
+  }
+}
+
+# WAF Web ACL for main website
+resource "aws_wafv2_web_acl" "main_website_waf" {
+  name  = "main-website-waf"
+  scope = "CLOUDFRONT"
+
+  default_action {
+    allow {}
+  }
+
+  # Rate limiting rule
+  rule {
+    name     = "RateLimit"
+    priority = 1
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 2000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimit"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  # Block suspicious user agents
+  rule {
+    name     = "BlockSuspiciousUserAgents"
+    priority = 2
+
+    action {
+      block {}
+    }
+
+    statement {
+      byte_match_statement {
+        search_string = "sqlmap"
+        field_to_match {
+          single_header {
+            name = "user-agent"
+          }
+        }
+        text_transformation {
+          priority = 0
+          type     = "LOWERCASE"
+        }
+        positional_constraint = "CONTAINS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "BlockSuspiciousUserAgents"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "MainWebsiteWAF"
+    sampled_requests_enabled   = true
+  }
+
+  tags = {
+    Name        = "Main Website WAF"
+    Environment = "Production"
+    Purpose     = "WAF Protection for Main Website"
+    ManagedBy   = "Terraform"
+  }
+}
+
+# CloudWatch alarms for security monitoring
+resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
+  alarm_name          = "main-website-high-error-rate"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "4xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "5"
+  alarm_description   = "This metric monitors main site 4xx error rate"
+  alarm_actions       = [aws_sns_topic.security_alerts.arn]
+
+  dimensions = {
+    DistributionId = aws_cloudfront_distribution.website.id
+    Region         = "Global"
+  }
+
+  tags = {
+    Name        = "Main Website High Error Rate"
+    Environment = "Production"
+    Purpose     = "Monitor Main Website Error Rate"
+    ManagedBy   = "Terraform"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "waf_blocked_requests" {
+  alarm_name          = "main-website-waf-blocked-requests"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "BlockedRequests"
+  namespace           = "AWS/WAFV2"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "100"
+  alarm_description   = "This metric monitors WAF blocked requests"
+  alarm_actions       = [aws_sns_topic.security_alerts.arn]
+
+  dimensions = {
+    WebACL = aws_wafv2_web_acl.main_website_waf.name
+    Region = "CloudFront"
+    Rule   = "All"
+  }
+
+  tags = {
+    Name        = "Main Website WAF Blocked Requests"
+    Environment = "Production"
+    Purpose     = "Monitor WAF Security Events"
+    ManagedBy   = "Terraform"
+  }
+}
+
+# SNS topic for security alerts
+resource "aws_sns_topic" "security_alerts" {
+  name = "main-website-security-alerts"
+
+  tags = {
+    Name        = "Main Website Security Alerts"
+    Environment = "Production"
+    Purpose     = "Security Notifications"
+    ManagedBy   = "Terraform"
   }
 }
 
@@ -297,4 +442,14 @@ output "cloudfront_distribution_domain_name" {
 output "cloudfront_distribution_arn" {
   description = "ARN of the CloudFront distribution"
   value       = aws_cloudfront_distribution.website.arn
+}
+
+output "waf_web_acl_arn" {
+  description = "ARN of the WAF Web ACL"
+  value       = aws_wafv2_web_acl.main_website_waf.arn
+}
+
+output "security_alerts_sns_topic_arn" {
+  description = "ARN of the security alerts SNS topic"
+  value       = aws_sns_topic.security_alerts.arn
 }
