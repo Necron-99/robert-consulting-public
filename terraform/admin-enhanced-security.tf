@@ -147,7 +147,7 @@ resource "aws_dynamodb_table" "admin_sessions" {
   # nosemgrep: terraform.aws.security.aws-dynamodb-table-unencrypted
   server_side_encryption {
     enabled     = true
-    kms_key_id  = aws_kms_key.dynamodb_encryption.arn
+    kms_master_key_id  = aws_kms_key.dynamodb_encryption.key_id
   }
 
   tags = local.security_tags
@@ -199,7 +199,7 @@ resource "aws_dynamodb_table" "admin_audit_log" {
   # nosemgrep: terraform.aws.security.aws-dynamodb-table-unencrypted
   server_side_encryption {
     enabled     = true
-    kms_key_id  = aws_kms_key.dynamodb_encryption.arn
+    kms_master_key_id  = aws_kms_key.dynamodb_encryption.key_id
   }
 
   tags = local.security_tags

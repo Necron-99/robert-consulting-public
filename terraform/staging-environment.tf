@@ -89,15 +89,6 @@ resource "aws_s3_bucket_acl" "staging_access_logs" {
   depends_on = [aws_s3_bucket_ownership_controls.staging_access_logs]
 }
 
-# S3 bucket ownership controls for access logs
-resource "aws_s3_bucket_ownership_controls" "staging_access_logs" {
-  bucket = aws_s3_bucket.staging_access_logs.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
 # S3 bucket public access block for access logs (allow ACL for CloudFront)
 resource "aws_s3_bucket_public_access_block" "staging_access_logs" {
   bucket = aws_s3_bucket.staging_access_logs.id

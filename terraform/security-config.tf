@@ -1,9 +1,6 @@
 # Security Configuration and Best Practices
 
-# Data source for current AWS account
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {}
+# Data sources are already declared in backend.tf
 
 # KMS key for encryption
 resource "aws_kms_key" "security_key" {

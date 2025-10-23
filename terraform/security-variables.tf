@@ -57,11 +57,7 @@ variable "backup_retention_days" {
   }
 }
 
-variable "monitoring_enabled" {
-  description = "Enable comprehensive monitoring"
-  type        = bool
-  default     = true
-}
+# monitoring_enabled variable is already declared in main-site-monitoring.tf
 
 variable "encryption_enabled" {
   description = "Enable encryption at rest and in transit"

@@ -386,7 +386,7 @@ resource "aws_cloudwatch_metric_alarm" "high_error_rate" {
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "waf_blocked_requests" {
+resource "aws_cloudwatch_metric_alarm" "main_website_waf_blocked_requests" {
   alarm_name          = "main-website-waf-blocked-requests"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
