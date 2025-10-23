@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Dashboard - Robert Consulting</title>
+    <meta name="description" content="Comprehensive real-time system status, AWS monitoring, cost tracking, and performance metrics dashboard">
+    <meta name="keywords" content="dashboard, status, monitoring, AWS, cost tracking, service health, performance, Robert Consulting">
+    <meta name="author" content="Robert Consulting">
+    
+    <!-- Security Headers - Handled by CloudFront Response Headers Policy -->
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages/dashboard.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">System Dashboard</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#experience" class="nav-link">Experience</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="main">
+        <!-- Dashboard Header -->
+        <section class="dashboard-header">
+            <div class="container">
+                <div class="header-content">
+                    <h1>📊 System Dashboard</h1>
+                    <p class="dashboard-subtitle">Real-time monitoring of infrastructure, costs, and performance</p>
+                    <div class="overall-status" id="overall-status">
+                        <div class="status-indicator" id="status-indicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Loading...</span>
+                        </div>
+                        <div class="last-updated" id="last-updated">
+                            Last updated: <span id="last-updated-time">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="refresh-controls">
+                    <button id="refresh-all" class="btn btn-primary">🔄 Refresh All</button>
+                    <button id="auto-refresh" class="btn btn-secondary">⏱️ Auto Refresh: ON</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats Overview -->
+        <section class="quick-stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-monthly-cost">$6.82</div>
+                            <div class="stat-label">Monthly Cost</div>
+                            <div class="stat-trend" id="cost-trend">-59.2%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏥</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="overall-health">Loading...</div>
+                            <div class="stat-label">System Health</div>
+                            <div class="stat-trend" id="health-trend">All Systems Operational</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avg-response-time">--ms</div>
+                            <div class="stat-label">Avg Response Time</div>
+                            <div class="stat-trend" id="performance-trend">Optimal</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="uptime-percentage">99.9%</div>
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-trend" id="uptime-trend">Excellent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Velocity Section -->
+        <section class="development-velocity-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🚀 Development Velocity</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-velocity" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="velocity-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="development-velocity">
+                    <div class="velocity-header">
+                        <h4>🚀 Development Velocity</h4>
+                        <span class="velocity-period">Active Development Metrics</span>
+                    </div>
+                    <div class="velocity-stats">
+                        <div class="velocity-item">
+                            <span class="velocity-label">New Features</span>
+                            <span class="velocity-value" id="features-implemented">35+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Bugs Squashed</span>
+                            <span class="velocity-value" id="bugs-fixed">28+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Improvements</span>
+                            <span class="velocity-value" id="improvements-made">42+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Security Enhancements</span>
+                            <span class="velocity-value" id="security-updates">22+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Infrastructure Updates</span>
+                            <span class="velocity-value" id="infra-updates">18+</span>
+                        </div>
+                        <div class="velocity-item">
+                            <span class="velocity-label">Testing & Validation</span>
+                            <span class="velocity-value" id="testing-cycles">15+</span>
+                        </div>
+                    </div>
+                    <div class="velocity-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Recent Commits (7d)</span>
+                            <span class="summary-value" id="total-commits-velocity">156</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Total Commits (30d)</span>
+                            <span class="summary-value" id="dev-days">487</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Avg Commits/Day</span>
+                            <span class="summary-value" id="avg-commits-day">4.2</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Success Rate</span>
+                            <span class="summary-value" id="success-rate">97%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Cleanup Achievements -->
+        <section class="cleanup-achievements-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🧹 Repository Cleanup Achievements</h3>
+                    <div class="refresh-controls">
+                        <span class="last-updated">Completed: October 13, 2025</span>
+                    </div>
+                </div>
+                
+                <div class="cleanup-grid">
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">📁</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">14</div>
+                            <div class="cleanup-label">Organized Directories</div>
+                            <div class="cleanup-description">docs/, scripts/, config/ structure</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">📄</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">133</div>
+                            <div class="cleanup-label">Documentation Files</div>
+                            <div class="cleanup-description">All organized by category</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🔧</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">68</div>
+                            <div class="cleanup-label">Automation Scripts</div>
+                            <div class="cleanup-description">Deployment, security, utilities</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🏗️</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">44</div>
+                            <div class="cleanup-label">Infrastructure Files</div>
+                            <div class="cleanup-description">Terraform configurations</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🌐</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">21</div>
+                            <div class="cleanup-label">Web Pages</div>
+                            <div class="cleanup-description">HTML files organized</div>
+                        </div>
+                    </div>
+                    <div class="cleanup-card">
+                        <div class="cleanup-icon">🎨</div>
+                        <div class="cleanup-content">
+                            <div class="cleanup-value">22</div>
+                            <div class="cleanup-label">Stylesheets</div>
+                            <div class="cleanup-description">CSS files organized</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cleanup-summary">
+                    <div class="summary-highlight">
+                        <h4>🎯 Cleanup Impact</h4>
+                        <div class="impact-stats">
+                            <div class="impact-item">
+                                <span class="impact-label">Files Removed</span>
+                                <span class="impact-value">18,111+ lines</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Duplicates Eliminated</span>
+                                <span class="impact-value">100%</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Security Improved</span>
+                                <span class="impact-value">Zero sensitive data</span>
+                            </div>
+                            <div class="impact-item">
+                                <span class="impact-label">Maintainability</span>
+                                <span class="impact-value">Significantly improved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Terraform Infrastructure Section -->
+        <section class="terraform-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🏗️ Infrastructure as Code</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-terraform" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="terraform-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="terraform-grid">
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📊</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="total-resources">79</div>
+                            <div class="terraform-label">Total Resources</div>
+                            <div class="terraform-trend">All managed by Terraform</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📁</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="terraform-files">27</div>
+                            <div class="terraform-label">Configuration Files</div>
+                            <div class="terraform-trend">4,758 lines of code</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">☁️</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="aws-services">15</div>
+                            <div class="terraform-label">AWS Services</div>
+                            <div class="terraform-trend">Multi-service architecture</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">🔒</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="security-resources">12</div>
+                            <div class="terraform-label">Security Resources</div>
+                            <div class="terraform-trend">WAF, IAM, Encryption</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">🌐</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="networking-resources">11</div>
+                            <div class="terraform-label">Networking Resources</div>
+                            <div class="terraform-trend">Route53, CloudFront, API Gateway</div>
+                        </div>
+                    </div>
+                    
+                    <div class="terraform-card">
+                        <div class="terraform-icon">📦</div>
+                        <div class="terraform-content">
+                            <div class="terraform-value" id="storage-resources">8</div>
+                            <div class="terraform-label">Storage Resources</div>
+                            <div class="terraform-trend">S3, DynamoDB, State Management</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terraform-breakdown">
+                    <div class="breakdown-header">
+                        <h4>🔧 Resource Breakdown</h4>
+                        <span class="breakdown-period">Current Infrastructure</span>
+                    </div>
+                    <div class="breakdown-stats">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Route53 Records</span>
+                            <span class="breakdown-value" id="route53-count">10</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">S3 Buckets</span>
+                            <span class="breakdown-value" id="s3-count">5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">CloudWatch Alarms</span>
+                            <span class="breakdown-value" id="cloudwatch-count">5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">CloudFront Distributions</span>
+                            <span class="breakdown-value" id="cloudfront-count">3</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">WAF Web ACLs</span>
+                            <span class="breakdown-value" id="waf-count">2</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">API Gateway Resources</span>
+                            <span class="breakdown-value" id="api-gateway-count">8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terraform-features">
+                    <div class="features-header">
+                        <h4>🚀 Infrastructure Features</h4>
+                        <a href="https://github.com/Necron-99/robert-consulting.net/tree/main/terraform" class="terraform-link" target="_blank">View Terraform Code →</a>
+                    </div>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-name">Multi-Account Architecture</div>
+                            <div class="feature-description">AWS Organizations with separate client accounts and cross-account access</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🏢 2+ Accounts</span>
+                                <span class="feature-stat">🔐 Cross-Account Roles</span>
+                                <span class="feature-stat">📋 SCPs & Policies</span>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-name">Security & Compliance</div>
+                            <div class="feature-description">WAF protection, IAM roles, encryption, and security monitoring</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🛡️ WAF Protection</span>
+                                <span class="feature-stat">🔒 Encryption</span>
+                                <span class="feature-stat">📊 Monitoring</span>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-name">State Management</div>
+                            <div class="feature-description">Remote state storage with S3 backend and DynamoDB locking</div>
+                            <div class="feature-stats">
+                                <span class="feature-stat">🗄️ S3 Backend</span>
+                                <span class="feature-stat">🔒 State Locking</span>
+                                <span class="feature-stat">📈 Versioning</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Status Section -->
+        <section class="status-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🏥 System Status</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-status" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="status-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="status-grid">
+                    <!-- Website Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🌐 Website</h4>
+                            <div class="status-badge" id="website-status">Operational</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value" id="website-uptime">99.9%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Response Time</span>
+                                <span class="metric-value" id="website-response">120ms</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Last Incident</span>
+                                <span class="metric-value" id="website-incident">None</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🔒 Security</h4>
+                            <div class="status-badge" id="security-status">Secure</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">WAF Status</span>
+                                <span class="metric-value" id="waf-status">Active</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">SSL Certificate</span>
+                                <span class="metric-value" id="ssl-status">Valid</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Threats Blocked</span>
+                                <span class="metric-value" id="threats-blocked">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Infrastructure Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>🏗️ Infrastructure</h4>
+                            <div class="status-badge" id="infrastructure-status">Healthy</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">S3 Buckets</span>
+                                <span class="metric-value" id="s3-status">Operational</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">CloudFront</span>
+                                <span class="metric-value" id="cloudfront-status">Deployed</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Route53</span>
+                                <span class="metric-value" id="route53-status">Resolving</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Status -->
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <h4>⚡ Performance</h4>
+                            <div class="status-badge" id="performance-status">Optimal</div>
+                        </div>
+                        <div class="status-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Load Time</span>
+                                <span class="metric-value" id="load-time">1.2s</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Cache Hit Rate</span>
+                                <span class="metric-value" id="cache-hit-rate">95%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Core Web Vitals</span>
+                                <span class="metric-value" id="core-web-vitals">Good</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost Monitoring Section -->
+        <section class="cost-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>💰 Cost Monitoring</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-costs" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="cost-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="cost-overview">
+                    <div class="cost-summary">
+                        <div class="cost-total">
+                            <span class="cost-label">Total Monthly Cost</span>
+                            <span class="cost-value" id="total-cost">$6.82</span>
+                            <span class="cost-trend" id="cost-trend">-59.2%</span>
+                        </div>
+                        <div class="cost-breakdown">
+                            <div class="cost-item">
+                                <span class="cost-service">AWS Services</span>
+                                <span class="cost-amount" id="aws-total">$5.57</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-service">Domain Registrar</span>
+                                <span class="cost-amount" id="registrar-cost">$1.25</span>
+                                <small style="display: block; color: var(--text-tertiary); font-size: 0.75rem; margin-top: 0.25rem;">5-year cost: $75.00</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cost-grid">
+                    <div class="cost-card">
+                        <h4>S3 Storage</h4>
+                        <div class="cost-value" id="s3-cost">$0.16</div>
+                        <div class="cost-breakdown">
+                            <span>Storage: <span id="s3-storage">2.1 GB</span></span>
+                            <span>Objects: <span id="s3-objects">1,247</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>CloudFront</h4>
+                        <div class="cost-value" id="cloudfront-cost">$0.08</div>
+                        <div class="cost-breakdown">
+                            <span>Requests: <span id="cloudfront-requests">12.5K</span></span>
+                            <span>Bandwidth: <span id="cloudfront-bandwidth">1.8 GB</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>Route53</h4>
+                        <div class="cost-value" id="route53-cost">$3.05</div>
+                        <div class="cost-breakdown">
+                            <span>Queries: <span id="route53-queries">1.2M</span></span>
+                            <span>Health Checks: <span id="route53-health-checks">3</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>WAF</h4>
+                        <div class="cost-value" id="waf-cost">$5.72</div>
+                        <div class="cost-breakdown">
+                            <span>Web ACLs: <span id="waf-acls">3</span></span>
+                            <span>Rules: <span id="waf-rules">15</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>CloudWatch</h4>
+                        <div class="cost-value" id="cloudwatch-cost">$0.24</div>
+                        <div class="cost-breakdown">
+                            <span>Metrics: <span id="cloudwatch-metrics">Active</span></span>
+                            <span>Logs: <span id="cloudwatch-logs">Minimal</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cost-card">
+                        <h4>Other Services</h4>
+                        <div class="cost-value" id="other-cost">$1.25</div>
+                        <div class="cost-breakdown">
+                            <span>Lambda: <span id="lambda-cost">$0.12</span></span>
+                            <span>SES: <span id="ses-cost">$5.88</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security & Monitoring Section -->
+        <section class="monitoring-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🛡️ Security & Monitoring</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-monitoring" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="monitoring-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="monitoring-overview">
+                    <div class="monitoring-summary">
+                        <div class="monitoring-status">
+                            <span class="monitoring-label">Overall Security Status</span>
+                            <span class="monitoring-value" id="security-status">🟢 SECURE</span>
+                            <span class="monitoring-details">All systems operational</span>
+                        </div>
+                        <div class="monitoring-breakdown">
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">WAF Protection</span>
+                                <span class="monitoring-status-indicator" id="waf-status">🟢 Active</span>
+                            </div>
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">SSL/TLS Encryption</span>
+                                <span class="monitoring-status-indicator" id="ssl-status">🟢 Enabled</span>
+                            </div>
+                            <div class="monitoring-item">
+                                <span class="monitoring-service">Origin Access Control</span>
+                                <span class="monitoring-status-indicator" id="oac-status">🟢 Protected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="monitoring-grid">
+                    <div class="monitoring-card">
+                        <h4>🔒 Security Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Active Alerts</span>
+                                <span class="metric-value" id="active-alerts">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Blocked Requests (24h)</span>
+                                <span class="metric-value" id="blocked-requests">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Rate Limit Triggers</span>
+                                <span class="metric-value" id="rate-limits">0</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Real-time threat detection and automated response
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>🔍 Security Scanning</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Critical Issues</span>
+                                <span class="metric-value" id="critical-issues">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">High Issues</span>
+                                <span class="metric-value" id="high-issues">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Medium Issues</span>
+                                <span class="metric-value" id="medium-issues">0</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Comprehensive security scanning with zero issues found
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>⚡ Performance Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Cache Hit Ratio</span>
+                                <span class="metric-value" id="cache-hit-ratio">95%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Response Time</span>
+                                <span class="metric-value" id="response-time">120ms</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Error Rate</span>
+                                <span class="metric-value" id="error-rate">0.1%</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Continuous performance optimization and monitoring
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>📊 Monitoring Infrastructure</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">CloudWatch Alarms</span>
+                                <span class="metric-value" id="cloudwatch-alarms">9</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">SNS Notifications</span>
+                                <span class="metric-value" id="sns-status">🟢 Active</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Dashboard Updates</span>
+                                <span class="metric-value" id="dashboard-updates">Real-time</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Enterprise-grade monitoring and alerting system
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-card">
+                        <h4>💰 Cost Monitoring</h4>
+                        <div class="monitoring-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Data Transfer (24h)</span>
+                                <span class="metric-value" id="data-transfer">2.1 GB</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">WAF Requests (24h)</span>
+                                <span class="metric-value" id="waf-requests">1,247</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Monitoring Cost</span>
+                                <span class="metric-value" id="monitoring-cost">$4.20</span>
+                            </div>
+                        </div>
+                        <div class="monitoring-description">
+                            Proactive cost tracking and optimization alerts
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="monitoring-features">
+                    <h4>🛡️ Security Features</h4>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <span class="feature-icon">🛡️</span>
+                            <span class="feature-name">Web Application Firewall</span>
+                            <span class="feature-description">Advanced threat protection with rate limiting</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔒</span>
+                            <span class="feature-name">HTTPS Enforcement</span>
+                            <span class="feature-description">All traffic encrypted with TLS 1.2+</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🚫</span>
+                            <span class="feature-name">Origin Access Control</span>
+                            <span class="feature-description">S3 bucket protected from direct access</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span class="feature-name">Real-time Monitoring</span>
+                            <span class="feature-description">9 CloudWatch alarms with instant alerts</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔍</span>
+                            <span class="feature-name">Threat Detection</span>
+                            <span class="feature-description">Automated blocking of malicious requests</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span class="feature-name">Performance Tracking</span>
+                            <span class="feature-description">Cache optimization and response time monitoring</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔍</span>
+                            <span class="feature-name">Automated Security Scanning</span>
+                            <span class="feature-description">Comprehensive code and infrastructure security analysis</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🛡️</span>
+                            <span class="feature-name">Security Headers</span>
+                            <span class="feature-description">CSP, XSS protection, and content type validation</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🔐</span>
+                            <span class="feature-name">Secrets Detection</span>
+                            <span class="feature-description">Automated scanning for hardcoded credentials and API keys</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Performance Metrics Section -->
+        <section class="performance-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>⚡ Performance Metrics</h3>
+                    <div class="refresh-controls">
+                        <button id="refresh-performance" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="performance-last-updated">Last updated: Never</span>
+                    </div>
+                </div>
+                
+                <div class="performance-grid">
+                    <div class="performance-card" id="core-web-vitals">
+                        <h4>Core Web Vitals</h4>
+                        <div class="vital-metric">
+                            <span class="vital-label">LCP</span>
+                            <span class="vital-value" id="core-web-vitals-lcp">1.2s</span>
+                            <span class="vital-score" id="core-web-vitals-lcp-score">good</span>
+                        </div>
+                        <div class="vital-metric">
+                            <span class="vital-label">FID</span>
+                            <span class="vital-value" id="core-web-vitals-fid">45ms</span>
+                            <span class="vital-score" id="core-web-vitals-fid-score">good</span>
+                        </div>
+                        <div class="vital-metric">
+                            <span class="vital-label">CLS</span>
+                            <span class="vital-value" id="core-web-vitals-cls">0.05</span>
+                            <span class="vital-score" id="core-web-vitals-cls-score">good</span>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-card" id="page-speed">
+                        <h4>Page Speed</h4>
+                        <div class="speed-metric">
+                            <span class="speed-label">Mobile</span>
+                            <span class="speed-value" id="page-speed-mobile-score">95</span>
+                            <span class="speed-grade" id="page-speed-mobile-grade">A</span>
+                        </div>
+                        <div class="speed-metric">
+                            <span class="speed-label">Desktop</span>
+                            <span class="speed-value" id="page-speed-desktop-score">98</span>
+                            <span class="speed-grade" id="page-speed-desktop-grade">A</span>
+                        </div>
+                    </div>
+                    
+                    <div class="performance-card" id="resource-timing">
+                        <h4>Resource Timing</h4>
+                        <div class="timing-metric">
+                            <span class="timing-label">DNS</span>
+                            <span class="timing-value" id="resource-timing-dns">12ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">Connect</span>
+                            <span class="timing-value" id="resource-timing-connect">45ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">SSL</span>
+                            <span class="timing-value" id="resource-timing-ssl">23ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">TTFB</span>
+                            <span class="timing-value" id="resource-timing-ttfb">180ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">DOM</span>
+                            <span class="timing-value" id="resource-timing-dom">320ms</span>
+                        </div>
+                        <div class="timing-metric">
+                            <span class="timing-label">Load</span>
+                            <span class="timing-value" id="resource-timing-load">1.2s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts and Notifications -->
+        <section class="alerts-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>🚨 Alerts & Notifications</h3>
+                    <div class="alert-controls">
+                        <button id="clear-alerts" class="btn btn-secondary">Clear All</button>
+                    </div>
+                </div>
+                
+                <div class="alerts-container" id="alerts-container">
+                    <div class="alert alert-info">
+                        <div class="alert-icon">ℹ️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">System Status</div>
+                            <div class="alert-message">All systems are operational. No issues detected.</div>
+                            <div class="alert-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Robert Consulting</h4>
+                <p>Professional cloud engineering and DevOps solutions</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="learning.html">Learning</a></li>
+                    <li><a href="best-practices.html">Best Practices</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>System Info</h4>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="https://admin.robertconsulting.net">Admin Panel</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
+            <p>Last updated: <span id="footer-last-updated">--</span></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="dashboard-script.js"></script>
+    <script src="js/easter-egg.js"></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps Blog - Robert Consulting</title>
+    <meta name="description" content="Latest insights on DevSecOps, cloud engineering, AWS, Terraform, CI/CD automation, and infrastructure best practices from Robert Consulting.">
+    <meta name="keywords" content="DevSecOps blog, cloud engineering, AWS, Terraform, CI/CD, infrastructure automation, DevOps best practices, cloud security">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://robertconsulting.net/blog.html">
+    <meta property="og:title" content="DevSecOps Blog - Robert Consulting">
+    <meta property="og:description" content="Latest insights on DevSecOps, cloud engineering, AWS, Terraform, CI/CD automation, and infrastructure best practices from Robert Consulting.">
+    <meta property="og:site_name" content="Robert Consulting">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://robertconsulting.net/blog.html">
+    <meta property="twitter:title" content="DevSecOps Blog - Robert Consulting">
+    <meta property="twitter:description" content="Latest insights on DevSecOps, cloud engineering, AWS, Terraform, CI/CD automation, and infrastructure best practices from Robert Consulting.">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "DevSecOps Blog - Robert Consulting",
+      "description": "Latest insights on DevSecOps, cloud engineering, AWS, Terraform, CI/CD automation, and infrastructure best practices",
+      "url": "https://robertconsulting.net/blog.html",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Robert Consulting",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://robertconsulting.net/favicon.svg"
+        }
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Robert Consulting"
+      },
+      "inLanguage": "en-US",
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "DevSecOps"
+        },
+        {
+          "@type": "Thing",
+          "name": "Cloud Engineering"
+        },
+        {
+          "@type": "Thing",
+          "name": "AWS"
+        },
+        {
+          "@type": "Thing",
+          "name": "Terraform"
+        },
+        {
+          "@type": "Thing",
+          "name": "CI/CD"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://robertconsulting.net/blog.html">
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Blog Styles -->
+    <style>
+        .blog-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .blog-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .blog-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .blog-content {
+            padding: 60px 0;
+        }
+        
+        .blog-filters {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .blog-card-image {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        
+        .blog-card-content {
+            padding: 25px;
+        }
+        
+        .blog-card-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .blog-card-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .blog-card-category {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .blog-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .blog-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .blog-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .blog-tag {
+            background: #f8f9fa;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .blog-card-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .blog-card-link:hover {
+            color: #5a6fd8;
+        }
+        
+        .blog-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        
+        .pagination-btn {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn:hover,
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .blog-cta {
+            background: #f8f9fa;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .blog-cta h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .blog-cta p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .blog-filters {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">DevSecOps & Cloud Engineering</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">More</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="index.html#about" class="dropdown-link">About</a></li>
+                        <li><a href="index.html#experience" class="dropdown-link">Experience</a></li>
+                        <li><a href="best-practices.html" class="dropdown-link">Best Practices</a></li>
+                        <li><a href="dashboard.html" class="dropdown-link">Dashboard</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Blog Hero -->
+    <section class="blog-hero">
+        <div class="container">
+            <h1>📝 DevSecOps Blog</h1>
+            <p>Latest insights on cloud engineering, infrastructure automation, and DevOps best practices. New posts every weekday.</p>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <section class="blog-content">
+        <div class="container">
+            <!-- Blog Filters -->
+            <div class="blog-filters">
+                <button class="filter-btn active" data-filter="all">All Posts</button>
+                <button class="filter-btn" data-filter="aws">AWS</button>
+                <button class="filter-btn" data-filter="terraform">Terraform</button>
+                <button class="filter-btn" data-filter="cicd">CI/CD</button>
+                <button class="filter-btn" data-filter="security">Security</button>
+                <button class="filter-btn" data-filter="devops">DevOps</button>
+            </div>
+
+            <!-- Blog Grid -->
+            <div class="blog-grid" id="blog-grid">
+                <!-- Blog posts will be loaded dynamically -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="blog-pagination" id="blog-pagination">
+                <!-- Pagination will be generated dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog CTA -->
+    <section class="blog-cta">
+        <div class="container">
+            <h2>Stay Updated</h2>
+            <p>Get the latest DevSecOps insights and cloud engineering tips delivered to your inbox. New posts every weekday covering AWS, Terraform, CI/CD, and more.</p>
+            <a href="index.html#contact" class="btn btn-primary">Subscribe to Updates</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Robert Consulting</h3>
+                    <p>DevSecOps and cloud engineering solutions for organizations. Specializing in AWS, Terraform, CI/CD automation, and compliance frameworks.</p>
+                    <div class="footer-credentials">
+                        <span class="credential-badge">AWS Certified</span>
+                        <span class="credential-badge">25+ Years</span>
+                        <span class="credential-badge">Cost Optimized</span>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="index.html#services">Cloud Infrastructure</a></li>
+                        <li><a href="index.html#services">CI/CD Automation</a></li>
+                        <li><a href="index.html#services">Security & Compliance</a></li>
+                        <li><a href="index.html#services">Database DevOps</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="learning.html">Learning Journey</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="status.html">Status Page</a></li>
+                        <li><a href="monitoring.html">Monitoring</a></li>
+                        <li><a href="best-practices.html">Best Practices</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Information</h4>
+                    <p>info@robertconsulting.net</p>
+                    <p>(434) 227-8323</p>
+                    <p><a href="https://robertconsulting.net" target="_blank" rel="noopener noreferrer">robertconsulting.net</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script defer src="js/navigation.js"></script>
+    <script defer src="js/blog.js"></script>
+</body>
+</html>

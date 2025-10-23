@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robert Consulting | DevSecOps &amp; Cloud Engineering Solutions</title>
+    <title>Robert Consulting | DevSecOps & Cloud Engineering Solutions</title>
     <meta name="description" content="Robert Consulting provides DevSecOps, cloud engineering, and infrastructure automation solutions for organizations. Specializing in AWS, Terraform, CI/CD, and compliance frameworks.">
     <meta name="keywords" content="DevSecOps, cloud engineering, AWS, Terraform, CI/CD, infrastructure automation, compliance, FedRAMP, NIST, SOC 2">
     <meta name="author" content="Robert Consulting">
 
-    <!-- Security Headers - Handled by CloudFront Response Headers Policy -->
-
     <link rel="stylesheet" href="css/main.css">
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="favicon.svg">
-    <!-- Optimized: Removed external font dependencies for cost savings -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
-    <!-- Using local Font Awesome icons to reduce external requests -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
 </head>
 <body class="dark-theme">
     <!-- Navigation -->
@@ -26,17 +21,14 @@
         <div class="nav-container">
             <div class="nav-logo">
                 <h2>Robert Consulting</h2>
-                <span class="nav-tagline">DevSecOps &amp; Cloud Engineering</span>
+                <span class="nav-tagline">DevSecOps & Cloud Engineering</span>
             </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item">
-                    <a href="#home" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#services" class="nav-link">Services</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#about" class="nav-link">About</a>
+                    <a href="index.html#services" class="nav-link">Services</a>
                 </li>
                 <li class="nav-item">
                     <a href="learning.html" class="nav-link">Learning</a>
@@ -44,29 +36,15 @@
                 <li class="nav-item">
                     <a href="blog.html" class="nav-link">Blog</a>
                 </li>
-                <li class="nav-item">
-                    <a href="blog.html" class="nav-link">Blog</a>
-                <li class="nav-item">
-                    <a href="blog.html" class="nav-link">Blog</a>
-                </li>
-                <li class="nav-item">
-                    <a href="blog.html" class="nav-link">Blog</a>
-                </li>
-                </li>
-                <li class="nav-item">
-                    <a href="blog.html" class="nav-link">Blog</a>
-                </li>
-                <li class="nav-item">
-                    <a href="dashboard.html" class="nav-link">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a href="best-practices.html" class="nav-link">Best Practices</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#experience" class="nav-link">Experience</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#contact" class="nav-link">Contact</a>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" id="more-menu-toggle">More</a>
+                    <ul class="dropdown-menu" id="more-menu">
+                        <li><a href="index.html#about" class="dropdown-link">About</a></li>
+                        <li><a href="dashboard.html" class="dropdown-link">Dashboard</a></li>
+                        <li><a href="best-practices.html" class="dropdown-link">Best Practices</a></li>
+                        <li><a href="index.html#experience" class="dropdown-link">Experience</a></li>
+                        <li><a href="index.html#contact" class="dropdown-link">Contact</a></li>
+                    </ul>
                 </li>
             </ul>
             <div class="nav-actions">
@@ -86,7 +64,7 @@
     <section id="home" class="hero">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">DevSecOps &amp; Cloud Engineering Solutions</h1>
+                <h1 class="hero-title">DevSecOps & Cloud Engineering Solutions</h1>
                 <p class="hero-subtitle">Robert Consulting</p>
                 <p class="hero-description">
                     AWS DevSecOps and Cloud Engineer specializing in Infrastructure as Code, CI/CD automation, observability, and compliance frameworks.
@@ -97,7 +75,7 @@
                         <span class="credential-text">Growth Mindset</span>
                     </div>
                     <div class="credential-item">
-                        <span class="credential-number">🔍</span>
+                        <span class="credential-number">🔎</span>
                         <span class="credential-text">Always Curious</span>
                     </div>
                     <div class="credential-item">
@@ -105,18 +83,14 @@
                         <span class="credential-text">Years Learning</span>
                     </div>
                 </div>
-                <div class="hero-buttons">
+                <div class="hero-actions">
                     <a href="#services" class="btn btn-primary">View Services</a>
                     <a href="#contact" class="btn btn-secondary">Schedule Consultation</a>
                 </div>
             </div>
-            <div class="hero-image">
-                <div class="hero-graphic">
-                    <div class="professional-photo">
-                        <div class="photo-placeholder">
-                            <div class="icon-user-tie"></div>
-                        </div>
-                    </div>
+            <div class="hero-visual">
+                <div class="visual-card">
+                    <div class="visual-icon">M</div>
                 </div>
             </div>
         </div>
@@ -126,80 +100,38 @@
     <section id="services" class="services">
         <div class="container">
             <div class="section-header">
-                <h2>DevSecOps &amp; Cloud Engineering Services</h2>
+                <h2>DevSecOps & Cloud Engineering Services</h2>
                 <p>Comprehensive infrastructure automation and cloud security solutions for organizations</p>
             </div>
             <div class="services-grid">
                 <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-laptop"></div>
-                    </div>
+                    <div class="service-icon">☁️</div>
                     <h3>Cloud Infrastructure Design</h3>
                     <p>Design and deploy secure, scalable AWS infrastructure with Infrastructure as Code. Specializing in multi-account architectures, landing zones, and cost optimization strategies.</p>
-                    <div class="service-details">
-                        <span class="service-tag">AWS Architecture</span>
-                        <span class="service-tag">Terraform</span>
-                        <span class="service-tag">Cost Optimization</span>
+                    <div class="service-tags">
+                        <span class="tag">AWS Architecture</span>
+                        <span class="tag">Terraform</span>
+                        <span class="tag">Cost Optimization</span>
                     </div>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-cogs"></div>
-                    </div>
+                    <div class="service-icon">⚙️</div>
                     <h3>CI/CD Automation</h3>
                     <p>Build and optimize CI/CD pipelines with GitHub Actions, GitLab CI, and Jenkins. Implement GitOps workflows with automated testing, security scanning, and deployment strategies.</p>
-                    <div class="service-details">
-                        <span class="service-tag">GitHub Actions</span>
-                        <span class="service-tag">GitOps</span>
-                        <span class="service-tag">Docker/Kubernetes</span>
+                    <div class="service-tags">
+                        <span class="tag">GitHub Actions</span>
+                        <span class="tag">GitOps</span>
+                        <span class="tag">Docker/Kubernetes</span>
                     </div>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-chart-bar"></div>
-                    </div>
-                    <h3>Security &amp; Compliance</h3>
+                    <div class="service-icon">🔒</div>
+                    <h3>Security & Compliance</h3>
                     <p>Implement security frameworks and compliance standards including FedRAMP, NIST 800-53, and SOC 2. Deploy security scanning, policy enforcement, and audit automation.</p>
-                    <div class="service-details">
-                        <span class="service-tag">FedRAMP</span>
-                        <span class="service-tag">NIST 800-53</span>
-                        <span class="service-tag">STIG Compliance</span>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-users"></div>
-                    </div>
-                    <h3>Database DevOps</h3>
-                    <p>Automate SQL Server provisioning, schema management, and backup strategies. Integrate database operations into CI/CD pipelines with monitoring and alerting.</p>
-                    <div class="service-details">
-                        <span class="service-tag">SQL Server DevOps</span>
-                        <span class="service-tag">PostgreSQL</span>
-                        <span class="service-tag">Backup Automation</span>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-lightbulb"></div>
-                    </div>
-                    <h3>Monitoring &amp; Observability</h3>
-                    <p>Implement comprehensive monitoring solutions with Datadog, Prometheus, and ELK Stack. Build alerting systems and performance dashboards for infrastructure and applications.</p>
-                    <div class="service-details">
-                        <span class="service-tag">Datadog</span>
-                        <span class="service-tag">ELK Stack</span>
-                        <span class="service-tag">Prometheus</span>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <div class="icon-handshake"></div>
-                    </div>
-                    <h3>Infrastructure Automation</h3>
-                    <p>Automate infrastructure provisioning and management with Terraform, Ansible, Chef, and Puppet. Implement Infrastructure as Code best practices and module development.</p>
-                    <div class="service-details">
-                        <span class="service-tag">Terraform</span>
-                        <span class="service-tag">Ansible</span>
-                        <span class="service-tag">Chef/Puppet</span>
+                    <div class="service-tags">
+                        <span class="tag">FedRAMP</span>
+                        <span class="tag">NIST 800-53</span>
+                        <span class="tag">STIG Compliance</span>
                     </div>
                 </div>
             </div>
@@ -211,100 +143,22 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-text">
-                    <h2>About Robert Bailey</h2>
-                    <p class="about-description">
-                        Robert Bailey is a Senior DevSecOps and Cloud Engineer with 25+ years of experience designing, securing, and automating infrastructure for organizations.
-                        His expertise spans AWS cloud architecture, Infrastructure as Code, CI/CD automation, and compliance frameworks including NIST 800-53 and SOC 2.
-                    </p>
-                    <div class="about-credentials">
-                        <div class="credential">
-                            <h4>Current Certifications</h4>
-                            <ul>
-                                <li>AWS Certified SysOps Administrator – Associate</li>
-                            </ul>
-                        </div>
-                        <div class="credential">
-                            <h4>Core Competencies</h4>
-                            <ul>
-                                <li>AWS (EC2, S3, RDS, Lambda, Control Tower, GovCloud)</li>
-                                <li>Terraform, Terragrunt, Ansible, Chef, Puppet</li>
-                                <li>GitHub Actions, GitLab CI, Jenkins, Docker, Kubernetes</li>
-                                <li>Datadog, Prometheus, ELK Stack, Vault, Consul</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <h2>About Robert Consulting</h2>
+                    <p>With over 25 years of experience in technology and continuous learning, I specialize in helping organizations implement modern DevSecOps practices and cloud engineering solutions.</p>
+                    <p>My approach combines hands-on technical expertise with strategic thinking to deliver solutions that are both secure and cost-effective.</p>
                 </div>
-                <div class="about-image">
-                    <div class="about-graphic">
-                        <div class="professional-photo-large">
-                            <div class="photo-placeholder-large">
-                                <div class="icon-user-tie"></div>
-                            </div>
-                        </div>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">25+</div>
+                        <div class="stat-label">Years Experience</div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Learning & Growth Section -->
-    <section id="learning" class="learning">
-        <div class="container">
-            <div class="section-header">
-                <h2>Continuous Learning &amp; Growth</h2>
-                <p>Passionate about staying at the forefront of technology and constantly expanding expertise</p>
-            </div>
-            <div class="learning-content">
-                <div class="learning-text">
-                    <h3>Always Learning, Always Growing</h3>
-                    <p class="learning-description">
-                        In the rapidly evolving world of cloud technology and DevOps, I believe that continuous learning is not just a professional requirement—it's a passion.
-                        With 25+ years in technology, I've never stopped learning, adapting, and growing with each new challenge and opportunity.
-                    </p>
-                    <div class="learning-highlights">
-                        <div class="learning-item">
-                            <div class="learning-icon">📚</div>
-                            <div class="learning-details">
-                                <h4>Continuous Education</h4>
-                                <p>Regularly pursuing new certifications, attending conferences, and staying current with AWS, Kubernetes, and emerging technologies.</p>
-                            </div>
-                        </div>
-                        <div class="learning-item">
-                            <div class="learning-icon">🔬</div>
-                            <div class="learning-details">
-                                <h4>Hands-On Experimentation</h4>
-                                <p>Building personal projects, testing new tools, and experimenting with cutting-edge technologies to understand their practical applications.</p>
-                            </div>
-                        </div>
-                        <div class="learning-item">
-                            <div class="learning-icon">🤝</div>
-                            <div class="learning-details">
-                                <h4>Knowledge Sharing</h4>
-                                <p>Contributing to the community through mentoring, documentation, and sharing insights gained from real-world implementations.</p>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-number">40+</div>
+                        <div class="stat-label">Technologies</div>
                     </div>
-                    <div class="learning-commitment">
-                        <h4>My Learning Philosophy</h4>
-                        <p>"Every project is an opportunity to learn something new. Every challenge is a chance to grow. Every technology evolution is an invitation to expand my expertise and deliver even better solutions to my clients."</p>
-                    </div>
-                </div>
-                <div class="learning-visual">
-                    <div class="learning-graphic">
-                        <div class="learning-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">25+</span>
-                                <span class="stat-label">Years Learning</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">Always</span>
-                                <span class="stat-label">Curious</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">∞</span>
-                                <span class="stat-label">Growth Mindset</span>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">Growth Mindset</div>
                     </div>
                 </div>
             </div>
@@ -316,79 +170,29 @@
         <div class="container">
             <div class="section-header">
                 <h2>Professional Experience</h2>
-                <p>Proven track record of delivering results for clients</p>
+                <p>Key milestones and achievements in DevSecOps and cloud engineering</p>
             </div>
-            <div class="experience-timeline">
+            <div class="timeline">
                 <div class="timeline-item">
-                    <div class="timeline-year">2021 - 2025</div>
+                    <div class="timeline-date">2025</div>
                     <div class="timeline-content">
-                        <h3>Senior DevSecOps Engineer</h3>
-                        <h4>Pharmacy Technology Company</h4>
-                        <p>Designed and deployed secure, scalable AWS infrastructure for pharmacy purchasing and inventory management platform, reducing costs by 30%. Built Terraform/Terragrunt modules for RDS SQL Server provisioning and automated CI/CD pipelines with integrated security scans.</p>
+                        <h3>AI-Powered Movie Recommendations</h3>
+                        <p>Built an intelligent recommendation system using machine learning algorithms and modern web technologies.</p>
+                        <a href="https://plex.robertconsulting.net" target="_blank" rel="noopener noreferrer">View Project →</a>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-year">2020 - 2021</div>
+                    <div class="timeline-date">2024</div>
                     <div class="timeline-content">
-                        <h3>Senior System Administrator / DevOps Engineer</h3>
-                        <h4>IT Services Company</h4>
-                        <p>Built Terraform modules for isolated AWS test environments for analytics workloads. Integrated GitHub Actions with Terraform Cloud and automated patching with AWS Lambda schedules.</p>
+                        <h3>DevSecOps Pipeline Implementation</h3>
+                        <p>Implemented comprehensive CI/CD with security scanning, automated testing, and deployment strategies.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-year">2018 - 2020</div>
+                    <div class="timeline-date">2023</div>
                     <div class="timeline-content">
-                        <h3>Cloud Engineer</h3>
-                        <h4>Systems Integration Company</h4>
-                        <p>Migrated legacy systems to AWS GovCloud achieving full compliance accreditation. Automated multi-account AWS landing zones with Control Tower and Terraform, and developed GitOps pipelines for Kubernetes.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">2015 - 2018</div>
-                    <div class="timeline-content">
-                        <h3>Senior Systems Engineer</h3>
-                        <h4>Technology Research Company</h4>
-                        <p>Automated AWS deployments for data science workloads using Terraform and Chef. Implemented ELK Stack for centralized logging and streamlined CI/CD pipelines for cloud and database environments.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">2011 - 2014</div>
-                    <div class="timeline-content">
-                        <h3>Linux Platform Engineer</h3>
-                        <h4>Cybersecurity Technology Company</h4>
-                        <p>Built CI pipelines and install automation for high-performance network security appliances. Automated appliance setup with bootstrapping, reducing provisioning time significantly.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">2007 - 2011</div>
-                    <div class="timeline-content">
-                        <h3>Senior Systems Administrator</h3>
-                        <h4>Regional Internet Service Provider</h4>
-                        <p>Supported ISP infrastructure on 24-hour on-call basis through all hardware lifecycle phases. Designed automation scripts for customer assistance and virtual server monitoring. Applied centralized monitoring concepts that increased server uptime via improved capacity planning. Deployed customer systems using personalized scripts and managed server configurations with Puppet and Jenkins.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">2003 - 2007</div>
-                    <div class="timeline-content">
-                        <h3>System Administrator</h3>
-                        <h4>Defense Contractor (General Dynamics Account)</h4>
-                        <p>Provided 24x7 on-call support for Dell Windows servers and Cisco network infrastructure. Delivered end-user hardware and software support while maintaining production systems for payroll processing. Created custom security monitoring and access control solutions using FreeBSD. Implemented VNC and encrypted tunnels for secure remote server administration.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">2000 - 2002</div>
-                    <div class="timeline-content">
-                        <h3>System Monitor Level II</h3>
-                        <h4>National Data Center Provider</h4>
-                        <p>Monitored network and facilities infrastructure (HVAC, fire alarm, security) across multiple data centers nationwide. Scheduled and coordinated planned maintenance activities with on-site personnel. Troubleshot and maintained Cisco 6509 switches for colocation customers.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-year">1998 - 2000</div>
-                    <div class="timeline-content">
-                        <h3>System Administrator</h3>
-                        <h4>Technology Solutions Company</h4>
-                        <p>Provided hardware and software support for 150+ internal users including installation and configuration. Developed custom solutions using Visual Basic for SQL Server database access. Designed and implemented company-wide IS policies and administered Pivotal Relationship customer management system. Managed MS SQL Server, Exchange Server, Linux DNS, DHCP, and Lyris List Server. Led a team of four technicians as 2nd Level Help Desk Technician, designing a two-tier support structure that increased technician productivity by 15%.</p>
+                        <h3>Cloud Architecture Design</h3>
+                        <p>Designed scalable AWS infrastructure with Terraform, focusing on security and cost optimization.</p>
                     </div>
                 </div>
             </div>
@@ -399,51 +203,32 @@
     <section id="contact" class="contact">
         <div class="container">
             <div class="section-header">
-                <h2>Schedule a Consultation</h2>
-                <p>Ready to discuss your DevSecOps and cloud infrastructure challenges? Let's explore how we can optimize your infrastructure, improve security, and reduce costs.</p>
+                <h2>Get In Touch</h2>
+                <p>Ready to discuss your DevSecOps and cloud engineering needs?</p>
             </div>
             <div class="contact-content">
                 <div class="contact-info">
-                    <div class="contact-item">
-                        <div class="icon-envelope"></div>
-                        <div>
-                            <h4>Email</h4>
-                            <p>info@robertconsulting.net</p>
-                            <span class="contact-note">Response within 24 hours</span>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="icon-phone"></div>
-                        <div>
-                            <h4>Phone</h4>
-                            <p>(434) 227-8323</p>
-                            <span class="contact-note">Business hours: 9 AM - 6 PM EST</span>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="icon-location"></div>
-                        <div>
-                            <h4>Website</h4>
-                            <p><a href="https://robertconsulting.net" target="_blank" rel="noopener noreferrer">robertconsulting.net</a></p>
-                            <span class="contact-note">Available for organizations of all sizes</span>
-                        </div>
-                    </div>
+                    <h3>Contact Information</h3>
+                    <p><strong>Email:</strong> rsbailey@necron99.org</p>
+                    <p><strong>Specialization:</strong> DevSecOps, Cloud Engineering, Infrastructure Automation</p>
                 </div>
-                <form class="contact-form">
-                    <div class="form-group">
-                        <input type="text" id="name" name="name" placeholder="Your Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder="Your Email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="subject" name="subject" placeholder="Subject" required>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
+                <div class="contact-form">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
@@ -454,58 +239,30 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Robert Consulting</h3>
-                    <p>DevSecOps and cloud engineering solutions for organizations. Specializing in AWS, Terraform, CI/CD automation, and compliance frameworks.</p>
-                    <div class="footer-credentials">
-                        <span class="credential-badge">AWS Certified</span>
-                        <span class="credential-badge">25+ Years</span>
-                        <span class="credential-badge">Cost Optimized</span>
-                    </div>
+                    <p>DevSecOps & Cloud Engineering Solutions</p>
                 </div>
                 <div class="footer-section">
-                    <h4>Services</h4>
+                    <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="#services">Cloud Infrastructure</a></li>
-                        <li><a href="#services">CI/CD Automation</a></li>
-                        <li><a href="#services">Security &amp; Compliance</a></li>
-                        <li><a href="#services">Database DevOps</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="learning.html">Learning</a></li>
+                        <li><a href="blog.html">Blog</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Contact Information</h4>
-                    <p>info@robertconsulting.net</p>
-                    <p>(434) 227-8323</p>
-                    <p><a href="https://robertconsulting.net" target="_blank" rel="noopener noreferrer">robertconsulting.net</a></p>
-                </div>
-                <div class="footer-section">
-                    <h4>Current Certifications</h4>
-                    <ul>
-                        <li>AWS SysOps Administrator</li>
-                    </ul>
-                    <h4>Previous Certifications</h4>
-                    <ul>
-                        <li>AWS Solutions Architect (Expired)</li>
-                        <li>Security Clearance (Previous)</li>
-                        <li>CompTIA Security+ (Previous)</li>
-                    </ul>
+                    <h4>Contact</h4>
+                    <p>rsbailey@necron99.org</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Robert Consulting. All rights reserved. | DevSecOps &amp; Cloud Engineering Solutions</p>
-                <div class="version-info">
-                    <span class="version-badge" id="version-display">v1.0.1</span>
-                    <span class="build-info" id="build-display">Build 2025-10-02</span>
-                    <span class="security-status" id="security-status">🔒 secure</span>
-                </div>
+                <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <script defer src="js/navigation.js"></script>
-    <script defer src="js/theme-toggle.js"></script>
-    <script defer src="js/api-config.js"></script>
-    <script defer src="security-config.js"></script>
-    <script defer src="version-manager.js"></script>
-    <script defer src="js/version-display.js"></script>
-    <script defer src="js/easter-egg.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/theme-toggle.js"></script>
 </body>
 </html>

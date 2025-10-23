@@ -3,52 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Journey - Robert Consulting</title>
-    <meta name="description" content="Explore my continuous learning journey through this DevSecOps and cloud engineering project. Discover the technologies, methodologies, and lessons learned.">
-    <meta name="keywords" content="learning, DevSecOps, cloud engineering, continuous learning, project showcase, AWS, Terraform, security">
-    
-    <!-- Security Headers - Handled by CloudFront Response Headers Policy -->
-    
+    <title>Learning Journey | Robert Consulting</title>
+    <meta name="description" content="Continuous learning journey in DevSecOps, cloud engineering, and modern web development. Explore technologies, workflows, and AI projects.">
+    <meta name="keywords" content="learning, DevSecOps, cloud engineering, continuous learning, professional development">
+    <meta name="author" content="Robert Consulting">
+
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/pages/learning-consolidated.css">
+    <link rel="stylesheet" href="css/pages/learning-topics.css">
+    <link rel="stylesheet" href="plex-recommendations-styles.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" integrity="sha384-Yvt2jmTtQFEtXIVH1VgGfieY/D91UJNVwWdiVUirr4Gwov6BPGKdjcxOWDiaZ5wF" crossorigin="anonymous">
+    
+    <style>
+        /* Dark theme overrides for learning topics */
+        .topic-navigation {
+            background: linear-gradient(135deg, #1a1d23 0%, #2d3748 100%) !important;
+            border-bottom: 1px solid #4a5568 !important;
+        }
+        
+        .topic-nav-header h2 {
+            color: #ffffff !important;
+        }
+        
+        .topic-nav-header p {
+            color: #e9ecef !important;
+        }
+        
+        .search-container input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+        }
+        
+        .search-container input::placeholder {
+            color: #adb5bd !important;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #4dabf7;
+            border-color: #4dabf7;
+            color: #ffffff;
+        }
+        
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .topic-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .topic-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .topic-card h3 {
+            color: #ffffff;
+            font-size: 1.3rem;
+            margin: 0 0 10px 0;
+        }
+        
+        .topic-card p {
+            color: #e9ecef;
+            line-height: 1.5;
+            margin: 0 0 15px 0;
+        }
+        
+        .topic-card .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .topic-category {
+            background: rgba(77, 171, 247, 0.2);
+            color: #4dabf7;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .topic-difficulty {
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+        
+        .stats-container {
+            text-align: center;
+            margin: 20px 0;
+            color: #e9ecef;
+        }
+    </style>
 </head>
 <body class="dark-theme">
-    <!-- Navigation -->
+    <!-- Navigation Component -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
                 <h2>Robert Consulting</h2>
-                <span class="nav-tagline">Learning Journey</span>
+                <span class="nav-tagline">DevSecOps & Cloud Engineering</span>
             </div>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item">
-                    <a href="index.html#home" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item">
                     <a href="index.html#services" class="nav-link">Services</a>
                 </li>
                 <li class="nav-item">
-                    <a href="index.html#about" class="nav-link">About</a>
-                </li>
-                <li class="nav-item">
                     <a href="learning.html" class="nav-link active">Learning</a>
                 </li>
                 <li class="nav-item">
-                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="blog.html" class="nav-link">Blog</a>
                 </li>
-                <li class="nav-item">
-                    <a href="best-practices.html" class="nav-link">Best Practices</a>
-                </li>
-                <li class="nav-item">
-                    <a href="index.html#experience" class="nav-link">Experience</a>
-                </li>
-                <li class="nav-item">
-                    <a href="index.html#contact" class="nav-link">Contact</a>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" id="more-menu-toggle">More</a>
+                    <ul class="dropdown-menu" id="more-menu">
+                        <li><a href="index.html#about" class="dropdown-link">About</a></li>
+                        <li><a href="dashboard.html" class="dropdown-link">Dashboard</a></li>
+                        <li><a href="best-practices.html" class="dropdown-link">Best Practices</a></li>
+                        <li><a href="index.html#experience" class="dropdown-link">Experience</a></li>
+                        <li><a href="index.html#contact" class="dropdown-link">Contact</a></li>
+                    </ul>
                 </li>
             </ul>
+            <div class="nav-actions">
+                <button type="button" id="theme-toggle-btn" class="btn btn-ghost btn-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <span class="icon-moon" id="theme-icon">🌙</span>
+                </button>
+            </div>
             <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -68,163 +185,152 @@
                     Through hands-on experience with cutting-edge technologies, I've built a comprehensive 
                     understanding of modern software development practices.
                 </p>
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">40+</span>
-                            <span class="stat-label">Technologies</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">40+</span>
-                            <span class="stat-label">Weeks</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">3</span>
-                            <span class="stat-label">Workflows</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">🎬</span>
-                            <span class="stat-label">AI Projects</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">🔒</span>
-                            <span class="stat-label">Secured</span>
-                        </div>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">25+</div>
+                        <div class="stat-label">YEARS LEARNING</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">GROWTH MINDSET</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔎</div>
+                        <div class="stat-label">ALWAYS CURIOUS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎬</div>
+                        <div class="stat-label">AI PROJECTS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔒</div>
+                        <div class="stat-label">SECURED</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Learning Highlights Section -->
-    <section id="learning-highlights" class="learning-highlights">
+    <!-- Plex Recommendations Showcase Section -->
+    <section id="plex-recommendations" class="plex-recommendations-section">
         <div class="container">
-            <div class="highlights-header">
-                <h2>🎯 Recent Learning Highlights</h2>
-                <p class="section-subtitle">Key insights and breakthroughs from the latest development cycle</p>
-            </div>
-            
-            <div class="highlights-grid">
-                <div class="highlight-card featured">
-                    <div class="highlight-icon">🎬</div>
-                    <div class="highlight-content">
-                        <h3>Plex Movie Recommendations System</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            AI-powered movie recommendations with 40-60% accuracy improvement and <$1/year cost.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">AI/ML</span>
-                            <span class="tag">AWS Lambda</span>
-                            <span class="tag">Cost Optimization</span>
+            <div class="plex-showcase">
+                <!-- Header -->
+                <div class="plex-header">
+                    <div class="plex-header-content">
+                        <h2>🎬 Plex Movie Recommendations</h2>
+                        <p class="plex-subtitle">AI-Powered Movie Recommendation System</p>
+                        <div class="plex-status">
+                            <span class="status-badge status-completed">✅ Completed</span>
+                            <span class="status-badge status-live">🌐 Live Demo</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="highlight-card">
-                    <div class="highlight-icon">🚀</div>
-                    <div class="highlight-content">
-                        <h3>Streamlined CI/CD Pipeline</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Consolidated 9 workflows into 3 focused pipelines with 67% complexity reduction.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">GitHub Actions</span>
-                            <span class="tag">CI/CD</span>
-                            <span class="tag">Automation</span>
-                        </div>
+                <!-- Statistics Grid -->
+                <div class="plex-stats-grid">
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-number">2.3s</div>
+                        <div class="stat-label">Response Time</div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">🤖</div>
+                        <div class="stat-number">ML</div>
+                        <div class="stat-label">Algorithm</div>
+                    </div>
+                    <div class="plex-stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Movies</div>
                     </div>
                 </div>
 
-                <div class="highlight-card">
-                    <div class="highlight-icon">🔒</div>
-                    <div class="highlight-content">
-                        <h3>Advanced Security Implementation</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Comprehensive security headers, OWASP ZAP integration, and automated vulnerability scanning.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">Security</span>
-                            <span class="tag">OWASP ZAP</span>
-                            <span class="tag">Headers</span>
+                <!-- Project Details -->
+                <div class="plex-content">
+                    <div class="plex-description">
+                        <h3>Project Overview</h3>
+                        <p>Built an intelligent movie recommendation system using machine learning algorithms and modern web technologies. The system learns from user preferences and viewing history to provide increasingly accurate movie suggestions.</p>
+                        
+                        <div class="plex-features">
+                            <div class="feature-item">
+                                <span class="feature-icon">🧠</span>
+                                <div class="feature-content">
+                                    <h4>Machine Learning</h4>
+                                    <p>Advanced recommendation algorithms that adapt to user preferences</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">⚡</span>
+                                <div class="feature-content">
+                                    <h4>Real-Time Processing</h4>
+                                    <p>Responsive system that updates recommendations instantly</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎨</span>
+                                <div class="feature-content">
+                                    <h4>Modern UI/UX</h4>
+                                    <p>Clean, intuitive interface with smooth animations</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="highlight-card">
-                    <div class="highlight-icon">🏗️</div>
-                    <div class="highlight-content">
-                        <h3>Staging Environment Setup</h3>
-                        <p class="highlight-date">October 2025</p>
-                        <p class="highlight-description">
-                            Production-mirror staging environment with comprehensive testing and automated deployment validation.
-                        </p>
-                        <div class="highlight-tags">
-                            <span class="tag">Infrastructure</span>
-                            <span class="tag">Testing</span>
-                            <span class="tag">AWS</span>
-                        </div>
+                    <div class="plex-demo">
+                        <h3>Live Demo</h3>
+                        <p>Experience the AI-powered movie recommendation system in action:</p>
+                        <a href="https://plex.robertconsulting.net" target="_blank" rel="noopener noreferrer" class="plex-demo-btn">
+                            🎬 Explore Plex Recommendations
+                        </a>
                     </div>
                 </div>
-            </div>
-
-            <div class="highlights-footer">
-                <p class="highlights-note">
-                    🎬 <strong>Lessons Learned:</strong> Explore my AI-powered movie recommendation system at <a href="https://plex.robertconsulting.net" target="_blank" rel="noopener noreferrer">plex.robertconsulting.net</a>
-                </p>
             </div>
         </div>
     </section>
 
-    <!-- Topic Navigation -->
+    <!-- Interactive Learning Topics -->
     <section class="topic-navigation">
-        <div class="container">
-            <div class="topic-nav-header">
-                <h2>Explore Learning Topics</h2>
-                <p class="section-subtitle">Navigate through technologies, methodologies, and insights from this learning journey</p>
+        <div class="topic-nav-header">
+            <h2>Interactive Learning Topics</h2>
+            <p>Explore comprehensive learning paths across multiple technology domains</p>
+        </div>
+        
+        <div class="topic-controls">
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" id="topic-search" placeholder="Search topics..." />
             </div>
             
-            <div class="topic-controls">
-                <div class="search-container">
-                    <input type="text" id="topic-search" placeholder="Search topics, technologies, or concepts..." class="topic-search-input">
-                    <span class="search-icon">🔍</span>
-                </div>
-                
-                <div class="filter-tabs">
-                    <button class="filter-tab active" data-filter="all">All Categories</button>
-                    <button class="filter-tab" data-filter="current">Current Projects</button>
-                    <button class="filter-tab" data-filter="technologies">Technologies</button>
-                    <button class="filter-tab" data-filter="security">Security</button>
-                    <button class="filter-tab" data-filter="methodologies">Learning</button>
-                </div>
-                
-                <div class="topic-stats">
-                    <span class="stat-item">
-                        <span class="stat-number" id="total-topics">6</span>
-                        <span class="stat-label">Categories</span>
-                    </span>
-                    <span class="stat-item">
-                        <span class="stat-number" id="filtered-topics">0</span>
-                        <span class="stat-label">Topics</span>
-                    </span>
-                </div>
+            <!-- Filter Buttons -->
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Topics</button>
+                <button class="filter-btn" data-filter="technologies">Technologies</button>
+                <button class="filter-btn" data-filter="frameworks">Frameworks</button>
+                <button class="filter-btn" data-filter="tools">Tools</button>
+                <button class="filter-btn" data-filter="practices">Best Practices</button>
+                <button class="filter-btn" data-filter="cloud">Cloud & DevOps</button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats-container">
+                <span id="topic-count">Loading topics...</span>
             </div>
         </div>
     </section>
 
     <!-- Topics Grid -->
-    <section id="topics" class="topics-section">
+    <section class="topics-section">
         <div class="container">
             <div class="topics-grid" id="topics-grid">
-                <!-- Topics will be dynamically loaded by JavaScript -->
-                <div id="loading-message" style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                    <p>🎯 Loading consolidated learning topics...</p>
-                    <p><small>If this message persists, there may be a JavaScript issue.</small></p>
-                </div>
+                <!-- Topics will be dynamically loaded here -->
             </div>
         </div>
-    </section>
-
     </section>
 
     <!-- Footer -->
@@ -232,42 +338,32 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>Robert Consulting</h4>
+                    <h3>Robert Consulting</h3>
                     <p>DevSecOps & Cloud Engineering Solutions</p>
-                    <div class="footer-credentials">
-                        <span class="credential-badge">25+ Years</span>
-                        <span class="credential-badge">Cost Optimized</span>
-                    </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Learning Resources</h4>
-                    <ul>
-                        <li><a href="#technologies">Technologies</a></li>
-                        <li><a href="#methodologies">Methodologies</a></li>
-                        <li><a href="#recent-achievements">Recent Achievements</a></li>
-                        <li><a href="#lessons">Lessons Learned</a></li>
-                        <li><a href="#future">Future Goals</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Connect</h4>
+                    <h4>Quick Links</h4>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="index.html#services">Services</a></li>
-                        <li><a href="index.html#about">About</a></li>
-                        <li><a href="index.html#contact">Contact</a></li>
+                        <li><a href="learning.html">Learning</a></li>
+                        <li><a href="blog.html">Blog</a></li>
                     </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>rsbailey@necron99.org</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Robert Consulting. All rights reserved. | Continuous Learning Journey</p>
+                <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <script src="security-config.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/navigation.js"></script>
-    <script src="js/easter-egg.js"></script>
-    <script src="js/learning-topics-consolidated.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/learning-topics.js"></script>
 </body>
 </html>
