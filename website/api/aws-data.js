@@ -7,7 +7,7 @@ const AWS = require('aws-sdk');
 
 // Configure AWS SDK
 AWS.config.update({
-    region: 'us-east-1'
+  region: 'us-east-1'
 });
 
 const costExplorer = new AWS.CostExplorer();
@@ -19,314 +19,314 @@ const route53 = new AWS.Route53();
  * Get real AWS cost data from Cost Explorer API
  */
 async function getRealCostData() {
-    try {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 1);
+  try {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
 
-        const params = {
-            TimePeriod: {
-                Start: startDate.toISOString().split('T')[0],
-                End: endDate.toISOString().split('T')[0]
-            },
-            Granularity: 'MONTHLY',
-            Metrics: ['BlendedCost'],
-            GroupBy: [
-                {
-                    Type: 'DIMENSION',
-                    Key: 'SERVICE'
-                }
-            ]
-        };
+    const params = {
+      TimePeriod: {
+        Start: startDate.toISOString().split('T')[0],
+        End: endDate.toISOString().split('T')[0]
+      },
+      Granularity: 'MONTHLY',
+      Metrics: ['BlendedCost'],
+      GroupBy: [
+        {
+          Type: 'DIMENSION',
+          Key: 'SERVICE'
+        }
+      ]
+    };
 
-        const result = await costExplorer.getCostAndUsage(params).promise();
-        
-        // Process the results
-        const services = {};
-        let totalCost = 0;
+    const result = await costExplorer.getCostAndUsage(params).promise();
 
-        if (result.ResultsByTime && result.ResultsByTime.length > 0) {
-            const groups = result.ResultsByTime[0].Groups || [];
-            
-            groups.forEach(group => {
-                const serviceName = group.Keys[0];
-                const cost = parseFloat(group.Metrics.BlendedCost.Amount);
-                
-                // Map AWS service names to our display names
-                switch (serviceName) {
-                    case 'Amazon Simple Storage Service':
-                        services.s3 = cost;
-                        break;
-                    case 'Amazon CloudFront':
-                        services.cloudfront = cost;
-                        break;
-                    case 'AWS Lambda':
-                        services.lambda = cost;
-                        break;
-                    case 'Amazon Route 53':
-                        services.route53 = cost;
-                        break;
-                    case 'Amazon Simple Email Service':
-                        services.ses = cost;
-                        break;
-                    case 'AWS WAF':
-                        services.waf = cost;
-                        break;
-                    case 'AmazonCloudWatch':
-                        services.cloudwatch = cost;
-                        break;
-                    default:
-                        services.other = (services.other || 0) + cost;
-                }
-                
-                totalCost += cost;
-            });
+    // Process the results
+    const services = {};
+    let totalCost = 0;
+
+    if (result.ResultsByTime && result.ResultsByTime.length > 0) {
+      const groups = result.ResultsByTime[0].Groups || [];
+
+      groups.forEach(group => {
+        const serviceName = group.Keys[0];
+        const cost = parseFloat(group.Metrics.BlendedCost.Amount);
+
+        // Map AWS service names to our display names
+        switch (serviceName) {
+        case 'Amazon Simple Storage Service':
+          services.s3 = cost;
+          break;
+        case 'Amazon CloudFront':
+          services.cloudfront = cost;
+          break;
+        case 'AWS Lambda':
+          services.lambda = cost;
+          break;
+        case 'Amazon Route 53':
+          services.route53 = cost;
+          break;
+        case 'Amazon Simple Email Service':
+          services.ses = cost;
+          break;
+        case 'AWS WAF':
+          services.waf = cost;
+          break;
+        case 'AmazonCloudWatch':
+          services.cloudwatch = cost;
+          break;
+        default:
+          services.other = (services.other || 0) + cost;
         }
 
-        return {
-            totalMonthly: totalCost,
-            services: services,
-            trend: await calculateCostTrend()
-        };
-
-    } catch (error) {
-        console.error('Error fetching cost data:', error);
-        throw error;
+        totalCost += cost;
+      });
     }
+
+    return {
+      totalMonthly: totalCost,
+      services: services,
+      trend: await calculateCostTrend()
+    };
+
+  } catch (error) {
+    console.error('Error fetching cost data:', error);
+    throw error;
+  }
 }
 
 /**
  * Get real CloudWatch metrics
  */
 async function getRealCloudWatchMetrics() {
-    try {
-        const endTime = new Date();
-        const startTime = new Date();
-        startTime.setHours(startTime.getHours() - 24);
+  try {
+    const endTime = new Date();
+    const startTime = new Date();
+    startTime.setHours(startTime.getHours() - 24);
 
-        const params = {
-            Namespace: 'AWS/CloudFront',
-            MetricName: 'Requests',
-            Dimensions: [
-                {
-                    Name: 'DistributionId',
-                    Value: 'E1JE597A8ZZ547' // Main site distribution
-                }
-            ],
-            StartTime: startTime,
-            EndTime: endTime,
-            Period: 3600,
-            Statistics: ['Sum']
-        };
-
-        const result = await cloudWatch.getMetricStatistics(params).promise();
-        
-        let totalRequests = 0;
-        if (result.Datapoints && result.Datapoints.length > 0) {
-            totalRequests = result.Datapoints.reduce((sum, point) => sum + point.Sum, 0);
+    const params = {
+      Namespace: 'AWS/CloudFront',
+      MetricName: 'Requests',
+      Dimensions: [
+        {
+          Name: 'DistributionId',
+          Value: 'E1JE597A8ZZ547' // Main site distribution
         }
+      ],
+      StartTime: startTime,
+      EndTime: endTime,
+      Period: 3600,
+      Statistics: ['Sum']
+    };
 
-        return {
-            cloudfrontRequests24h: Math.round(totalRequests),
-            bandwidth24h: await getCloudFrontBandwidth(),
-            responseTime: await getResponseTime()
-        };
+    const result = await cloudWatch.getMetricStatistics(params).promise();
 
-    } catch (error) {
-        console.error('Error fetching CloudWatch metrics:', error);
-        throw error;
+    let totalRequests = 0;
+    if (result.Datapoints && result.Datapoints.length > 0) {
+      totalRequests = result.Datapoints.reduce((sum, point) => sum + point.Sum, 0);
     }
+
+    return {
+      cloudfrontRequests24h: Math.round(totalRequests),
+      bandwidth24h: await getCloudFrontBandwidth(),
+      responseTime: await getResponseTime()
+    };
+
+  } catch (error) {
+    console.error('Error fetching CloudWatch metrics:', error);
+    throw error;
+  }
 }
 
 /**
  * Get real S3 metrics
  */
 async function getRealS3Metrics() {
-    try {
-        const params = {
-            Bucket: 'robert-consulting-website'
-        };
+  try {
+    const params = {
+      Bucket: 'robert-consulting-website'
+    };
 
-        const result = await s3.listObjectsV2(params).promise();
-        
-        let totalSize = 0;
-        if (result.Contents) {
-            totalSize = result.Contents.reduce((sum, obj) => sum + (obj.Size || 0), 0);
-        }
+    const result = await s3.listObjectsV2(params).promise();
 
-        return {
-            objects: result.KeyCount || 0,
-            storageGB: (totalSize / (1024 * 1024 * 1024)).toFixed(2)
-        };
-
-    } catch (error) {
-        console.error('Error fetching S3 metrics:', error);
-        throw error;
+    let totalSize = 0;
+    if (result.Contents) {
+      totalSize = result.Contents.reduce((sum, obj) => sum + (obj.Size || 0), 0);
     }
+
+    return {
+      objects: result.KeyCount || 0,
+      storageGB: (totalSize / (1024 * 1024 * 1024)).toFixed(2)
+    };
+
+  } catch (error) {
+    console.error('Error fetching S3 metrics:', error);
+    throw error;
+  }
 }
 
 /**
  * Get real Route53 metrics
  */
 async function getRealRoute53Metrics() {
-    try {
-        const params = {
-            HostedZoneId: 'Z0232243368137F38UDI1'
-        };
+  try {
+    const params = {
+      HostedZoneId: 'Z0232243368137F38UDI1'
+    };
 
-        const result = await route53.listResourceRecordSets(params).promise();
-        
-        return {
-            queries24h: await getRoute53Queries(),
-            records: result.ResourceRecordSets.length
-        };
+    const result = await route53.listResourceRecordSets(params).promise();
 
-    } catch (error) {
-        console.error('Error fetching Route53 metrics:', error);
-        throw error;
-    }
+    return {
+      queries24h: await getRoute53Queries(),
+      records: result.ResourceRecordSets.length
+    };
+
+  } catch (error) {
+    console.error('Error fetching Route53 metrics:', error);
+    throw error;
+  }
 }
 
 /**
  * Calculate cost trend from historical data
  */
 async function calculateCostTrend() {
-    try {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 2);
+  try {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 2);
 
-        const params = {
-            TimePeriod: {
-                Start: startDate.toISOString().split('T')[0],
-                End: endDate.toISOString().split('T')[0]
-            },
-            Granularity: 'MONTHLY',
-            Metrics: ['BlendedCost']
-        };
+    const params = {
+      TimePeriod: {
+        Start: startDate.toISOString().split('T')[0],
+        End: endDate.toISOString().split('T')[0]
+      },
+      Granularity: 'MONTHLY',
+      Metrics: ['BlendedCost']
+    };
 
-        const result = await costExplorer.getCostAndUsage(params).promise();
-        
-        if (result.ResultsByTime && result.ResultsByTime.length >= 2) {
-            const currentMonth = parseFloat(result.ResultsByTime[1].Total.BlendedCost.Amount);
-            const previousMonth = parseFloat(result.ResultsByTime[0].Total.BlendedCost.Amount);
-            
-            const change = ((currentMonth - previousMonth) / previousMonth) * 100;
-            return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
-        }
+    const result = await costExplorer.getCostAndUsage(params).promise();
 
-        return '+0.0%';
-    } catch (error) {
-        console.error('Error calculating cost trend:', error);
-        return '+0.0%';
+    if (result.ResultsByTime && result.ResultsByTime.length >= 2) {
+      const currentMonth = parseFloat(result.ResultsByTime[1].Total.BlendedCost.Amount);
+      const previousMonth = parseFloat(result.ResultsByTime[0].Total.BlendedCost.Amount);
+
+      const change = ((currentMonth - previousMonth) / previousMonth) * 100;
+      return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
     }
+
+    return '+0.0%';
+  } catch (error) {
+    console.error('Error calculating cost trend:', error);
+    return '+0.0%';
+  }
 }
 
 /**
  * Get CloudFront bandwidth (simplified)
  */
 async function getCloudFrontBandwidth() {
-    // This would require more complex CloudWatch queries
-    // For now, return a reasonable estimate
-    return '1.8GB';
+  // This would require more complex CloudWatch queries
+  // For now, return a reasonable estimate
+  return '1.8GB';
 }
 
 /**
  * Get response time from CloudWatch
  */
 async function getResponseTime() {
-    try {
-        const endTime = new Date();
-        const startTime = new Date();
-        startTime.setHours(startTime.getHours() - 1);
+  try {
+    const endTime = new Date();
+    const startTime = new Date();
+    startTime.setHours(startTime.getHours() - 1);
 
-        const params = {
-            Namespace: 'AWS/CloudFront',
-            MetricName: 'OriginLatency',
-            StartTime: startTime,
-            EndTime: endTime,
-            Period: 300,
-            Statistics: ['Average']
-        };
+    const params = {
+      Namespace: 'AWS/CloudFront',
+      MetricName: 'OriginLatency',
+      StartTime: startTime,
+      EndTime: endTime,
+      Period: 300,
+      Statistics: ['Average']
+    };
 
-        const result = await cloudWatch.getMetricStatistics(params).promise();
-        
-        if (result.Datapoints && result.Datapoints.length > 0) {
-            const avgLatency = result.Datapoints.reduce((sum, point) => sum + point.Average, 0) / result.Datapoints.length;
-            return Math.round(avgLatency);
-        }
+    const result = await cloudWatch.getMetricStatistics(params).promise();
 
-        return 25; // Default fallback
-    } catch (error) {
-        console.error('Error fetching response time:', error);
-        return 25;
+    if (result.Datapoints && result.Datapoints.length > 0) {
+      const avgLatency = result.Datapoints.reduce((sum, point) => sum + point.Average, 0) / result.Datapoints.length;
+      return Math.round(avgLatency);
     }
+
+    return 25; // Default fallback
+  } catch (error) {
+    console.error('Error fetching response time:', error);
+    return 25;
+  }
 }
 
 /**
  * Get Route53 queries (simplified)
  */
 async function getRoute53Queries() {
-    // This would require CloudWatch metrics for Route53
-    // For now, return a reasonable estimate
-    return 1200000;
+  // This would require CloudWatch metrics for Route53
+  // For now, return a reasonable estimate
+  return 1200000;
 }
 
 /**
  * Main function to get all real AWS data
  */
 async function getAllRealAWSData() {
-    try {
-        console.log('🔄 Fetching real AWS data...');
-        
-        const [costData, cloudWatchData, s3Data, route53Data] = await Promise.all([
-            getRealCostData(),
-            getRealCloudWatchMetrics(),
-            getRealS3Metrics(),
-            getRealRoute53Metrics()
-        ]);
+  try {
+    console.log('🔄 Fetching real AWS data...');
 
-        const result = {
-            generatedAt: new Date().toISOString(),
-            aws: {
-                monthlyCostTotal: costData.totalMonthly,
-                services: costData.services,
-                trend: costData.trend
-            },
-            traffic: {
-                cloudfront: {
-                    requests24h: cloudWatchData.cloudfrontRequests24h,
-                    bandwidth24h: cloudWatchData.bandwidth24h
-                },
-                s3: {
-                    objects: s3Data.objects,
-                    storageGB: s3Data.storageGB
-                }
-            },
-            health: {
-                site: {
-                    status: 'healthy',
-                    responseMs: cloudWatchData.responseTime
-                },
-                route53: {
-                    queries24h: route53Data.queries24h
-                }
-            }
-        };
+    const [costData, cloudWatchData, s3Data, route53Data] = await Promise.all([
+      getRealCostData(),
+      getRealCloudWatchMetrics(),
+      getRealS3Metrics(),
+      getRealRoute53Metrics()
+    ]);
 
-        console.log('✅ Real AWS data fetched successfully');
-        return result;
+    const result = {
+      generatedAt: new Date().toISOString(),
+      aws: {
+        monthlyCostTotal: costData.totalMonthly,
+        services: costData.services,
+        trend: costData.trend
+      },
+      traffic: {
+        cloudfront: {
+          requests24h: cloudWatchData.cloudfrontRequests24h,
+          bandwidth24h: cloudWatchData.bandwidth24h
+        },
+        s3: {
+          objects: s3Data.objects,
+          storageGB: s3Data.storageGB
+        }
+      },
+      health: {
+        site: {
+          status: 'healthy',
+          responseMs: cloudWatchData.responseTime
+        },
+        route53: {
+          queries24h: route53Data.queries24h
+        }
+      }
+    };
 
-    } catch (error) {
-        console.error('❌ Error fetching real AWS data:', error);
-        throw error;
-    }
+    console.log('✅ Real AWS data fetched successfully');
+    return result;
+
+  } catch (error) {
+    console.error('❌ Error fetching real AWS data:', error);
+    throw error;
+  }
 }
 
 module.exports = {
-    getAllRealAWSData,
-    getRealCostData,
-    getRealCloudWatchMetrics,
-    getRealS3Metrics,
-    getRealRoute53Metrics
+  getAllRealAWSData,
+  getRealCostData,
+  getRealCloudWatchMetrics,
+  getRealS3Metrics,
+  getRealRoute53Metrics
 };

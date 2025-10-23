@@ -110,11 +110,24 @@
     "space-unary-ops": "error",
     "spaced-comment": "error"
   },
+  "ignorePatterns": [
+    "*.html",
+    "admin/*.html",
+    "website/*.html",
+    "website/components/*.html"
+  ],
   "overrides": [
     {
-      "files": ["*.html"],
+      "files": ["*.js"],
       "rules": {
-        "no-unused-vars": "off"
+        "object-curly-spacing": ["error", "never"],
+        "quotes": ["error", "single"],
+        "quote-props": ["error", "as-needed"],
+        "space-before-function-paren": ["error", "never"],
+        "no-unused-vars": "warn",
+        "camelcase": "warn",
+        "func-names": "warn",
+        "no-alert": "warn"
       }
     }
   ]

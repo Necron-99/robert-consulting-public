@@ -13,16 +13,16 @@ const apiEndpoint = process.argv[2];
 const apiKey = process.argv[3];
 
 if (!apiEndpoint || !apiKey) {
-    console.error('Usage: node configure-api.js <api-endpoint> <api-key>');
-    process.exit(1);
+  console.error('Usage: node configure-api.js <api-endpoint> <api-key>');
+  process.exit(1);
 }
 
 // Read the API config file
 const configPath = path.join(__dirname, 'js', 'api-config.js');
 
 if (!fs.existsSync(configPath)) {
-    console.error('API config file not found:', configPath);
-    process.exit(1);
+  console.error('API config file not found:', configPath);
+  process.exit(1);
 }
 
 // Read file content
