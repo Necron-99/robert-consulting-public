@@ -106,56 +106,34 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          // Get Dependabot alerts by severity (with error handling)
-          let dependabotCritical = [], dependabotHigh = [], dependabotMedium = [], dependabotLow = [];
-          
-          try {
-            const { data: dependabotCriticalData } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['critical']
-            });
-            dependabotCritical = dependabotCriticalData;
-          } catch (error) {
-            console.log('Dependabot alerts are disabled for this repository');
-          }
+          // Get Dependabot alerts by severity
+          const { data: dependabotCritical } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['critical']
+          });
 
-          try {
-            const { data: dependabotHighData } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['high']
-            });
-            dependabotHigh = dependabotHighData;
-          } catch (error) {
-            console.log('Dependabot alerts are disabled for this repository');
-          }
+          const { data: dependabotHigh } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['high']
+          });
 
-          try {
-            const { data: dependabotMediumData } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['medium']
-            });
-            dependabotMedium = dependabotMediumData;
-          } catch (error) {
-            console.log('Dependabot alerts are disabled for this repository');
-          }
+          const { data: dependabotMedium } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['medium']
+          });
 
-          try {
-            const { data: dependabotLowData } = await github.rest.dependabot.listAlertsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              severity: ['low']
-            });
-            dependabotLow = dependabotLowData;
-          } catch (error) {
-            console.log('Dependabot alerts are disabled for this repository');
-          }
+          const { data: dependabotLow } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['low']
+          });
 
           // Get CodeQL alerts by severity
           const { data: codeqlCritical } = await github.rest.codeScanning.listAlertsForRepo({
