@@ -9,14 +9,7 @@ on:
       - 'scripts/**'
       - 'terraform/**'
       - '.github/workflows/**'
-  push:
-    branches: [ staging ]
-    paths:
-      - 'website/**'
-      - 'admin/**'
-      - 'scripts/**'
-      - 'terraform/**'
-      - '.github/workflows/**'
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -701,6 +701,41 @@ jobs:
                   print(f"❌ Exception creating issue: {e}")
                   return False
 
+          def update_github_issue(issue_number, body):
+              """Update an existing GitHub issue with new information"""
+              try:
+                  cmd = ["gh", "issue", "comment", str(issue_number), "--body", body]
+                  result = subprocess.run(cmd, capture_output=True, text=True)
+                  if result.returncode == 0:
+                      print(f"✅ Updated issue #{issue_number}")
+                      return True
+                  else:
+                      print(f"❌ Failed to update issue #{issue_number}")
+                      return False
+              except Exception as e:
+                  print(f"❌ Exception updating issue: {e}")
+                  return False
+
+          def get_existing_issue(alert_name):
+              """Check if an issue already exists for this alert"""
+              try:
+                  # Search for existing issues with this alert name
+                  result = subprocess.run([
+                      "gh", "issue", "list", 
+                      "--search", f"in:title \"{alert_name}\" label:staging-scan state:open",
+                      "--json", "number,title,body"
+                  ], capture_output=True, text=True)
+                  
+                  if result.returncode == 0:
+                      issues = json.loads(result.stdout)
+                      for issue in issues:
+                          if alert_name in issue['title']:
+                              return issue['number']
+                  return None
+              except Exception as e:
+                  print(f"❌ Error checking for existing issues: {e}")
+                  return None
+
           def get_risk_color(risk):
               """Get color emoji for risk level"""
               risk_colors = {
@@ -827,8 +862,9 @@ jobs:
                       grouped_findings[alert_name] = []
                   grouped_findings[alert_name].append(finding)
               
-              # Create issues for each unique finding type
+              # Create or update issues for each unique finding type
               issues_created = 0
+              issues_updated = 0
               for alert_name, alert_findings in grouped_findings.items():
                   # Get risk level (clean up risk description to remove parentheses)
                   risk_levels = [f.get('riskdesc', 'Unknown') for f in alert_findings]
@@ -900,27 +936,47 @@ jobs:
                   labels = f"security,automated-scan,staging-scan,risk-{risk_level.lower()},zap-finding"
                   
                   # Check if issue already exists
-                  try:
-                      existing_issues = subprocess.run(
-                          ["gh", "issue", "list", "--search", f"in:title {alert_name} staging", "--json", "number,title"],
-                          capture_output=True, text=True
-                      )
-                      if existing_issues.returncode == 0:
-                          existing_data = json.loads(existing_issues.stdout)
-                          if existing_data:
-                              print(f"📝 Issue already exists for: {alert_name}")
-                              continue
-                  except:
-                      pass
+                  existing_issue_number = get_existing_issue(alert_name)
                   
-                  # Create the issue
-                  if create_github_issue(issue_title, issue_body, labels):
-                      issues_created += 1
+                  if existing_issue_number:
+                      # Update existing issue with new scan results
+                      update_comment = f"""## 🔄 Security Scan Update
+
+          **Update Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
+          **Instances Found:** {instance_count}  
+          **Risk Level:** {risk_level}
+
+          ### Current Status
+          This security issue is still present in the latest staging security scan.
+
+          ### Scan Details
+          - **Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
+          - **Environment:** Staging (Pre-Production)
+          - **Scan Sources:** {scan_sources_str}
+
+          ### Next Steps
+          1. Review the remediation steps above
+          2. Implement the necessary fixes
+          3. Re-run the security scan to verify resolution
+
+          ### Workflow Information
+          - **Workflow Run:** {os.environ.get('GITHUB_SERVER_URL', '')}/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}
+          - **Commit:** {os.environ.get('GITHUB_SHA', '')}
+          - **Branch:** {os.environ.get('GITHUB_REF_NAME', '')}
+          """
+                      
+                      if update_github_issue(existing_issue_number, update_comment):
+                          issues_updated += 1
+                  else:
+                      # Create new issue
+                      if create_github_issue(issue_title, issue_body, labels):
+                          issues_created += 1
               
-              print(f"✅ Created {issues_created} security issues")
+              print(f"✅ Created {issues_created} new security issues")
+              print(f"✅ Updated {issues_updated} existing security issues")
               
               # Create summary issue if findings were found
-              if issues_created > 0:
+              if issues_created > 0 or issues_updated > 0:
                   summary_title = f"🔒 Staging Security Scan Summary - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
                   summary_body = f"""## Staging Security Scan Summary
 
@@ -930,6 +986,7 @@ jobs:
           **Scan Sources:** {', '.join(report_sources)}
           **Findings:** {len(security_findings)} total instances across {len(grouped_findings)} unique issues  
           **Issues Created:** {issues_created}
+          **Issues Updated:** {issues_updated}
 
           ### Scan Results
           - **High Risk:** {len([f for f in security_findings if 'High' in f.get('riskdesc', '')])} instances
@@ -938,7 +995,7 @@ jobs:
           - **Informational:** {len([f for f in security_findings if 'Informational' in f.get('riskdesc', '')])} instances
 
           ### Next Steps
-          1. Review the individual security issues created above
+          1. Review the individual security issues created/updated above
           2. Prioritize High and Medium risk findings
           3. Implement fixes and re-run scans to verify resolution
           4. Check the workflow artifacts for detailed ZAP reports
@@ -995,7 +1052,7 @@ jobs:
         run: |
           echo "🔍 Checking for resolved security issues to close..."
           
-          # Check if JSON reports exist and have no findings
+          # Check if JSON reports exist
           if [ -f "staging-baseline-report.json" ]; then
             echo "📄 Found ZAP JSON reports, checking for resolved issues..."
             
@@ -1026,8 +1083,8 @@ jobs:
                   print(f"❌ Failed to close issue #{issue_number}: {e}")
                   return False
 
-          try:
-              # Read ZAP JSON report
+          def get_current_findings():
+              """Get current security findings from ZAP report"""
               security_findings = []
               
               # Process staging baseline report
@@ -1064,50 +1121,81 @@ jobs:
                                   
                               security_findings.append(alert)
               
-              # If no security findings, check for open security issues to close
-              if len(security_findings) == 0:
-                  print("✅ No security findings found - checking for resolved issues to close")
+              return security_findings
+
+          def get_open_security_issues():
+              """Get all open security issues"""
+              try:
+                  result = subprocess.run([
+                      "gh", "issue", "list", 
+                      "--label", "security,automated-scan,staging-scan",
+                      "--state", "open",
+                      "--json", "number,title,labels"
+                  ], capture_output=True, text=True)
                   
-                  # Get all open issues with staging-scan labels
-                  try:
-                      result = subprocess.run([
-                          "gh", "issue", "list", 
-                          "--label", "security,automated-scan,staging-scan",
-                          "--state", "open",
-                          "--json", "number,title,labels"
-                      ], capture_output=True, text=True)
+                  if result.returncode == 0:
+                      return json.loads(result.stdout)
+                  else:
+                      print("⚠️ Could not retrieve open issues")
+                      return []
+              except Exception as e:
+                  print(f"❌ Error retrieving open issues: {e}")
+                  return []
+
+          try:
+              # Get current security findings
+              current_findings = get_current_findings()
+              current_alert_names = set(finding.get('name', '') for finding in current_findings)
+              
+              print(f"📊 Current scan found {len(current_findings)} security findings")
+              print(f"📊 Current alert types: {', '.join(current_alert_names)}")
+              
+              # Get open security issues
+              open_issues = get_open_security_issues()
+              print(f"📊 Found {len(open_issues)} open security issues")
+              
+              closed_count = 0
+              
+              for issue in open_issues:
+                  issue_number = issue['number']
+                  issue_title = issue['title']
+                  
+                  # Skip summary issues
+                  if 'Summary' in issue_title:
+                      continue
+                  
+                  # Extract alert name from issue title
+                  # Format: "🔴 Security: Missing Anti-clickjacking Header (High Risk) - Staging"
+                  alert_name = None
+                  if 'Security:' in issue_title:
+                      # Extract the part between "Security:" and "("
+                      parts = issue_title.split('Security:')
+                      if len(parts) > 1:
+                          alert_part = parts[1].split('(')[0].strip()
+                          alert_name = alert_part
+                  
+                  if alert_name and alert_name not in current_alert_names:
+                      # This vulnerability is no longer found in the current scan
+                      print(f"🔍 Issue #{issue_number} ({alert_name}) - vulnerability no longer found, closing...")
                       
-                      if result.returncode == 0:
-                          issues = json.loads(result.stdout)
-                          closed_count = 0
-                          
-                          for issue in issues:
-                              issue_number = issue['number']
-                              issue_title = issue['title']
-                              
-                              # Skip summary issues
-                              if 'Summary' in issue_title:
-                                  continue
-                              
-                              # Create closure comment
-                              closure_comment = f"""## ✅ Security Issue Resolved
+                      closure_comment = f"""## ✅ Security Issue Resolved
 
           **Resolution Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC  
           **Scan Target:** https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025
           **Environment:** Staging (Pre-Production)
+          **Vulnerability:** {alert_name}
 
           ### Resolution Details
-          This security issue has been automatically closed because the latest OWASP ZAP staging security scan found **no security findings** for this vulnerability type.
+          This security issue has been automatically closed because the latest OWASP ZAP staging security scan found **no instances** of this specific vulnerability.
 
           ### Scan Results
-          - **Total Findings:** 0
-          - **High Risk:** 0
-          - **Medium Risk:** 0  
-          - **Low Risk:** 0
+          - **Vulnerability Type:** {alert_name}
+          - **Current Instances:** 0 (previously found instances have been resolved)
+          - **Scan Status:** ✅ Clean
 
           ### Verification
           - ✅ Latest staging security scan completed successfully
-          - ✅ No instances of this vulnerability found
+          - ✅ No instances of "{alert_name}" found
           - ✅ Issue automatically resolved
 
           ### Next Steps
@@ -1119,21 +1207,18 @@ jobs:
           - **Commit:** {os.environ.get('GITHUB_SHA', '')}
           - **Branch:** {os.environ.get('GITHUB_REF_NAME', '')}
           """
-                              
-                              if close_github_issue(issue_number, closure_comment):
-                                  closed_count += 1
-                          
-                          if closed_count > 0:
-                              print(f"✅ Closed {closed_count} resolved security issues")
-                          else:
-                              print("📝 No open security issues found to close")
-                      else:
-                          print("⚠️ Could not retrieve open issues")
-                          
-                  except Exception as e:
-                      print(f"❌ Error checking for issues to close: {e}")
+                      
+                      if close_github_issue(issue_number, closure_comment):
+                          closed_count += 1
+                  elif alert_name:
+                      print(f"📝 Issue #{issue_number} ({alert_name}) - vulnerability still present, keeping open")
+                  else:
+                      print(f"⚠️ Issue #{issue_number} - could not extract alert name from title: {issue_title}")
+              
+              if closed_count > 0:
+                  print(f"✅ Closed {closed_count} resolved security issues")
               else:
-                  print(f"📊 Found {len(security_findings)} security findings - no issues to close")
+                  print("📝 No resolved security issues found to close")
                   
           except Exception as e:
               print(f"❌ Error processing ZAP results for issue closure: {e}")

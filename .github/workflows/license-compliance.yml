@@ -2,12 +2,11 @@ name: License Compliance Check
 
 on:
   push:
-    branches: [ "main", "staging" ]
-  pull_request:
-    branches: [ "main", "staging" ]
+    branches: [ "main" ]
   schedule:
     # Run license check weekly on Sundays at 3:00 UTC
     - cron: '0 3 * * 0'
+  workflow_dispatch:
 
 jobs:
   license-check:

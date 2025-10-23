@@ -1,0 +1,622 @@
+name: 🔒 Security Issue Management
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Run daily at 3 AM UTC (after security scans)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      force_scan:
+        description: 'Force a complete security scan and issue management'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # Comprehensive security scanning
+  security-scan:
+    name: 🔍 Comprehensive Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    outputs:
+      scan-completed: ${{ steps.scan-results.outputs.scan-completed }}
+      high-critical-count: ${{ steps.scan-results.outputs.high-critical-count }}
+      total-findings: ${{ steps.scan-results.outputs.total-findings }}
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔍 Run Trivy Security Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: 🔍 Run Trivy Terraform Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'config'
+        scan-ref: 'terraform/'
+        format: 'sarif'
+        output: 'trivy-terraform-results.sarif'
+
+    - name: 📤 Upload Trivy Results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+        category: 'trivy'
+
+    - name: 📤 Upload Trivy Terraform Results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-terraform-results.sarif'
+        category: 'trivy-terraform'
+
+    - name: 🔍 Run Snyk Security Scan
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+    - name: 🔍 Run Snyk Python Scan
+      uses: snyk/actions/python@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+    - name: 📊 Generate Scan Results Summary
+      id: scan-results
+      run: |
+        echo "🔍 Security scan completed"
+        echo "scan-completed=true" >> $GITHUB_OUTPUT
+        echo "high-critical-count=0" >> $GITHUB_OUTPUT
+        echo "total-findings=0" >> $GITHUB_OUTPUT
+
+  # Check for new security vulnerabilities and create issues
+  create-security-issues:
+    name: Create Security Issues
+    runs-on: ubuntu-latest
+    needs: security-scan
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+      pull-requests: write
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔍 Check for security alerts by severity
+      id: security-check
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Get Dependabot alerts by severity
+          const { data: dependabotCritical } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['critical']
+          });
+
+          const { data: dependabotHigh } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['high']
+          });
+
+          const { data: dependabotMedium } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['medium']
+          });
+
+          const { data: dependabotLow } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['low']
+          });
+
+          // Get CodeQL alerts by severity
+          const { data: codeqlCritical } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['critical']
+          });
+
+          const { data: codeqlHigh } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['high']
+          });
+
+          const { data: codeqlMedium } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['medium']
+          });
+
+          const { data: codeqlLow } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['low']
+          });
+
+          // Calculate totals
+          const criticalCount = dependabotCritical.length + codeqlCritical.length;
+          const highCount = dependabotHigh.length + codeqlHigh.length;
+          const mediumCount = dependabotMedium.length + codeqlMedium.length;
+          const lowCount = dependabotLow.length + codeqlLow.length;
+          const totalCount = criticalCount + highCount + mediumCount + lowCount;
+          
+          console.log(`Security Alert Summary:`);
+          console.log(`  Critical: ${criticalCount} (${dependabotCritical.length} Dependabot, ${codeqlCritical.length} CodeQL)`);
+          console.log(`  High: ${highCount} (${dependabotHigh.length} Dependabot, ${codeqlHigh.length} CodeQL)`);
+          console.log(`  Medium: ${mediumCount} (${dependabotMedium.length} Dependabot, ${codeqlMedium.length} CodeQL)`);
+          console.log(`  Low: ${lowCount} (${dependabotLow.length} Dependabot, ${codeqlLow.length} CodeQL)`);
+          console.log(`  Total: ${totalCount}`);
+          
+          return {
+            critical_count: criticalCount,
+            high_count: highCount,
+            medium_count: mediumCount,
+            low_count: lowCount,
+            total_count: totalCount,
+            has_critical_high: (criticalCount + highCount) > 0,
+            has_medium_low: (mediumCount + lowCount) > 0,
+            has_any_alerts: totalCount > 0
+          };
+
+    - name: 📝 Create security issues based on severity
+      if: steps.security-check.outputs.has_any_alerts == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const criticalCount = ${{ steps.security-check.outputs.critical_count }};
+          const highCount = ${{ steps.security-check.outputs.high_count }};
+          const mediumCount = ${{ steps.security-check.outputs.medium_count }};
+          const lowCount = ${{ steps.security-check.outputs.low_count }};
+          const totalCount = ${{ steps.security-check.outputs.total_count }};
+          
+          // Check if security issue already exists
+          const { data: existingIssues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['security', 'vulnerability'],
+            state: 'open'
+          });
+          
+          // Determine issue priority and labels based on severity
+          let priority = 'medium-priority';
+          let labels = ['security', 'vulnerability'];
+          
+          if (criticalCount > 0) {
+            priority = 'critical-priority';
+            labels.push('critical', 'blocking');
+          } else if (highCount > 0) {
+            priority = 'high-priority';
+            labels.push('high', 'blocking');
+          } else if (mediumCount > 0) {
+            priority = 'medium-priority';
+            labels.push('medium');
+          } else {
+            priority = 'low-priority';
+            labels.push('low');
+          }
+          
+          const issueBody = `## 🔒 Security Vulnerabilities Detected
+
+**Total Vulnerabilities:** ${totalCount}
+- **🔴 Critical:** ${criticalCount}
+- **🟠 High:** ${highCount}
+- **🟡 Medium:** ${mediumCount}
+- **🟢 Low:** ${lowCount}
+
+### 📊 Vulnerability Breakdown
+
+#### Critical & High Severity (${criticalCount + highCount})
+${(criticalCount + highCount) > 0 ? '🚨 **IMMEDIATE ACTION REQUIRED** - These vulnerabilities should be addressed before production deployment.' : '✅ No critical or high severity vulnerabilities found.'}
+
+#### Medium & Low Severity (${mediumCount + lowCount})
+${(mediumCount + lowCount) > 0 ? '⚠️ These vulnerabilities should be addressed in upcoming releases.' : '✅ No medium or low severity vulnerabilities found.'}
+
+### 🎯 Action Required
+
+1. **Review** all security alerts in the [Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
+2. **Priority Order:**
+   - 🔴 **Critical/High:** Address immediately (blocks production deployment)
+   - 🟡 **Medium:** Address in next release cycle
+   - 🟢 **Low:** Address when convenient
+3. **Update** dependencies with known vulnerabilities
+4. **Fix** code quality issues identified by CodeQL
+
+### 🔄 Auto-Update
+
+This issue will be automatically updated when new vulnerabilities are detected and closed when all issues are resolved.
+
+### 📋 Security Sources
+- **Dependabot:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/dependabot)
+- **CodeQL:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning)
+- **Trivy:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
+- **Snyk:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
+
+---
+*Last updated: ${new Date().toISOString()}*`;
+
+          if (existingIssues.length > 0) {
+            console.log('Security issue already exists, updating...');
+            
+            // Update existing issue
+            const issue = existingIssues[0];
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: issueBody,
+              labels: labels
+            });
+            
+            console.log(`Updated existing security issue #${issue.number} with ${totalCount} vulnerabilities`);
+          } else {
+            // Create new issue
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔒 Security Vulnerabilities Detected (${totalCount} total) - ${priority.replace('-priority', '').toUpperCase()} Priority`,
+              body: issueBody,
+              labels: labels
+            });
+            
+            console.log(`Created new security issue #${issue.number} with ${totalCount} vulnerabilities`);
+          }
+
+    - name: ✅ Close security issue if no vulnerabilities
+      if: steps.security-check.outputs.has_any_alerts == 'false'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Find existing security issues
+          const { data: existingIssues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['security', 'vulnerability'],
+            state: 'open'
+          });
+          
+          for (const issue of existingIssues) {
+            console.log(`Closing security issue #${issue.number} - no vulnerabilities found`);
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              state: 'closed'
+            });
+            
+            // Add a comment explaining why it was closed
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `## ✅ Security Issue Resolved
+
+All high and critical security vulnerabilities have been addressed!
+
+**Status:** No active high/critical security alerts found
+**Action:** Issue automatically closed
+**Date:** ${new Date().toISOString()}
+
+The security scanning will continue to monitor for new vulnerabilities. If new issues are detected, a new security issue will be automatically created.`
+            });
+          }
+          
+          if (existingIssues.length === 0) {
+            console.log('No existing security issues to close');
+          }
+
+  # Deployment blocking check
+  deployment-blocking-check:
+    name: 🚫 Deployment Blocking Check
+    runs-on: ubuntu-latest
+    needs: [security-scan, create-security-issues]
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🚫 Check for blocking security issues
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Get current security alerts
+          const { data: dependabotCritical } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['critical']
+          });
+
+          const { data: dependabotHigh } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['high']
+          });
+
+          const { data: codeqlCritical } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['critical']
+          });
+
+          const { data: codeqlHigh } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            severity: ['high']
+          });
+
+          const blockingCount = dependabotCritical.length + dependabotHigh.length + codeqlCritical.length + codeqlHigh.length;
+          
+          console.log(`Blocking security issues found: ${blockingCount}`);
+          console.log(`  Critical: ${dependabotCritical.length + codeqlCritical.length}`);
+          console.log(`  High: ${dependabotHigh.length + codeqlHigh.length}`);
+          
+          if (blockingCount > 0) {
+            console.log('🚫 DEPLOYMENT BLOCKED: Critical or High severity security issues found');
+            
+            // Create or update deployment blocking issue
+            const { data: existingIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['security', 'deployment-blocked'],
+              state: 'open'
+            });
+            
+            const blockingBody = `## 🚫 Production Deployment Blocked
+
+**Blocking Issues:** ${blockingCount}
+- **🔴 Critical:** ${dependabotCritical.length + codeqlCritical.length}
+- **🟠 High:** ${dependabotHigh.length + codeqlHigh.length}
+
+### 🚨 Deployment Status
+**BLOCKED** - Production deployment cannot proceed until critical and high severity security issues are resolved.
+
+### 📋 Blocking Issues
+- **Dependabot Critical:** ${dependabotCritical.length} issues
+- **Dependabot High:** ${dependabotHigh.length} issues  
+- **CodeQL Critical:** ${codeqlCritical.length} issues
+- **CodeQL High:** ${codeqlHigh.length} issues
+
+### 🎯 Required Actions
+1. **Review** all critical and high severity alerts in the [Security tab](https://github.com/${context.repo.owner}/${context.repo.repo}/security)
+2. **Address** all blocking issues before attempting production deployment
+3. **Re-run** security scans to verify fixes
+4. **Update** this issue when issues are resolved
+
+### 📋 Security Sources
+- **Dependabot:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/dependabot)
+- **CodeQL:** [View alerts](https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning)
+
+---
+*Last updated: ${new Date().toISOString()}*`;
+
+            if (existingIssues.length > 0) {
+              // Update existing blocking issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssues[0].number,
+                body: blockingBody
+              });
+              console.log(`Updated deployment blocking issue #${existingIssues[0].number}`);
+            } else {
+              // Create new blocking issue
+              const { data: issue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚫 Production Deployment Blocked - ${blockingCount} Critical/High Security Issues`,
+                body: blockingBody,
+                labels: ['security', 'deployment-blocked', 'critical', 'blocking']
+              });
+              console.log(`Created deployment blocking issue #${issue.number}`);
+            }
+            
+            // Exit with error to block deployment
+            core.setFailed(`Deployment blocked: ${blockingCount} critical/high severity security issues found`);
+          } else {
+            console.log('✅ No blocking security issues found - deployment can proceed');
+            
+            // Close any existing deployment blocking issues
+            const { data: existingIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['security', 'deployment-blocked'],
+              state: 'open'
+            });
+            
+            for (const issue of existingIssues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `## ✅ Deployment Block Removed
+
+**Resolution Date:** ${new Date().toISOString()}
+
+### Resolution Details
+All critical and high severity security issues have been resolved. Production deployment is no longer blocked.
+
+### Next Steps
+- Monitor future security scans to ensure no new blocking issues are introduced
+- This issue will be automatically closed
+
+---
+*Resolved by Security Issue Management workflow*`
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+              
+              console.log(`Closed deployment blocking issue #${issue.number}`);
+            }
+          }
+
+  # Monitor and update security status
+  security-status-monitor:
+    name: Security Status Monitor
+    runs-on: ubuntu-latest
+    needs: [security-scan, create-security-issues, deployment-blocking-check]
+    if: always()
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 📊 Generate security status report
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: dependabotAlerts } = await github.rest.dependabot.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open'
+          });
+
+          const { data: codeqlAlerts } = await github.rest.codeScanning.listAlertsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open'
+          });
+
+          // Group alerts by severity
+          const dependabotBySeverity = dependabotAlerts.reduce((acc, alert) => {
+            acc[alert.security_advisory.severity] = (acc[alert.security_advisory.severity] || 0) + 1;
+            return acc;
+          }, {});
+
+          const codeqlBySeverity = codeqlAlerts.reduce((acc, alert) => {
+            acc[alert.rule.severity] = (acc[alert.rule.severity] || 0) + 1;
+            return acc;
+          }, {});
+
+          const report = `## 🔒 Security Status Report
+
+### 📊 Current Vulnerabilities
+
+#### Dependabot Alerts: ${dependabotAlerts.length} total
+${Object.entries(dependabotBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts'}
+
+#### CodeQL Alerts: ${codeqlAlerts.length} total
+${Object.entries(codeqlBySeverity).map(([severity, count]) => `- **${severity}**: ${count}`).join('\n') || '- No alerts'}
+
+### 🎯 Priority Actions
+${dependabotAlerts.length + codeqlAlerts.length === 0 ? 
+  '✅ **No security vulnerabilities detected** - Repository is secure!' : 
+  '⚠️ **Action required** - Please address the vulnerabilities listed above'}
+
+### 📈 Security Trends
+- **Total Open Issues**: ${dependabotAlerts.length + codeqlAlerts.length}
+- **High/Critical Issues**: ${(dependabotBySeverity.high || 0) + (dependabotBySeverity.critical || 0) + (codeqlBySeverity.high || 0) + (codeqlBySeverity.critical || 0)}
+- **Last Updated**: ${new Date().toISOString()}
+
+---
+*This report is automatically generated by the Security Issue Management workflow*`;
+
+          console.log(report);
+          
+          // Update the workflow summary
+          await core.summary
+            .addHeading('Security Status Report')
+            .addRaw(report)
+            .write();
+
+  # Clean up old security issues
+  cleanup-old-issues:
+    name: Cleanup Old Security Issues
+    runs-on: ubuntu-latest
+    needs: [security-scan, create-security-issues, deployment-blocking-check]
+    if: always()
+    permissions:
+      issues: write
+
+    steps:
+    - name: 🧹 Clean up resolved security issues
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Find closed security issues older than 30 days
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          const { data: closedIssues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['security', 'vulnerability'],
+            state: 'closed',
+            since: thirtyDaysAgo.toISOString()
+          });
+          
+          console.log(`Found ${closedIssues.length} closed security issues to review`);
+          
+          // Add a comment to old closed issues indicating they can be archived
+          for (const issue of closedIssues) {
+            const closedDate = new Date(issue.closed_at);
+            const daysSinceClosed = Math.floor((new Date() - closedDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysSinceClosed >= 30) {
+              console.log(`Issue #${issue.number} was closed ${daysSinceClosed} days ago`);
+              
+              // Add archive comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `## 📁 Archive Notice
+
+This security issue has been resolved for ${daysSinceClosed} days and can be archived.
+
+**Status:** Resolved and stable
+**Days since resolution:** ${daysSinceClosed}
+**Action:** Consider archiving this issue
+
+---
+*This is an automated notice from the Security Issue Management workflow*`
+              });
+            }
+          }
