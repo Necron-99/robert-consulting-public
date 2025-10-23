@@ -1,4 +1,5 @@
 name: 🔒 Security Management
+# Force workflow update - trigger security scanning
 
 on:
   push:
