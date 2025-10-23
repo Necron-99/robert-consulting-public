@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform State Management: Best Practices for Team Collaboration - Robert Consulting</title>
+    <meta name="description" content="Learn how to implement secure, scalable Terraform state management for team environments with remote backends, locking, and state migration strategies.">
+    <meta name="keywords" content="terraform,terragrunt,iac,infrastructure,modules,state-management,state-backend,team-collaboration,terraform-locking">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://robertconsulting.net/blog-posts/terraform-state-management-team-collaboration.html">
+    <meta property="og:title" content="Terraform State Management: Best Practices for Team Collaboration">
+    <meta property="og:description" content="Learn how to implement secure, scalable Terraform state management for team environments with remote backends, locking, and state migration strategies.">
+    <meta property="og:site_name" content="Robert Consulting">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://robertconsulting.net/blog-posts/terraform-state-management-team-collaboration.html">
+    <meta property="twitter:title" content="Terraform State Management: Best Practices for Team Collaboration">
+    <meta property="twitter:description" content="Learn how to implement secure, scalable Terraform state management for team environments with remote backends, locking, and state migration strategies.">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Terraform State Management: Best Practices for Team Collaboration",
+      "description": "Learn how to implement secure, scalable Terraform state management for team environments with remote backends, locking, and state migration strategies.",
+      "author": {
+        "@type": "Person",
+        "name": "Robert Consulting"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Robert Consulting",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://robertconsulting.net/favicon.svg"
+        }
+      },
+      "datePublished": "October 23, 2025",
+      "dateModified": "October 23, 2025",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://robertconsulting.net/blog-posts/terraform-state-management-team-collaboration.html"
+      },
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "{{CATEGORY}}"
+        }
+      ],
+      "keywords": "terraform,terragrunt,iac,infrastructure,modules,state-management,state-backend,team-collaboration,terraform-locking"
+    }
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://robertconsulting.net/blog-posts/terraform-state-management-team-collaboration.html">
+    
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Blog Post Styles -->
+    <style>
+        .blog-post-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .blog-post-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .blog-post-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .blog-post-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .blog-post-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        .blog-post-content h2 {
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .blog-post-content h3 {
+            font-size: 1.4rem;
+            margin: 30px 0 15px 0;
+            color: #444;
+        }
+        
+        .blog-post-content p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .blog-post-content ul, .blog-post-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+        
+        .blog-post-content li {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .highlight-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .blog-post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 40px 0;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .blog-tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .blog-post-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-post-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .blog-post-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .blog-post-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Robert Consulting</h2>
+                <span class="nav-tagline">DevSecOps & Cloud Engineering</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="../index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../learning.html" class="nav-link">Learning</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../dashboard.html" class="nav-link">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../best-practices.html" class="nav-link">Best Practices</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#experience" class="nav-link">Experience</a>
+                </li>
+                <li class="nav-item">
+                    <a href="../index.html#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <button type="button" class="hamburger" id="hamburger" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Blog Post Hero -->
+    <section class="blog-post-hero">
+        <div class="container">
+            <h1>{{ICON}} Terraform State Management: Best Practices for Team Collaboration</h1>
+            <div class="blog-post-meta">
+                <div class="blog-post-meta-item">
+                    <span>📅</span>
+                    <span>{{FORMATTED_DATE}}</span>
+                </div>
+                <div class="blog-post-meta-item">
+                    <span>⏱️</span>
+                    <span>{{READ_TIME}}</span>
+                </div>
+                <div class="blog-post-meta-item">
+                    <span>🏷️</span>
+                    <span>{{CATEGORY_UPPER}}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Post Content -->
+    <article class="blog-post-content">
+        {{CONTENT}}
+        
+        <div class="blog-post-tags">
+            {{TAGS_HTML}}
+        </div>
+
+        <div class="blog-post-navigation">
+            <a href="../blog.html" class="nav-link">← Back to Blog</a>
+            <a href="../index.html#contact" class="nav-link">Get Help with This Topic →</a>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Robert Consulting</h3>
+                    <p>DevSecOps and cloud engineering solutions for organizations. Specializing in AWS, Terraform, CI/CD automation, and compliance frameworks.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="../index.html#services">Cloud Infrastructure</a></li>
+                        <li><a href="../index.html#services">CI/CD Automation</a></li>
+                        <li><a href="../index.html#services">Security & Compliance</a></li>
+                        <li><a href="../index.html#services">Database DevOps</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="../learning.html">Learning Journey</a></li>
+                        <li><a href="../blog.html">Blog</a></li>
+                        <li><a href="../status.html">Status Page</a></li>
+                        <li><a href="../monitoring.html">Monitoring</a></li>
+                        <li><a href="../best-practices.html">Best Practices</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Information</h4>
+                    <p>info@robertconsulting.net</p>
+                    <p>(434) 227-8323</p>
+                    <p><a href="https://robertconsulting.net" target="_blank" rel="noopener noreferrer">robertconsulting.net</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Robert Consulting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script defer src="../js/navigation.js"></script>
+</body>
+</html>
+
+    <!-- Blog Post Content -->
+    <article class="blog-post">
+        <header class="post-header">
+            <h1 class="post-title">Terraform State Management: Best Practices for Team Collaboration</h1>
+            <div class="post-meta">
+                <span class="post-date">October 23, 2025</span>
+                <span class="post-author">Robert Bailey</span>
+                <span class="post-category">Infrastructure as Code (IaC)</span>
+            </div>
+        </header>
+        
+        <div class="post-content">
+            <!-- thursday Focus: Infrastructure as Code (IaC) -->
+            
+            <h2>Introduction</h2>
+            <p>Start with an engaging introduction that hooks your readers and explains the problem you're solving.</p>
+            
+            <h2>The Challenge</h2>
+            <p>Describe the specific challenge or problem that this post addresses.</p>
+            
+            <h2>Solution Overview</h2>
+            <p>Provide a high-level overview of your approach or solution.</p>
+            
+            <h2>Implementation</h2>
+            <p>Add detailed implementation steps, code examples, or configuration details.</p>
+            
+            <h2>Results & Metrics</h2>
+            <p>Include quantifiable results, performance improvements, or cost savings.</p>
+            
+            <h2>Best Practices</h2>
+            <p>Share lessons learned and best practices for others to follow.</p>
+            
+            <h2>Conclusion</h2>
+            <p>Wrap up with key takeaways and next steps for readers.</p>
+        </div>
+        
+        <footer class="post-footer">
+            <div class="post-tags">
+                <span class="tag-label">Tags:</span>
+                <span class="tag">#terraform,terragrunt,iac,infrastructure,modules,state-management,state-backend,team-collaboration,terraform-locking</span>
+            </div>
+            <div class="post-category">
+                <span class="category-label">Category:</span>
+                <span class="category">Infrastructure as Code (IaC)</span>
+            </div>
+        </footer>
+    </article>
+</body>
+</html>
