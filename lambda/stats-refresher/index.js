@@ -4,7 +4,7 @@
  */
 
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
-const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
 const {CloudFrontClient, CreateInvalidationCommand} = require('@aws-sdk/client-cloudfront');
 const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
 const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
@@ -15,6 +15,64 @@ const s3Client = new S3Client({region: process.env.AWS_REGION});
 const cloudfrontClient = new CloudFrontClient({region: process.env.AWS_REGION});
 const cloudwatchClient = new CloudWatchClient({region: process.env.AWS_REGION});
 const costExplorerClient = new CostExplorerClient({region: process.env.AWS_REGION});
+
+// Cache configuration
+const CACHE_BUCKET = 'robert-consulting-website';
+const CACHE_PREFIX = 'cache/';
+
+/**
+ * Get cached data from S3
+ */
+async function getCachedData(key) {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: CACHE_BUCKET,
+            Key: `${CACHE_PREFIX}${key}.json`
+        });
+        
+        const response = await s3Client.send(command);
+        const data = JSON.parse(await response.Body.transformToString());
+        return data;
+    } catch (error) {
+        if (error.name === 'NoSuchKey') {
+            return null; // Cache miss
+        }
+        console.error('Error reading cache:', error);
+        return null;
+    }
+}
+
+/**
+ * Set cached data in S3
+ */
+async function setCachedData(key, data) {
+    try {
+        const cacheData = {
+            timestamp: Date.now(),
+            data: data
+        };
+        
+        const command = new PutObjectCommand({
+            Bucket: CACHE_BUCKET,
+            Key: `${CACHE_PREFIX}${key}.json`,
+            Body: JSON.stringify(cacheData),
+            ContentType: 'application/json'
+        });
+        
+        await s3Client.send(command);
+    } catch (error) {
+        console.error('Error writing cache:', error);
+    }
+}
+
+/**
+ * Check if cache is still valid
+ */
+function isCacheValid(timestamp, maxAgeHours) {
+    const ageMs = Date.now() - timestamp;
+    const maxAgeMs = maxAgeHours * 60 * 60 * 1000;
+    return ageMs < maxAgeMs;
+}
 
 /**
  * Main Lambda handler
@@ -198,11 +256,22 @@ async function fetchGitHubStats(token) {
 }
 
 /**
- * Fetch AWS cost data
+ * Fetch AWS cost data with caching to reduce API calls
  */
 async function fetchAWSCosts() {
     try {
         console.log('💰 Fetching AWS cost data...');
+        
+        // Check if we have recent cached data (within last 6 hours)
+        const cacheKey = 'aws-costs-cache';
+        const cachedData = await getCachedData(cacheKey);
+        
+        if (cachedData && isCacheValid(cachedData.timestamp, 6)) {
+            console.log('📦 Using cached AWS cost data (age:', Math.round((Date.now() - cachedData.timestamp) / 1000 / 60), 'minutes)');
+            return cachedData.data;
+        }
+        
+        console.log('🔄 Cache expired or missing, fetching fresh data from Cost Explorer API...');
         
         const endDate = new Date();
         const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // First day of current month
@@ -282,15 +351,29 @@ async function fetchAWSCosts() {
             }
         }
         
-        return {
+        const costData = {
             total: Math.round(totalCost * 100) / 100,
             registrarCost: Math.round(registrarCost * 100) / 100,
             monthlyCost: Math.round((totalCost - registrarCost) * 100) / 100,
             services: services
         };
         
+        // Cache the fresh data for 6 hours
+        await setCachedData(cacheKey, costData);
+        console.log('💾 Cached fresh AWS cost data for 6 hours');
+        
+        return costData;
+        
     } catch (error) {
         console.error('Error fetching AWS costs:', error);
+        
+        // Try to return cached data even if expired
+        const cachedData = await getCachedData(cacheKey);
+        if (cachedData) {
+            console.log('⚠️ Using expired cached data due to API error');
+            return cachedData.data;
+        }
+        
         // Return fallback data
         return {
             total: 6.82,

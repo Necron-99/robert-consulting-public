@@ -102,6 +102,14 @@ resource "aws_iam_role_policy" "stats_refresher_policy" {
       {
         Effect = "Allow"
         Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ]
+        Resource = "arn:aws:s3:::robert-consulting-website/cache/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "cloudfront:CreateInvalidation"
         ]
         Resource = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/E36DBYPHUUKB3V"
@@ -225,6 +233,33 @@ resource "null_resource" "build_lambda_package" {
   }
 }
 
+# CloudWatch Events rule to schedule daily stats refresh (cost optimization)
+resource "aws_cloudwatch_event_rule" "daily_stats_refresh" {
+  name                = "daily-stats-refresh"
+  description         = "Trigger stats refresher once daily to reduce Cost Explorer API calls"
+  schedule_expression = "rate(24 hours)"
+  
+  tags = {
+    Name        = "daily-stats-refresh"
+    Environment = "production"
+    Purpose     = "cost-optimization"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "stats_refresher_target" {
+  rule      = aws_cloudwatch_event_rule.daily_stats_refresh.name
+  target_id = "StatsRefresherTarget"
+  arn       = aws_lambda_function.stats_refresher.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.stats_refresher.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.daily_stats_refresh.arn
+}
+
 # Outputs
 output "stats_refresher_lambda_arn" {
   description = "ARN of the stats refresher Lambda function"
@@ -240,4 +275,9 @@ output "github_token_secret_name" {
   description = "Name of the GitHub token secret"
   value       = aws_secretsmanager_secret.github_token.name
   sensitive   = true
+}
+
+output "daily_schedule_rule_arn" {
+  description = "ARN of the daily stats refresh schedule"
+  value       = aws_cloudwatch_event_rule.daily_stats_refresh.arn
 }

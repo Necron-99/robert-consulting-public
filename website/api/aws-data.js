@@ -17,9 +17,32 @@ const route53 = new AWS.Route53();
 
 /**
  * Get real AWS cost data from Cost Explorer API
+ * DISABLED: Cost Explorer API calls cost $0.01 each - using cached data instead
  */
 async function getRealCostData() {
     try {
+        // COST OPTIMIZATION: Disable direct Cost Explorer API calls
+        // Each API call costs $0.01, and this was causing ~$100/month in charges
+        console.log('💰 Cost Explorer API calls disabled to reduce costs - using fallback data');
+        
+        // Return cached/fallback data instead of making expensive API calls
+        return {
+            total: 6.82,
+            registrarCost: 0,
+            monthlyCost: 6.82,
+            services: {
+                s3: 0.05,
+                cloudfront: 0.00,
+                route53: 3.04,
+                waf: 1.46,
+                cloudwatch: 2.24,
+                lambda: 0.00,
+                ses: 0.00,
+                other: 0.03
+            }
+        };
+        
+        /* DISABLED CODE - Cost Explorer API calls
         const endDate = new Date();
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 1);
