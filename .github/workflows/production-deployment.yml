@@ -55,14 +55,19 @@ jobs:
 
     - name: 🔍 Validate Deployment Prerequisites
       id: validation
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        STAGING_VALIDATION_PASSED: ${{ inputs.staging_validation_passed }}
+        SECURITY_GATE_PASSED: ${{ inputs.security_gate_passed }}
+        DEPLOYMENT_APPROVED: ${{ inputs.deployment_approved }}
       run: |
         echo "🔍 Running pre-deployment validation..."
         
         # Check if this is a workflow call from staging pipeline
-        if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
-          staging_passed="${{ inputs.staging_validation_passed }}"
-          security_passed="${{ inputs.security_gate_passed }}"
-          deployment_approved="${{ inputs.deployment_approved }}"
+        if [[ "$EVENT_NAME" == "workflow_call" ]]; then
+          staging_passed="$STAGING_VALIDATION_PASSED"
+          security_passed="$SECURITY_GATE_PASSED"
+          deployment_approved="$DEPLOYMENT_APPROVED"
           
           if [[ "$staging_passed" == "true" && "$security_passed" == "true" && "$deployment_approved" == "true" ]]; then
             validation_passed=true
@@ -82,14 +87,20 @@ jobs:
         echo "$summary"
 
     - name: 📊 Generate Validation Report
+      env:
+        VALIDATION_PASSED: ${{ steps.validation.outputs.passed }}
+        VALIDATION_SUMMARY: ${{ steps.validation.outputs.summary }}
+        DEPLOYMENT_REASON: ${{ inputs.deployment_reason }}
+        ROLLBACK_PLAN: ${{ inputs.rollback_plan }}
+        SKIP_APPROVAL: ${{ inputs.skip_approval }}
       run: |
         echo "📊 Pre-Deployment Validation Report"
         echo "=================================="
-        echo "Validation Status: ${{ steps.validation.outputs.passed }}"
-        echo "Summary: ${{ steps.validation.outputs.summary }}"
-        echo "Deployment Reason: ${{ inputs.deployment_reason }}"
-        echo "Rollback Plan: ${{ inputs.rollback_plan }}"
-        echo "Skip Approval: ${{ inputs.skip_approval }}"
+        echo "Validation Status: $VALIDATION_PASSED"
+        echo "Summary: $VALIDATION_SUMMARY"
+        echo "Deployment Reason: $DEPLOYMENT_REASON"
+        echo "Rollback Plan: $ROLLBACK_PLAN"
+        echo "Skip Approval: $SKIP_APPROVAL"
 
   # =============================================================================
   # SECURITY FINAL CHECK
@@ -150,12 +161,16 @@ jobs:
     
     steps:
     - name: 👥 Request Manual Approval
+      env:
+        DEPLOYMENT_REASON: ${{ inputs.deployment_reason }}
+        ROLLBACK_PLAN: ${{ inputs.rollback_plan }}
+        SECURITY_SUMMARY: ${{ needs.security-final-check.outputs.security_summary }}
       run: |
         echo "👥 Manual approval required for production deployment"
         echo "=================================================="
-        echo "Deployment Reason: ${{ inputs.deployment_reason }}"
-        echo "Rollback Plan: ${{ inputs.rollback_plan }}"
-        echo "Security Status: ${{ needs.security-final-check.outputs.security_summary }}"
+        echo "Deployment Reason: $DEPLOYMENT_REASON"
+        echo "Rollback Plan: $ROLLBACK_PLAN"
+        echo "Security Status: $SECURITY_SUMMARY"
         echo ""
         echo "Please review and approve this deployment in the GitHub Actions environment."
 
@@ -232,15 +247,22 @@ jobs:
         echo "✅ Security headers validated"
 
     - name: 📊 Deployment Summary
+      env:
+        DEPLOYMENT_ID: ${{ steps.deploy.outputs.deployment_id }}
+        DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment_url }}
+        DEPLOYMENT_STATUS: ${{ steps.deploy.outputs.status }}
+        DEPLOYMENT_REASON: ${{ inputs.deployment_reason }}
+        ROLLBACK_PLAN: ${{ inputs.rollback_plan }}
+        GITHUB_ACTOR: ${{ github.actor }}
       run: |
         echo "📊 Production Deployment Summary"
         echo "==============================="
-        echo "Deployment ID: ${{ steps.deploy.outputs.deployment_id }}"
-        echo "Deployment URL: ${{ steps.deploy.outputs.deployment_url }}"
-        echo "Deployment Status: ${{ steps.deploy.outputs.status }}"
-        echo "Deployment Reason: ${{ inputs.deployment_reason }}"
-        echo "Rollback Plan: ${{ inputs.rollback_plan }}"
-        echo "Deployed by: ${{ github.actor }}"
+        echo "Deployment ID: $DEPLOYMENT_ID"
+        echo "Deployment URL: $DEPLOYMENT_URL"
+        echo "Deployment Status: $DEPLOYMENT_STATUS"
+        echo "Deployment Reason: $DEPLOYMENT_REASON"
+        echo "Rollback Plan: $ROLLBACK_PLAN"
+        echo "Deployed by: $GITHUB_ACTOR"
         echo "Deployed at: $(date -u)"
 
   # =============================================================================

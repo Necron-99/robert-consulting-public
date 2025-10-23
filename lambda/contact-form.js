@@ -6,6 +6,18 @@
 const {SESClient, SendEmailCommand} = require('@aws-sdk/client-ses');
 const ses = new SESClient({region: 'us-east-1'});
 
+// HTML escaping function to prevent XSS
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
 exports.handler = async(event) => {
   // Enable CORS
   const headers = {
@@ -68,11 +80,11 @@ exports.handler = async(event) => {
                             <html>
                                 <body>
                                     <h2>New Contact Form Submission</h2>
-                                    <p><strong>Name:</strong> ${name}</p>
-                                    <p><strong>Email:</strong> ${email}</p>
-                                    <p><strong>Subject:</strong> ${subject}</p>
+                                    <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+                                    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+                                    <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
                                     <p><strong>Message:</strong></p>
-                                    <p>${message.replace(/\n/g, '<br>')}</p>
+                                    <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
                                     <hr>
                                     <p><em>Sent from robertconsulting.net contact form</em></p>
                                 </body>

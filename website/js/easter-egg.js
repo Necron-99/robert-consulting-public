@@ -154,9 +154,23 @@ class EasterEgg {
   }
 
   navigateToAdmin() {
-    // Determine the admin URL based on current domain
+    // Determine the admin URL based on current domain with validation
     const currentHost = window.location.hostname;
     let adminUrl;
+
+    // Validate and sanitize the hostname
+    const allowedHosts = [
+      'robertconsulting.net',
+      'www.robertconsulting.net',
+      'admin.robertconsulting.net',
+      'localhost',
+      '127.0.0.1'
+    ];
+
+    if (!allowedHosts.includes(currentHost) && !currentHost.includes('localhost') && !currentHost.includes('127.0.0.1')) {
+      console.error('Invalid hostname for admin navigation');
+      return;
+    }
 
     if (currentHost === 'robertconsulting.net' || currentHost === 'www.robertconsulting.net') {
       adminUrl = 'https://admin.robertconsulting.net';
@@ -164,10 +178,18 @@ class EasterEgg {
       // If already on admin, go back to main site
       adminUrl = 'https://robertconsulting.net';
     } else {
-      // Fallback for local development
+      // Fallback for local development - use safe defaults
       adminUrl = currentHost.includes('admin')
-        ? window.location.origin.replace('admin.', '')
-        : window.location.origin.replace(/^https?:\/\//, 'https://admin.');
+        ? 'http://localhost:3000'
+        : 'http://admin.localhost:3000';
+    }
+
+    // Validate the final URL before navigation
+    try {
+      new URL(adminUrl);
+    } catch (e) {
+      console.error('Invalid admin URL constructed');
+      return;
     }
 
     // Show navigation message

@@ -37,10 +37,12 @@ jobs:
 
       - name: 📊 Analyze Previous 24 Hours Work
         id: analyze-work
+        env:
+          DATE_OVERRIDE: ${{ github.event.inputs.date_override }}
         run: |
           # Get current date or use override
-          if [ -n "${{ github.event.inputs.date_override }}" ]; then
-            CURRENT_DATE="${{ github.event.inputs.date_override }}"
+          if [ -n "$DATE_OVERRIDE" ]; then
+            CURRENT_DATE="$DATE_OVERRIDE"
           else
             CURRENT_DATE=$(date -u +%Y-%m-%d)
           fi

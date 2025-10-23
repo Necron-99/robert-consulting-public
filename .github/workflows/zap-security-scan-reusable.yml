@@ -37,18 +37,17 @@ jobs:
 
       - name: 🔍 OWASP ZAP Security Scan
         id: scan
+        env:
+          TARGET_URL: ${{ inputs.target_url }}
+          SCAN_NAME: ${{ inputs.scan_name }}
         run: |
           echo "🔍 Running OWASP ZAP Security Scan..."
-          echo "🎯 Target URL: ${{ inputs.target_url }}"
-          echo "📝 Scan Name: ${{ inputs.scan_name }}"
+          echo "🎯 Target URL: $TARGET_URL"
+          echo "📝 Scan Name: $SCAN_NAME"
           
           # Create reports directory
           mkdir -p reports
           chmod 777 reports
-          
-          # Set target URL
-          TARGET_URL="${{ inputs.target_url }}"
-          SCAN_NAME="${{ inputs.scan_name }}"
           
           # Pull the working ZAP image
           echo "📦 Pulling ZAP Docker image..."
@@ -149,15 +148,20 @@ jobs:
 
       - name: 📊 Generate Scan Summary
         if: always()
+        env:
+          TARGET_URL: ${{ inputs.target_url }}
+          SCAN_NAME: ${{ inputs.scan_name }}
+          ZAP_EXIT_CODE: ${{ steps.scan.outputs.zap_exit_code }}
+          SCAN_PASSED: ${{ steps.scan.outputs.scan_passed }}
         run: |
           echo "## 🔒 OWASP ZAP Security Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Scanned:** ${{ inputs.target_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Scan Name:** ${{ inputs.scan_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Scanned:** $TARGET_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Name:** $SCAN_NAME" >> $GITHUB_STEP_SUMMARY
           echo "**Scan Type:** Baseline" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "**Exit Code:** ${{ steps.scan.outputs.zap_exit_code }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Scan Passed:** ${{ steps.scan.outputs.scan_passed }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Exit Code:** $ZAP_EXIT_CODE" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Passed:** $SCAN_PASSED" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
           echo "- HTML Report: Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY

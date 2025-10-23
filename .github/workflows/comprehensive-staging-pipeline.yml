@@ -365,13 +365,19 @@ jobs:
     steps:
     - name: 🚪 Deployment Gate Decision
       id: gate-decision
+      env:
+        SECURITY_PASSED: ${{ needs.security-scan.outputs.security_gate_passed }}
+        QUALITY_PASSED: ${{ needs.code-quality.outputs.quality_passed }}
+        TESTS_PASSED: ${{ needs.functionality-tests.outputs.tests_passed }}
+        USABILITY_PASSED: ${{ needs.usability-tests.outputs.usability_passed }}
+        FORCE_DEPLOY: ${{ inputs.force_deploy }}
       run: |
         # Check all gate results
-        security_passed="${{ needs.security-scan.outputs.security_gate_passed }}"
-        quality_passed="${{ needs.code-quality.outputs.quality_passed }}"
-        tests_passed="${{ needs.functionality-tests.outputs.tests_passed }}"
-        usability_passed="${{ needs.usability-tests.outputs.usability_passed }}"
-        force_deploy="${{ inputs.force_deploy }}"
+        security_passed="$SECURITY_PASSED"
+        quality_passed="$QUALITY_PASSED"
+        tests_passed="$TESTS_PASSED"
+        usability_passed="$USABILITY_PASSED"
+        force_deploy="$FORCE_DEPLOY"
         
         echo "🔍 Gate Results:"
         echo "  Security: $security_passed"
