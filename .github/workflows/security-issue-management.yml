@@ -2,7 +2,7 @@ name: 🔒 Security Issue Management
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
   schedule:
     # Run daily at 3 AM UTC (after security scans)
     - cron: '0 3 * * *'
