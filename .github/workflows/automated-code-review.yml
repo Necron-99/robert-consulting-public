@@ -23,6 +23,9 @@ permissions:
   security-events: write
   actions: read
   pull-requests: write
+  vulnerability-alerts: read
+  dependabot: read
+  code-scanning: read
 
 env:
   REVIEWDOG_VERSION: "0.15.2"
