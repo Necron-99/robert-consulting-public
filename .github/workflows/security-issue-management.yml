@@ -1,4 +1,5 @@
 name: 🔒 Security Issue Management
+# Triggered on push to main/staging branches and daily at 3 AM UTC
 
 on:
   push:
