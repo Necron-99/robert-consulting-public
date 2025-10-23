@@ -4,6 +4,7 @@ name: 🔒 Security Management
 on:
   push:
     branches: [ main, staging ]
+  workflow_dispatch:
   schedule:
     # Run daily at 3 AM UTC (after security scans)
     - cron: '0 3 * * *'
