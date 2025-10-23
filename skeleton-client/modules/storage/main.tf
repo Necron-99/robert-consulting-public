@@ -26,6 +26,23 @@ resource "aws_s3_bucket" "backups" {
   tags = var.common_tags
 }
 
+# S3 Bucket ownership controls for app data
+resource "aws_s3_bucket_ownership_controls" "app_data" {
+  bucket = aws_s3_bucket.app_data.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 Bucket ACL for app data
+resource "aws_s3_bucket_acl" "app_data" {
+  bucket = aws_s3_bucket.app_data.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.app_data]
+}
+
 # S3 Bucket versioning for app data
 resource "aws_s3_bucket_versioning" "app_data" {
   bucket = aws_s3_bucket.app_data.id
@@ -34,12 +51,46 @@ resource "aws_s3_bucket_versioning" "app_data" {
   }
 }
 
+# S3 Bucket ownership controls for static assets
+resource "aws_s3_bucket_ownership_controls" "static_assets" {
+  bucket = aws_s3_bucket.static_assets.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 Bucket ACL for static assets
+resource "aws_s3_bucket_acl" "static_assets" {
+  bucket = aws_s3_bucket.static_assets.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.static_assets]
+}
+
 # S3 Bucket versioning for static assets
 resource "aws_s3_bucket_versioning" "static_assets" {
   bucket = aws_s3_bucket.static_assets.id
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+# S3 Bucket ownership controls for backups
+resource "aws_s3_bucket_ownership_controls" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 Bucket ACL for backups
+resource "aws_s3_bucket_acl" "backups" {
+  bucket = aws_s3_bucket.backups.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.backups]
 }
 
 # S3 Bucket versioning for backups

@@ -53,6 +53,15 @@ resource "aws_s3_bucket" "staging_access_logs" {
   }
 }
 
+# S3 bucket ownership controls for access logs
+resource "aws_s3_bucket_ownership_controls" "staging_access_logs" {
+  bucket = aws_s3_bucket.staging_access_logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 # S3 bucket versioning for access logs
 resource "aws_s3_bucket_versioning" "staging_access_logs" {
   bucket = aws_s3_bucket.staging_access_logs.id
@@ -136,6 +145,23 @@ resource "aws_s3_bucket_policy" "staging_access_logs" {
       }
     ]
   })
+}
+
+# S3 bucket ownership controls for website bucket
+resource "aws_s3_bucket_ownership_controls" "staging_website_bucket" {
+  bucket = aws_s3_bucket.staging_website_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 bucket ACL for website bucket
+resource "aws_s3_bucket_acl" "staging_website_bucket" {
+  bucket = aws_s3_bucket.staging_website_bucket.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.staging_website_bucket]
 }
 
 # S3 bucket versioning

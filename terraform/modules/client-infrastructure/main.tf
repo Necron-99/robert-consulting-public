@@ -119,6 +119,34 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
+# S3 bucket ownership controls
+resource "aws_s3_bucket_ownership_controls" "website" {
+  bucket = aws_s3_bucket.website.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 bucket ACL
+resource "aws_s3_bucket_acl" "website" {
+  bucket = aws_s3_bucket.website.id
+  acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.website]
+}
+
+# S3 bucket server-side encryption
+resource "aws_s3_bucket_server_side_encryption_configuration" "website" {
+  bucket = aws_s3_bucket.website.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 # S3 bucket versioning
 resource "aws_s3_bucket_versioning" "website" {
   bucket = aws_s3_bucket.website.id
