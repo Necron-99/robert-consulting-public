@@ -471,7 +471,7 @@ jobs:
           path: ./ai-results
 
       - name: 💬 Post Comprehensive Review Comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');

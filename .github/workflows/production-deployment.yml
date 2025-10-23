@@ -308,7 +308,7 @@ jobs:
     
     steps:
     - name: 📢 Send Deployment Notification
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const deploymentStatus = '${{ needs.deploy-production.result }}';
@@ -391,7 +391,7 @@ jobs:
           console.log(`Created deployment notification issue #${issue.number}`);
 
     - name: 📊 Generate Deployment Summary
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const summary = [

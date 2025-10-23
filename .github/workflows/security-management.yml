@@ -150,7 +150,7 @@ jobs:
 
     - name: 📝 Create security issues based on severity
       if: steps.security-check.outputs.has_any_alerts == 'true'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const criticalCount = ${{ steps.security-check.outputs.critical_count }};
@@ -257,7 +257,7 @@ jobs:
 
     - name: ✅ Close security issue if no vulnerabilities
       if: steps.security-check.outputs.has_any_alerts == 'false'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           console.log('✅ No security vulnerabilities found, checking for existing issues to close...');
