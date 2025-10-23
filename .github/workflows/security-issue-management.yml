@@ -1,5 +1,6 @@
 name: 🔒 Security Issue Management
 # Triggered on push to main/staging branches and daily at 3 AM UTC
+# Updated with proper permissions for Dependabot and CodeQL access
 
 on:
   push:
