@@ -1,6 +1,9 @@
+# Dependabot configuration for Robert Consulting
+# This enables automatic dependency updates and security alerts
+
 version: 2
 updates:
-  # Enable version updates for npm
+  # Enable version updates for npm packages
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -13,8 +16,15 @@ updates:
     assignees:
       - "Necron-99"
     commit-message:
-      prefix: "chore"
+      prefix: "deps"
       include: "scope"
+    labels:
+      - "dependencies"
+      - "security"
+    ignore:
+      # Ignore major version updates for now
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -23,43 +33,73 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     reviewers:
       - "Necron-99"
     assignees:
       - "Necron-99"
     commit-message:
-      prefix: "chore"
+      prefix: "ci"
       include: "scope"
+    labels:
+      - "github-actions"
+      - "dependencies"
 
-  # Enable version updates for Python
+  # Enable version updates for Terraform modules
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "terraform"
+      include: "scope"
+    labels:
+      - "terraform"
+      - "infrastructure"
+      - "dependencies"
+
+  # Enable version updates for Lambda functions
+  - package-ecosystem: "npm"
+    directory: "/lambda"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Necron-99"
+    assignees:
+      - "Necron-99"
+    commit-message:
+      prefix: "lambda"
+      include: "scope"
+    labels:
+      - "lambda"
+      - "dependencies"
+      - "security"
+
+  # Enable version updates for Python dependencies (if any)
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     reviewers:
       - "Necron-99"
     assignees:
       - "Necron-99"
     commit-message:
-      prefix: "chore"
+      prefix: "python"
       include: "scope"
-
-  # Enable version updates for Terraform
-  - package-ecosystem: "terraform"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "Necron-99"
-    assignees:
-      - "Necron-99"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
+    labels:
+      - "python"
+      - "dependencies"
