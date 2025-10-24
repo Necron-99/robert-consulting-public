@@ -152,21 +152,20 @@ class MonitoringDashboard {
      * Fetch real AWS cost data
      */
   async fetchCostData() {
-    try {
-      // For now, return the verified cost data
-      // In a real implementation, this would call AWS Cost Explorer API
-      return {
-        totalMonthly: 16.50, // Total including AWS services + domain registrar
-        s3Cost: 0.16, // Amazon Simple Storage Service
-        cloudfrontCost: 0.08, // Amazon CloudFront
-        lambdaCost: 0.12, // AWS Lambda
-        route53Cost: 3.05, // Amazon Route 53
-        sesCost: 5.88, // Amazon Simple Email Service
-        wafCost: 5.72, // AWS WAF
-        cloudwatchCost: 0.24, // AmazonCloudWatch
-        otherCost: 0.00, // Other AWS services
-        trend: '-12.5%' // Cost reduction from optimization
-      };
+    // For now, return the verified cost data
+    // In a real implementation, this would call AWS Cost Explorer API
+    return {
+      totalMonthly: 16.50, // Total including AWS services + domain registrar
+      s3Cost: 0.16, // Amazon Simple Storage Service
+      cloudfrontCost: 0.08, // Amazon CloudFront
+      lambdaCost: 0.12, // AWS Lambda
+      route53Cost: 3.05, // Amazon Route 53
+      sesCost: 5.88, // Amazon Simple Email Service
+      wafCost: 5.72, // AWS WAF
+      cloudwatchCost: 0.24, // AmazonCloudWatch
+      otherCost: 0.00, // Other AWS services
+      trend: '-12.5%' // Cost reduction from optimization
+    };
   }
 
   /**
@@ -180,79 +179,59 @@ class MonitoringDashboard {
         storage: '0.00 GB', // Actual: 1.61398e-06 GB (very small)
         objects: '87' // Actual object count
       };
-    } catch (error) {
-      console.error('Error fetching S3 metrics:', error);
-      return {
-        storage: '0.00 GB',
-        objects: '0'
-      };
-    }
   }
 
   /**
      * Fetch real CloudFront metrics
      */
   async fetchCloudFrontMetrics() {
-    try {
-      // In a real implementation, this would call AWS CloudWatch API
-      // For now, return realistic values for a new distribution
-      return {
-        requests: '0', // No data yet in CloudWatch
-        bandwidth: '0.00 GB' // No data yet in CloudWatch
-      };
+    // In a real implementation, this would call AWS CloudWatch API
+    // For now, return realistic values for a new distribution
+    return {
+      requests: '0', // No data yet in CloudWatch
+      bandwidth: '0.00 GB' // No data yet in CloudWatch
+    };
   }
 
   /**
      * Fetch real Route53 metrics
      */
   async fetchRoute53Metrics() {
-    try {
-      // In a real implementation, this would call AWS CloudWatch API
-      // For now, return realistic values
-      return {
-        queries: '12,456', // This would come from CloudWatch metrics
-        healthChecks: '0' // No health checks configured
-      };
+    // In a real implementation, this would call AWS CloudWatch API
+    // For now, return realistic values
+    return {
+      queries: '12,456', // This would come from CloudWatch metrics
+      healthChecks: '0' // No health checks configured
+    };
   }
 
   /**
      * Check Route53 health by testing DNS resolution
      */
   async checkRoute53Health() {
-    try {
-      // Test DNS resolution for robertconsulting.net
-      // const testDomain = 'robertconsulting.net'; // Unused for now
+    // Test DNS resolution for robertconsulting.net
+    // const testDomain = 'robertconsulting.net'; // Unused for now
 
-      // Create a simple DNS test using fetch to check if domain resolves
-      const startTime = Date.now();
+    // Create a simple DNS test using fetch to check if domain resolves
+    const startTime = Date.now();
 
-      try {
-        // Try to fetch a small resource to test DNS resolution
-        // const response = await fetch(`https://${testDomain}/favicon.ico`, { // Unused for now
-        //   method: 'HEAD',
-        //   mode: 'no-cors',
-        //   cache: 'no-cache'
-        // });
+    // Try to fetch a small resource to test DNS resolution
+    // const response = await fetch(`https://${testDomain}/favicon.ico`, { // Unused for now
+    //   method: 'HEAD',
+    //   mode: 'no-cors',
+    //   cache: 'no-cache'
+    // });
 
-        const responseTime = Date.now() - startTime;
+    const responseTime = Date.now() - startTime;
 
-        // If we get here, DNS resolution worked
-        return {
-          status: 'healthy',
-          resolution: '100%',
-          queries: '12,456', // This would come from CloudWatch metrics
-          healthChecks: '0',
-          responseTime: `${responseTime}ms`
-        };
-    } catch (error) {
-      // Fallback to healthy status if check fails
-      return {
-        status: 'healthy',
-        resolution: '100%',
-        queries: '12,456',
-        healthChecks: '0'
-      };
-    }
+    // If we get here, DNS resolution worked
+    return {
+      status: 'healthy',
+      resolution: '100%',
+      queries: '12,456', // This would come from CloudWatch metrics
+      healthChecks: '0',
+      responseTime: `${responseTime}ms`
+    };
   }
 
   /**
@@ -401,7 +380,14 @@ class MonitoringDashboard {
       const loadTime = performance.now() - startTime;
 
       // Calculate performance scores based on actual metrics
-      const lcpScore = loadTime < 1000 ? 'good' : loadTime < 2500 ? 'needs-improvement' : 'poor';
+      let lcpScore;
+      if (loadTime < 1000) {
+        lcpScore = 'good';
+      } else if (loadTime < 2500) {
+        lcpScore = 'needs-improvement';
+      } else {
+        lcpScore = 'poor';
+      }
       const lcpValue = `${(loadTime / 1000).toFixed(1)}s`;
 
       return {
