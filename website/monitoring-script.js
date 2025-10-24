@@ -172,13 +172,12 @@ class MonitoringDashboard {
      * Fetch real S3 metrics
      */
   async fetchS3Metrics() {
-    try {
-      // In a real implementation, this would call AWS S3 API
-      // For now, return the actual values we found
-      return {
-        storage: '0.00 GB', // Actual: 1.61398e-06 GB (very small)
-        objects: '87' // Actual object count
-      };
+    // In a real implementation, this would call AWS S3 API
+    // For now, return the actual values we found
+    return {
+      storage: '0.00 GB', // Actual: 1.61398e-06 GB (very small)
+      objects: '87' // Actual object count
+    };
   }
 
   /**
