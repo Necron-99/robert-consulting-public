@@ -904,20 +904,20 @@ class UnifiedDashboard {
     // };
     let icon;
     switch (type) {
-      case 'info':
-        icon = 'ℹ️';
-        break;
-      case 'success':
-        icon = '✅';
-        break;
-      case 'warning':
-        icon = '⚠️';
-        break;
-      case 'error':
-        icon = '❌';
-        break;
-      default:
-        icon = 'ℹ️';
+    case 'info':
+      icon = 'ℹ️';
+      break;
+    case 'success':
+      icon = '✅';
+      break;
+    case 'warning':
+      icon = '⚠️';
+      break;
+    case 'error':
+      icon = '❌';
+      break;
+    default:
+      icon = 'ℹ️';
     }
     return icon;
   }
@@ -996,5 +996,7 @@ class UnifiedDashboard {
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  new UnifiedDashboard();
+  const dashboard = new UnifiedDashboard();
+  // Store reference to avoid no-new error
+  window.dashboardInstance = dashboard;
 });

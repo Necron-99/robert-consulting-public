@@ -124,17 +124,17 @@ class StatusLogicService {
   determineStatus(stage, data) {
     let rules;
     switch (stage) {
-      case 'development':
-        rules = this.statusRules.development;
-        break;
-      case 'staging':
-        rules = this.statusRules.staging;
-        break;
-      case 'production':
-        rules = this.statusRules.production;
-        break;
-      default:
-        rules = null;
+    case 'development':
+      rules = this.statusRules.development;
+      break;
+    case 'staging':
+      rules = this.statusRules.staging;
+      break;
+    case 'production':
+      rules = this.statusRules.production;
+      break;
+    default:
+      rules = null;
     }
     if (!rules) {
       console.warn(`No status rules found for stage: ${stage}`);
@@ -166,18 +166,18 @@ class StatusLogicService {
 
     Object.values(stageStatuses).forEach(status => {
       switch (status) {
-        case 'green':
-          statusCounts.green++;
-          break;
-        case 'yellow':
-          statusCounts.yellow++;
-          break;
-        case 'red':
-          statusCounts.red++;
-          break;
-        case 'unknown':
-          statusCounts.unknown++;
-          break;
+      case 'green':
+        statusCounts.green++;
+        break;
+      case 'yellow':
+        statusCounts.yellow++;
+        break;
+      case 'red':
+        statusCounts.red++;
+        break;
+      case 'unknown':
+        statusCounts.unknown++;
+        break;
       }
     });
 
@@ -225,20 +225,20 @@ class StatusLogicService {
     // };
     let priority;
     switch (status) {
-      case 'critical':
-        priority = 4;
-        break;
-      case 'warning':
-        priority = 3;
-        break;
-      case 'info':
-        priority = 2;
-        break;
-      case 'success':
-        priority = 1;
-        break;
-      default:
-        priority = 0;
+    case 'critical':
+      priority = 4;
+      break;
+    case 'warning':
+      priority = 3;
+      break;
+    case 'info':
+      priority = 2;
+      break;
+    case 'success':
+      priority = 1;
+      break;
+    default:
+      priority = 0;
     }
     return priority;
   }
@@ -283,45 +283,45 @@ class StatusLogicService {
     let description;
     if (stage === 'development') {
       switch (status) {
-        case 'green':
-          description = 'Development is progressing well';
-          break;
-        case 'yellow':
-          description = 'Development has some issues';
-          break;
-        case 'red':
-          description = 'Development is blocked';
-          break;
-        default:
-          description = 'Development status unknown';
+      case 'green':
+        description = 'Development is progressing well';
+        break;
+      case 'yellow':
+        description = 'Development has some issues';
+        break;
+      case 'red':
+        description = 'Development is blocked';
+        break;
+      default:
+        description = 'Development status unknown';
       }
     } else if (stage === 'staging') {
       switch (status) {
-        case 'green':
-          description = 'Staging environment is healthy';
-          break;
-        case 'yellow':
-          description = 'Staging has minor issues';
-          break;
-        case 'red':
-          description = 'Staging environment is down';
-          break;
-        default:
-          description = 'Staging status unknown';
+      case 'green':
+        description = 'Staging environment is healthy';
+        break;
+      case 'yellow':
+        description = 'Staging has minor issues';
+        break;
+      case 'red':
+        description = 'Staging environment is down';
+        break;
+      default:
+        description = 'Staging status unknown';
       }
     } else if (stage === 'production') {
       switch (status) {
-        case 'green':
-          description = 'Production is running smoothly';
-          break;
-        case 'yellow':
-          description = 'Production has minor issues';
-          break;
-        case 'red':
-          description = 'Production is experiencing issues';
-          break;
-        default:
-          description = 'Production status unknown';
+      case 'green':
+        description = 'Production is running smoothly';
+        break;
+      case 'yellow':
+        description = 'Production has minor issues';
+        break;
+      case 'red':
+        description = 'Production is experiencing issues';
+        break;
+      default:
+        description = 'Production status unknown';
       }
     } else {
       description = 'Status unknown';
@@ -369,45 +369,45 @@ class StatusLogicService {
     let actions;
     if (stage === 'development') {
       switch (status) {
-        case 'green':
-          actions = ['Continue development', 'Run additional tests'];
-          break;
-        case 'yellow':
-          actions = ['Wait for tests to complete', 'Check test coverage'];
-          break;
-        case 'red':
-          actions = ['Fix failing tests', 'Resolve conflicts', 'Review code changes'];
-          break;
-        default:
-          actions = ['Check status', 'Review logs'];
+      case 'green':
+        actions = ['Continue development', 'Run additional tests'];
+        break;
+      case 'yellow':
+        actions = ['Wait for tests to complete', 'Check test coverage'];
+        break;
+      case 'red':
+        actions = ['Fix failing tests', 'Resolve conflicts', 'Review code changes'];
+        break;
+      default:
+        actions = ['Check status', 'Review logs'];
       }
     } else if (stage === 'staging') {
       switch (status) {
-        case 'green':
-          actions = ['Proceed to production', 'Run final checks'];
-          break;
-        case 'yellow':
-          actions = ['Monitor staging environment', 'Check service health'];
-          break;
-        case 'red':
-          actions = ['Fix staging issues', 'Check infrastructure', 'Review deployment'];
-          break;
-        default:
-          actions = ['Check status', 'Review logs'];
+      case 'green':
+        actions = ['Proceed to production', 'Run final checks'];
+        break;
+      case 'yellow':
+        actions = ['Monitor staging environment', 'Check service health'];
+        break;
+      case 'red':
+        actions = ['Fix staging issues', 'Check infrastructure', 'Review deployment'];
+        break;
+      default:
+        actions = ['Check status', 'Review logs'];
       }
     } else if (stage === 'production') {
       switch (status) {
-        case 'green':
-          actions = ['Monitor production', 'Update documentation'];
-          break;
-        case 'yellow':
-          actions = ['Wait for deployment', 'Monitor progress'];
-          break;
-        case 'red':
-          actions = ['Rollback if necessary', 'Check deployment logs', 'Fix issues'];
-          break;
-        default:
-          actions = ['Check status', 'Review logs'];
+      case 'green':
+        actions = ['Monitor production', 'Update documentation'];
+        break;
+      case 'yellow':
+        actions = ['Wait for deployment', 'Monitor progress'];
+        break;
+      case 'red':
+        actions = ['Rollback if necessary', 'Check deployment logs', 'Fix issues'];
+        break;
+      default:
+        actions = ['Check status', 'Review logs'];
       }
     } else {
       actions = ['Check status', 'Review logs'];
@@ -434,17 +434,17 @@ class StatusLogicService {
     Object.entries(stageStatuses).forEach(([stage, status]) => {
       let weight;
       switch (stage) {
-        case 'development':
-          weight = weights.development || 0;
-          break;
-        case 'staging':
-          weight = weights.staging || 0;
-          break;
-        case 'production':
-          weight = weights.production || 0;
-          break;
-        default:
-          weight = 0;
+      case 'development':
+        weight = weights.development || 0;
+        break;
+      case 'staging':
+        weight = weights.staging || 0;
+        break;
+      case 'production':
+        weight = weights.production || 0;
+        break;
+      default:
+        weight = 0;
       }
       const score = this.getStatusScore(status);
       totalScore += score * weight;
@@ -466,20 +466,20 @@ class StatusLogicService {
     // };
     let score;
     switch (status) {
-      case 'green':
-        score = 100;
-        break;
-      case 'yellow':
-        score = 60;
-        break;
-      case 'red':
-        score = 20;
-        break;
-      case 'unknown':
-        score = 30;
-        break;
-      default:
-        score = 0;
+    case 'green':
+      score = 100;
+      break;
+    case 'yellow':
+      score = 60;
+      break;
+    case 'red':
+      score = 20;
+      break;
+    case 'unknown':
+      score = 30;
+      break;
+    default:
+      score = 0;
     }
     return score;
   }
@@ -491,63 +491,63 @@ class StatusLogicService {
     const trends = {};
 
     Object.keys(currentStatuses).forEach(stage => {
-      let currentStatus, previousStatus;
+      let currentStatus; let previousStatus;
       switch (stage) {
-        case 'development':
-          currentStatus = currentStatuses.development;
-          previousStatus = previousStatuses.development || 'unknown';
-          break;
-        case 'staging':
-          currentStatus = currentStatuses.staging;
-          previousStatus = previousStatuses.staging || 'unknown';
-          break;
-        case 'production':
-          currentStatus = currentStatuses.production;
-          previousStatus = previousStatuses.production || 'unknown';
-          break;
-        default:
-          currentStatus = 'unknown';
-          previousStatus = 'unknown';
+      case 'development':
+        currentStatus = currentStatuses.development;
+        previousStatus = previousStatuses.development || 'unknown';
+        break;
+      case 'staging':
+        currentStatus = currentStatuses.staging;
+        previousStatus = previousStatuses.staging || 'unknown';
+        break;
+      case 'production':
+        currentStatus = currentStatuses.production;
+        previousStatus = previousStatuses.production || 'unknown';
+        break;
+      default:
+        currentStatus = 'unknown';
+        previousStatus = 'unknown';
       }
-      
+
       const current = this.getStatusScore(currentStatus);
       const previous = this.getStatusScore(previousStatus);
 
       if (current > previous) {
         switch (stage) {
-          case 'development':
-            trends.development = 'improving';
-            break;
-          case 'staging':
-            trends.staging = 'improving';
-            break;
-          case 'production':
-            trends.production = 'improving';
-            break;
+        case 'development':
+          trends.development = 'improving';
+          break;
+        case 'staging':
+          trends.staging = 'improving';
+          break;
+        case 'production':
+          trends.production = 'improving';
+          break;
         }
       } else if (current < previous) {
         switch (stage) {
-          case 'development':
-            trends.development = 'declining';
-            break;
-          case 'staging':
-            trends.staging = 'declining';
-            break;
-          case 'production':
-            trends.production = 'declining';
-            break;
+        case 'development':
+          trends.development = 'declining';
+          break;
+        case 'staging':
+          trends.staging = 'declining';
+          break;
+        case 'production':
+          trends.production = 'declining';
+          break;
         }
       } else {
         switch (stage) {
-          case 'development':
-            trends.development = 'stable';
-            break;
-          case 'staging':
-            trends.staging = 'stable';
-            break;
-          case 'production':
-            trends.production = 'stable';
-            break;
+        case 'development':
+          trends.development = 'stable';
+          break;
+        case 'staging':
+          trends.staging = 'stable';
+          break;
+        case 'production':
+          trends.production = 'stable';
+          break;
         }
       }
     });
@@ -570,26 +570,26 @@ class StatusLogicService {
 
     let fields;
     switch (stage) {
-      case 'development':
-        fields = ['tests', 'conflicts', 'lastCommit'];
-        break;
-      case 'testing':
-        fields = ['coverage', 'tests'];
-        break;
-      case 'staging':
-        fields = ['uptime', 'health'];
-        break;
-      case 'security':
-        fields = ['vulnerabilities', 'dependencies', 'compliance'];
-        break;
-      case 'deployment':
-        fields = ['status', 'verification'];
-        break;
-      case 'monitoring':
-        fields = ['uptime', 'responseTime', 'errorRate', 'alerts'];
-        break;
-      default:
-        fields = [];
+    case 'development':
+      fields = ['tests', 'conflicts', 'lastCommit'];
+      break;
+    case 'testing':
+      fields = ['coverage', 'tests'];
+      break;
+    case 'staging':
+      fields = ['uptime', 'health'];
+      break;
+    case 'security':
+      fields = ['vulnerabilities', 'dependencies', 'compliance'];
+      break;
+    case 'deployment':
+      fields = ['status', 'verification'];
+      break;
+    case 'monitoring':
+      fields = ['uptime', 'responseTime', 'errorRate', 'alerts'];
+      break;
+    default:
+      fields = [];
     }
     const missing = fields.filter(field => !(field in data));
 

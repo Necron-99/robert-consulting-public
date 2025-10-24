@@ -114,29 +114,29 @@ class SecurityConfig {
     Object.keys(this.rateLimitStore).forEach(key => {
       let timestamp;
       switch (key) {
-        case 'login_attempts':
-          timestamp = this.rateLimitStore.login_attempts;
-          break;
-        case 'api_calls':
-          timestamp = this.rateLimitStore.api_calls;
-          break;
-        case 'form_submissions':
-          timestamp = this.rateLimitStore.form_submissions;
-          break;
-        default:
-          timestamp = 0;
+      case 'login_attempts':
+        timestamp = this.rateLimitStore.login_attempts;
+        break;
+      case 'api_calls':
+        timestamp = this.rateLimitStore.api_calls;
+        break;
+      case 'form_submissions':
+        timestamp = this.rateLimitStore.form_submissions;
+        break;
+      default:
+        timestamp = 0;
       }
       if (now - timestamp > 60000) { // 1 minute
         switch (key) {
-          case 'login_attempts':
-            delete this.rateLimitStore.login_attempts;
-            break;
-          case 'api_calls':
-            delete this.rateLimitStore.api_calls;
-            break;
-          case 'form_submissions':
-            delete this.rateLimitStore.form_submissions;
-            break;
+        case 'login_attempts':
+          delete this.rateLimitStore.login_attempts;
+          break;
+        case 'api_calls':
+          delete this.rateLimitStore.api_calls;
+          break;
+        case 'form_submissions':
+          delete this.rateLimitStore.form_submissions;
+          break;
         }
       }
     });
@@ -149,17 +149,17 @@ class SecurityConfig {
 
     let currentCount;
     switch (key) {
-      case 'login_attempts':
-        currentCount = this.rateLimitStore.login_attempts || 0;
-        break;
-      case 'api_calls':
-        currentCount = this.rateLimitStore.api_calls || 0;
-        break;
-      case 'form_submissions':
-        currentCount = this.rateLimitStore.form_submissions || 0;
-        break;
-      default:
-        currentCount = 0;
+    case 'login_attempts':
+      currentCount = this.rateLimitStore.login_attempts || 0;
+      break;
+    case 'api_calls':
+      currentCount = this.rateLimitStore.api_calls || 0;
+      break;
+    case 'form_submissions':
+      currentCount = this.rateLimitStore.form_submissions || 0;
+      break;
+    default:
+      currentCount = 0;
     }
 
     if (currentCount >= limit) {
@@ -167,15 +167,15 @@ class SecurityConfig {
     }
 
     switch (key) {
-      case 'login_attempts':
-        this.rateLimitStore.login_attempts = (this.rateLimitStore.login_attempts || 0) + 1;
-        break;
-      case 'api_calls':
-        this.rateLimitStore.api_calls = (this.rateLimitStore.api_calls || 0) + 1;
-        break;
-      case 'form_submissions':
-        this.rateLimitStore.form_submissions = (this.rateLimitStore.form_submissions || 0) + 1;
-        break;
+    case 'login_attempts':
+      this.rateLimitStore.login_attempts = (this.rateLimitStore.login_attempts || 0) + 1;
+      break;
+    case 'api_calls':
+      this.rateLimitStore.api_calls = (this.rateLimitStore.api_calls || 0) + 1;
+      break;
+    case 'form_submissions':
+      this.rateLimitStore.form_submissions = (this.rateLimitStore.form_submissions || 0) + 1;
+      break;
     }
     localStorage.setItem('rate_limit', JSON.stringify(this.rateLimitStore));
     return true;

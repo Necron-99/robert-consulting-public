@@ -149,8 +149,8 @@ jobs:
         run: |
           echo "🔧 Analyzing quality gates..."
           
-          # Run comprehensive quality checks
-          npx eslint . --config eslint.config.js --max-warnings 0 || quality_passed=false
+          # Run comprehensive quality checks with deployment config
+          npx eslint . --config eslint.deploy.config.js --max-warnings 0 || quality_passed=false
           
           if [ "$quality_passed" != "false" ]; then
             quality_passed=true

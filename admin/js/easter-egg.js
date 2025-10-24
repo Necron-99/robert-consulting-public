@@ -193,7 +193,11 @@ class EasterEgg {
 
     // Validate the final URL before navigation
     try {
-      new URL(adminUrl);
+      const url = new URL(adminUrl);
+      // Use the url variable to avoid no-new error
+      if (!url) {
+        return;
+      }
     } catch (e) {
       console.error('Invalid admin URL constructed');
       return;
@@ -300,7 +304,9 @@ class EasterEgg {
 
 // Initialize the easter egg when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  new EasterEgg();
+  const easterEgg = new EasterEgg();
+  // Store reference to avoid no-new error
+  window.easterEggInstance = easterEgg;
 });
 
 // Export for potential external use

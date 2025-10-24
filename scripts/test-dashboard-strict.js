@@ -57,20 +57,20 @@ async function testApiEndpoint() {
     const requiredSections = ['aws', 'traffic', 'health', 'performance', 'github', 'velocity'];
     const missingSections = requiredSections.filter(section => {
       switch (section) {
-        case 'aws':
-          return !data.aws;
-        case 'traffic':
-          return !data.traffic;
-        case 'health':
-          return !data.health;
-        case 'performance':
-          return !data.performance;
-        case 'github':
-          return !data.github;
-        case 'velocity':
-          return !data.velocity;
-        default:
-          return true;
+      case 'aws':
+        return !data.aws;
+      case 'traffic':
+        return !data.traffic;
+      case 'health':
+        return !data.health;
+      case 'performance':
+        return !data.performance;
+      case 'github':
+        return !data.github;
+      case 'velocity':
+        return !data.velocity;
+      default:
+        return true;
       }
     });
 
@@ -254,34 +254,34 @@ function testCostData(data) {
   EXPECTED_SERVICES.forEach(service => {
     let serviceCost;
     switch (service) {
-      case 's3':
-        serviceCost = aws.services.s3;
-        break;
-      case 'cloudfront':
-        serviceCost = aws.services.cloudfront;
-        break;
-      case 'route53':
-        serviceCost = aws.services.route53;
-        break;
-      case 'waf':
-        serviceCost = aws.services.waf;
-        break;
-      case 'cloudwatch':
-        serviceCost = aws.services.cloudwatch;
-        break;
-      case 'lambda':
-        serviceCost = aws.services.lambda;
-        break;
-      case 'ses':
-        serviceCost = aws.services.ses;
-        break;
-      case 'other':
-        serviceCost = aws.services.other;
-        break;
-      default:
-        serviceCost = undefined;
+    case 's3':
+      serviceCost = aws.services.s3;
+      break;
+    case 'cloudfront':
+      serviceCost = aws.services.cloudfront;
+      break;
+    case 'route53':
+      serviceCost = aws.services.route53;
+      break;
+    case 'waf':
+      serviceCost = aws.services.waf;
+      break;
+    case 'cloudwatch':
+      serviceCost = aws.services.cloudwatch;
+      break;
+    case 'lambda':
+      serviceCost = aws.services.lambda;
+      break;
+    case 'ses':
+      serviceCost = aws.services.ses;
+      break;
+    case 'other':
+      serviceCost = aws.services.other;
+      break;
+    default:
+      serviceCost = undefined;
     }
-    
+
     if (serviceCost !== undefined && serviceCost >= 0) {
       testResults.costData.passed++;
       testResults.costData.tests.push(`✅ ${service} cost present: $${serviceCost}`);
@@ -351,71 +351,71 @@ function testDataIntegrity(data) {
     const fieldParts = field.split('.');
     if (fieldParts.length === 1) {
       switch (fieldParts[0]) {
-        case 'aws':
-          value = data.aws;
-          break;
-        case 'traffic':
-          value = data.traffic;
-          break;
-        case 'health':
-          value = data.health;
-          break;
-        case 'performance':
-          value = data.performance;
-          break;
-        case 'github':
-          value = data.github;
-          break;
-        case 'velocity':
-          value = data.velocity;
-          break;
-        default:
-          value = undefined;
+      case 'aws':
+        value = data.aws;
+        break;
+      case 'traffic':
+        value = data.traffic;
+        break;
+      case 'health':
+        value = data.health;
+        break;
+      case 'performance':
+        value = data.performance;
+        break;
+      case 'github':
+        value = data.github;
+        break;
+      case 'velocity':
+        value = data.velocity;
+        break;
+      default:
+        value = undefined;
       }
     } else if (fieldParts.length === 2) {
       const [parent, child] = fieldParts;
       let parentObj;
       switch (parent) {
-        case 'aws':
-          parentObj = data.aws;
-          break;
-        case 'traffic':
-          parentObj = data.traffic;
-          break;
-        case 'health':
-          parentObj = data.health;
-          break;
-        case 'performance':
-          parentObj = data.performance;
-          break;
-        case 'github':
-          parentObj = data.github;
-          break;
-        case 'velocity':
-          parentObj = data.velocity;
-          break;
-        default:
-          parentObj = undefined;
+      case 'aws':
+        parentObj = data.aws;
+        break;
+      case 'traffic':
+        parentObj = data.traffic;
+        break;
+      case 'health':
+        parentObj = data.health;
+        break;
+      case 'performance':
+        parentObj = data.performance;
+        break;
+      case 'github':
+        parentObj = data.github;
+        break;
+      case 'velocity':
+        parentObj = data.velocity;
+        break;
+      default:
+        parentObj = undefined;
       }
       if (parentObj) {
         switch (child) {
-          case 'monthlyCostTotal':
-            value = parentObj.monthlyCostTotal;
-            break;
-          case 'services':
-            value = parentObj.services;
-            break;
-          case 'totalRequests':
-            value = parentObj.totalRequests;
-            break;
-          case 'last7Days':
-            value = parentObj.last7Days;
-            break;
-          case 'last30Days':
-            value = parentObj.last30Days;
-            break;
-          default:
-            value = undefined;
+        case 'monthlyCostTotal':
+          value = parentObj.monthlyCostTotal;
+          break;
+        case 'services':
+          value = parentObj.services;
+          break;
+        case 'totalRequests':
+          value = parentObj.totalRequests;
+          break;
+        case 'last7Days':
+          value = parentObj.last7Days;
+          break;
+        case 'last30Days':
+          value = parentObj.last30Days;
+          break;
+        default:
+          value = undefined;
         }
       } else {
         value = undefined;
@@ -496,26 +496,26 @@ function printResults() {
   Object.keys(testResults).forEach(category => {
     let result;
     switch (category) {
-      case 'apiEndpoint':
-        result = testResults.apiEndpoint;
-        break;
-      case 'systemStatus':
-        result = testResults.systemStatus;
-        break;
-      case 'performanceMetrics':
-        result = testResults.performanceMetrics;
-        break;
-      case 'costData':
-        result = testResults.costData;
-        break;
-      case 'githubStats':
-        result = testResults.githubStats;
-        break;
-      case 'dataIntegrity':
-        result = testResults.dataIntegrity;
-        break;
-      default:
-        result = null;
+    case 'apiEndpoint':
+      result = testResults.apiEndpoint;
+      break;
+    case 'systemStatus':
+      result = testResults.systemStatus;
+      break;
+    case 'performanceMetrics':
+      result = testResults.performanceMetrics;
+      break;
+    case 'costData':
+      result = testResults.costData;
+      break;
+    case 'githubStats':
+      result = testResults.githubStats;
+      break;
+    case 'dataIntegrity':
+      result = testResults.dataIntegrity;
+      break;
+    default:
+      result = null;
     }
     const total = result.passed + result.failed;
     const percentage = total > 0 ? Math.round((result.passed / total) * 100) : 0;
