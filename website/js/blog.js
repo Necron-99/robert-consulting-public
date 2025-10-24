@@ -144,16 +144,18 @@ class BlogManager {
             const weekKey = this.formatWeekKey(weekStart);
             
             const weekPosts = this.weeklyPosts;
-            if (!weekPosts[weekKey]) {
-                weekPosts[weekKey] = {
+            if (!Object.prototype.hasOwnProperty.call(weekPosts, weekKey)) {
+                const newWeek = {
                     weekStart: weekStart,
                     weekEnd: new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000),
                     posts: []
                 };
+                weekPosts[weekKey] = newWeek;
                 this.availableWeeks.push(weekKey);
             }
             
-            weekPosts[weekKey].posts.push(post);
+            const currentWeek = weekPosts[weekKey];
+            currentWeek.posts.push(post);
         });
         
         // Sort weeks in reverse chronological order (newest first)
@@ -231,7 +233,8 @@ class BlogManager {
         
         if (newIndex >= 0 && newIndex < this.availableWeeks.length) {
             const availableWeeks = this.availableWeeks;
-            this.currentWeek = availableWeeks[newIndex];
+            const weekKey = availableWeeks[newIndex];
+            this.currentWeek = weekKey;
             this.renderPosts();
         }
     }
