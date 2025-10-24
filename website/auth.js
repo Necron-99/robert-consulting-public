@@ -92,7 +92,7 @@ class SecureAuth {
 
       // In production, validate hash here
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -193,7 +193,7 @@ class SecureAuth {
 
     try {
       return JSON.parse(session);
-    } catch (error) {
+    } catch {
       return null;
     }
   }

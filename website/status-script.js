@@ -326,7 +326,7 @@ class StatusMonitor {
     try {
       const date = new Date(dateString);
       return date.toLocaleString();
-    } catch (error) {
+    } catch {
       return 'Unknown';
     }
   }

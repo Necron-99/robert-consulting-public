@@ -34,7 +34,7 @@
       if (securityStatus) {
         securityStatus.textContent = '🔒 secure';
       }
-    } catch (err) {
+    } catch {
       // Fail silently
     }
   }
