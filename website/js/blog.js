@@ -170,8 +170,9 @@ class BlogManager {
     getWeekStart(date) {
         const newDate = new Date(date); // Create a copy to avoid mutating original
         const day = newDate.getDay();
-        const diff = newDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        const diff = newDate.getDate() - day; // Sunday = 0, so no adjustment needed
         newDate.setDate(diff);
+        newDate.setHours(0, 0, 0, 0); // Normalize to start of day
         return newDate;
     }
     
