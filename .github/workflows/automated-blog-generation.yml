@@ -1,0 +1,636 @@
+name: 📝 Automated Blog Generation
+
+on:
+  schedule:
+    # Run blog generation daily at 8:00 UTC (9:00 AM local time)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      blog_topic:
+        description: 'Specific blog topic to generate'
+        required: false
+        type: string
+      day_override:
+        description: 'Override day of week (monday, tuesday, etc.)'
+        required: false
+        type: choice
+        options:
+          - monday
+          - tuesday
+          - wednesday
+          - thursday
+          - friday
+          - auto
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  # 📝 Generate Blog Post
+  generate-blog:
+    name: 📝 Generate Blog Post
+    runs-on: ubuntu-latest
+    outputs:
+      blog-generated: ${{ steps.blog-generation.outputs.generated }}
+      blog-file: ${{ steps.blog-generation.outputs.blog-file }}
+      blog-title: ${{ steps.blog-generation.outputs.blog-title }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📅 Determine Blog Topic
+        id: determine-topic
+        run: |
+          echo "📅 Determining blog topic for today..."
+          
+          # Get current day of week
+          current_day=$(date +%A | tr '[:upper:]' '[:lower:]')
+          
+          # Override day if specified
+          if [ -n "${{ github.event.inputs.day_override }}" ] && [ "${{ github.event.inputs.day_override }}" != "auto" ]; then
+            current_day="${{ github.event.inputs.day_override }}"
+            echo "Using override day: $current_day"
+          fi
+          
+          # Override topic if specified
+          if [ -n "${{ github.event.inputs.blog_topic }}" ]; then
+            blog_topic="${{ github.event.inputs.blog_topic }}"
+            echo "Using override topic: $blog_topic"
+          else
+            # Get topic from schedule
+            blog_topic=$(jq -r ".blog_schedule.weekly_plan.$current_day.topic" config/blog-schedule.json)
+            blog_focus=$(jq -r ".blog_schedule.weekly_plan.$current_day.focus" config/blog-schedule.json)
+            blog_keywords=$(jq -r ".blog_schedule.weekly_plan.$current_day.keywords[]" config/blog-schedule.json | tr '\n' ',' | sed 's/,$//')
+          fi
+          
+          echo "current-day=$current_day" >> $GITHUB_OUTPUT
+          echo "blog-topic=$blog_topic" >> $GITHUB_OUTPUT
+          echo "blog-focus=$blog_focus" >> $GITHUB_OUTPUT
+          echo "blog-keywords=$blog_keywords" >> $GITHUB_OUTPUT
+          
+          echo "📅 Blog Planning:"
+          echo "  📅 Day: $current_day"
+          echo "  📝 Topic: $blog_topic"
+          echo "  🎯 Focus: $blog_focus"
+          echo "  🏷️ Keywords: $blog_keywords"
+
+      - name: 📝 Generate Blog Content
+        id: blog-generation
+        run: |
+          echo "📝 Generating blog content..."
+          
+          # Get current date for filename
+          current_date=$(date +%Y-%m-%d)
+          current_day="${{ steps.determine-topic.outputs.current-day }}"
+          blog_topic="${{ steps.determine-topic.outputs.blog-topic }}"
+          blog_focus="${{ steps.determine-topic.outputs.blog-focus }}"
+          blog_keywords="${{ steps.determine-topic.outputs.blog-keywords }}"
+          
+          # Create filename
+          blog_filename="blog-posts/${current_date}-${blog_topic,,}-${current_day}.html"
+          blog_title="${blog_topic} - ${current_day^}"
+          
+          echo "📝 Creating blog post: $blog_filename"
+          
+          # Generate blog content based on topic
+          case "$current_day" in
+            "monday")
+              cat > "$blog_filename" << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${blog_title} - Robert Consulting</title>
+              <meta name="description" content="${blog_focus}">
+              <meta name="keywords" content="${blog_keywords}">
+              <meta name="author" content="Robert Consulting">
+              <meta property="og:title" content="${blog_title}">
+              <meta property="og:description" content="${blog_focus}">
+              <meta property="og:type" content="article">
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${blog_title}">
+              <meta name="twitter:description" content="${blog_focus}">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>${blog_title}</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">${current_date}</span>
+                          <span class="blog-category">AWS Services</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Latest AWS Services and Updates</h2>
+                      <p>This week we're diving deep into the latest AWS services and updates that are shaping the cloud landscape. AWS continues to innovate at a rapid pace, introducing new services and enhancing existing ones to meet evolving enterprise needs.</p>
+                      
+                      <h3>New AWS Services</h3>
+                      <p>Amazon has recently announced several new services that are worth exploring:</p>
+                      <ul>
+                          <li><strong>AWS Bedrock</strong> - A fully managed service for building and scaling generative AI applications</li>
+                          <li><strong>AWS CodeCatalyst</strong> - A unified software development and delivery service</li>
+                          <li><strong>AWS Application Composer</strong> - A visual builder for serverless applications</li>
+                      </ul>
+                      
+                      <h3>Enhanced Existing Services</h3>
+                      <p>Several existing AWS services have received significant updates:</p>
+                      <ul>
+                          <li><strong>Amazon EC2</strong> - New instance types with improved performance and cost efficiency</li>
+                          <li><strong>AWS Lambda</strong> - Enhanced cold start performance and new runtime options</li>
+                          <li><strong>Amazon RDS</strong> - New database engine versions and improved backup capabilities</li>
+                      </ul>
+                      
+                      <h3>Impact on Cloud Infrastructure</h3>
+                      <p>These updates and new services have significant implications for cloud infrastructure design and management. Organizations need to stay informed about these changes to optimize their cloud strategies and take advantage of new capabilities.</p>
+                      
+                      <h3>Best Practices for AWS Service Adoption</h3>
+                      <ul>
+                          <li>Evaluate new services against your specific use cases</li>
+                          <li>Start with pilot projects to test new capabilities</li>
+                          <li>Monitor AWS announcements and update your architecture accordingly</li>
+                          <li>Consider the total cost of ownership when adopting new services</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>Staying current with AWS services and updates is crucial for maintaining competitive advantage in the cloud. Regular evaluation and adoption of new services can lead to improved efficiency, cost savings, and enhanced capabilities.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">AWS</span>
+                          <span class="tag">Cloud Services</span>
+                          <span class="tag">Infrastructure</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          EOF
+              ;;
+            "tuesday")
+              cat > "$blog_filename" << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${blog_title} - Robert Consulting</title>
+              <meta name="description" content="${blog_focus}">
+              <meta name="keywords" content="${blog_keywords}">
+              <meta name="author" content="Robert Consulting">
+              <meta property="og:title" content="${blog_title}">
+              <meta property="og:description" content="${blog_focus}">
+              <meta property="og:type" content="article">
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${blog_title}">
+              <meta name="twitter:description" content="${blog_focus}">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>${blog_title}</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">${current_date}</span>
+                          <span class="blog-category">AIOps</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Artificial Intelligence for IT Operations</h2>
+                      <p>AIOps is revolutionizing how organizations manage their IT infrastructure by leveraging artificial intelligence and machine learning to automate operations, predict issues, and optimize performance.</p>
+                      
+                      <h3>What is AIOps?</h3>
+                      <p>AIOps combines big data, machine learning, and automation to enhance IT operations. It enables organizations to:</p>
+                      <ul>
+                          <li>Predict and prevent system failures</li>
+                          <li>Automate incident response</li>
+                          <li>Optimize resource utilization</li>
+                          <li>Improve service quality</li>
+                      </ul>
+                      
+                      <h3>Key AIOps Capabilities</h3>
+                      <h4>Predictive Analytics</h4>
+                      <p>Machine learning algorithms analyze historical data to predict potential issues before they impact users.</p>
+                      
+                      <h4>Automated Incident Response</h4>
+                      <p>AI systems can automatically detect, diagnose, and resolve common IT issues without human intervention.</p>
+                      
+                      <h4>Intelligent Monitoring</h4>
+                      <p>Advanced monitoring systems use AI to identify patterns and anomalies that might indicate problems.</p>
+                      
+                      <h3>Benefits of AIOps</h3>
+                      <ul>
+                          <li><strong>Reduced MTTR</strong> - Faster incident resolution</li>
+                          <li><strong>Proactive Operations</strong> - Prevent issues before they occur</li>
+                          <li><strong>Cost Optimization</strong> - Better resource utilization</li>
+                          <li><strong>Improved Reliability</strong> - Higher system uptime</li>
+                      </ul>
+                      
+                      <h3>Implementation Strategies</h3>
+                      <p>Successfully implementing AIOps requires:</p>
+                      <ul>
+                          <li>Data quality and integration</li>
+                          <li>Cultural change and training</li>
+                          <li>Gradual rollout and testing</li>
+                          <li>Continuous monitoring and optimization</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>AIOps represents the future of IT operations, offering unprecedented opportunities for automation, optimization, and reliability. Organizations that embrace AIOps will gain significant competitive advantages.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">AIOps</span>
+                          <span class="tag">Machine Learning</span>
+                          <span class="tag">IT Operations</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          EOF
+              ;;
+            "wednesday")
+              cat > "$blog_filename" << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${blog_title} - Robert Consulting</title>
+              <meta name="description" content="${blog_focus}">
+              <meta name="keywords" content="${blog_keywords}">
+              <meta name="author" content="Robert Consulting">
+              <meta property="og:title" content="${blog_title}">
+              <meta property="og:description" content="${blog_focus}">
+              <meta property="og:type" content="article">
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${blog_title}">
+              <meta name="twitter:description" content="${blog_focus}">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>${blog_title}</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">${current_date}</span>
+                          <span class="blog-category">Security</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Intelligent Vulnerability Remediation</h2>
+                      <p>AI-powered security systems are transforming how organizations detect, analyze, and remediate vulnerabilities. This intelligent approach to security management is becoming essential in today's threat landscape.</p>
+                      
+                      <h3>The Challenge of Modern Security</h3>
+                      <p>Traditional vulnerability management approaches struggle with:</p>
+                      <ul>
+                          <li>Volume of security alerts</li>
+                          <li>Complex attack vectors</li>
+                          <li>Limited security resources</li>
+                          <li>Evolving threat landscape</li>
+                      </ul>
+                      
+                      <h3>AI-Powered Vulnerability Detection</h3>
+                      <p>Intelligent systems can:</p>
+                      <ul>
+                          <li>Analyze code for security flaws</li>
+                          <li>Detect anomalous behavior patterns</li>
+                          <li>Prioritize threats based on risk assessment</li>
+                          <li>Continuously monitor for new vulnerabilities</li>
+                      </ul>
+                      
+                      <h3>Automated Remediation Strategies</h3>
+                      <h4>Code-Level Fixes</h4>
+                      <p>AI systems can automatically generate patches for common vulnerabilities and suggest code improvements.</p>
+                      
+                      <h4>Configuration Updates</h4>
+                      <p>Automated systems can update security configurations and apply best practices without human intervention.</p>
+                      
+                      <h4>Threat Response</h4>
+                      <p>Intelligent systems can automatically respond to detected threats by implementing protective measures.</p>
+                      
+                      <h3>Benefits of Intelligent Remediation</h3>
+                      <ul>
+                          <li><strong>Faster Response</strong> - Immediate threat mitigation</li>
+                          <li><strong>Reduced Human Error</strong> - Automated processes</li>
+                          <li><strong>24/7 Monitoring</strong> - Continuous protection</li>
+                          <li><strong>Scalable Security</strong> - Handle large environments</li>
+                      </ul>
+                      
+                      <h3>Implementation Considerations</h3>
+                      <p>Successfully implementing intelligent vulnerability remediation requires:</p>
+                      <ul>
+                          <li>Quality training data</li>
+                          <li>Integration with existing systems</li>
+                          <li>Human oversight and validation</li>
+                          <li>Continuous learning and improvement</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>Intelligent vulnerability remediation represents the future of cybersecurity, offering organizations the ability to respond to threats faster and more effectively than ever before.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">Security</span>
+                          <span class="tag">AI</span>
+                          <span class="tag">Vulnerability Management</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          EOF
+              ;;
+            "thursday")
+              cat > "$blog_filename" << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${blog_title} - Robert Consulting</title>
+              <meta name="description" content="${blog_focus}">
+              <meta name="keywords" content="${blog_keywords}">
+              <meta name="author" content="Robert Consulting">
+              <meta property="og:title" content="${blog_title}">
+              <meta property="og:description" content="${blog_focus}">
+              <meta property="og:type" content="article">
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${blog_title}">
+              <meta name="twitter:description" content="${blog_focus}">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>${blog_title}</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">${current_date}</span>
+                          <span class="blog-category">Infrastructure</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>OpenTofu vs Terraform: A Comprehensive Analysis</h2>
+                      <p>OpenTofu has emerged as a significant alternative to Terraform, offering an open-source solution for infrastructure as code. This analysis explores the pros and cons of both tools.</p>
+                      
+                      <h3>What is OpenTofu?</h3>
+                      <p>OpenTofu is an open-source fork of Terraform that was created in response to HashiCorp's license change. It maintains compatibility with Terraform while offering additional features and community-driven development.</p>
+                      
+                      <h3>Pros of OpenTofu</h3>
+                      <h4>Open Source</h4>
+                      <p>OpenTofu is fully open source with no licensing restrictions, providing complete freedom for commercial use.</p>
+                      
+                      <h4>Community Driven</h4>
+                      <p>Development is driven by the community, ensuring features align with user needs rather than corporate priorities.</p>
+                      
+                      <h4>Terraform Compatibility</h4>
+                      <p>OpenTofu maintains compatibility with Terraform configurations, making migration straightforward.</p>
+                      
+                      <h4>Enhanced Features</h4>
+                      <p>OpenTofu includes additional features not available in Terraform, such as improved state management and enhanced provider support.</p>
+                      
+                      <h3>Cons of OpenTofu</h3>
+                      <h4>Newer Ecosystem</h4>
+                      <p>As a newer project, OpenTofu has a smaller ecosystem compared to Terraform's established community.</p>
+                      
+                      <h4>Provider Compatibility</h4>
+                      <p>Some Terraform providers may not be immediately compatible with OpenTofu.</p>
+                      
+                      <h4>Enterprise Support</h4>
+                      <p>Limited enterprise support options compared to HashiCorp's commercial offerings.</p>
+                      
+                      <h3>Migration Considerations</h3>
+                      <p>Migrating from Terraform to OpenTofu involves:</p>
+                      <ul>
+                          <li>Updating tooling and CI/CD pipelines</li>
+                          <li>Testing provider compatibility</li>
+                          <li>Training team members</li>
+                          <li>Updating documentation</li>
+                      </ul>
+                      
+                      <h3>Use Case Recommendations</h3>
+                      <p><strong>Choose OpenTofu if:</strong></p>
+                      <ul>
+                          <li>You need complete open-source freedom</li>
+                          <li>You want community-driven development</li>
+                          <li>You're starting a new project</li>
+                      </ul>
+                      
+                      <p><strong>Stick with Terraform if:</strong></p>
+                      <ul>
+                          <li>You need enterprise support</li>
+                          <li>You have complex existing infrastructure</li>
+                          <li>You rely heavily on HashiCorp's ecosystem</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>Both OpenTofu and Terraform have their place in the infrastructure as code landscape. The choice depends on your specific needs, constraints, and priorities.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">OpenTofu</span>
+                          <span class="tag">Terraform</span>
+                          <span class="tag">Infrastructure as Code</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          EOF
+              ;;
+            "friday")
+              cat > "$blog_filename" << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${blog_title} - Robert Consulting</title>
+              <meta name="description" content="${blog_focus}">
+              <meta name="keywords" content="${blog_keywords}">
+              <meta name="author" content="Robert Consulting">
+              <meta property="og:title" content="${blog_title}">
+              <meta property="og:description" content="${blog_focus}">
+              <meta property="og:type" content="article">
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${blog_title}">
+              <meta name="twitter:description" content="${blog_focus}">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>${blog_title}</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">${current_date}</span>
+                          <span class="blog-category">Platform Analysis</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Enterprise Platform Market Analysis: Domo, OpenShift, and Beyond</h2>
+                      <p>The enterprise platform market is rapidly evolving, with new players and established vendors competing for market share. This analysis examines key platforms and their positioning in the market.</p>
+                      
+                      <h3>Domo: Business Intelligence Platform</h3>
+                      <h4>Strengths</h4>
+                      <ul>
+                          <li>User-friendly interface</li>
+                          <li>Strong data visualization capabilities</li>
+                          <li>Cloud-native architecture</li>
+                          <li>Mobile-first approach</li>
+                      </ul>
+                      
+                      <h4>Weaknesses</h4>
+                      <ul>
+                          <li>Limited advanced analytics</li>
+                          <li>Pricing can be complex</li>
+                          <li>Limited customization options</li>
+                      </ul>
+                      
+                      <h3>Red Hat OpenShift: Container Platform</h3>
+                      <h4>Strengths</h4>
+                      <ul>
+                          <li>Enterprise-grade Kubernetes</li>
+                          <li>Strong security features</li>
+                          <li>Comprehensive ecosystem</li>
+                          <li>Hybrid cloud support</li>
+                      </ul>
+                      
+                      <h4>Weaknesses</h4>
+                      <ul>
+                          <li>Complex setup and management</li>
+                          <li>High resource requirements</li>
+                          <li>Steep learning curve</li>
+                      </ul>
+                      
+                      <h3>Other Key Players</h3>
+                      <h4>Microsoft Azure</h4>
+                      <p>Strong integration with Microsoft ecosystem, comprehensive cloud services, and enterprise focus.</p>
+                      
+                      <h4>Google Cloud Platform</h4>
+                      <p>Advanced AI/ML capabilities, strong data analytics, and innovative services.</p>
+                      
+                      <h4>Amazon Web Services</h4>
+                      <p>Market leader with comprehensive services, strong ecosystem, and global presence.</p>
+                      
+                      <h3>Market Trends</h3>
+                      <ul>
+                          <li><strong>Cloud-Native</strong> - Platforms are increasingly cloud-native</li>
+                          <li><strong>AI Integration</strong> - AI capabilities are becoming standard</li>
+                          <li><strong>Security Focus</strong> - Enhanced security features</li>
+                          <li><strong>Hybrid Solutions</strong> - Support for hybrid cloud environments</li>
+                      </ul>
+                      
+                      <h3>Selection Criteria</h3>
+                      <p>When choosing an enterprise platform, consider:</p>
+                      <ul>
+                          <li>Integration capabilities</li>
+                          <li>Scalability requirements</li>
+                          <li>Security and compliance needs</li>
+                          <li>Total cost of ownership</li>
+                          <li>Vendor support and ecosystem</li>
+                      </ul>
+                      
+                      <h3>Future Outlook</h3>
+                      <p>The enterprise platform market is expected to continue growing, with increased focus on:</p>
+                      <ul>
+                          <li>AI and machine learning integration</li>
+                          <li>Edge computing capabilities</li>
+                          <li>Enhanced security features</li>
+                          <li>Simplified management interfaces</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>The enterprise platform market offers diverse options for different needs. Success depends on aligning platform capabilities with organizational requirements and strategic goals.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">Enterprise Platforms</span>
+                          <span class="tag">Domo</span>
+                          <span class="tag">OpenShift</span>
+                          <span class="tag">Market Analysis</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          EOF
+              ;;
+          esac
+          
+          echo "blog-generated=true" >> $GITHUB_OUTPUT
+          echo "blog-file=$blog_filename" >> $GITHUB_OUTPUT
+          echo "blog-title=$blog_title" >> $GITHUB_OUTPUT
+          
+          echo "✅ Blog post generated successfully: $blog_filename"
+
+      - name: 📤 Upload Blog Post
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-blog-post
+          path: ${{ steps.blog-generation.outputs.blog-file }}
+          retention-days: 30
+
+  # 🚀 Deploy Blog Post
+  deploy-blog:
+    name: 🚀 Deploy Blog Post
+    runs-on: ubuntu-latest
+    needs: generate-blog
+    if: needs.generate-blog.outputs.blog-generated == 'true'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Generated Blog
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-blog-post
+          path: blog-posts/
+
+      - name: 🚀 Deploy to S3
+        run: |
+          echo "🚀 Deploying blog post to S3..."
+          
+          # Configure AWS CLI
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          
+          # Deploy blog post
+          aws s3 cp blog-posts/ s3://robert-consulting-website/blog-posts/ --recursive
+          
+          # Invalidate CloudFront cache
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/blog-posts/*"
+          
+          echo "✅ Blog post deployed successfully"
+
+      - name: 📊 Blog Deployment Summary
+        run: |
+          echo "## 📝 Blog Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Generated Blog:" >> $GITHUB_STEP_SUMMARY
+          echo "- **File:** ${{ needs.generate-blog.outputs.blog-file }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Title:** ${{ needs.generate-blog.outputs.blog-title }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Generated:** ${{ needs.generate-blog.outputs.blog-generated }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Deployment:" >> $GITHUB_STEP_SUMMARY
+          echo "- **S3 Upload:** ✅ Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **CloudFront Cache:** ✅ Invalidated" >> $GITHUB_STEP_SUMMARY
+          echo "- **Blog Available:** ✅ Live on website" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 **Blog post successfully generated and deployed!**" >> $GITHUB_STEP_SUMMARY
