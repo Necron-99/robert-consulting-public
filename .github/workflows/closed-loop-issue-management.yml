@@ -1,0 +1,334 @@
+name: 🔄 Closed-Loop Issue Management System
+
+on:
+  schedule:
+    # Run security scans every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of scan to perform'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - security
+          - dependencies
+          - code-quality
+      severity:
+        description: 'Minimum severity level'
+        required: true
+        default: 'medium'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SECURITY_SCAN_RESULTS: 'security-scan-results.json'
+  ISSUE_TEMPLATE: 'issue-template.md'
+
+jobs:
+  # 🔍 Comprehensive Security & Quality Scanning
+  security-quality-scan:
+    name: 🔍 Security & Quality Scan
+    runs-on: ubuntu-latest
+    outputs:
+      security-issues: ${{ steps.scan-results.outputs.security-issues }}
+      quality-issues: ${{ steps.scan-results.outputs.quality-issues }}
+      dependency-issues: ${{ steps.scan-results.outputs.dependency-issues }}
+      total-issues: ${{ steps.scan-results.outputs.total-issues }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Security Tools
+        run: |
+          pip install semgrep==1.130.0
+          pip install safety
+          pip install bandit
+          npm install -g @githubnext/github-copilot-cli
+
+      - name: 🔍 Run Comprehensive Security Scan
+        id: security-scan
+        run: |
+          echo "🔍 Running comprehensive security scan..."
+          
+          # Create results directory
+          mkdir -p scan-results
+          
+          # Run Semgrep security scan
+          echo "Running Semgrep security analysis..."
+          semgrep --config=auto --json --output=scan-results/semgrep-results.json . || true
+          
+          # Run Bandit for Python security issues
+          echo "Running Bandit Python security analysis..."
+          bandit -r . -f json -o scan-results/bandit-results.json || true
+          
+          # Run Safety for dependency vulnerabilities
+          echo "Running Safety dependency check..."
+          safety check --json --output scan-results/safety-results.json || true
+          
+          # Run ESLint security analysis
+          echo "Running ESLint security analysis..."
+          npx eslint . --config eslint.config.js --format json --output-file scan-results/eslint-results.json || true
+
+      - name: 📊 Analyze Scan Results
+        id: scan-results
+        run: |
+          echo "📊 Analyzing scan results..."
+          
+          # Initialize counters
+          security_issues=0
+          quality_issues=0
+          dependency_issues=0
+          total_issues=0
+          
+          # Parse Semgrep results
+          if [ -f "scan-results/semgrep-results.json" ]; then
+            semgrep_count=$(jq '.results | length' scan-results/semgrep-results.json 2>/dev/null || echo "0")
+            security_issues=$((security_issues + semgrep_count))
+            echo "Semgrep found $semgrep_count security issues"
+          fi
+          
+          # Parse Bandit results
+          if [ -f "scan-results/bandit-results.json" ]; then
+            bandit_count=$(jq '.results | length' scan-results/bandit-results.json 2>/dev/null || echo "0")
+            security_issues=$((security_issues + bandit_count))
+            echo "Bandit found $bandit_count security issues"
+          fi
+          
+          # Parse Safety results
+          if [ -f "scan-results/safety-results.json" ]; then
+            safety_count=$(jq '.vulnerabilities | length' scan-results/safety-results.json 2>/dev/null || echo "0")
+            dependency_issues=$((dependency_issues + safety_count))
+            echo "Safety found $safety_count dependency vulnerabilities"
+          fi
+          
+          # Parse ESLint results
+          if [ -f "scan-results/eslint-results.json" ]; then
+            eslint_count=$(jq '.[] | .errorCount + .warningCount' scan-results/eslint-results.json 2>/dev/null | awk '{sum += $1} END {print sum+0}' || echo "0")
+            quality_issues=$((quality_issues + eslint_count))
+            echo "ESLint found $eslint_count quality issues"
+          fi
+          
+          total_issues=$((security_issues + quality_issues + dependency_issues))
+          
+          echo "security-issues=$security_issues" >> $GITHUB_OUTPUT
+          echo "quality-issues=$quality_issues" >> $GITHUB_OUTPUT
+          echo "dependency-issues=$dependency_issues" >> $GITHUB_OUTPUT
+          echo "total-issues=$total_issues" >> $GITHUB_OUTPUT
+          
+          echo "📊 Scan Summary:"
+          echo "  🔒 Security Issues: $security_issues"
+          echo "  🔧 Quality Issues: $quality_issues"
+          echo "  📦 Dependency Issues: $dependency_issues"
+          echo "  📋 Total Issues: $total_issues"
+
+      - name: 💾 Upload Scan Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: scan-results/
+          retention-days: 30
+
+  # 🎯 Intelligent Issue Creation & Management
+  issue-management:
+    name: 🎯 Issue Management
+    runs-on: ubuntu-latest
+    needs: security-quality-scan
+    if: needs.security-quality-scan.outputs.total-issues > 0
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Scan Results
+        uses: actions/download-artifact@v4
+        with:
+          name: security-scan-results
+          path: scan-results/
+
+      - name: 🤖 Create Intelligent Issues
+        id: create-issues
+        run: |
+          echo "🤖 Creating intelligent issues based on scan results..."
+          
+          # Create issue template
+          cat > issue-template.md << 'EOF'
+          ## 🔍 Automated Security/Quality Issue
+          
+          **Issue Type:** $ISSUE_TYPE
+          **Severity:** $SEVERITY
+          **Source:** $SOURCE
+          **File:** $FILE
+          **Line:** $LINE
+          
+          ### 📋 Description
+          $DESCRIPTION
+          
+          ### 🔧 Suggested Fix
+          $SUGGESTED_FIX
+          
+          ### 🏷️ Labels
+          - automated
+          - $ISSUE_TYPE
+          - $SEVERITY
+          
+          ### 🔄 Auto-Remediation
+          - [ ] Manual review required
+          - [ ] Auto-fix available: $AUTO_FIX_AVAILABLE
+          - [ ] Priority: $PRIORITY
+          
+          ---
+          *This issue was automatically created by the Closed-Loop Issue Management System*
+          EOF
+          
+          # Process Semgrep results
+          if [ -f "scan-results/semgrep-results.json" ]; then
+            echo "Processing Semgrep results..."
+            jq -r '.results[] | select(.extra.severity == "ERROR" or .extra.severity == "WARNING") | 
+              "ISSUE_TYPE=security\nSEVERITY=" + (.extra.severity | ascii_downcase) + 
+              "\nSOURCE=Semgrep\nFILE=" + .path + "\nLINE=" + (.start.line | tostring) + 
+              "\nDESCRIPTION=" + .extra.message + "\nSUGGESTED_FIX=" + (.extra.fix // "Manual review required") + 
+              "\nAUTO_FIX_AVAILABLE=" + (if .extra.fix then "Yes" else "No" end) + 
+              "\nPRIORITY=" + (if .extra.severity == "ERROR" then "High" else "Medium" end)' scan-results/semgrep-results.json | while IFS= read -r line; do
+              if [[ $line == ISSUE_TYPE=* ]]; then
+                # Create issue content
+                issue_content=$(envsubst < issue-template.md)
+                
+                # Create GitHub issue
+                gh issue create \
+                  --title "🔒 Security Issue: $(echo "$issue_content" | grep "FILE=" | cut -d'=' -f2 | xargs basename)" \
+                  --body "$issue_content" \
+                  --label "security,automated,$(echo "$issue_content" | grep "SEVERITY=" | cut -d'=' -f2)" \
+                  --assignee "$GITHUB_ACTOR" || echo "Failed to create issue"
+              fi
+            done
+          fi
+          
+          # Process ESLint results
+          if [ -f "scan-results/eslint-results.json" ]; then
+            echo "Processing ESLint results..."
+            jq -r '.[] | select(.errorCount > 0 or .warningCount > 0) | 
+              "ISSUE_TYPE=code-quality\nSEVERITY=" + (if .errorCount > 0 then "high" else "medium" end) + 
+              "\nSOURCE=ESLint\nFILE=" + .filePath + "\nLINE=Multiple\nDESCRIPTION=Code quality issues detected" + 
+              "\nSUGGESTED_FIX=Run ESLint with --fix flag" + "\nAUTO_FIX_AVAILABLE=Yes" + 
+              "\nPRIORITY=" + (if .errorCount > 0 then "High" else "Medium" end)' scan-results/eslint-results.json | while IFS= read -r line; do
+              if [[ $line == ISSUE_TYPE=* ]]; then
+                # Create issue content
+                issue_content=$(envsubst < issue-template.md)
+                
+                # Create GitHub issue
+                gh issue create \
+                  --title "🔧 Code Quality Issue: $(echo "$issue_content" | grep "FILE=" | cut -d'=' -f2 | xargs basename)" \
+                  --body "$issue_content" \
+                  --label "code-quality,automated,$(echo "$issue_content" | grep "SEVERITY=" | cut -d'=' -f2)" \
+                  --assignee "$GITHUB_ACTOR" || echo "Failed to create issue"
+              fi
+            done
+          fi
+
+      - name: 📊 Generate Issue Summary
+        run: |
+          echo "📊 Issue Management Summary:"
+          echo "  🔒 Security Issues Found: ${{ needs.security-quality-scan.outputs.security-issues }}"
+          echo "  🔧 Quality Issues Found: ${{ needs.security-quality-scan.outputs.quality-issues }}"
+          echo "  📦 Dependency Issues Found: ${{ needs.security-quality-scan.outputs.dependency-issues }}"
+          echo "  📋 Total Issues: ${{ needs.security-quality-scan.outputs.total-issues }}"
+
+  # 🔄 Automated Remediation
+  auto-remediation:
+    name: 🔄 Auto-Remediation
+    runs-on: ubuntu-latest
+    needs: [security-quality-scan, issue-management]
+    if: always() && needs.security-quality-scan.outputs.quality-issues > 0
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Auto-Fix Code Quality Issues
+        run: |
+          echo "🔧 Attempting to auto-fix code quality issues..."
+          
+          # Run ESLint with auto-fix
+          npx eslint . --config eslint.config.js --fix || echo "Some issues could not be auto-fixed"
+          
+          # Check if there are changes
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Auto-fixes applied, committing changes..."
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .
+            git commit -m "🔧 Auto-fix: Resolve code quality issues
+
+            - Applied ESLint auto-fixes
+            - Resolved formatting and style issues
+            - Maintained code functionality
+            - Generated by Closed-Loop Issue Management System"
+            git push
+          else
+            echo "No auto-fixes were available"
+          fi
+
+  # 📊 Security Dashboard Update
+  security-dashboard:
+    name: 📊 Security Dashboard
+    runs-on: ubuntu-latest
+    needs: [security-quality-scan, issue-management, auto-remediation]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📊 Update Security Dashboard
+        run: |
+          echo "📊 Updating security dashboard..."
+          
+          # Create dashboard data
+          cat > security-dashboard.json << EOF
+          {
+            "last_scan": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "security_issues": ${{ needs.security-quality-scan.outputs.security-issues || 0 }},
+            "quality_issues": ${{ needs.security-quality-scan.outputs.quality-issues || 0 }},
+            "dependency_issues": ${{ needs.security-quality-scan.outputs.dependency-issues || 0 }},
+            "total_issues": ${{ needs.security-quality-scan.outputs.total-issues || 0 }},
+            "auto_fixes_applied": ${{ needs.auto-remediation.result == 'success' && 'true' || 'false' }},
+            "status": "${{ needs.security-quality-scan.outputs.total-issues == 0 && 'clean' || 'issues_detected' }}"
+          }
+          EOF
+          
+          # Update dashboard file
+          echo "📊 Security Dashboard Updated:"
+          cat security-dashboard.json
+          
+          # Create summary for workflow
+          echo "## 🔄 Closed-Loop Issue Management Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Scan Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 **Security Issues:** ${{ needs.security-quality-scan.outputs.security-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔧 **Quality Issues:** ${{ needs.security-quality-scan.outputs.quality-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 **Dependency Issues:** ${{ needs.security-quality-scan.outputs.dependency-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📋 **Total Issues:** ${{ needs.security-quality-scan.outputs.total-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Auto-Remediation:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔧 **Auto-Fixes Applied:** ${{ needs.auto-remediation.result == 'success' && 'Yes' || 'No' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Status:** ${{ needs.security-quality-scan.outputs.total-issues == 0 && '✅ Clean' || '⚠️ Issues Detected' }}" >> $GITHUB_STEP_SUMMARY

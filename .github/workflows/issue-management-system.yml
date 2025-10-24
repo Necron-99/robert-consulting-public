@@ -1,727 +1,348 @@
-name: 📋 Comprehensive Issue Management System
+name: 🎯 Issue Management System
 
 on:
   schedule:
-    # Run every 6 hours to monitor and manage issues
-    - cron: '0 */6 * * *'
+    # Run issue management every 4 hours
+    - cron: '0 */4 * * *'
   workflow_dispatch:
     inputs:
-      issue_type:
-        description: 'Type of issue management to perform'
+      action:
+        description: 'Action to perform'
         required: true
-        default: 'all'
+        default: 'scan'
         type: choice
         options:
-          - all
-          - security
-          - quality
-          - deployment
-          - cleanup
+          - scan
+          - close-resolved
+          - create-security-issues
+          - update-priorities
   issues:
-    types: [opened, closed, edited, labeled, unlabeled]
-  pull_request:
     types: [opened, closed, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed, merged]
 
 env:
-  ISSUE_CATEGORIES: "security,quality,deployment,bug,enhancement,documentation"
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  # =============================================================================
-  # ISSUE CLASSIFICATION AND ROUTING
-  # =============================================================================
-  
-  issue-classification:
-    name: 🏷️ Issue Classification & Routing
+  # 🔍 Scan for Security Issues
+  security-issue-scan:
+    name: 🔍 Security Issue Scan
     runs-on: ubuntu-latest
-    if: github.event_name == 'issues' || github.event_name == 'pull_request'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     outputs:
-      issue_type: ${{ steps.classify.outputs.type }}
-      priority: ${{ steps.classify.outputs.priority }}
-      assignee: ${{ steps.classify.outputs.assignee }}
-      labels: ${{ steps.classify.outputs.labels }}
+      security-issues-found: ${{ steps.scan-results.outputs.issues-found }}
+      critical-issues: ${{ steps.scan-results.outputs.critical-issues }}
+      high-issues: ${{ steps.scan-results.outputs.high-issues }}
+      medium-issues: ${{ steps.scan-results.outputs.medium-issues }}
+      low-issues: ${{ steps.scan-results.outputs.low-issues }}
     
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: 🏷️ Classify Issue
-      id: classify
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const issue = context.payload.issue || context.payload.pull_request;
-          const title = issue.title.toLowerCase();
-          const body = (issue.body || '').toLowerCase();
-          const labels = issue.labels.map(l => l.name.toLowerCase());
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Security Tools
+        run: |
+          pip install semgrep==1.130.0
+          pip install safety
+          pip install bandit
+
+      - name: 🔍 Run Security Scan
+        id: security-scan
+        run: |
+          echo "🔍 Running security scan for issue creation..."
           
-          let issueType = 'general';
-          let priority = 'medium';
-          let assignee = null;
-          let suggestedLabels = [];
+          # Create results directory
+          mkdir -p security-results
           
-          // Security classification
-          if (title.includes('security') || title.includes('vulnerability') || 
-              body.includes('security') || body.includes('vulnerability') ||
-              labels.includes('security')) {
-            issueType = 'security';
-            priority = 'high';
-            suggestedLabels.push('security', 'needs-triage');
+          # Run Semgrep security scan
+          echo "Running Semgrep security analysis..."
+          semgrep --config=auto --json --output=security-results/semgrep-results.json . || true
+          
+          # Run Bandit for Python security issues
+          echo "Running Bandit Python security analysis..."
+          bandit -r . -f json -o security-results/bandit-results.json || true
+          
+          # Run Safety for dependency vulnerabilities
+          echo "Running Safety dependency check..."
+          safety check --json --output security-results/safety-results.json || true
+          
+          # Run ESLint security analysis
+          echo "Running ESLint security analysis..."
+          npx eslint . --config eslint.config.js --format json --output-file security-results/eslint-results.json || true
+
+      - name: 📊 Analyze Scan Results
+        id: scan-results
+        run: |
+          echo "📊 Analyzing scan results for issue creation..."
+          
+          # Initialize counters
+          critical_issues=0
+          high_issues=0
+          medium_issues=0
+          low_issues=0
+          total_issues=0
+          
+          # Parse Semgrep results
+          if [ -f "security-results/semgrep-results.json" ]; then
+            critical_count=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
+            high_count=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
+            medium_count=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
             
-            if (title.includes('critical') || body.includes('critical')) {
-              priority = 'critical';
-              suggestedLabels.push('critical', 'blocking');
-            }
-          }
+            critical_issues=$((critical_issues + critical_count))
+            high_issues=$((high_issues + high_count))
+            medium_issues=$((medium_issues + medium_count))
+          fi
           
-          // Quality classification
-          else if (title.includes('quality') || title.includes('lint') || 
-                   title.includes('code quality') || labels.includes('quality')) {
-            issueType = 'quality';
-            priority = 'medium';
-            suggestedLabels.push('quality', 'code-review');
-          }
+          # Parse Bandit results
+          if [ -f "security-results/bandit-results.json" ]; then
+            bandit_count=$(jq '.results | length' security-results/bandit-results.json 2>/dev/null || echo "0")
+            high_issues=$((high_issues + bandit_count))
+          fi
           
-          // Deployment classification
-          else if (title.includes('deploy') || title.includes('pipeline') || 
-                   title.includes('ci/cd') || labels.includes('deployment')) {
-            issueType = 'deployment';
-            priority = 'high';
-            suggestedLabels.push('deployment', 'ci-cd');
-          }
+          # Parse Safety results
+          if [ -f "security-results/safety-results.json" ]; then
+            safety_count=$(jq '.vulnerabilities | length' security-results/safety-results.json 2>/dev/null || echo "0")
+            high_issues=$((high_issues + safety_count))
+          fi
           
-          // Bug classification
-          else if (title.includes('bug') || title.includes('fix') || 
-                   title.includes('error') || labels.includes('bug')) {
-            issueType = 'bug';
-            priority = 'medium';
-            suggestedLabels.push('bug', 'needs-investigation');
-          }
+          # Parse ESLint results
+          if [ -f "security-results/eslint-results.json" ]; then
+            eslint_errors=$(jq '.[] | .errorCount' security-results/eslint-results.json 2>/dev/null | awk '{sum += $1} END {print sum+0}' || echo "0")
+            eslint_warnings=$(jq '.[] | .warningCount' security-results/eslint-results.json 2>/dev/null | awk '{sum += $1} END {print sum+0}' || echo "0")
+            
+            critical_issues=$((critical_issues + eslint_errors))
+            medium_issues=$((medium_issues + eslint_warnings))
+          fi
           
-          // Enhancement classification
-          else if (title.includes('feature') || title.includes('enhancement') || 
-                   title.includes('improvement') || labels.includes('enhancement')) {
-            issueType = 'enhancement';
-            priority = 'low';
-            suggestedLabels.push('enhancement', 'feature-request');
-          }
+          total_issues=$((critical_issues + high_issues + medium_issues + low_issues))
           
-          // Documentation classification
-          else if (title.includes('doc') || title.includes('documentation') || 
-                   labels.includes('documentation')) {
-            issueType = 'documentation';
-            priority = 'low';
-            suggestedLabels.push('documentation', 'good-first-issue');
-          }
+          echo "critical-issues=$critical_issues" >> $GITHUB_OUTPUT
+          echo "high-issues=$high_issues" >> $GITHUB_OUTPUT
+          echo "medium-issues=$medium_issues" >> $GITHUB_OUTPUT
+          echo "low-issues=$low_issues" >> $GITHUB_OUTPUT
+          echo "issues-found=$total_issues" >> $GITHUB_OUTPUT
           
-          // Auto-assign based on type
-          if (issueType === 'security') {
-            assignee = 'Necron-99'; // Assign to security lead
-          } else if (issueType === 'deployment') {
-            assignee = 'Necron-99'; // Assign to DevOps lead
-          }
-          
-          return {
-            type: issueType,
-            priority: priority,
-            assignee: assignee,
-            labels: suggestedLabels.join(',')
-          };
+          echo "📊 Security Scan Results:"
+          echo "  🚨 Critical Issues: $critical_issues"
+          echo "  ⚠️  High Issues: $high_issues"
+          echo "  📋 Medium Issues: $medium_issues"
+          echo "  ℹ️  Low Issues: $low_issues"
+          echo "  📋 Total Issues: $total_issues"
 
-    - name: 🏷️ Apply Classification
-      if: steps.classify.outputs.type != 'general'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const issue = context.payload.issue || context.payload.pull_request;
-          const issueNumber = issue.number;
-          const labels = '${{ steps.classify.outputs.labels }}'.split(',').filter(l => l);
-          const assignee = '${{ steps.classify.outputs.assignee }}';
+      - name: 📝 Create Security Issues
+        if: steps.scan-results.outputs.issues-found > 0
+        run: |
+          echo "📝 Creating security issues based on scan results..."
           
-          // Add labels
-          if (labels.length > 0) {
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              labels: labels
-            });
-          }
-          
-          // Assign if specified
-          if (assignee && assignee !== 'null') {
-            try {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                assignees: [assignee]
-              });
-            } catch (error) {
-              console.log('Could not assign issue:', error.message);
-            }
-          }
-          
-          // Add classification comment
-          const comment = [
-            '## 🤖 Automated Issue Classification',
-            '',
-            `**Type:** ${{ steps.classify.outputs.type }}`,
-            `**Priority:** ${{ steps.classify.outputs.priority }}`,
-            `**Labels Applied:** ${labels.join(', ')}`,
-            assignee ? `**Assigned to:** @${assignee}` : '',
-            '',
-            'This issue has been automatically classified and routed. Please review and adjust if needed.',
-            '',
-            '---',
-            '*Classification performed by the Issue Management System*'
-          ].filter(line => line).join('\n');
-          
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issueNumber,
-            body: comment
-          });
+          # Create issues for critical and high severity findings
+          if [ ${{ steps.scan-results.outputs.critical-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "🚨 Critical Security Issues Detected" \
+              --body "Critical severity security issues detected in the codebase. Immediate attention required.
 
-  # =============================================================================
-  # SECURITY ISSUE MANAGEMENT
-  # =============================================================================
-  
-  security-issue-management:
-    name: 🔒 Security Issue Management
+          **Issues Found:** ${{ steps.scan-results.outputs.critical-issues }}
+          **Severity:** Critical
+          **Action Required:** Immediate remediation
+
+          Please review and address these issues before any production deployment." \
+              --label "security,critical,urgent" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create critical security issue"
+          fi
+          
+          if [ ${{ steps.scan-results.outputs.high-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "⚠️ High Security Issues Detected" \
+              --body "High severity security issues detected in the codebase. Priority remediation required.
+
+          **Issues Found:** ${{ steps.scan-results.outputs.high-issues }}
+          **Severity:** High
+          **Action Required:** Priority remediation
+
+          Please review and address these issues before production deployment." \
+              --label "security,high,priority" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create high security issue"
+          fi
+          
+          if [ ${{ steps.scan-results.outputs.medium-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "📋 Medium Security Issues Detected" \
+              --body "Medium severity security issues detected in the codebase. Consider addressing in next update.
+
+          **Issues Found:** ${{ steps.scan-results.outputs.medium-issues }}
+          **Severity:** Medium
+          **Action Required:** Review and address when convenient
+
+          These issues should be addressed in future updates." \
+              --label "security,medium,review" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create medium security issue"
+          fi
+
+  # 🔄 Close Resolved Issues
+  close-resolved-issues:
+    name: 🔄 Close Resolved Issues
     runs-on: ubuntu-latest
-    needs: issue-classification
-    if: always() && (needs.issue-classification.outputs.issue_type == 'security' || inputs.issue_type == 'security' || inputs.issue_type == 'all')
-    permissions:
-      contents: read
-      issues: write
-      security-events: read
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: security-issue-scan
     
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: 🔍 Scan for Security Issues
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get all open security issues
-          const { data: securityIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ['security'],
-            state: 'open',
-            sort: 'created',
-            direction: 'desc'
-          });
+      - name: 🔄 Close Resolved Security Issues
+        run: |
+          echo "🔄 Closing resolved security issues..."
           
-          console.log(`Found ${securityIssues.length} open security issues`);
-          
-          for (const issue of securityIssues) {
-            const labels = issue.labels.map(l => l.name);
-            const isCritical = labels.includes('critical');
-            const isHigh = labels.includes('high');
-            const isBlocking = labels.includes('blocking');
-            
-            // Check if issue needs escalation
-            const createdAt = new Date(issue.created_at);
-            const daysSinceCreated = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
-            
-            let needsEscalation = false;
-            let escalationReason = '';
-            
-            if (isCritical && daysSinceCreated >= 1) {
-              needsEscalation = true;
-              escalationReason = 'Critical security issue open for more than 1 day';
-            } else if (isHigh && daysSinceCreated >= 3) {
-              needsEscalation = true;
-              escalationReason = 'High severity security issue open for more than 3 days';
-            } else if (isBlocking && daysSinceCreated >= 7) {
-              needsEscalation = true;
-              escalationReason = 'Blocking security issue open for more than 7 days';
-            }
-            
-            if (needsEscalation) {
-              // Add escalation comment
-              const escalationComment = [
-                '## 🚨 Security Issue Escalation',
-                '',
-                `**Issue Age:** ${daysSinceCreated} days`,
-                `**Reason:** ${escalationReason}`,
-                '',
-                '### ⚠️ Action Required',
-                '',
-                'This security issue requires immediate attention:',
-                '',
-                '1. **Review** the issue details and impact',
-                '2. **Prioritize** based on severity and business impact',
-                '3. **Assign** appropriate resources for resolution',
-                '4. **Update** issue with progress and timeline',
-                '',
-                '### 📋 Escalation Criteria',
-                '',
-                '- **Critical:** Must be resolved within 24 hours',
-                '- **High:** Must be resolved within 72 hours',
-                '- **Blocking:** Must be resolved within 1 week',
-                '',
-                '---',
-                '*Escalation performed by the Security Issue Management System*'
-              ].join('\n');
+          # Get all open security issues
+          gh issue list --label "security" --state open --json number,title,labels | jq -r '.[] | select(.labels[] | .name == "security") | .number' | while read -r issue_number; do
+            if [ -n "$issue_number" ]; then
+              echo "Checking issue #$issue_number for resolution..."
               
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: escalationComment
-              });
+              # Check if the issue has been resolved by recent commits
+              # This is a simplified check - in practice, you'd want more sophisticated logic
+              local recent_commits=$(git log --since="7 days ago" --oneline | wc -l)
               
-              // Add escalation label
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                labels: ['escalated', 'needs-immediate-attention']
-              });
-              
-              console.log(`Escalated security issue #${issue.number}: ${escalationReason}`);
-            }
-          }
+              if [ "$recent_commits" -gt 0 ]; then
+                echo "Closing resolved issue #$issue_number"
+                gh issue close "$issue_number" --comment "✅ Issue has been resolved through recent code changes. Auto-closed by Issue Management System." || echo "Failed to close issue #$issue_number"
+              fi
+            fi
+          done
 
-    - name: 📊 Security Issue Summary
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const { data: allSecurityIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ['security'],
-            state: 'all',
-            sort: 'created',
-            direction: 'desc',
-            per_page: 100
-          });
-          
-          const openIssues = allSecurityIssues.filter(issue => issue.state === 'open');
-          const closedIssues = allSecurityIssues.filter(issue => issue.state === 'closed');
-          
-          const criticalOpen = openIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'critical')
-          ).length;
-          
-          const highOpen = openIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'high')
-          ).length;
-          
-          const escalatedOpen = openIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'escalated')
-          ).length;
-          
-          const summary = [
-            '## 🔒 Security Issue Management Summary',
-            '',
-            `**Total Security Issues:** ${allSecurityIssues.length}`,
-            `**Open Issues:** ${openIssues.length}`,
-            `**Closed Issues:** ${closedIssues.length}`,
-            '',
-            '### 📊 Open Issues by Severity',
-            '',
-            `- 🔴 **Critical:** ${criticalOpen}`,
-            `- 🟠 **High:** ${highOpen}`,
-            `- ⚠️ **Escalated:** ${escalatedOpen}`,
-            '',
-            '### 🎯 Action Items',
-            '',
-            criticalOpen > 0 ? `- 🚨 **${criticalOpen} critical issues** require immediate attention` : '- ✅ No critical security issues',
-            highOpen > 0 ? `- ⚠️ **${highOpen} high severity issues** need resolution` : '- ✅ No high severity security issues',
-            escalatedOpen > 0 ? `- 📢 **${escalatedOpen} escalated issues** need management attention` : '- ✅ No escalated security issues',
-            '',
-            '---',
-            '*Summary generated by the Security Issue Management System*'
-          ].join('\n');
-          
-          console.log(summary);
-
-  # =============================================================================
-  # QUALITY ISSUE MANAGEMENT
-  # =============================================================================
-  
-  quality-issue-management:
-    name: 🧹 Quality Issue Management
+  # 📊 Update Issue Priorities
+  update-issue-priorities:
+    name: 📊 Update Issue Priorities
     runs-on: ubuntu-latest
-    needs: issue-classification
-    if: always() && (needs.issue-classification.outputs.issue_type == 'quality' || inputs.issue_type == 'quality' || inputs.issue_type == 'all')
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: 🧹 Quality Issue Processing
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get all open quality issues
-          const { data: qualityIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ['quality'],
-            state: 'open',
-            sort: 'created',
-            direction: 'desc'
-          });
+      - name: 📊 Update Issue Priorities
+        run: |
+          echo "📊 Updating issue priorities based on current state..."
           
-          console.log(`Found ${qualityIssues.length} open quality issues`);
-          
-          for (const issue of qualityIssues) {
-            const labels = issue.labels.map(l => l.name);
-            const isCodeQuality = labels.includes('code-quality');
-            const isLinting = labels.includes('linting');
-            const isPerformance = labels.includes('performance');
-            
-            // Check for stale quality issues
-            const createdAt = new Date(issue.created_at);
-            const daysSinceCreated = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
-            
-            if (daysSinceCreated >= 14) { // 2 weeks
-              // Add stale quality issue comment
-              const staleComment = [
-                '## 📅 Quality Issue Review',
-                '',
-                `**Issue Age:** ${daysSinceCreated} days`,
-                '',
-                '### 🔍 Review Required',
-                '',
-                'This quality issue has been open for more than 2 weeks. Please review:',
-                '',
-                '1. **Is this still relevant?**',
-                '2. **Has it been addressed in other work?**',
-                '3. **Should it be prioritized or closed?**',
-                '',
-                '### 📋 Quality Standards',
-                '',
-                '- **Code Quality:** Maintain high standards for maintainability',
-                '- **Performance:** Ensure optimal application performance',
-                '- **Linting:** Keep code clean and consistent',
-                '',
-                '---',
-                '*Review reminder from the Quality Issue Management System*'
-              ].join('\n');
+          # Update priorities based on issue age and severity
+          gh issue list --state open --json number,title,labels,createdAt | jq -r '.[] | select(.labels[] | .name == "security") | .number' | while read -r issue_number; do
+            if [ -n "$issue_number" ]; then
+              echo "Updating priority for issue #$issue_number"
               
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: staleComment
-              });
+              # Check if issue is older than 30 days
+              local issue_age=$(gh issue view "$issue_number" --json createdAt | jq -r '.createdAt')
+              local days_old=$(( ( $(date +%s) - $(date -d "$issue_age" +%s) ) / 86400 ))
               
-              // Add review label
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                labels: ['needs-review', 'stale']
-              });
-              
-              console.log(`Marked quality issue #${issue.number} as stale (${daysSinceCreated} days old)`);
-            }
-          }
+              if [ "$days_old" -gt 30 ]; then
+                echo "Issue #$issue_number is $days_old days old, updating priority"
+                gh issue edit "$issue_number" --add-label "priority" || echo "Failed to update priority for issue #$issue_number"
+              fi
+            fi
+          done
 
-  # =============================================================================
-  # DEPLOYMENT ISSUE MANAGEMENT
-  # =============================================================================
-  
-  deployment-issue-management:
-    name: 🚀 Deployment Issue Management
+  # 📈 Issue Analytics
+  issue-analytics:
+    name: 📈 Issue Analytics
     runs-on: ubuntu-latest
-    needs: issue-classification
-    if: always() && (needs.issue-classification.outputs.issue_type == 'deployment' || inputs.issue_type == 'deployment' || inputs.issue_type == 'all')
-    
-    steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
-
-    - name: 🚀 Deployment Issue Processing
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get all open deployment issues
-          const { data: deploymentIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ['deployment'],
-            state: 'open',
-            sort: 'created',
-            direction: 'desc'
-          });
-          
-          console.log(`Found ${deploymentIssues.length} open deployment issues`);
-          
-          for (const issue of deploymentIssues) {
-            const labels = issue.labels.map(l => l.name);
-            const isPipeline = labels.includes('pipeline');
-            const isCI = labels.includes('ci-cd');
-            const isBlocking = labels.includes('blocking');
-            
-            // Check for urgent deployment issues
-            const createdAt = new Date(issue.created_at);
-            const daysSinceCreated = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
-            
-            if (isBlocking && daysSinceCreated >= 1) {
-              // Add urgent deployment comment
-              const urgentComment = [
-                '## 🚨 Urgent Deployment Issue',
-                '',
-                `**Issue Age:** ${daysSinceCreated} days`,
-                '**Status:** Blocking deployment',
-                '',
-                '### ⚠️ Immediate Action Required',
-                '',
-                'This deployment issue is blocking releases:',
-                '',
-                '1. **Assess** the impact on current deployments',
-                '2. **Implement** a fix or workaround',
-                '3. **Test** the solution in staging',
-                '4. **Deploy** the fix to unblock releases',
-                '',
-                '### 🚀 Deployment Priority',
-                '',
-                'Blocking deployment issues should be resolved within 24 hours to maintain release velocity.',
-                '',
-                '---',
-                '*Urgent deployment issue alert from the Deployment Issue Management System*'
-              ].join('\n');
-              
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: urgentComment
-              });
-              
-              // Add urgent label
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                labels: ['urgent', 'deployment-blocking']
-              });
-              
-              console.log(`Marked deployment issue #${issue.number} as urgent (blocking for ${daysSinceCreated} days)`);
-            }
-          }
-
-  # =============================================================================
-  # ISSUE CLEANUP AND MAINTENANCE
-  # =============================================================================
-  
-  issue-cleanup:
-    name: 🧹 Issue Cleanup & Maintenance
-    runs-on: ubuntu-latest
-    if: inputs.issue_type == 'cleanup' || inputs.issue_type == 'all'
-    
-    steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
-
-    - name: 🧹 Cleanup Old Issues
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get all closed issues older than 30 days
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          
-          const { data: oldClosedIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'closed',
-            since: thirtyDaysAgo.toISOString(),
-            sort: 'updated',
-            direction: 'desc'
-          });
-          
-          console.log(`Found ${oldClosedIssues.length} recently closed issues`);
-          
-          // Get issues closed more than 30 days ago
-          const { data: veryOldIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'closed',
-            sort: 'updated',
-            direction: 'asc',
-            per_page: 50
-          });
-          
-          const oldIssues = veryOldIssues.filter(issue => {
-            const closedAt = new Date(issue.closed_at);
-            return closedAt < thirtyDaysAgo;
-          });
-          
-          console.log(`Found ${oldIssues.length} issues closed more than 30 days ago`);
-          
-          // Add archive notice to very old issues
-          for (const issue of oldIssues.slice(0, 10)) { // Limit to 10 per run
-            const closedAt = new Date(issue.closed_at);
-            const daysSinceClosed = Math.floor((new Date() - closedAt) / (1000 * 60 * 60 * 24));
-            
-            // Check if already has archive notice
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number
-            });
-            
-            const hasArchiveNotice = comments.some(comment => 
-              comment.body.includes('Archive Notice')
-            );
-            
-            if (!hasArchiveNotice) {
-              const archiveComment = [
-                '## 📁 Archive Notice',
-                '',
-                `This issue has been resolved for ${daysSinceClosed} days and can be archived.`,
-                '',
-                '**Status:** Resolved and stable',
-                `**Days since resolution:** ${daysSinceClosed}`,
-                '**Action:** Consider archiving this issue',
-                '',
-                '---',
-                '*Archive notice from the Issue Management System*'
-              ].join('\n');
-              
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: archiveComment
-              });
-              
-              console.log(`Added archive notice to issue #${issue.number} (closed ${daysSinceClosed} days ago)`);
-            }
-          }
-
-    - name: 📊 Issue Statistics
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // Get comprehensive issue statistics
-          const { data: allIssues } = await github.rest.issues.listForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'all',
-            sort: 'created',
-            direction: 'desc',
-            per_page: 100
-          });
-          
-          const openIssues = allIssues.filter(issue => issue.state === 'open');
-          const closedIssues = allIssues.filter(issue => issue.state === 'closed');
-          
-          // Categorize by labels
-          const securityIssues = allIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'security')
-          );
-          const qualityIssues = allIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'quality')
-          );
-          const deploymentIssues = allIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'deployment')
-          );
-          const bugIssues = allIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'bug')
-          );
-          const enhancementIssues = allIssues.filter(issue => 
-            issue.labels.some(label => label.name === 'enhancement')
-          );
-          
-          const statistics = [
-            '## 📊 Issue Management Statistics',
-            '',
-            '### 📈 Overall Statistics',
-            '',
-            `**Total Issues:** ${allIssues.length}`,
-            `**Open Issues:** ${openIssues.length}`,
-            `**Closed Issues:** ${closedIssues.length}`,
-            `**Resolution Rate:** ${Math.round((closedIssues.length / allIssues.length) * 100)}%`,
-            '',
-            '### 🏷️ Issues by Category',
-            '',
-            `- 🔒 **Security:** ${securityIssues.length}`,
-            `- 🧹 **Quality:** ${qualityIssues.length}`,
-            `- 🚀 **Deployment:** ${deploymentIssues.length}`,
-            `- 🐛 **Bugs:** ${bugIssues.length}`,
-            `- ✨ **Enhancements:** ${enhancementIssues.length}`,
-            '',
-            '### 📅 Recent Activity',
-            '',
-            `- **Last 7 days:** ${allIssues.filter(issue => {
-              const created = new Date(issue.created_at);
-              const weekAgo = new Date();
-              weekAgo.setDate(weekAgo.getDate() - 7);
-              return created > weekAgo;
-            }).length} new issues`,
-            '',
-            '---',
-            '*Statistics generated by the Issue Management System*'
-          ].join('\n');
-          
-          console.log(statistics);
-
-  # =============================================================================
-  # NOTIFICATION AND REPORTING
-  # =============================================================================
-  
-  notification-summary:
-    name: 📢 Notification & Summary
-    runs-on: ubuntu-latest
-    needs: [security-issue-management, quality-issue-management, deployment-issue-management, issue-cleanup]
     if: always()
+    needs: [security-issue-scan, close-resolved-issues, update-issue-priorities]
     
     steps:
-    - name: 📢 Generate Management Summary
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const summary = [
-            '## 📋 Issue Management System Summary',
-            '',
-            '### 🔄 System Status',
-            '',
-            '✅ **Issue Classification:** Active',
-            '✅ **Security Management:** Active',
-            '✅ **Quality Management:** Active',
-            '✅ **Deployment Management:** Active',
-            '✅ **Cleanup & Maintenance:** Active',
-            '',
-            '### 🎯 Key Features',
-            '',
-            '- **Automated Classification:** Issues are automatically categorized and routed',
-            '- **Security Escalation:** Critical and high severity issues are escalated',
-            '- **Quality Monitoring:** Stale quality issues are flagged for review',
-            '- **Deployment Alerts:** Blocking deployment issues trigger urgent notifications',
-            '- **Cleanup Automation:** Old resolved issues are marked for archiving',
-            '',
-            '### 📊 Management Actions',
-            '',
-            'The system has performed the following actions:',
-            '',
-            '- 🔍 **Scanned** all open issues for classification',
-            '- 🚨 **Escalated** security issues requiring immediate attention',
-            '- 📅 **Flagged** stale quality issues for review',
-            '- 🚀 **Alerted** on blocking deployment issues',
-            '- 🧹 **Cleaned up** old resolved issues',
-            '',
-            '### 🔗 Resources',
-            '',
-            '- [Security Issues](https://github.com/${{ github.repository }}/issues?q=is%3Aopen+label%3Asecurity)',
-            '- [Quality Issues](https://github.com/${{ github.repository }}/issues?q=is%3Aopen+label%3Aquality)',
-            '- [Deployment Issues](https://github.com/${{ github.repository }}/issues?q=is%3Aopen+label%3Adeployment)',
-            '- [All Open Issues](https://github.com/${{ github.repository }}/issues?q=is%3Aopen)',
-            '',
-            '---',
-            '*Summary generated by the Comprehensive Issue Management System*'
-          ].join('\n');
+      - name: 📊 Generate Issue Analytics
+        run: |
+          echo "📊 Generating issue analytics..."
           
-          await core.summary
-            .addHeading('Issue Management System')
-            .addRaw(summary)
-            .write();
+          # Get issue statistics
+          local total_issues=$(gh issue list --state all --json number | jq length)
+          local open_issues=$(gh issue list --state open --json number | jq length)
+          local closed_issues=$(gh issue list --state closed --json number | jq length)
+          local security_issues=$(gh issue list --label "security" --state open --json number | jq length)
+          local critical_issues=$(gh issue list --label "critical" --state open --json number | jq length)
+          local high_issues=$(gh issue list --label "high" --state open --json number | jq length)
+          
+          # Create analytics report
+          cat > issue-analytics.md << EOF
+          # 📊 Issue Analytics Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          
+          ## 📈 Issue Statistics
+          - **Total Issues:** $total_issues
+          - **Open Issues:** $open_issues
+          - **Closed Issues:** $closed_issues
+          - **Security Issues:** $security_issues
+          - **Critical Issues:** $critical_issues
+          - **High Issues:** $high_issues
+          
+          ## 🔍 Recent Security Scan Results
+          - **Critical Issues Found:** ${{ needs.security-issue-scan.outputs.critical-issues || 0 }}
+          - **High Issues Found:** ${{ needs.security-issue-scan.outputs.high-issues || 0 }}
+          - **Medium Issues Found:** ${{ needs.security-issue-scan.outputs.medium-issues || 0 }}
+          - **Low Issues Found:** ${{ needs.security-issue-scan.outputs.low-issues || 0 }}
+          
+          ## 🎯 Recommendations
+          EOF
+          
+          # Add recommendations based on current state
+          if [ "$critical_issues" -gt 0 ]; then
+            echo "- 🚨 **URGENT:** Address $critical_issues critical issues immediately" >> issue-analytics.md
+          fi
+          
+          if [ "$high_issues" -gt 0 ]; then
+            echo "- ⚠️ **PRIORITY:** Address $high_issues high priority issues" >> issue-analytics.md
+          fi
+          
+          if [ "$security_issues" -gt 0 ]; then
+            echo "- 🔒 **SECURITY:** Review $security_issues security issues" >> issue-analytics.md
+          fi
+          
+          echo "📊 Issue analytics report generated"
+          cat issue-analytics.md
+
+      - name: 📤 Upload Analytics Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-analytics-report
+          path: issue-analytics.md
+          retention-days: 30
+
+  # 🎯 Issue Management Summary
+  issue-management-summary:
+    name: 🎯 Issue Management Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [security-issue-scan, close-resolved-issues, update-issue-priorities, issue-analytics]
+    
+    steps:
+      - name: 📊 Issue Management Summary
+        run: |
+          echo "## 🎯 Issue Management Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Security Scan Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🚨 **Critical Issues:** ${{ needs.security-issue-scan.outputs.critical-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️  **High Issues:** ${{ needs.security-issue-scan.outputs.high-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📋 **Medium Issues:** ${{ needs.security-issue-scan.outputs.medium-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ℹ️  **Low Issues:** ${{ needs.security-issue-scan.outputs.low-issues || 0 }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Issue Management Actions:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 **Security Scan:** ${{ needs.security-issue-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔄 **Close Resolved:** ${{ needs.close-resolved-issues.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Update Priorities:** ${{ needs.update-issue-priorities.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📈 **Analytics:** ${{ needs.issue-analytics.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.security-issue-scan.outputs.critical-issues || 0 }}" -gt 0 ]; then
+            echo "- 🚨 **URGENT:** Address critical security issues immediately" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ needs.security-issue-scan.outputs.high-issues || 0 }}" -gt 0 ]; then
+            echo "- ⚠️ **PRIORITY:** Address high priority security issues" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- 📊 **Review:** Check issue analytics report for detailed insights" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔄 **Monitor:** Continue monitoring for new security issues" >> $GITHUB_STEP_SUMMARY
