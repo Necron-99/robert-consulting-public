@@ -258,10 +258,10 @@ class MonitoringDashboard {
       try {
         // Try to fetch a small resource to test DNS resolution
         // const response = await fetch(`https://${testDomain}/favicon.ico`, { // Unused for now
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-cache'
-        });
+        //   method: 'HEAD',
+        //   mode: 'no-cors',
+        //   cache: 'no-cache'
+        // });
 
         const responseTime = Date.now() - startTime;
 

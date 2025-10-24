@@ -224,7 +224,7 @@ class SecurityConfig {
     let clickCount = 0;
     let lastClickTime = 0;
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', () => {
       const now = Date.now();
       if (now - lastClickTime < 100) { // Less than 100ms between clicks
         clickCount++;
@@ -241,7 +241,7 @@ class SecurityConfig {
     let keyCount = 0;
     let lastKeyTime = 0;
 
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', () => {
       const now = Date.now();
       if (now - lastKeyTime < 50) { // Less than 50ms between keys
         keyCount++;

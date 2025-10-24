@@ -333,38 +333,38 @@ class StatusLogicService {
      * Get recommended actions for status
      */
   getRecommendedActions(stage, status) {
-    const actions = {
-      development: {
-        green: ['Continue development', 'Run additional tests'],
-        yellow: ['Wait for tests to complete', 'Check test coverage'],
-        red: ['Fix failing tests', 'Resolve conflicts', 'Review code changes']
-      },
-      testing: {
-        green: ['Proceed to staging', 'Review test coverage'],
-        yellow: ['Wait for tests to complete', 'Check test results'],
-        red: ['Fix failing tests', 'Review test configuration', 'Check dependencies']
-      },
-      staging: {
-        green: ['Proceed to production', 'Run final checks'],
-        yellow: ['Monitor staging environment', 'Check service health'],
-        red: ['Fix staging issues', 'Check infrastructure', 'Review deployment']
-      },
-      security: {
-        green: ['Continue with deployment', 'Schedule next security scan'],
-        yellow: ['Review security issues', 'Update dependencies'],
-        red: ['Fix security vulnerabilities', 'Update dependencies', 'Review code']
-      },
-      deployment: {
-        green: ['Monitor production', 'Update documentation'],
-        yellow: ['Wait for deployment', 'Monitor progress'],
-        red: ['Rollback if necessary', 'Check deployment logs', 'Fix issues']
-      },
-      monitoring: {
-        green: ['Continue monitoring', 'Review metrics'],
-        yellow: ['Investigate alerts', 'Check performance'],
-        red: ['Address critical issues', 'Check system health', 'Escalate if needed']
-      }
-    };
+    // const actions = { // Unused for now - replaced with switch statements
+    //   development: {
+    //     green: ['Continue development', 'Run additional tests'],
+    //     yellow: ['Wait for tests to complete', 'Check test coverage'],
+    //     red: ['Fix failing tests', 'Resolve conflicts', 'Review code changes']
+    //   },
+    //   testing: {
+    //     green: ['Proceed to staging', 'Review test coverage'],
+    //     yellow: ['Wait for tests to complete', 'Check test results'],
+    //     red: ['Fix failing tests', 'Review test configuration', 'Check dependencies']
+    //   },
+    //   staging: {
+    //     green: ['Proceed to production', 'Run final checks'],
+    //     yellow: ['Monitor staging environment', 'Check service health'],
+    //     red: ['Fix staging issues', 'Check infrastructure', 'Review deployment']
+    //   },
+    //   security: {
+    //     green: ['Continue with deployment', 'Schedule next security scan'],
+    //     yellow: ['Review security issues', 'Update dependencies'],
+    //     red: ['Fix security vulnerabilities', 'Update dependencies', 'Review code']
+    //   },
+    //   deployment: {
+    //     green: ['Monitor production', 'Update documentation'],
+    //     yellow: ['Wait for deployment', 'Monitor progress'],
+    //     red: ['Rollback if necessary', 'Check deployment logs', 'Fix issues']
+    //   },
+    //   monitoring: {
+    //     green: ['Continue monitoring', 'Review metrics'],
+    //     yellow: ['Investigate alerts', 'Check performance'],
+    //     red: ['Address critical issues', 'Check system health', 'Escalate if needed']
+    //   }
+    // };
 
     let actions;
     if (stage === 'development') {

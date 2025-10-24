@@ -253,8 +253,13 @@ class BestPracticesManager {
         } else if (categoryName === 'Code Quality') {
           exportData.categories['Code Quality'] = categoryData;
         } else {
-          // For unknown categories, use a safe approach
-          exportData.categories[categoryName] = categoryData;
+          // For unknown categories, use a safe approach with additional validation
+          if (categoryName && typeof categoryName === 'string' && categoryName.length < 50) {
+            // Additional validation for unknown categories
+            if (categoryName.match(/^[a-zA-Z0-9\s\-_]+$/)) {
+              exportData.categories[categoryName] = categoryData;
+            }
+          }
         }
       }
     });

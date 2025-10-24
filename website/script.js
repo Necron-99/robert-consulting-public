@@ -190,25 +190,25 @@ function getClientIP() {
 // Get location from language (simplified)
 function getLocationFromLanguage(language) {
   // const locationMap = { // Unused for now
-    'en-US': 'United States',
-    'en-GB': 'United Kingdom',
-    'en-CA': 'Canada',
-    'en-AU': 'Australia',
-    'de-DE': 'Germany',
-    'fr-FR': 'France',
-    'es-ES': 'Spain',
-    'it-IT': 'Italy',
-    'pt-BR': 'Brazil',
-    'ja-JP': 'Japan',
-    'ko-KR': 'South Korea',
-    'zh-CN': 'China',
-    'ru-RU': 'Russia',
-    'nl-NL': 'Netherlands',
-    'sv-SE': 'Sweden',
-    'no-NO': 'Norway',
-    'da-DK': 'Denmark',
-    'fi-FI': 'Finland'
-  };
+  //   'en-US': 'United States',
+  //   'en-GB': 'United Kingdom',
+  //   'en-CA': 'Canada',
+  //   'en-AU': 'Australia',
+  //   'de-DE': 'Germany',
+  //   'fr-FR': 'France',
+  //   'es-ES': 'Spain',
+  //   'it-IT': 'Italy',
+  //   'pt-BR': 'Brazil',
+  //   'ja-JP': 'Japan',
+  //   'ko-KR': 'South Korea',
+  //   'zh-CN': 'China',
+  //   'ru-RU': 'Russia',
+  //   'nl-NL': 'Netherlands',
+  //   'sv-SE': 'Sweden',
+  //   'no-NO': 'Norway',
+  //   'da-DK': 'Denmark',
+  //   'fi-FI': 'Finland'
+  // };
 
   let location;
   switch (language) {
