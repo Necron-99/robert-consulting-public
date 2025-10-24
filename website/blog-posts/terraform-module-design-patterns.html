@@ -687,7 +687,7 @@ module "rds_postgres" {
   
   database_name = "myapp"
   username      = "admin"
-  password      = "SecurePassword123!"
+  password      = var.database_password
   
   subnet_ids         = ["subnet-12345", "subnet-67890"]
   security_group_ids = ["sg-12345"]

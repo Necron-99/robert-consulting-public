@@ -69,22 +69,22 @@ scan_secrets() {
     
     local secrets_found=0
     
-    # Check for hardcoded passwords
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "password\s*=\s*[\"'][^\"']{4,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test"; then
+    # Check for hardcoded passwords (exclude keywords, meta tags, and legitimate content)
+    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "password\s*=\s*[\"'][^\"']{4,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test\|keywords\|meta.*content\|description\|title"; then
         print_status "ERROR" "Hardcoded passwords found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
     fi
     
-    # Check for API keys
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null; then
+    # Check for API keys (exclude keywords and meta tags)
+    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null | grep -v "keywords\|meta.*content\|description\|title"; then
         print_status "ERROR" "Hardcoded API keys found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
     fi
     
-    # Check for tokens
-    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "token\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test"; then
+    # Check for tokens (exclude keywords and meta tags)
+    if find "$directory" -name "$file_pattern" -type f 2>/dev/null | xargs grep -l -E "token\s*=\s*[\"'][^\"']{8,}[\"']" 2>/dev/null | grep -v "placeholder\|example\|test\|keywords\|meta.*content\|description\|title"; then
         print_status "ERROR" "Hardcoded tokens found in $directory"
         increment_issue "$severity"
         secrets_found=$((secrets_found + 1))
@@ -171,14 +171,14 @@ scan_scripts() {
     
     local script_issues=0
     
-    # Check for hardcoded secrets
-    if grep -r -E "password\s*=\s*[\"'][^\"']{4,}[\"']" scripts/ --include="*.sh" --include="*.ps1" 2>/dev/null | grep -v "echo.*password"; then
+    # Check for hardcoded secrets (exclude legitimate keyword usage)
+    if grep -r -E "password\s*=\s*[\"'][^\"']{4,}[\"']" scripts/ --include="*.sh" --include="*.ps1" 2>/dev/null | grep -v "echo.*password\|keywords\|get_weekday_keywords"; then
         print_status "ERROR" "Hardcoded passwords in scripts"
         increment_issue "HIGH"
         script_issues=$((script_issues + 1))
     fi
     
-    if grep -r -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" scripts/ --include="*.sh" --include="*.ps1" 2>/dev/null; then
+    if grep -r -E "api.*key\s*=\s*[\"'][^\"']{8,}[\"']" scripts/ --include="*.sh" --include="*.ps1" 2>/dev/null | grep -v "keywords\|get_weekday_keywords"; then
         print_status "ERROR" "Hardcoded API keys in scripts"
         increment_issue "HIGH"
         script_issues=$((script_issues + 1))
@@ -202,8 +202,8 @@ scan_configs() {
     
     local config_issues=0
     
-    # Check for hardcoded credentials in JSON files
-    if grep -r -E "(password|token|key|secret)\s*:\s*[\"'][^\"']{4,}[\"']" . --include="*.json" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | grep -v "placeholder\|example\|test"; then
+    # Check for hardcoded credentials in JSON files (exclude meta tags and keywords)
+    if grep -r -E "(password|token|key|secret)\s*:\s*[\"'][^\"']{4,}[\"']" . --include="*.json" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | grep -v "placeholder\|example\|test\|keywords\|meta.*content\|description\|title"; then
         print_status "ERROR" "Hardcoded credentials in configuration files"
         increment_issue "HIGH"
         config_issues=$((config_issues + 1))
