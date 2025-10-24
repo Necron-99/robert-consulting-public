@@ -2,7 +2,7 @@
 class BlogManager {
     constructor() {
         this.posts = [];
-        this.weeklyPosts = {};
+        this.weeklyPosts = new Map();
         this.currentFilter = 'all';
         this.currentWeek = null;
         this.availableWeeks = [];
@@ -135,7 +135,7 @@ class BlogManager {
     }
 
     groupPostsByWeek() {
-        this.weeklyPosts = {};
+        this.weeklyPosts = new Map();
         this.availableWeeks = [];
         
         this.posts.forEach(post => {
@@ -144,17 +144,17 @@ class BlogManager {
             const weekKey = this.formatWeekKey(weekStart);
             
             const weekPosts = this.weeklyPosts;
-            if (!Object.prototype.hasOwnProperty.call(weekPosts, weekKey)) {
+            if (!weekPosts.has(weekKey)) {
                 const newWeek = {
                     weekStart: weekStart,
                     weekEnd: new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000),
                     posts: []
                 };
-                weekPosts[weekKey] = newWeek;
+                weekPosts.set(weekKey, newWeek);
                 this.availableWeeks.push(weekKey);
             }
             
-            const currentWeek = weekPosts[weekKey];
+            const currentWeek = weekPosts.get(weekKey);
             currentWeek.posts.push(post);
         });
         
@@ -244,7 +244,7 @@ class BlogManager {
         if (!blogGrid) return;
 
         // Get posts for current week
-        const currentWeekData = this.weeklyPosts[this.currentWeek];
+        const currentWeekData = this.weeklyPosts.get(this.currentWeek);
         if (!currentWeekData) return;
 
         // Filter posts by category if needed
