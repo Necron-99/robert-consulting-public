@@ -259,7 +259,7 @@ class MonitoringDashboard {
           errors: '0%',
           responseTime: `${responseTime}ms`
         };
-      } catch (error) {
+      } catch {
         // If CloudFront fails, S3 might be the issue
         return {
           status: 'unhealthy',
@@ -268,7 +268,7 @@ class MonitoringDashboard {
           error: 'CloudFront/S3 not accessible'
         };
       }
-    } catch (error) {
+    } catch {
       // Fallback to healthy if we can't test (network issues)
       return {
         status: 'healthy',
@@ -302,7 +302,7 @@ class MonitoringDashboard {
           errors: '0%',
           responseTime: `${responseTime}ms`
         };
-      } catch (error) {
+      } catch {
         return {
           status: 'unhealthy',
           cacheHit: '0%',
@@ -310,7 +310,7 @@ class MonitoringDashboard {
           error: 'CloudFront distribution not accessible'
         };
       }
-    } catch (error) {
+    } catch {
       return {
         status: 'healthy',
         cacheHit: '95%',
@@ -343,7 +343,7 @@ class MonitoringDashboard {
           ssl: 'Valid',
           responseTime: `${responseTime}ms`
         };
-      } catch (error) {
+      } catch {
         return {
           status: 'unhealthy',
           http: 'Error',
@@ -351,7 +351,7 @@ class MonitoringDashboard {
           error: 'Website not accessible'
         };
       }
-    } catch (error) {
+    } catch {
       return {
         status: 'healthy',
         http: '200',
