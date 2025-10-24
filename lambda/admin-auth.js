@@ -98,12 +98,12 @@ async function logAuditEvent(eventType, details, clientIP, userAgent) {
       TableName: AUDIT_TABLE_NAME,
       Item: {
         timestamp: timestamp,
-        action_id: actionId,
-        action_type: eventType,
-        user_ip: clientIP,
-        user_agent: userAgent,
+        actionId: actionId,
+        actionType: eventType,
+        userIp: clientIP,
+        userAgent: userAgent,
         details: JSON.stringify(details),
-        expires_at: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1 year
+        expiresAt: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60) // 1 year
       }
     }).promise();
   } catch (error) {
@@ -120,7 +120,7 @@ async function checkBruteForceAttempts(clientIP) {
     const result = await dynamodb.query({
       TableName: AUDIT_TABLE_NAME,
       IndexName: 'user-ip-index',
-      KeyConditionExpression: 'user_ip = :ip',
+      KeyConditionExpression: 'userIp = :ip',
       FilterExpression: 'action_type = :type AND #timestamp > :cutoff',
       ExpressionAttributeNames: {
         '#timestamp': 'timestamp'
@@ -149,11 +149,11 @@ async function createSession(clientIP, userAgent) {
     await dynamodb.put({
       TableName: SESSIONS_TABLE_NAME,
       Item: {
-        session_id: sessionToken,
-        created_at: new Date().toISOString(),
-        user_ip: clientIP,
-        user_agent: userAgent,
-        expires_at: expiresAt,
+        sessionId: sessionToken,
+        createdAt: new Date().toISOString(),
+        userIp: clientIP,
+        userAgent: userAgent,
+        expiresAt: expiresAt,
         last_activity: new Date().toISOString()
       }
     }).promise();
@@ -171,8 +171,8 @@ async function validateSession(sessionToken, clientIP) {
     const result = await dynamodb.get({
       TableName: SESSIONS_TABLE_NAME,
       Key: {
-        session_id: sessionToken,
-        created_at: {$gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}
+        sessionId: sessionToken,
+        createdAt: {$gte: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}
       }
     }).promise();
 
@@ -181,23 +181,23 @@ async function validateSession(sessionToken, clientIP) {
     }
 
     // Check if session is expired
-    if (Date.now() / 1000 > result.Item.expires_at) {
+    if (Date.now() / 1000 > result.Item.expiresAt) {
       await dynamodb.delete({
         TableName: SESSIONS_TABLE_NAME,
         Key: {
-          session_id: sessionToken,
-          created_at: result.Item.created_at
+          sessionId: sessionToken,
+          createdAt: result.Item.createdAt
         }
       }).promise();
       return false;
     }
 
     // Check IP match
-    if (result.Item.user_ip !== clientIP) {
+    if (result.Item.userIp !== clientIP) {
       await logAuditEvent('SESSION_IP_MISMATCH', {
-        session_id: sessionToken,
-        expected_ip: result.Item.user_ip,
-        actual_ip: clientIP
+        sessionId: sessionToken,
+        expectedIp: result.Item.userIp,
+        actualIp: clientIP
       }, clientIP, '');
       return false;
     }
@@ -206,8 +206,8 @@ async function validateSession(sessionToken, clientIP) {
     await dynamodb.update({
       TableName: SESSIONS_TABLE_NAME,
       Key: {
-        session_id: sessionToken,
-        created_at: result.Item.created_at
+        sessionId: sessionToken,
+        createdAt: result.Item.createdAt
       },
       UpdateExpression: 'SET last_activity = :activity',
       ExpressionAttributeValues: {
@@ -391,7 +391,7 @@ async function handleLogin(request, clientIP, userAgent, config) {
 
     await logAuditEvent('LOGIN_SUCCESS', {
       username: credentials.username,
-      session_id: sessionToken
+      sessionId: sessionToken
     }, clientIP, userAgent);
 
     return {
@@ -460,7 +460,7 @@ async function handleMFAVerification(request, clientIP, userAgent, config) {
     const sessionToken = await createSession(clientIP, userAgent);
 
     await logAuditEvent('MFA_SUCCESS', {
-      session_id: sessionToken
+      sessionId: sessionToken
     }, clientIP, userAgent);
 
     return {
