@@ -9,7 +9,7 @@ const https = require('https');
 
 // Test configuration
 const API_URL = 'https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data';
-const DASHBOARD_URL = 'https://robertconsulting.net/dashboard.html';
+// const DASHBOARD_URL = 'https://robertconsulting.net/dashboard.html'; // Unused for now
 
 // Expected values - these must match exactly or test fails
 const EXPECTED_COST_TOTAL = 16.50;
@@ -55,7 +55,24 @@ async function testApiEndpoint() {
 
     // Test 1: Response structure - MUST have all required sections
     const requiredSections = ['aws', 'traffic', 'health', 'performance', 'github', 'velocity'];
-    const missingSections = requiredSections.filter(section => !data[section]);
+    const missingSections = requiredSections.filter(section => {
+      switch (section) {
+        case 'aws':
+          return !data.aws;
+        case 'traffic':
+          return !data.traffic;
+        case 'health':
+          return !data.health;
+        case 'performance':
+          return !data.performance;
+        case 'github':
+          return !data.github;
+        case 'velocity':
+          return !data.velocity;
+        default:
+          return true;
+      }
+    });
 
     if (missingSections.length === 0) {
       testResults.apiEndpoint.passed++;
@@ -235,12 +252,42 @@ function testCostData(data) {
 
   // Test individual services - MUST all be present and positive
   EXPECTED_SERVICES.forEach(service => {
-    if (aws.services[service] !== undefined && aws.services[service] >= 0) {
+    let serviceCost;
+    switch (service) {
+      case 's3':
+        serviceCost = aws.services.s3;
+        break;
+      case 'cloudfront':
+        serviceCost = aws.services.cloudfront;
+        break;
+      case 'route53':
+        serviceCost = aws.services.route53;
+        break;
+      case 'waf':
+        serviceCost = aws.services.waf;
+        break;
+      case 'cloudwatch':
+        serviceCost = aws.services.cloudwatch;
+        break;
+      case 'lambda':
+        serviceCost = aws.services.lambda;
+        break;
+      case 'ses':
+        serviceCost = aws.services.ses;
+        break;
+      case 'other':
+        serviceCost = aws.services.other;
+        break;
+      default:
+        serviceCost = undefined;
+    }
+    
+    if (serviceCost !== undefined && serviceCost >= 0) {
       testResults.costData.passed++;
-      testResults.costData.tests.push(`✅ ${service} cost present: $${aws.services[service]}`);
+      testResults.costData.tests.push(`✅ ${service} cost present: $${serviceCost}`);
     } else {
       testResults.costData.failed++;
-      testResults.costData.tests.push(`❌ ${service} cost missing or negative: $${aws.services[service] || 'undefined'}`);
+      testResults.costData.tests.push(`❌ ${service} cost missing or negative: $${serviceCost || 'undefined'}`);
     }
   });
 }
@@ -300,7 +347,82 @@ function testDataIntegrity(data) {
 
   let hasNullValues = false;
   criticalFields.forEach(field => {
-    const value = field.split('.').reduce((obj, key) => obj?.[key], data);
+    let value;
+    const fieldParts = field.split('.');
+    if (fieldParts.length === 1) {
+      switch (fieldParts[0]) {
+        case 'aws':
+          value = data.aws;
+          break;
+        case 'traffic':
+          value = data.traffic;
+          break;
+        case 'health':
+          value = data.health;
+          break;
+        case 'performance':
+          value = data.performance;
+          break;
+        case 'github':
+          value = data.github;
+          break;
+        case 'velocity':
+          value = data.velocity;
+          break;
+        default:
+          value = undefined;
+      }
+    } else if (fieldParts.length === 2) {
+      const [parent, child] = fieldParts;
+      let parentObj;
+      switch (parent) {
+        case 'aws':
+          parentObj = data.aws;
+          break;
+        case 'traffic':
+          parentObj = data.traffic;
+          break;
+        case 'health':
+          parentObj = data.health;
+          break;
+        case 'performance':
+          parentObj = data.performance;
+          break;
+        case 'github':
+          parentObj = data.github;
+          break;
+        case 'velocity':
+          parentObj = data.velocity;
+          break;
+        default:
+          parentObj = undefined;
+      }
+      if (parentObj) {
+        switch (child) {
+          case 'monthlyCostTotal':
+            value = parentObj.monthlyCostTotal;
+            break;
+          case 'services':
+            value = parentObj.services;
+            break;
+          case 'totalRequests':
+            value = parentObj.totalRequests;
+            break;
+          case 'last7Days':
+            value = parentObj.last7Days;
+            break;
+          case 'last30Days':
+            value = parentObj.last30Days;
+            break;
+          default:
+            value = undefined;
+        }
+      } else {
+        value = undefined;
+      }
+    } else {
+      value = undefined;
+    }
     if (value === null || value === undefined) {
       testResults.dataIntegrity.failed++;
       testResults.dataIntegrity.tests.push(`❌ Critical field is null/undefined: ${field}`);
@@ -372,7 +494,29 @@ function printResults() {
   console.log('==================================');
 
   Object.keys(testResults).forEach(category => {
-    const result = testResults[category];
+    let result;
+    switch (category) {
+      case 'apiEndpoint':
+        result = testResults.apiEndpoint;
+        break;
+      case 'systemStatus':
+        result = testResults.systemStatus;
+        break;
+      case 'performanceMetrics':
+        result = testResults.performanceMetrics;
+        break;
+      case 'costData':
+        result = testResults.costData;
+        break;
+      case 'githubStats':
+        result = testResults.githubStats;
+        break;
+      case 'dataIntegrity':
+        result = testResults.dataIntegrity;
+        break;
+      default:
+        result = null;
+    }
     const total = result.passed + result.failed;
     const percentage = total > 0 ? Math.round((result.passed / total) * 100) : 0;
 

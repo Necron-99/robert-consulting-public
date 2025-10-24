@@ -902,7 +902,24 @@ class UnifiedDashboard {
       warning: '⚠️',
       error: '❌'
     };
-    return icons[type] || 'ℹ️';
+    let icon;
+    switch (type) {
+      case 'info':
+        icon = 'ℹ️';
+        break;
+      case 'success':
+        icon = '✅';
+        break;
+      case 'warning':
+        icon = '⚠️';
+        break;
+      case 'error':
+        icon = '❌';
+        break;
+      default:
+        icon = 'ℹ️';
+    }
+    return icon;
   }
 
   /**

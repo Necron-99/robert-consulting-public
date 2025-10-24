@@ -532,7 +532,16 @@ class PipelineStatusMeter {
           value = details.throughput;
           break;
         default:
-          value = details[key];
+          // Use safe property access for unknown keys
+          if (key === 'responseTime') {
+            value = details.responseTime;
+          } else if (key === 'errorRate') {
+            value = details.errorRate;
+          } else if (key === 'throughput') {
+            value = details.throughput;
+          } else {
+            value = 'N/A';
+          }
         }
         element.textContent = value;
       }

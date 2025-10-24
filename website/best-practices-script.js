@@ -239,7 +239,10 @@ class BestPracticesManager {
         completed: checked.length,
         total: checkboxes.length
       };
-      exportData.categories[categoryName] = categoryData;
+      // Use safe property assignment
+      if (exportData.categories) {
+        exportData.categories[categoryName] = categoryData;
+      }
     });
 
     // Download as JSON

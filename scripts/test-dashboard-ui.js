@@ -157,7 +157,33 @@ async function testApiIntegration() {
     let allHealthy = true;
 
     services.forEach(service => {
-      if (data.serviceHealth[service] && data.serviceHealth[service].status === 'healthy') {
+      let serviceHealth;
+      switch (service) {
+        case 's3':
+          serviceHealth = data.serviceHealth.s3;
+          break;
+        case 'cloudfront':
+          serviceHealth = data.serviceHealth.cloudfront;
+          break;
+        case 'route53':
+          serviceHealth = data.serviceHealth.route53;
+          break;
+        case 'waf':
+          serviceHealth = data.serviceHealth.waf;
+          break;
+        case 'cloudwatch':
+          serviceHealth = data.serviceHealth.cloudwatch;
+          break;
+        case 'lambda':
+          serviceHealth = data.serviceHealth.lambda;
+          break;
+        case 'ses':
+          serviceHealth = data.serviceHealth.ses;
+          break;
+        default:
+          serviceHealth = null;
+      }
+      if (serviceHealth && serviceHealth.status === 'healthy') {
         testResults.apiIntegration.passed++;
         testResults.apiIntegration.tests.push(`✅ ${service} service is healthy in API`);
       } else {
@@ -230,7 +256,26 @@ function printResults() {
   console.log('============================');
 
   Object.keys(testResults).forEach(category => {
-    const result = testResults[category];
+    let result;
+    switch (category) {
+      case 'apiIntegration':
+        result = testResults.apiIntegration;
+        break;
+      case 'healthStatusUI':
+        result = testResults.healthStatusUI;
+        break;
+      case 'performanceUI':
+        result = testResults.performanceUI;
+        break;
+      case 'costUI':
+        result = testResults.costUI;
+        break;
+      case 'githubUI':
+        result = testResults.githubUI;
+        break;
+      default:
+        result = null;
+    }
     const total = result.passed + result.failed;
     const percentage = total > 0 ? Math.round((result.passed / total) * 100) : 0;
 

@@ -403,13 +403,13 @@ class ConsolidatedLearningTopics {
   }
 
   getStatusClass(status) {
-    const statusMap = {
-      active: 'status-active',
-      completed: 'status-completed',
-      proficient: 'status-proficient',
-      learning: 'status-learning',
-      planned: 'status-planned'
-    };
+    // const statusMap = { // Unused for now
+    //   active: 'status-active',
+    //   completed: 'status-completed',
+    //   proficient: 'status-proficient',
+    //   learning: 'status-learning',
+    //   planned: 'status-planned'
+    // };
     let statusClass;
     switch (status) {
     case 'active':
@@ -431,13 +431,13 @@ class ConsolidatedLearningTopics {
   }
 
   getStatusText(status) {
-    const statusMap = {
-      active: 'Active',
-      completed: 'Completed',
-      proficient: 'Proficient',
-      learning: 'Learning',
-      planned: 'Planned'
-    };
+    // const statusMap = { // Unused for now
+    //   active: 'Active',
+    //   completed: 'Completed',
+    //   proficient: 'Proficient',
+    //   learning: 'Learning',
+    //   planned: 'Planned'
+    // };
     let statusText;
     switch (status) {
     case 'active':

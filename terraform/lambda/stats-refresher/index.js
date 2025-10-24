@@ -101,7 +101,6 @@ async function fetchGitHubStats(token) {
   try {
     console.log('📊 Fetching GitHub statistics...');
 
-    // const username = process.env.GITHUB_USERNAME; // Unused for now
     // const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(); // Unused for now
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 

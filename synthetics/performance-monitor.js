@@ -8,7 +8,7 @@ const log = require('SyntheticsLogger');
 
 const loadBlueprint = async function() {
   // Set configuration options for our script
-  const requestOptions = {
+  // const requestOptions = { // Unused for now
     hostname: 'robertconsulting.net',
     method: 'GET',
     path: '/dashboard.html',
@@ -19,7 +19,7 @@ const loadBlueprint = async function() {
     }
   };
 
-  const requestOptionsStaging = {
+  // const requestOptionsStaging = { // Unused for now
     hostname: 'd3guz3lq4sqlvl.cloudfront.net',
     method: 'GET',
     path: '/?secret=staging-access-2025',
@@ -148,7 +148,24 @@ async function testSecurityHeaders(page, environment) {
     'cross-origin-embedder-policy'
   ];
 
-  const missingHeaders = requiredHeaders.filter(header => !headers[header]);
+  const missingHeaders = requiredHeaders.filter(header => {
+    switch (header) {
+      case 'X-Content-Type-Options':
+        return !headers['X-Content-Type-Options'];
+      case 'X-Frame-Options':
+        return !headers['X-Frame-Options'];
+      case 'X-XSS-Protection':
+        return !headers['X-XSS-Protection'];
+      case 'Strict-Transport-Security':
+        return !headers['Strict-Transport-Security'];
+      case 'Content-Security-Policy':
+        return !headers['Content-Security-Policy'];
+      case 'Referrer-Policy':
+        return !headers['Referrer-Policy'];
+      default:
+        return true;
+    }
+  });
 
   if (missingHeaders.length > 0) {
     throw new Error(`${environment} missing security headers: ${missingHeaders.join(', ')}`);
