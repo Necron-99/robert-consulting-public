@@ -95,7 +95,7 @@ jobs:
           esac
           
           # Generate HTML content
-          cat > "$BLOG_FILENAME" << EOF
+          cat > "$BLOG_FILENAME" << 'BLOG_EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,7 +143,7 @@ jobs:
     </article>
 </body>
 </html>
-EOF
+BLOG_EOF
           
           echo "blog-generated=true" >> $GITHUB_OUTPUT
           echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
