@@ -39,13 +39,13 @@ function generateSessionToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-// Generate MFA secret for user
-function generateMFASecret() {
-  return speakeasy.generateSecret({
-    name: 'Robert Consulting Admin',
-    issuer: 'Robert Consulting'
-  });
-}
+// Generate MFA secret for user (currently unused but kept for future MFA implementation)
+// function generateMFASecret() {
+//   return speakeasy.generateSecret({
+//     name: 'Robert Consulting Admin',
+//     issuer: 'Robert Consulting'
+//   });
+// }
 
 // Verify MFA token
 function verifyMFAToken(token, secret) {
@@ -115,7 +115,7 @@ async function logAuditEvent(eventType, details, clientIP, userAgent) {
 async function checkBruteForceAttempts(clientIP) {
   try {
     const config = await getSecurityConfig();
-    const cutoffTime = new Date(Date.now() - (config.lockout_duration * 60 * 1000));
+    const cutoffTime = new Date(Date.now() - (config.lockoutDuration * 60 * 1000));
 
     const result = await dynamodb.query({
       TableName: AUDIT_TABLE_NAME,
@@ -154,7 +154,7 @@ async function createSession(clientIP, userAgent) {
         userIp: clientIP,
         userAgent: userAgent,
         expiresAt: expiresAt,
-        last_activity: new Date().toISOString()
+        lastActivity: new Date().toISOString()
       }
     }).promise();
 
@@ -209,7 +209,7 @@ async function validateSession(sessionToken, clientIP) {
         sessionId: sessionToken,
         createdAt: result.Item.createdAt
       },
-      UpdateExpression: 'SET last_activity = :activity',
+      UpdateExpression: 'SET lastActivity = :activity',
       ExpressionAttributeValues: {
         ':activity': new Date().toISOString()
       }
@@ -243,10 +243,10 @@ exports.handler = async(event) => {
     const config = await getSecurityConfig();
 
     // Check IP restrictions
-    if (!isIPAllowed(clientIP, config.allowed_ips)) {
+    if (!isIPAllowed(clientIP, config.allowedIps)) {
       await logAuditEvent('IP_BLOCKED', {
-        client_ip: clientIP,
-        allowed_ips: config.allowed_ips
+        clientIp: clientIP,
+        allowedIps: config.allowedIps
       }, clientIP, userAgent);
 
       return {
@@ -322,8 +322,8 @@ async function handleLogin(request, clientIP, userAgent, config) {
     // Check for brute force attempts
     if (await checkBruteForceAttempts(clientIP)) {
       await logAuditEvent('BRUTE_FORCE_BLOCKED', {
-        client_ip: clientIP,
-        lockout_duration: config.lockout_duration
+        clientIp: clientIP,
+        lockoutDuration: config.lockoutDuration
       }, clientIP, userAgent);
 
       return {
@@ -331,11 +331,11 @@ async function handleLogin(request, clientIP, userAgent, config) {
         statusDescription: 'Too Many Requests',
         headers: {
           'content-type': [{key: 'Content-Type', value: 'application/json'}],
-          'retry-after': [{key: 'Retry-After', value: config.lockout_duration.toString()}]
+          'retry-after': [{key: 'Retry-After', value: config.lockoutDuration.toString()}]
         },
         body: JSON.stringify({
           error: 'Too many failed attempts',
-          retry_after: config.lockout_duration
+          retryAfter: config.lockoutDuration
         })
       };
     }
@@ -361,7 +361,7 @@ async function handleLogin(request, clientIP, userAgent, config) {
         },
         body: JSON.stringify({
           error: 'Invalid credentials',
-          mfa_required: MFA_ENABLED
+          mfaRequired: MFA_ENABLED
         })
       };
     }
@@ -380,7 +380,7 @@ async function handleLogin(request, clientIP, userAgent, config) {
         },
         body: JSON.stringify({
           success: true,
-          mfa_required: true,
+          mfaRequired: true,
           message: 'MFA verification required'
         })
       };
