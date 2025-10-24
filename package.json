@@ -2,6 +2,7 @@
   "name": "robert-consulting-infrastructure",
   "version": "1.0.0",
   "description": "Robert Consulting Infrastructure Framework - Complete serverless infrastructure setup with built-in cost optimization, monitoring, and security features",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"No tests specified\" && exit 0",
