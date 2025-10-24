@@ -287,12 +287,24 @@ jobs:
     name: 🚀 Production Deployment
     runs-on: ubuntu-latest
     needs: [security-quality-gates, functional-testing, s3-cleanup]
-    if: needs.security-quality-gates.outputs.security-passed == 'true' && needs.security-quality-gates.outputs.quality-passed == 'true' && needs.functional-testing.outputs.tests-passed == 'true'
+    if: (needs.security-quality-gates.outputs.security-passed == 'true' && needs.security-quality-gates.outputs.quality-passed == 'true' && needs.functional-testing.outputs.tests-passed == 'true') || github.event.inputs.force_deploy == 'true'
     environment: production
     
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
+
+      - name: ⚠️ Force Deployment Warning
+        if: github.event.inputs.force_deploy == 'true'
+        run: |
+          echo "⚠️ **FORCE DEPLOYMENT ENABLED**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚨 **WARNING:** This deployment is bypassing security and quality gates!" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 Security Gates: BYPASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔧 Quality Gates: BYPASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 Tests: ${{ needs.functional-testing.outputs.tests-passed }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Use with caution - ensure fixes are applied after deployment!**" >> $GITHUB_STEP_SUMMARY
 
       - name: 🚀 Deploy to Production
         run: |
@@ -372,7 +384,7 @@ jobs:
     name: ❌ Deployment Blocked
     runs-on: ubuntu-latest
     needs: [security-quality-gates, functional-testing]
-    if: always() && (needs.security-quality-gates.outputs.security-passed == 'false' || needs.security-quality-gates.outputs.quality-passed == 'false' || needs.functional-testing.outputs.tests-passed == 'false')
+    if: always() && (needs.security-quality-gates.outputs.security-passed == 'false' || needs.security-quality-gates.outputs.quality-passed == 'false' || needs.functional-testing.outputs.tests-passed == 'false') && github.event.inputs.force_deploy != 'true'
     
     steps:
       - name: 📊 Deployment Blocked Summary
@@ -389,4 +401,8 @@ jobs:
           echo "- Resolve all code quality issues" >> $GITHUB_STEP_SUMMARY
           echo "- Ensure all functional tests pass" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🚫 **Deployment cannot proceed until all gates pass.**" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Emergency Bypass:" >> $GITHUB_STEP_SUMMARY
+          echo "- Use **Manual Dispatch** with **Force Deploy** option to bypass gates" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ **WARNING:** Only use for emergency fixes that can't go through normal pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚫 **Deployment cannot proceed until all gates pass or force deploy is used.**" >> $GITHUB_STEP_SUMMARY
