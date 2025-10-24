@@ -1,0 +1,442 @@
+name: 📊 Issue Feedback & Resolution Tracking
+
+on:
+  schedule:
+    # Run every 6 hours for feedback tracking
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Feedback system action'
+        required: true
+        default: 'full-feedback-cycle'
+        type: choice
+        options:
+          - full-feedback-cycle
+          - resolution-tracking
+          - feedback-analysis
+          - progress-report
+          - stakeholder-notification
+  issues:
+    types: [opened, closed, labeled, unlabeled, edited]
+  pull_request:
+    types: [opened, closed, merged, edited]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REPOSITORY: ${{ github.repository }}
+
+jobs:
+  # 📊 Issue Resolution Tracking
+  resolution-tracking:
+    name: 📊 Resolution Tracking
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    outputs:
+      resolution-rate: ${{ steps.tracking.outputs.resolution-rate }}
+      avg-resolution-time: ${{ steps.tracking.outputs.avg-resolution-time }}
+      critical-resolution-rate: ${{ steps.tracking.outputs.critical-resolution-rate }}
+      security-resolution-rate: ${{ steps.tracking.outputs.security-resolution-rate }}
+      stakeholder-satisfaction: ${{ steps.tracking.outputs.stakeholder-satisfaction }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: 📊 Comprehensive Resolution Tracking
+        id: tracking
+        run: |
+          echo "📊 Tracking issue resolution progress and feedback..."
+          
+          # Get all issues for analysis
+          all_issues=$(gh issue list --state all --json number,title,labels,state,createdAt,closedAt,assignees)
+          open_issues=$(gh issue list --state open --json number,title,labels,createdAt,assignees)
+          closed_issues=$(gh issue list --state closed --json number,title,labels,createdAt,closedAt)
+          
+          # Calculate resolution metrics
+          total_issues=$(echo "$all_issues" | jq length)
+          open_count=$(echo "$open_issues" | jq length)
+          closed_count=$(echo "$closed_issues" | jq length)
+          
+          # Calculate resolution rate
+          if [ "$total_issues" -gt 0 ]; then
+            resolution_rate=$(echo "scale=2; $closed_count * 100 / $total_issues" | bc -l)
+          else
+            resolution_rate="0"
+          fi
+          
+          # Calculate average resolution time for closed issues
+          if [ "$closed_count" -gt 0 ]; then
+            total_resolution_time=0
+            count=0
+            
+            echo "$closed_issues" | jq -r '.[] | @base64' | while read -r issue; do
+              issue_data=$(echo "$issue" | base64 --decode)
+              created_at=$(echo "$issue_data" | jq -r '.createdAt')
+              closed_at=$(echo "$issue_data" | jq -r '.closedAt')
+              
+              if [ "$closed_at" != "null" ]; then
+                created_time=$(date -d "$created_at" +%s)
+                closed_time=$(date -d "$closed_at" +%s)
+                resolution_time=$(( (closed_time - created_time) / 3600 )) # hours
+                total_resolution_time=$((total_resolution_time + resolution_time))
+                count=$((count + 1))
+              fi
+            done
+            
+            if [ "$count" -gt 0 ]; then
+              avg_resolution_time=$(echo "scale=2; $total_resolution_time / $count" | bc -l)
+            else
+              avg_resolution_time="0"
+            fi
+          else
+            avg_resolution_time="0"
+          fi
+          
+          # Calculate critical issue resolution rate
+          critical_issues=$(echo "$all_issues" | jq '[.[] | select(.labels[] | .name == "critical")]')
+          critical_total=$(echo "$critical_issues" | jq length)
+          critical_closed=$(echo "$critical_issues" | jq '[.[] | select(.state == "closed")] | length')
+          
+          if [ "$critical_total" -gt 0 ]; then
+            critical_resolution_rate=$(echo "scale=2; $critical_closed * 100 / $critical_total" | bc -l)
+          else
+            critical_resolution_rate="100"
+          fi
+          
+          # Calculate security issue resolution rate
+          security_issues=$(echo "$all_issues" | jq '[.[] | select(.labels[] | .name == "security")]')
+          security_total=$(echo "$security_issues" | jq length)
+          security_closed=$(echo "$security_issues" | jq '[.[] | select(.state == "closed")] | length')
+          
+          if [ "$security_total" -gt 0 ]; then
+            security_resolution_rate=$(echo "scale=2; $security_closed * 100 / $security_total" | bc -l)
+          else
+            security_resolution_rate="100"
+          fi
+          
+          # Calculate stakeholder satisfaction (based on resolution metrics)
+          if [ "$(echo "$resolution_rate > 70" | bc -l)" -eq 1 ] && [ "$(echo "$critical_resolution_rate > 80" | bc -l)" -eq 1 ]; then
+            stakeholder_satisfaction="High"
+          elif [ "$(echo "$resolution_rate > 50" | bc -l)" -eq 1 ] && [ "$(echo "$critical_resolution_rate > 60" | bc -l)" -eq 1 ]; then
+            stakeholder_satisfaction="Medium"
+          else
+            stakeholder_satisfaction="Low"
+          fi
+          
+          # Output results
+          echo "resolution-rate=$resolution_rate" >> $GITHUB_OUTPUT
+          echo "avg-resolution-time=$avg_resolution_time" >> $GITHUB_OUTPUT
+          echo "critical-resolution-rate=$critical_resolution_rate" >> $GITHUB_OUTPUT
+          echo "security-resolution-rate=$security_resolution_rate" >> $GITHUB_OUTPUT
+          echo "stakeholder-satisfaction=$stakeholder_satisfaction" >> $GITHUB_OUTPUT
+          
+          echo "📊 Resolution Tracking Results:"
+          echo "  📈 Resolution Rate: $resolution_rate%"
+          echo "  ⏰ Avg Resolution Time: $avg_resolution_time hours"
+          echo "  🚨 Critical Resolution Rate: $critical_resolution_rate%"
+          echo "  🔒 Security Resolution Rate: $security_resolution_rate%"
+          echo "  😊 Stakeholder Satisfaction: $stakeholder_satisfaction"
+
+  # 🔄 Active Issue Monitoring
+  active-issue-monitoring:
+    name: 🔄 Active Issue Monitoring
+    runs-on: ubuntu-latest
+    needs: [resolution-tracking]
+    if: always() && (needs.resolution-tracking.result == 'success')
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 🔄 Monitor Active Issues
+        run: |
+          echo "🔄 Monitoring active issues for progress and feedback..."
+          
+          # Get all open issues
+          open_issues=$(gh issue list --state open --json number,title,labels,assignees,createdAt,updatedAt,comments)
+          
+          echo "$open_issues" | jq -r '.[] | @base64' | while read -r issue; do
+            issue_data=$(echo "$issue" | base64 --decode)
+            issue_number=$(echo "$issue_data" | jq -r '.number')
+            issue_title=$(echo "$issue_data" | jq -r '.title')
+            labels=$(echo "$issue_data" | jq -r '.labels[] | .name' | tr '\n' ' ')
+            assignees=$(echo "$issue_data" | jq -r '.assignees | length')
+            created_at=$(echo "$issue_data" | jq -r '.createdAt')
+            updated_at=$(echo "$issue_data" | jq -r '.updatedAt')
+            comments=$(echo "$issue_data" | jq -r '.comments | length')
+            
+            echo "🔄 Monitoring issue #$issue_number: $issue_title"
+            
+            # Check if issue is assigned
+            if [ "$assignees" -gt 0 ]; then
+              # Check if issue has been updated recently
+              current_time=$(date +%s)
+              updated_time=$(date -d "$updated_at" +%s)
+              hours_since_update=$(( (current_time - updated_time) / 3600 ))
+              
+              # Check if issue is stale (no updates in 3 days)
+              if [ "$hours_since_update" -gt 72 ]; then
+                echo "⚠️ Assigned issue #$issue_number is stale ($hours_since_update hours since update)"
+                gh issue comment "$issue_number" --body "⚠️ **Issue Update Required** ⚠️
+
+This assigned issue hasn't been updated in **$hours_since_update hours**:
+
+**Status Check:**
+- 👤 **Assigned:** Yes
+- 📝 **Last Update:** $hours_since_update hours ago
+- 💬 **Comments:** $comments
+
+**Required Actions:**
+- 📝 **Update status** with current progress
+- 💬 **Add comment** with next steps
+- ⏰ **Set timeline** for resolution
+- 📋 **Document** any blockers or dependencies
+
+**Feedback:** Please provide an update on the current status and expected resolution timeline.
+
+**Auto-generated by Issue Feedback System**" || echo "Failed to add stale issue comment"
+              fi
+              
+              # Check if issue is critical and needs more frequent updates
+              if echo "$labels" | grep -q "critical"; then
+                if [ "$hours_since_update" -gt 24 ]; then
+                  echo "🚨 Critical issue #$issue_number needs update ($hours_since_update hours since update)"
+                  gh issue comment "$issue_number" --body "🚨 **Critical Issue Update Required** 🚨
+
+This **CRITICAL** issue hasn't been updated in **$hours_since_update hours**:
+
+**Critical Issue Protocol:**
+- 🚨 **Priority:** Critical
+- ⏰ **Update Frequency:** Every 24 hours
+- 📝 **Status:** Needs immediate update
+- 👤 **Assignee:** Please provide progress update
+
+**Required Actions:**
+- 📝 **IMMEDIATE UPDATE** with current status
+- 💬 **DETAILED COMMENT** on progress made
+- ⏰ **NEXT UPDATE** within 24 hours
+- 📋 **DOCUMENT** any blockers or escalations needed
+
+**Critical Issue Management:** Critical issues require daily updates until resolved.
+
+**Auto-generated by Issue Feedback System**" || echo "Failed to add critical update comment"
+                fi
+              fi
+            else
+              # Unassigned issue
+              echo "👤 Issue #$issue_number is unassigned"
+              
+              # Check if it's been unassigned for too long
+              current_time=$(date +%s)
+              created_time=$(date -d "$created_at" +%s)
+              hours_since_creation=$(( (current_time - created_time) / 3600 ))
+              
+              if [ "$hours_since_creation" -gt 48 ]; then
+                echo "⚠️ Unassigned issue #$issue_number is $hours_since_creation hours old"
+                gh issue comment "$issue_number" --body "👤 **Assignment Required** 👤
+
+This issue has been unassigned for **$hours_since_creation hours**:
+
+**Assignment Status:**
+- 👤 **Assigned:** No
+- ⏰ **Created:** $hours_since_creation hours ago
+- 🏷️ **Labels:** $labels
+- 💬 **Comments:** $comments
+
+**Required Actions:**
+- 👤 **ASSIGN** to appropriate team member
+- 📝 **SET PRIORITY** based on issue type
+- ⏰ **ESTIMATE** resolution timeline
+- 📋 **PLAN** resolution approach
+
+**Feedback:** Please assign this issue to ensure it receives proper attention.
+
+**Auto-generated by Issue Feedback System**" || echo "Failed to add assignment comment"
+              fi
+            fi
+          done
+
+  # 📊 Stakeholder Feedback Analysis
+  stakeholder-feedback:
+    name: 📊 Stakeholder Feedback Analysis
+    runs-on: ubuntu-latest
+    needs: [resolution-tracking, active-issue-monitoring]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 📊 Generate Stakeholder Feedback Report
+        run: |
+          echo "📊 Generating stakeholder feedback analysis..."
+          
+          # Get current metrics
+          total_issues=$(gh issue list --state all --json number | jq length)
+          open_issues=$(gh issue list --state open --json number | jq length)
+          closed_issues=$(gh issue list --state closed --json number | jq length)
+          critical_issues=$(gh issue list --label "critical" --state open --json number | jq length)
+          security_issues=$(gh issue list --label "security" --state open --json number | jq length)
+          unassigned_issues=$(gh issue list --state open --json assignees | jq '[.[] | select(.assignees | length == 0)] | length')
+          
+          # Calculate resolution rate
+          if [ "$total_issues" -gt 0 ]; then
+            resolution_rate=$(echo "scale=2; $closed_issues * 100 / $total_issues" | bc -l)
+          else
+            resolution_rate="0"
+          fi
+          
+          # Determine stakeholder satisfaction level
+          if [ "$(echo "$resolution_rate > 70" | bc -l)" -eq 1 ]; then
+            satisfaction_level="High"
+            satisfaction_color="🟢"
+            satisfaction_message="Excellent issue resolution performance"
+          elif [ "$(echo "$resolution_rate > 50" | bc -l)" -eq 1 ]; then
+            satisfaction_level="Medium"
+            satisfaction_color="🟡"
+            satisfaction_message="Good issue resolution performance with room for improvement"
+          else
+            satisfaction_level="Low"
+            satisfaction_color="🔴"
+            satisfaction_message="Issue resolution performance needs improvement"
+          fi
+          
+          # Create stakeholder feedback report
+          cat > stakeholder-feedback-report.md << EOF
+          # 📊 Stakeholder Feedback Analysis Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          **Workflow:** Issue Feedback & Resolution Tracking
+          
+          ## 📈 Performance Metrics
+          
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | 📋 Total Issues | $total_issues | - |
+          | 🔓 Open Issues | $open_issues | Active |
+          | ✅ Closed Issues | $closed_issues | Resolved |
+          | 📈 Resolution Rate | $resolution_rate% | $satisfaction_color $satisfaction_level |
+          | 🚨 Critical Issues | $critical_issues | 🔴 Needs Attention |
+          | 🔒 Security Issues | $security_issues | 🔴 High Priority |
+          | 👤 Unassigned Issues | $unassigned_issues | 🚨 Needs Assignment |
+          
+          ## 😊 Stakeholder Satisfaction
+          
+          **Overall Satisfaction:** $satisfaction_color **$satisfaction_level**
+          
+          **Assessment:** $satisfaction_message
+          
+          ### Satisfaction Factors:
+          - **Resolution Rate:** $resolution_rate% (Target: >70%)
+          - **Critical Issue Handling:** $critical_issues critical issues open
+          - **Security Issue Management:** $security_issues security issues open
+          - **Assignment Efficiency:** $unassigned_issues unassigned issues
+          
+          ## 🎯 Performance Analysis
+          
+          ### ✅ Strengths:
+          - **Issue Tracking:** Comprehensive issue management system
+          - **Automation:** Automated feedback and monitoring
+          - **Categorization:** Clear priority and type classification
+          - **Reporting:** Detailed progress and resolution tracking
+          
+          ### ⚠️ Areas for Improvement:
+          EOF
+          
+          # Add specific improvement areas based on current metrics
+          if [ "$unassigned_issues" -gt 0 ]; then
+            echo "          - **Assignment Efficiency:** $unassigned_issues issues need assignment" >> stakeholder-feedback-report.md
+          fi
+          
+          if [ "$critical_issues" -gt 0 ]; then
+            echo "          - **Critical Issue Resolution:** $critical_issues critical issues need immediate attention" >> stakeholder-feedback-report.md
+          fi
+          
+          if [ "$security_issues" -gt 0 ]; then
+            echo "          - **Security Issue Management:** $security_issues security issues need security team attention" >> stakeholder-feedback-report.md
+          fi
+          
+          if [ "$(echo "$resolution_rate < 70" | bc -l)" -eq 1 ]; then
+            echo "          - **Resolution Rate:** Current rate ($resolution_rate%) below target (70%)" >> stakeholder-feedback-report.md
+          fi
+          
+          cat >> stakeholder-feedback-report.md << EOF
+          
+          ## 🚀 Recommendations
+          
+          ### Immediate Actions:
+          1. **Assign unassigned issues** - Get $unassigned_issues issues assigned
+          2. **Address critical issues** - Resolve $critical_issues critical issues
+          3. **Handle security issues** - Manage $security_issues security issues
+          4. **Improve resolution rate** - Target 70%+ resolution rate
+          
+          ### Long-term Improvements:
+          1. **Automated assignment** - Implement smart assignment based on issue type
+          2. **Priority escalation** - Auto-escalate stale high-priority issues
+          3. **Resolution tracking** - Monitor and report on resolution progress
+          4. **Stakeholder communication** - Regular updates on issue status
+          
+          ## 📊 Feedback Summary
+          
+          **Current Status:** $satisfaction_color $satisfaction_level
+          **Key Metrics:** $resolution_rate% resolution rate
+          **Action Items:** $((unassigned_issues + critical_issues + security_issues)) issues need attention
+          **Next Review:** $(date -d '+6 hours' '+%Y-%m-%d %H:%M:%S')
+          
+          ---
+          
+          **Report generated by Issue Feedback & Resolution Tracking System**
+          EOF
+          
+          echo "📊 Stakeholder feedback report generated: stakeholder-feedback-report.md"
+
+      - name: 📤 Upload Feedback Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: stakeholder-feedback-report
+          path: stakeholder-feedback-report.md
+          retention-days: 30
+
+      - name: 📊 Create Feedback Summary
+        run: |
+          echo "## 📊 Stakeholder Feedback Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Performance Metrics:" >> $GITHUB_STEP_SUMMARY
+          echo "- 📋 **Total Issues:** $total_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔓 **Open Issues:** $open_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Closed Issues:** $closed_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 📈 **Resolution Rate:** $resolution_rate%" >> $GITHUB_STEP_SUMMARY
+          echo "- 🚨 **Critical Issues:** $critical_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 **Security Issues:** $security_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 👤 **Unassigned Issues:** $unassigned_issues" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 😊 Stakeholder Satisfaction:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Level:** $satisfaction_color $satisfaction_level" >> $GITHUB_STEP_SUMMARY
+          echo "- **Assessment:** $satisfaction_message" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Key Actions Required:" >> $GITHUB_STEP_SUMMARY
+          echo "- Assign $unassigned_issues unassigned issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Address $critical_issues critical issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Manage $security_issues security issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Improve resolution rate to 70%+" >> $GITHUB_STEP_SUMMARY

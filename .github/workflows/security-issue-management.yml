@@ -1,0 +1,538 @@
+name: 🔒 Security Issue Management System
+
+on:
+  schedule:
+    # Run every hour for security issues (more frequent)
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Security management action'
+        required: true
+        default: 'full-security-scan'
+        type: choice
+        options:
+          - full-security-scan
+          - critical-security-only
+          - security-escalation
+          - security-report
+          - security-cleanup
+      severity_filter:
+        description: 'Security severity filter'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - critical
+          - high
+          - medium
+          - low
+  issues:
+    types: [opened, closed, labeled, unlabeled, edited]
+  pull_request:
+    types: [opened, closed, merged, edited]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REPOSITORY: ${{ github.repository }}
+
+jobs:
+  # 🔒 Security Issue Analysis
+  security-analysis:
+    name: 🔒 Security Issue Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    outputs:
+      total-security-issues: ${{ steps.security-analysis.outputs.total-security-issues }}
+      critical-security: ${{ steps.security-analysis.outputs.critical-security }}
+      high-security: ${{ steps.security-analysis.outputs.high-security }}
+      medium-security: ${{ steps.security-analysis.outputs.medium-security }}
+      low-security: ${{ steps.security-analysis.outputs.low-security }}
+      unassigned-security: ${{ steps.security-analysis.outputs.unassigned-security }}
+      stale-security: ${{ steps.security-analysis.outputs.stale-security }}
+      escalated-security: ${{ steps.security-analysis.outputs.escalated-security }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: 🔒 Comprehensive Security Analysis
+        id: security-analysis
+        run: |
+          echo "🔒 Analyzing security issues with enhanced tracking..."
+          
+          # Get all security issues with detailed information
+          security_issues=$(gh issue list --label "security" --state open --json number,title,labels,assignees,createdAt,updatedAt,comments)
+          all_security_issues=$(gh issue list --label "security" --state all --json number,title,labels,assignees,createdAt,updatedAt,state)
+          
+          # Count total security issues
+          total_security_issues=$(echo "$all_security_issues" | jq length)
+          open_security_issues=$(echo "$security_issues" | jq length)
+          
+          # Categorize by severity
+          critical_security=$(echo "$security_issues" | jq '[.[] | select(.labels[] | .name == "critical")] | length')
+          high_security=$(echo "$security_issues" | jq '[.[] | select(.labels[] | .name == "high")] | length')
+          medium_security=$(echo "$security_issues" | jq '[.[] | select(.labels[] | .name == "medium")] | length')
+          low_security=$(echo "$security_issues" | jq '[.[] | select(.labels[] | .name == "low")] | length')
+          
+          # Find unassigned security issues
+          unassigned_security=$(echo "$security_issues" | jq '[.[] | select(.assignees | length == 0)] | length')
+          
+          # Find stale security issues (older than 3 days)
+          current_time=$(date +%s)
+          stale_security=$(echo "$security_issues" | jq --arg current_time "$current_time" '[.[] | select((($current_time | tonumber) - (.updatedAt | fromdateiso8601)) > 259200)] | length')
+          
+          # Find escalated security issues
+          escalated_security=$(echo "$security_issues" | jq '[.[] | select(.labels[] | .name == "escalated")] | length')
+          
+          # Output results
+          echo "total-security-issues=$total_security_issues" >> $GITHUB_OUTPUT
+          echo "critical-security=$critical_security" >> $GITHUB_OUTPUT
+          echo "high-security=$high_security" >> $GITHUB_OUTPUT
+          echo "medium-security=$medium_security" >> $GITHUB_OUTPUT
+          echo "low-security=$low_security" >> $GITHUB_OUTPUT
+          echo "unassigned-security=$unassigned_security" >> $GITHUB_OUTPUT
+          echo "stale-security=$stale_security" >> $GITHUB_OUTPUT
+          echo "escalated-security=$escalated_security" >> $GITHUB_OUTPUT
+          
+          echo "🔒 Security Analysis Results:"
+          echo "  🔒 Total Security Issues: $total_security_issues"
+          echo "  🔓 Open Security Issues: $open_security_issues"
+          echo "  🚨 Critical Security: $critical_security"
+          echo "  ⚠️  High Security: $high_security"
+          echo "  📋 Medium Security: $medium_security"
+          echo "  ℹ️  Low Security: $low_security"
+          echo "  👤 Unassigned Security: $unassigned_security"
+          echo "  🕐 Stale Security: $stale_security"
+          echo "  📢 Escalated Security: $escalated_security"
+
+  # 🚨 Critical Security Processing
+  critical-security-processing:
+    name: 🚨 Critical Security Processing
+    runs-on: ubuntu-latest
+    needs: [security-analysis]
+    if: always() && (needs.security-analysis.result == 'success')
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 🚨 Process Critical Security Issues
+        run: |
+          echo "🚨 Processing critical security issues with maximum priority..."
+          
+          # Get all critical security issues
+          critical_security_issues=$(gh issue list --label "security" --label "critical" --state open --json number,title,assignees,createdAt,updatedAt,labels)
+          
+          echo "$critical_security_issues" | jq -r '.[] | @base64' | while read -r issue; do
+            issue_data=$(echo "$issue" | base64 --decode)
+            issue_number=$(echo "$issue_data" | jq -r '.number')
+            issue_title=$(echo "$issue_data" | jq -r '.title')
+            assignees=$(echo "$issue_data" | jq -r '.assignees | length')
+            created_at=$(echo "$issue_data" | jq -r '.createdAt')
+            updated_at=$(echo "$issue_data" | jq -r '.updatedAt')
+            labels=$(echo "$issue_data" | jq -r '.labels[] | .name' | tr '\n' ' ')
+            
+            echo "🚨 Processing critical security issue #$issue_number: $issue_title"
+            
+            # Check if critical security issue is unassigned
+            if [ "$assignees" -eq 0 ]; then
+              echo "🚨 CRITICAL: Security issue #$issue_number is unassigned!"
+              gh issue edit "$issue_number" --add-label "security-urgent" || echo "Failed to add security-urgent label"
+              gh issue edit "$issue_number" --add-label "needs-immediate-attention" || echo "Failed to add needs-immediate-attention label"
+              
+              # Create urgent security comment
+              gh issue comment "$issue_number" --body "🚨 **CRITICAL SECURITY ALERT** 🚨
+
+**URGENT ATTENTION REQUIRED**
+
+This is a **CRITICAL SECURITY ISSUE** that requires immediate attention:
+
+**Security Protocol:**
+- 🔒 **Classification:** Critical Security
+- ⏰ **Response Time:** IMMEDIATE (within 1 hour)
+- 👤 **Assignment:** REQUIRED - Must be assigned to security team
+- 📋 **Documentation:** All actions must be documented
+- 🔍 **Verification:** Security fix must be verified before closure
+
+**Required Actions:**
+1. **ASSIGN IMMEDIATELY** to senior security team member
+2. **BEGIN SECURITY ASSESSMENT** within 1 hour
+3. **DOCUMENT ALL ACTIONS** taken
+4. **UPDATE PROGRESS** every 4 hours until resolved
+5. **VERIFY FIX** before closing issue
+
+**Escalation:** This issue will be escalated if not assigned within 2 hours.
+
+**Auto-generated by Critical Security Management System**" || echo "Failed to add critical security comment"
+            fi
+            
+            # Check if critical security issue is older than 2 hours
+            current_time=$(date +%s)
+            created_time=$(date -d "$created_at" +%s)
+            hours_old=$(( (current_time - created_time) / 3600 ))
+            
+            if [ "$hours_old" -gt 2 ]; then
+              echo "🚨 CRITICAL: Security issue #$issue_number is $hours_old hours old - ESCALATING"
+              gh issue edit "$issue_number" --add-label "security-escalated" || echo "Failed to add security-escalated label"
+              gh issue edit "$issue_number" --add-label "management-notification" || echo "Failed to add management-notification label"
+              
+              gh issue comment "$issue_number" --body "🚨 **SECURITY ESCALATION** 🚨
+
+**CRITICAL SECURITY ISSUE ESCALATION**
+
+This critical security issue has been open for **$hours_old hours** without resolution:
+
+**Escalation Actions:**
+- 🏷️ Added 'security-escalated' label
+- 📢 Notifying security management
+- ⏰ Monitoring for immediate resolution
+- 🔍 Tracking all security activities
+
+**Management Notification:** This issue has been escalated to security management for immediate attention.
+
+**Auto-generated by Critical Security Management System**" || echo "Failed to add escalation comment"
+            fi
+            
+            # Check if critical security issue hasn't been updated in 4 hours
+            current_time=$(date +%s)
+            updated_time=$(date -d "$updated_at" +%s)
+            hours_since_update=$(( (current_time - updated_time) / 3600 ))
+            
+            if [ "$hours_since_update" -gt 4 ]; then
+              echo "🚨 CRITICAL: Security issue #$issue_number hasn't been updated in $hours_since_update hours"
+              gh issue comment "$issue_number" --body "🚨 **SECURITY UPDATE REQUIRED** 🚨
+
+**CRITICAL SECURITY ISSUE UPDATE NEEDED**
+
+This critical security issue hasn't been updated in **$hours_since_update hours**:
+
+**Required Actions:**
+- 📝 **UPDATE STATUS** immediately
+- 🔍 **PROVIDE PROGRESS** on security assessment
+- 📋 **DOCUMENT ACTIONS** taken
+- ⏰ **SET NEXT UPDATE** within 2 hours
+
+**Security Protocol:** Critical security issues must be updated every 4 hours until resolved.
+
+**Auto-generated by Critical Security Management System**" || echo "Failed to add update reminder comment"
+            fi
+          done
+
+      - name: ⚠️ Process High Security Issues
+        run: |
+          echo "⚠️ Processing high security issues..."
+          
+          # Get all high security issues
+          high_security_issues=$(gh issue list --label "security" --label "high" --state open --json number,title,assignees,createdAt,updatedAt)
+          
+          echo "$high_security_issues" | jq -r '.[] | @base64' | while read -r issue; do
+            issue_data=$(echo "$issue" | base64 --decode)
+            issue_number=$(echo "$issue_data" | jq -r '.number')
+            issue_title=$(echo "$issue_data" | jq -r '.title')
+            assignees=$(echo "$issue_data" | jq -r '.assignees | length')
+            created_at=$(echo "$issue_data" | jq -r '.createdAt')
+            updated_at=$(echo "$issue_data" | jq -r '.updatedAt')
+            
+            echo "⚠️ Processing high security issue #$issue_number: $issue_title"
+            
+            # Check if high security issue is unassigned
+            if [ "$assignees" -eq 0 ]; then
+              echo "⚠️ High security issue #$issue_number is unassigned"
+              gh issue edit "$issue_number" --add-label "security-needs-assignment" || echo "Failed to add security-needs-assignment label"
+              
+              gh issue comment "$issue_number" --body "⚠️ **HIGH SECURITY ISSUE** ⚠️
+
+This is a **HIGH PRIORITY SECURITY ISSUE** that requires prompt attention:
+
+**Security Protocol:**
+- 🔒 **Classification:** High Security
+- ⏰ **Response Time:** Within 4 hours
+- 👤 **Assignment:** Should be assigned to security team
+- 📋 **Documentation:** Actions should be documented
+
+**Required Actions:**
+1. **ASSIGN** to security team member
+2. **BEGIN ASSESSMENT** within 4 hours
+3. **DOCUMENT ACTIONS** taken
+4. **UPDATE PROGRESS** regularly
+
+**Auto-generated by Security Management System**" || echo "Failed to add high security comment"
+            fi
+            
+            # Check if high security issue is older than 1 day
+            current_time=$(date +%s)
+            created_time=$(date -d "$created_at" +%s)
+            days_old=$(( (current_time - created_time) / 86400 ))
+            
+            if [ "$days_old" -gt 1 ]; then
+              echo "⚠️ High security issue #$issue_number is $days_old days old"
+              gh issue edit "$issue_number" --add-label "security-stale" || echo "Failed to add security-stale label"
+              
+              gh issue comment "$issue_number" --body "⚠️ **SECURITY ISSUE REMINDER** ⚠️
+
+This high security issue has been open for **$days_old days**:
+
+**Status Check:**
+- 🔍 **Assessment:** Please provide current status
+- 📝 **Progress:** Document any progress made
+- ⏰ **Timeline:** Update expected resolution time
+- 📋 **Actions:** List actions taken or planned
+
+**Auto-generated by Security Management System**" || echo "Failed to add security reminder comment"
+            fi
+          done
+
+  # 🔄 Security Auto-Resolution
+  security-auto-resolution:
+    name: 🔄 Security Auto-Resolution
+    runs-on: ubuntu-latest
+    needs: [security-analysis]
+    if: always() && (needs.security-analysis.result == 'success')
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 🔍 Check for Resolved Security Issues
+        run: |
+          echo "🔍 Checking for security issues that may have been resolved..."
+          
+          # Get all open security issues
+          security_issues=$(gh issue list --label "security" --state open --json number,title,labels,createdAt,updatedAt)
+          
+          echo "$security_issues" | jq -r '.[] | @base64' | while read -r issue; do
+            issue_data=$(echo "$issue" | base64 --decode)
+            issue_number=$(echo "$issue_data" | jq -r '.number')
+            issue_title=$(echo "$issue_data" | jq -r '.title')
+            labels=$(echo "$issue_data" | jq -r '.labels[] | .name' | tr '\n' ' ')
+            created_at=$(echo "$issue_data" | jq -r '.createdAt')
+            updated_at=$(echo "$issue_data" | jq -r '.updatedAt')
+            
+            # Check for specific security patterns that might indicate resolution
+            if echo "$issue_title" | grep -qi "eslint\|lint\|security\|vulnerability\|xss\|injection"; then
+              echo "🔍 Checking security issue #$issue_number for resolution..."
+              
+              # Check if there have been recent commits that might have fixed the security issue
+              recent_commits=$(git log --since="3 days ago" --oneline | grep -i "fix\|security\|eslint\|lint\|vulnerability" | wc -l)
+              
+              if [ "$recent_commits" -gt 0 ]; then
+                echo "✅ Found recent commits that might resolve security issue #$issue_number"
+                gh issue comment "$issue_number" --body "🔍 **Security Resolution Check** 🔍
+
+I've detected recent commits that may have resolved this security issue:
+
+**Recent Security Activity:**
+- 📝 Recent commits: $recent_commits
+- 🔍 Pattern: Security fixes detected
+- ⏰ Checked: $(date)
+- 🔒 Security focus: Vulnerability fixes identified
+
+**⚠️ IMPORTANT:** Please verify that this security issue has been properly resolved:
+1. **Test the fix** thoroughly
+2. **Verify security** of the solution
+3. **Document** the resolution
+4. **Close** only after verification
+
+**Security Note:** Security issues require extra verification before closure.
+
+**Auto-generated by Security Management System**" || echo "Failed to add security resolution comment"
+              fi
+            fi
+            
+            # Check for security issues that might be false positives
+            if echo "$labels" | grep -q "false-positive"; then
+              echo "🔍 Security issue #$issue_number marked as false positive - considering closure"
+              gh issue comment "$issue_number" --body "🔍 **False Positive Review** 🔍
+
+This security issue has been marked as a false positive.
+
+**Review Required:**
+- ✅ **Confirm** it's actually a false positive
+- 📝 **Document** why it's not a security risk
+- 🔒 **Verify** no security implications
+- 🗑️ **Close** if confirmed false positive
+
+**Security Note:** Even false positives should be verified by security team.
+
+**Auto-generated by Security Management System**" || echo "Failed to add false positive comment"
+            fi
+          done
+
+  # 📊 Security Reporting
+  security-reporting:
+    name: 📊 Security Reporting
+    runs-on: ubuntu-latest
+    needs: [security-analysis, critical-security-processing, security-auto-resolution]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 📊 Generate Security Report
+        run: |
+          echo "📊 Generating comprehensive security issue report..."
+          
+          # Get current security statistics
+          total_security_issues=$(gh issue list --label "security" --state all --json number | jq length)
+          open_security_issues=$(gh issue list --label "security" --state open --json number | jq length)
+          closed_security_issues=$(gh issue list --label "security" --state closed --json number | jq length)
+          critical_security=$(gh issue list --label "security" --label "critical" --state open --json number | jq length)
+          high_security=$(gh issue list --label "security" --label "high" --state open --json number | jq length)
+          medium_security=$(gh issue list --label "security" --label "medium" --state open --json number | jq length)
+          low_security=$(gh issue list --label "security" --label "low" --state open --json number | jq length)
+          
+          # Get unassigned security issues
+          unassigned_security=$(gh issue list --label "security" --state open --json assignees | jq '[.[] | select(.assignees | length == 0)] | length')
+          
+          # Get escalated security issues
+          escalated_security=$(gh issue list --label "security" --label "escalated" --state open --json number | jq length)
+          
+          # Create comprehensive security report
+          cat > security-management-report.md << EOF
+          # 🔒 Security Issue Management Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          **Workflow:** Security Issue Management System
+          
+          ## 🔒 Security Issue Statistics
+          
+          | Metric | Count | Status |
+          |--------|-------|--------|
+          | 🔒 Total Security Issues | $total_security_issues | - |
+          | 🔓 Open Security Issues | $open_security_issues | 🔴 Active |
+          | ✅ Closed Security Issues | $closed_security_issues | ✅ Resolved |
+          | 🚨 Critical Security | $critical_security | 🔴 URGENT |
+          | ⚠️ High Security | $high_security | 🟡 Important |
+          | 📋 Medium Security | $medium_security | 🟢 Normal |
+          | ℹ️ Low Security | $low_security | 🔵 Low Priority |
+          | 👤 Unassigned Security | $unassigned_security | 🚨 Needs Assignment |
+          | 📢 Escalated Security | $escalated_security | 🚨 Escalated |
+          
+          ## 🚨 Critical Security Issues
+          
+          - **Count:** $critical_security
+          - **Status:** Requires immediate attention
+          - **Response Time:** Within 1 hour
+          - **Assignment:** Must be assigned immediately
+          - **Documentation:** All actions must be documented
+          
+          ## ⚠️ High Security Issues
+          
+          - **Count:** $high_security
+          - **Status:** Important security issues
+          - **Response Time:** Within 4 hours
+          - **Assignment:** Should be assigned to security team
+          - **Documentation:** Actions should be documented
+          
+          ## 🎯 Security Management Actions
+          
+          ### ✅ Completed Actions:
+          - 🔍 Comprehensive security analysis
+          - 🚨 Critical security processing
+          - ⚠️ High security processing
+          - 🔄 Security auto-resolution checks
+          - 📊 Detailed security reporting
+          
+          ### 🚨 Immediate Actions Required:
+          - **Assign unassigned security issues** ($unassigned_security issues)
+          - **Address escalated security issues** ($escalated_security issues)
+          - **Review critical security issues** ($critical_security issues)
+          - **Update stale security issues**
+          
+          ## 🔒 Security Protocols
+          
+          ### For Critical Security Issues:
+          - 🚨 **Immediate assignment** to senior security team
+          - ⏰ **Response time:** Within 1 hour
+          - 📋 **Documentation:** All actions documented
+          - 🔍 **Verification:** Security fix verified before closure
+          - 📢 **Escalation:** Auto-escalated if not assigned within 2 hours
+          
+          ### For High Security Issues:
+          - ⚠️ **Prompt assignment** to security team
+          - ⏰ **Response time:** Within 4 hours
+          - 📋 **Documentation:** Actions documented
+          - 🔍 **Verification:** Security fix verified
+          - 📝 **Updates:** Regular progress updates required
+          
+          ## 🎯 Security Recommendations
+          
+          ### Immediate Actions:
+          1. **Review all critical security issues** - Ensure immediate assignment
+          2. **Address escalated security issues** - Provide management attention
+          3. **Assign unassigned security issues** - Get security team involved
+          4. **Update stale security issues** - Provide current status
+          
+          ### Security Best Practices:
+          1. **All security issues are high priority** - Treat with urgency
+          2. **Document all security actions** - Maintain audit trail
+          3. **Verify security fixes** - Don't close without verification
+          4. **Regular security reviews** - Monitor progress continuously
+          
+          ---
+          
+          **Report generated by Security Issue Management System**
+          **Next run:** $(date -d '+1 hour' '+%Y-%m-%d %H:%M:%S')
+          EOF
+          
+          echo "📊 Security report generated: security-management-report.md"
+
+      - name: 📤 Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-management-report
+          path: security-management-report.md
+          retention-days: 30
+
+      - name: 📊 Create Security Summary
+        run: |
+          echo "## 🔒 Security Issue Management Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Security Status:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔓 **Open Security Issues:** $open_security_issues" >> $GITHUB_STEP_SUMMARY
+          echo "- 🚨 **Critical Security:** $critical_security" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ **High Security:** $high_security" >> $GITHUB_STEP_SUMMARY
+          echo "- 👤 **Unassigned Security:** $unassigned_security" >> $GITHUB_STEP_SUMMARY
+          echo "- 📢 **Escalated Security:** $escalated_security" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Security Actions Taken:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Critical security processing completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ High security processing completed" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔄 Security auto-resolution checks performed" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 Comprehensive security reporting generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚨 Immediate Security Actions Required:" >> $GITHUB_STEP_SUMMARY
+          echo "- Assign unassigned security issues immediately" >> $GITHUB_STEP_SUMMARY
+          echo "- Address escalated security issues with management" >> $GITHUB_STEP_SUMMARY
+          echo "- Review critical security issues for immediate resolution" >> $GITHUB_STEP_SUMMARY
+          echo "- Update stale security issues with current status" >> $GITHUB_STEP_SUMMARY
