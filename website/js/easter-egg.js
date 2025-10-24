@@ -199,7 +199,7 @@ class EasterEgg {
       const url = new URL(adminUrl);
       // Use the url variable to avoid no-new error
       if (!url) return;
-    } catch (e) {
+    } catch {
       console.error('Invalid admin URL constructed');
       return;
     }

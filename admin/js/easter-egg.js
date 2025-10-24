@@ -198,7 +198,7 @@ class EasterEgg {
       if (!url) {
         return;
       }
-    } catch (e) {
+    } catch {
       console.error('Invalid admin URL constructed');
       return;
     }
