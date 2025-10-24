@@ -151,20 +151,20 @@ async function testSecurityHeaders(page, environment) {
 
   const missingHeaders = requiredHeaders.filter(header => {
     switch (header) {
-      case 'X-Content-Type-Options':
-        return !headers['X-Content-Type-Options'];
-      case 'X-Frame-Options':
-        return !headers['X-Frame-Options'];
-      case 'X-XSS-Protection':
-        return !headers['X-XSS-Protection'];
-      case 'Strict-Transport-Security':
-        return !headers['Strict-Transport-Security'];
-      case 'Content-Security-Policy':
-        return !headers['Content-Security-Policy'];
-      case 'Referrer-Policy':
-        return !headers['Referrer-Policy'];
-      default:
-        return true;
+    case 'X-Content-Type-Options':
+      return !headers['X-Content-Type-Options'];
+    case 'X-Frame-Options':
+      return !headers['X-Frame-Options'];
+    case 'X-XSS-Protection':
+      return !headers['X-XSS-Protection'];
+    case 'Strict-Transport-Security':
+      return !headers['Strict-Transport-Security'];
+    case 'Content-Security-Policy':
+      return !headers['Content-Security-Policy'];
+    case 'Referrer-Policy':
+      return !headers['Referrer-Policy'];
+    default:
+      return true;
     }
   });
 

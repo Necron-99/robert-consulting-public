@@ -259,41 +259,41 @@ class BestPracticesManager {
             if (categoryName.match(/^[a-zA-Z0-9\s\-_]+$/)) {
               // Use safe property assignment for unknown categories
               switch (categoryName) {
-                case 'Security':
-                  exportData.categories.Security = categoryData;
-                  break;
-                case 'Performance':
-                  exportData.categories.Performance = categoryData;
-                  break;
-                case 'Accessibility':
-                  exportData.categories.Accessibility = categoryData;
-                  break;
-                case 'SEO':
-                  exportData.categories.SEO = categoryData;
-                  break;
-                case 'Code Quality':
-                  exportData.categories['Code Quality'] = categoryData;
-                  break;
-                default:
-                  // For truly unknown categories, use a safe fallback with additional validation
-                  if (exportData.categories && typeof exportData.categories === 'object') {
-                    // Additional security validation for unknown categories
-                    if (categoryName && typeof categoryName === 'string' && 
+              case 'Security':
+                exportData.categories.Security = categoryData;
+                break;
+              case 'Performance':
+                exportData.categories.Performance = categoryData;
+                break;
+              case 'Accessibility':
+                exportData.categories.Accessibility = categoryData;
+                break;
+              case 'SEO':
+                exportData.categories.SEO = categoryData;
+                break;
+              case 'Code Quality':
+                exportData.categories['Code Quality'] = categoryData;
+                break;
+              default:
+                // For truly unknown categories, use a safe fallback with additional validation
+                if (exportData.categories && typeof exportData.categories === 'object') {
+                  // Additional security validation for unknown categories
+                  if (categoryName && typeof categoryName === 'string' &&
                         categoryName.length > 0 && categoryName.length < 50 &&
                         /^[a-zA-Z0-9\s\-_]+$/.test(categoryName)) {
-                      // Use Object.defineProperty for safer assignment
-                      try {
-                        Object.defineProperty(exportData.categories, categoryName, {
-                          value: categoryData,
-                          writable: true,
-                          enumerable: true,
-                          configurable: true
-                        });
-                      } catch (error) {
-                        console.warn('Failed to assign category data safely:', error);
-                      }
+                    // Use Object.defineProperty for safer assignment
+                    try {
+                      Object.defineProperty(exportData.categories, categoryName, {
+                        value: categoryData,
+                        writable: true,
+                        enumerable: true,
+                        configurable: true
+                      });
+                    } catch (error) {
+                      console.warn('Failed to assign category data safely:', error);
                     }
                   }
+                }
               }
             }
           }

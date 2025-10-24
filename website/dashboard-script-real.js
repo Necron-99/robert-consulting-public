@@ -359,5 +359,7 @@ class RealTimeDashboard {
 
 // Initialize the dashboard when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  new RealTimeDashboard();
+  const dashboard = new RealTimeDashboard();
+  // Store reference to avoid no-new error
+  window.realTimeDashboardInstance = dashboard;
 });
