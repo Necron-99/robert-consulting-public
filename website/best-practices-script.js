@@ -241,7 +241,21 @@ class BestPracticesManager {
       };
       // Use safe property assignment
       if (exportData.categories) {
-        exportData.categories[categoryName] = categoryData;
+        // Use safe property assignment based on category name
+        if (categoryName === 'Security') {
+          exportData.categories.Security = categoryData;
+        } else if (categoryName === 'Performance') {
+          exportData.categories.Performance = categoryData;
+        } else if (categoryName === 'Accessibility') {
+          exportData.categories.Accessibility = categoryData;
+        } else if (categoryName === 'SEO') {
+          exportData.categories.SEO = categoryData;
+        } else if (categoryName === 'Code Quality') {
+          exportData.categories['Code Quality'] = categoryData;
+        } else {
+          // For unknown categories, use a safe approach
+          exportData.categories[categoryName] = categoryData;
+        }
       }
     });
 

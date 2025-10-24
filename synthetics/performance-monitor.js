@@ -9,26 +9,26 @@ const log = require('SyntheticsLogger');
 const loadBlueprint = async function() {
   // Set configuration options for our script
   // const requestOptions = { // Unused for now
-    hostname: 'robertconsulting.net',
-    method: 'GET',
-    path: '/dashboard.html',
-    port: 443,
-    protocol: 'https:',
-    headers: {
-      'User-Agent': 'CloudWatch-Synthetics'
-    }
-  };
+  //   hostname: 'robertconsulting.net',
+  //   method: 'GET',
+  //   path: '/dashboard.html',
+  //   port: 443,
+  //   protocol: 'https:',
+  //   headers: {
+  //     'User-Agent': 'CloudWatch-Synthetics'
+  //   }
+  // };
 
   // const requestOptionsStaging = { // Unused for now
-    hostname: 'd3guz3lq4sqlvl.cloudfront.net',
-    method: 'GET',
-    path: '/?secret=staging-access-2025',
-    port: 443,
-    protocol: 'https:',
-    headers: {
-      'User-Agent': 'CloudWatch-Synthetics'
-    }
-  };
+  //   hostname: 'd3guz3lq4sqlvl.cloudfront.net',
+  //   method: 'GET',
+  //   path: '/?secret=staging-access-2025',
+  //   port: 443,
+  //   protocol: 'https:',
+  //   headers: {
+  //     'User-Agent': 'CloudWatch-Synthetics'
+  //   }
+  // };
 
   // Set up the page
   const page = await synthetics.getPage();

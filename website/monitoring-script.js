@@ -257,7 +257,7 @@ class MonitoringDashboard {
 
       try {
         // Try to fetch a small resource to test DNS resolution
-        const response = await fetch(`https://${testDomain}/favicon.ico`, {
+        // const response = await fetch(`https://${testDomain}/favicon.ico`, { // Unused for now
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache'
@@ -305,7 +305,7 @@ class MonitoringDashboard {
       const startTime = Date.now();
 
       try {
-        const response = await fetch(testUrl, {
+        // const response = await fetch(testUrl, { // Unused for now
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache'
@@ -349,7 +349,7 @@ class MonitoringDashboard {
       const startTime = Date.now();
 
       try {
-        const response = await fetch(testUrl, {
+        // const response = await fetch(testUrl, { // Unused for now
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache'
@@ -390,7 +390,7 @@ class MonitoringDashboard {
       const startTime = Date.now();
 
       try {
-        const response = await fetch(testUrl, {
+        // const response = await fetch(testUrl, { // Unused for now
           method: 'HEAD',
           mode: 'no-cors',
           cache: 'no-cache'
@@ -431,7 +431,7 @@ class MonitoringDashboard {
 
       // Test website performance
       const testUrl = 'https://robertconsulting.net/';
-      const response = await fetch(testUrl, {
+      // const response = await fetch(testUrl, { // Unused for now
         method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-cache'
@@ -510,7 +510,7 @@ class MonitoringDashboard {
     }
 
     const statusElement = element.querySelector('.health-status');
-    const metrics = element.querySelectorAll('.metric-value');
+    // const metrics = element.querySelectorAll('.metric-value'); // Unused for now
 
     if (statusElement) {
       statusElement.textContent = data.status;

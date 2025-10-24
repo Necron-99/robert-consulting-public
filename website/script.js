@@ -189,7 +189,7 @@ function getClientIP() {
 
 // Get location from language (simplified)
 function getLocationFromLanguage(language) {
-  const locationMap = {
+  // const locationMap = { // Unused for now
     'en-US': 'United States',
     'en-GB': 'United Kingdom',
     'en-CA': 'Canada',

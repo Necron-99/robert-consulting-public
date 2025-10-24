@@ -896,12 +896,12 @@ class UnifiedDashboard {
      * Get alert icon
      */
   getAlertIcon(type) {
-    const icons = {
-      info: 'ℹ️',
-      success: '✅',
-      warning: '⚠️',
-      error: '❌'
-    };
+    // const icons = { // Unused for now
+    //   info: 'ℹ️',
+    //   success: '✅',
+    //   warning: '⚠️',
+    //   error: '❌'
+    // };
     let icon;
     switch (type) {
       case 'info':

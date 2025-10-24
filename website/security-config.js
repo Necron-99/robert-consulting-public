@@ -25,7 +25,7 @@ class SecurityConfig {
 
     // Disable right-click context menu on sensitive pages
     if (window.location.pathname.includes('dashboard') || window.location.pathname.includes('stats')) {
-      document.addEventListener('contextmenu', (e) => e.preventDefault());
+      document.addEventListener('contextmenu', (event) => event.preventDefault());
     }
 
     // Disable text selection on sensitive elements
@@ -112,8 +112,32 @@ class SecurityConfig {
     // Clean old entries
     const now = Date.now();
     Object.keys(this.rateLimitStore).forEach(key => {
-      if (now - this.rateLimitStore[key] > 60000) { // 1 minute
-        delete this.rateLimitStore[key];
+      let timestamp;
+      switch (key) {
+        case 'login_attempts':
+          timestamp = this.rateLimitStore.login_attempts;
+          break;
+        case 'api_calls':
+          timestamp = this.rateLimitStore.api_calls;
+          break;
+        case 'form_submissions':
+          timestamp = this.rateLimitStore.form_submissions;
+          break;
+        default:
+          timestamp = 0;
+      }
+      if (now - timestamp > 60000) { // 1 minute
+        switch (key) {
+          case 'login_attempts':
+            delete this.rateLimitStore.login_attempts;
+            break;
+          case 'api_calls':
+            delete this.rateLimitStore.api_calls;
+            break;
+          case 'form_submissions':
+            delete this.rateLimitStore.form_submissions;
+            break;
+        }
       }
     });
   }
@@ -123,15 +147,36 @@ class SecurityConfig {
     const now = Date.now();
     const key = `${action}_${Math.floor(now / 60000)}`; // Per minute
 
-    if (!this.rateLimitStore[key]) {
-      this.rateLimitStore[key] = 0;
+    let currentCount;
+    switch (key) {
+      case 'login_attempts':
+        currentCount = this.rateLimitStore.login_attempts || 0;
+        break;
+      case 'api_calls':
+        currentCount = this.rateLimitStore.api_calls || 0;
+        break;
+      case 'form_submissions':
+        currentCount = this.rateLimitStore.form_submissions || 0;
+        break;
+      default:
+        currentCount = 0;
     }
 
-    if (this.rateLimitStore[key] >= limit) {
+    if (currentCount >= limit) {
       return false;
     }
 
-    this.rateLimitStore[key]++;
+    switch (key) {
+      case 'login_attempts':
+        this.rateLimitStore.login_attempts = (this.rateLimitStore.login_attempts || 0) + 1;
+        break;
+      case 'api_calls':
+        this.rateLimitStore.api_calls = (this.rateLimitStore.api_calls || 0) + 1;
+        break;
+      case 'form_submissions':
+        this.rateLimitStore.form_submissions = (this.rateLimitStore.form_submissions || 0) + 1;
+        break;
+    }
     localStorage.setItem('rate_limit', JSON.stringify(this.rateLimitStore));
     return true;
   }
@@ -141,8 +186,8 @@ class SecurityConfig {
     // Sanitize inputs only on blur (when user finishes typing)
     const inputs = document.querySelectorAll('input, textarea');
     inputs.forEach(input => {
-      input.addEventListener('blur', (e) => {
-        this.sanitizeInput(e.target);
+      input.addEventListener('blur', (event) => {
+        this.sanitizeInput(event.target);
       });
     });
   }
