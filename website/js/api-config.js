@@ -129,20 +129,20 @@ class APIConfig {
     for (const field of required) {
       let fieldValue;
       switch (field) {
-        case 'name':
-          fieldValue = data.name;
-          break;
-        case 'email':
-          fieldValue = data.email;
-          break;
-        case 'subject':
-          fieldValue = data.subject;
-          break;
-        case 'message':
-          fieldValue = data.message;
-          break;
-        default:
-          fieldValue = null;
+      case 'name':
+        fieldValue = data.name;
+        break;
+      case 'email':
+        fieldValue = data.email;
+        break;
+      case 'subject':
+        fieldValue = data.subject;
+        break;
+      case 'message':
+        fieldValue = data.message;
+        break;
+      default:
+        fieldValue = null;
       }
       if (!fieldValue || fieldValue.trim().length === 0) {
         return false;

@@ -4,8 +4,8 @@
  */
 
 // Import required services
-import { PipelineAPI } from './api/pipeline-api.js';
-import { StatusLogicService } from './services/status-logic.js';
+import {PipelineAPI} from './api/pipeline-api.js';
+import {StatusLogicService} from './services/status-logic.js';
 
 class PipelineStatusMeter {
   constructor() {
@@ -96,17 +96,17 @@ class PipelineStatusMeter {
 
     let stageExists = false;
     switch (data.stage) {
-      case 'development':
-        stageExists = !!this.stages.development;
-        break;
-      case 'staging':
-        stageExists = !!this.stages.staging;
-        break;
-      case 'production':
-        stageExists = !!this.stages.production;
-        break;
-      default:
-        stageExists = false;
+    case 'development':
+      stageExists = !!this.stages.development;
+      break;
+    case 'staging':
+      stageExists = !!this.stages.staging;
+      break;
+    case 'production':
+      stageExists = !!this.stages.production;
+      break;
+    default:
+      stageExists = false;
     }
     if (data.stage && stageExists) {
       this.updateStageFromAPI(data.stage, data);
@@ -365,17 +365,17 @@ class PipelineStatusMeter {
   async updateStage(stageName) {
     let stage;
     switch (stageName) {
-      case 'development':
-        stage = this.stages.development;
-        break;
-      case 'staging':
-        stage = this.stages.staging;
-        break;
-      case 'production':
-        stage = this.stages.production;
-        break;
-      default:
-        stage = null;
+    case 'development':
+      stage = this.stages.development;
+      break;
+    case 'staging':
+      stage = this.stages.staging;
+      break;
+    case 'production':
+      stage = this.stages.production;
+      break;
+    default:
+      stage = null;
     }
     if (!stage) {
       return;
@@ -400,17 +400,17 @@ class PipelineStatusMeter {
 
     let stage;
     switch (stageName) {
-      case 'development':
-        stage = this.stages.development;
-        break;
-      case 'staging':
-        stage = this.stages.staging;
-        break;
-      case 'production':
-        stage = this.stages.production;
-        break;
-      default:
-        stage = null;
+    case 'development':
+      stage = this.stages.development;
+      break;
+    case 'staging':
+      stage = this.stages.staging;
+      break;
+    case 'production':
+      stage = this.stages.production;
+      break;
+    default:
+      stage = null;
     }
 
     // Simulate some dynamic changes
@@ -498,15 +498,15 @@ class PipelineStatusMeter {
 
     // Update stage data
     switch (stageName) {
-      case 'development':
-        this.stages.development = stageData;
-        break;
-      case 'staging':
-        this.stages.staging = stageData;
-        break;
-      case 'production':
-        this.stages.production = stageData;
-        break;
+    case 'development':
+      this.stages.development = stageData;
+      break;
+    case 'staging':
+      this.stages.staging = stageData;
+      break;
+    case 'production':
+      this.stages.production = stageData;
+      break;
     }
   }
 
@@ -522,17 +522,17 @@ class PipelineStatusMeter {
       if (element) {
         let value;
         switch (key) {
-          case 'responseTime':
-            value = details.responseTime;
-            break;
-          case 'errorRate':
-            value = details.errorRate;
-            break;
-          case 'throughput':
-            value = details.throughput;
-            break;
-          default:
-            value = details[key];
+        case 'responseTime':
+          value = details.responseTime;
+          break;
+        case 'errorRate':
+          value = details.errorRate;
+          break;
+        case 'throughput':
+          value = details.throughput;
+          break;
+        default:
+          value = details[key];
         }
         element.textContent = value;
       }
@@ -552,15 +552,15 @@ class PipelineStatusMeter {
 
     stages.forEach(stage => {
       switch (stage.status) {
-        case 'red':
-          statusCounts.red++;
-          break;
-        case 'yellow':
-          statusCounts.yellow++;
-          break;
-        case 'green':
-          statusCounts.green++;
-          break;
+      case 'red':
+        statusCounts.red++;
+        break;
+      case 'yellow':
+        statusCounts.yellow++;
+        break;
+      case 'green':
+        statusCounts.green++;
+        break;
       }
     });
 

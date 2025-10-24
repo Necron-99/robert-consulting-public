@@ -55,7 +55,7 @@ class EasterEgg {
 
     const userInput = this.userInput;
     const konamiCode = this.konamiCode;
-    
+
     for (let i = 0; i < userInput.length; i++) {
       const userKey = userInput.at(i);
       const expectedKey = konamiCode.at(i);

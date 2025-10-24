@@ -1,5 +1,5 @@
 // Import required modules
-import { APIConfig } from './js/api-config.js';
+import {APIConfig} from './js/api-config.js';
 
 // Mobile Navigation Toggle
 const hamburger = document.querySelector('.hamburger');
@@ -212,80 +212,80 @@ function getLocationFromLanguage(language) {
 
   let location;
   switch (language) {
-    case 'en-US':
-      location = 'United States';
-      break;
-    case 'en-GB':
-      location = 'United Kingdom';
-      break;
-    case 'en-CA':
-      location = 'Canada';
-      break;
-    case 'en-AU':
-      location = 'Australia';
-      break;
-    case 'de-DE':
-      location = 'Germany';
-      break;
-    case 'fr-FR':
-      location = 'France';
-      break;
-    case 'es-ES':
-      location = 'Spain';
-      break;
-    case 'it-IT':
-      location = 'Italy';
-      break;
-    case 'pt-BR':
-      location = 'Brazil';
-      break;
-    case 'ja-JP':
-      location = 'Japan';
-      break;
-    case 'ko-KR':
-      location = 'South Korea';
-      break;
-    case 'zh-CN':
-      location = 'China';
-      break;
-    case 'ru-RU':
-      location = 'Russia';
-      break;
-    case 'ar-SA':
-      location = 'Saudi Arabia';
-      break;
-    case 'hi-IN':
-      location = 'India';
-      break;
-    case 'th-TH':
-      location = 'Thailand';
-      break;
-    case 'vi-VN':
-      location = 'Vietnam';
-      break;
-    case 'tr-TR':
-      location = 'Turkey';
-      break;
-    case 'pl-PL':
-      location = 'Poland';
-      break;
-    case 'nl-NL':
-      location = 'Netherlands';
-      break;
-    case 'sv-SE':
-      location = 'Sweden';
-      break;
-    case 'no-NO':
-      location = 'Norway';
-      break;
-    case 'da-DK':
-      location = 'Denmark';
-      break;
-    case 'fi-FI':
-      location = 'Finland';
-      break;
-    default:
-      location = 'Unknown';
+  case 'en-US':
+    location = 'United States';
+    break;
+  case 'en-GB':
+    location = 'United Kingdom';
+    break;
+  case 'en-CA':
+    location = 'Canada';
+    break;
+  case 'en-AU':
+    location = 'Australia';
+    break;
+  case 'de-DE':
+    location = 'Germany';
+    break;
+  case 'fr-FR':
+    location = 'France';
+    break;
+  case 'es-ES':
+    location = 'Spain';
+    break;
+  case 'it-IT':
+    location = 'Italy';
+    break;
+  case 'pt-BR':
+    location = 'Brazil';
+    break;
+  case 'ja-JP':
+    location = 'Japan';
+    break;
+  case 'ko-KR':
+    location = 'South Korea';
+    break;
+  case 'zh-CN':
+    location = 'China';
+    break;
+  case 'ru-RU':
+    location = 'Russia';
+    break;
+  case 'ar-SA':
+    location = 'Saudi Arabia';
+    break;
+  case 'hi-IN':
+    location = 'India';
+    break;
+  case 'th-TH':
+    location = 'Thailand';
+    break;
+  case 'vi-VN':
+    location = 'Vietnam';
+    break;
+  case 'tr-TR':
+    location = 'Turkey';
+    break;
+  case 'pl-PL':
+    location = 'Poland';
+    break;
+  case 'nl-NL':
+    location = 'Netherlands';
+    break;
+  case 'sv-SE':
+    location = 'Sweden';
+    break;
+  case 'no-NO':
+    location = 'Norway';
+    break;
+  case 'da-DK':
+    location = 'Denmark';
+    break;
+  case 'fi-FI':
+    location = 'Finland';
+    break;
+  default:
+    location = 'Unknown';
   }
   return location;
 }

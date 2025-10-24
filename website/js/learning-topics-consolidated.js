@@ -412,20 +412,20 @@ class ConsolidatedLearningTopics {
     };
     let statusClass;
     switch (status) {
-      case 'active':
-        statusClass = 'status-active';
-        break;
-      case 'completed':
-        statusClass = 'status-completed';
-        break;
-      case 'learning':
-        statusClass = 'status-learning';
-        break;
-      case 'planned':
-        statusClass = 'status-planned';
-        break;
-      default:
-        statusClass = 'status-default';
+    case 'active':
+      statusClass = 'status-active';
+      break;
+    case 'completed':
+      statusClass = 'status-completed';
+      break;
+    case 'learning':
+      statusClass = 'status-learning';
+      break;
+    case 'planned':
+      statusClass = 'status-planned';
+      break;
+    default:
+      statusClass = 'status-default';
     }
     return statusClass;
   }
@@ -440,23 +440,23 @@ class ConsolidatedLearningTopics {
     };
     let statusText;
     switch (status) {
-      case 'active':
-        statusText = 'Active';
-        break;
-      case 'completed':
-        statusText = 'Completed';
-        break;
-      case 'proficient':
-        statusText = 'Proficient';
-        break;
-      case 'learning':
-        statusText = 'Learning';
-        break;
-      case 'planned':
-        statusText = 'Planned';
-        break;
-      default:
-        statusText = 'Unknown';
+    case 'active':
+      statusText = 'Active';
+      break;
+    case 'completed':
+      statusText = 'Completed';
+      break;
+    case 'proficient':
+      statusText = 'Proficient';
+      break;
+    case 'learning':
+      statusText = 'Learning';
+      break;
+    case 'planned':
+      statusText = 'Planned';
+      break;
+    default:
+      statusText = 'Unknown';
     }
     return statusText;
   }
