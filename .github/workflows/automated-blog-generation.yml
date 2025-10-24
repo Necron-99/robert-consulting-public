@@ -171,86 +171,86 @@ jobs:
               <meta name="author" content="Robert Consulting">
               <link rel="stylesheet" href="../css/blog.css">
           </head>
-<body>
-    <article class="blog-post">
-        <header class="blog-header">
-            <h1>AIOps - Tuesday</h1>
-            <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
-                <span class="blog-category">AIOps</span>
-            </div>
-        </header>
-        
-        <div class="blog-content">
-            <h2>Artificial Intelligence for IT Operations</h2>
-            <p>AIOps is revolutionizing how organizations manage their IT infrastructure by leveraging artificial intelligence and machine learning to automate operations, predict issues, and optimize performance.</p>
-            
-            <h3>What is AIOps?</h3>
-            <p>AIOps combines big data, machine learning, and automation to enhance IT operations. It enables organizations to:</p>
-            <ul>
-                <li>Predict and prevent system failures</li>
-                <li>Automate incident response</li>
-                <li>Optimize resource utilization</li>
-                <li>Improve service quality</li>
-            </ul>
-            
-            <h3>Key AIOps Capabilities</h3>
-            <h4>Predictive Analytics</h4>
-            <p>Machine learning algorithms analyze historical data to predict potential issues before they impact users.</p>
-            
-            <h4>Automated Incident Response</h4>
-            <p>AI systems can automatically detect, diagnose, and resolve common IT issues without human intervention.</p>
-            
-            <h4>Intelligent Monitoring</h4>
-            <p>Advanced monitoring systems use AI to identify patterns and anomalies that might indicate problems.</p>
-            
-            <h3>Benefits of AIOps</h3>
-            <ul>
-                <li><strong>Reduced MTTR</strong> - Faster incident resolution</li>
-                <li><strong>Proactive Operations</strong> - Prevent issues before they occur</li>
-                <li><strong>Cost Optimization</strong> - Better resource utilization</li>
-                <li><strong>Improved Reliability</strong> - Higher system uptime</li>
-            </ul>
-            
-            <h3>Implementation Strategies</h3>
-            <p>Successfully implementing AIOps requires:</p>
-            <ul>
-                <li>Data quality and integration</li>
-                <li>Cultural change and training</li>
-                <li>Gradual rollout and testing</li>
-                <li>Continuous monitoring and optimization</li>
-            </ul>
-            
-            <h3>Conclusion</h3>
-            <p>AIOps represents the future of IT operations, offering unprecedented opportunities for automation, optimization, and reliability. Organizations that embrace AIOps will gain significant competitive advantages.</p>
-        </div>
-        
-        <footer class="blog-footer">
-            <div class="blog-tags">
-                <span class="tag">AIOps</span>
-                <span class="tag">Machine Learning</span>
-                <span class="tag">IT Operations</span>
-            </div>
-        </footer>
-    </article>
-</body>
-</html>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>AIOps - Tuesday</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">$(date +%Y-%m-%d)</span>
+                          <span class="blog-category">AIOps</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Artificial Intelligence for IT Operations</h2>
+                      <p>AIOps is revolutionizing how organizations manage their IT infrastructure by leveraging artificial intelligence and machine learning to automate operations, predict issues, and optimize performance.</p>
+                      
+                      <h3>What is AIOps?</h3>
+                      <p>AIOps combines big data, machine learning, and automation to enhance IT operations. It enables organizations to:</p>
+                      <ul>
+                          <li>Predict and prevent system failures</li>
+                          <li>Automate incident response</li>
+                          <li>Optimize resource utilization</li>
+                          <li>Improve service quality</li>
+                      </ul>
+                      
+                      <h3>Key AIOps Capabilities</h3>
+                      <h4>Predictive Analytics</h4>
+                      <p>Machine learning algorithms analyze historical data to predict potential issues before they impact users.</p>
+                      
+                      <h4>Automated Incident Response</h4>
+                      <p>AI systems can automatically detect, diagnose, and resolve common IT issues without human intervention.</p>
+                      
+                      <h4>Intelligent Monitoring</h4>
+                      <p>Advanced monitoring systems use AI to identify patterns and anomalies that might indicate problems.</p>
+                      
+                      <h3>Benefits of AIOps</h3>
+                      <ul>
+                          <li><strong>Reduced MTTR</strong> - Faster incident resolution</li>
+                          <li><strong>Proactive Operations</strong> - Prevent issues before they occur</li>
+                          <li><strong>Cost Optimization</strong> - Better resource utilization</li>
+                          <li><strong>Improved Reliability</strong> - Higher system uptime</li>
+                      </ul>
+                      
+                      <h3>Implementation Strategies</h3>
+                      <p>Successfully implementing AIOps requires:</p>
+                      <ul>
+                          <li>Data quality and integration</li>
+                          <li>Cultural change and training</li>
+                          <li>Gradual rollout and testing</li>
+                          <li>Continuous monitoring and optimization</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>AIOps represents the future of IT operations, offering unprecedented opportunities for automation, optimization, and reliability. Organizations that embrace AIOps will gain significant competitive advantages.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">AIOps</span>
+                          <span class="tag">Machine Learning</span>
+                          <span class="tag">IT Operations</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
 BLOG_EOF
               ;;
             "wednesday")
               cat > "$blog_filename" << 'BLOG_EOF'
           <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Vulnerability Remediation - Wednesday - Robert Consulting</title>
-    <meta name="description" content="AI-powered security vulnerability detection and remediation">
-    <meta name="keywords" content="vulnerability management, security automation, AI security, threat detection, remediation">
-    <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
-</head>
-<body>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Intelligent Vulnerability Remediation - Wednesday - Robert Consulting</title>
+              <meta name="description" content="AI-powered security vulnerability detection and remediation">
+              <meta name="keywords" content="vulnerability management, security automation, AI security, threat detection, remediation">
+              <meta name="author" content="Robert Consulting">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>Intelligent Vulnerability Remediation - Wednesday</h1>
