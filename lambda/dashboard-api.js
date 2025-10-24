@@ -846,7 +846,7 @@ async function getVelocityStats() {
 /**
  * Main Lambda handler
  */
-exports.handler = async(event, context) => {
+exports.handler = async(event) => {
   try {
     console.log('Dashboard API request received:', JSON.stringify(event, null, 2));
 

@@ -1,6 +1,6 @@
-const {S3Client, PutObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
-const {CloudFormationClient, ListStacksCommand, DescribeStacksCommand} = require('@aws-sdk/client-cloudformation');
+const {CloudFormationClient} = require('@aws-sdk/client-cloudformation');
 const {Route53Client, ListHostedZonesCommand, ListResourceRecordSetsCommand} = require('@aws-sdk/client-route-53');
 const {S3Client: S3ListClient, ListBucketsCommand} = require('@aws-sdk/client-s3');
 const {CloudFrontClient, ListDistributionsCommand} = require('@aws-sdk/client-cloudfront');
@@ -13,7 +13,7 @@ const {IAMClient, ListRolesCommand, ListPoliciesCommand} = require('@aws-sdk/cli
 // AWS SDK clients
 const s3Client = new S3Client({region: 'us-east-1'});
 const secretsManagerClient = new SecretsManagerClient({region: 'us-east-1'});
-const cloudFormationClient = new CloudFormationClient({region: 'us-east-1'});
+// const cloudFormationClient = new CloudFormationClient({region: 'us-east-1'}); // Unused for now
 const route53Client = new Route53Client({region: 'us-east-1'});
 const s3ListClient = new S3ListClient({region: 'us-east-1'});
 const cloudFrontClient = new CloudFrontClient({region: 'us-east-1'});
@@ -50,7 +50,7 @@ async function countTerraformFiles() {
     console.log('📁 Counting Terraform files...');
 
     const githubToken = await getGitHubToken();
-    const username = 'Necron-99';
+    // const username = 'Necron-99'; // Unused for now
     const repo = 'robert-consulting.net';
 
     const headers = {
