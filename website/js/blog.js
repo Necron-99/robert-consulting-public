@@ -160,13 +160,19 @@ class BlogManager {
         
         // Set current week to the most recent
         this.currentWeek = this.availableWeeks[0];
+        
+        // Debug: Log week information
+        console.log('Available weeks:', this.availableWeeks);
+        console.log('Current week:', this.currentWeek);
+        console.log('Weekly posts:', this.weeklyPosts);
     }
     
     getWeekStart(date) {
-        const day = date.getDay();
-        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-        const weekStart = new Date(date.setDate(diff));
-        return weekStart;
+        const newDate = new Date(date); // Create a copy to avoid mutating original
+        const day = newDate.getDay();
+        const diff = newDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        newDate.setDate(diff);
+        return newDate;
     }
     
     formatWeekKey(date) {
