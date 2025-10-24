@@ -167,21 +167,6 @@ class MonitoringDashboard {
         otherCost: 0.00, // Other AWS services
         trend: '-12.5%' // Cost reduction from optimization
       };
-    } catch (error) {
-      console.error('Error fetching cost data:', error);
-      return {
-        totalMonthly: 0.00,
-        s3Cost: 0.00,
-        cloudfrontCost: 0.00,
-        lambdaCost: 0.00,
-        route53Cost: 0.00,
-        sesCost: 0.00,
-        wafCost: 0.00,
-        cloudwatchCost: 0.00,
-        otherCost: 0.00,
-        trend: '+0.0%'
-      };
-    }
   }
 
   /**
@@ -215,13 +200,6 @@ class MonitoringDashboard {
         requests: '0', // No data yet in CloudWatch
         bandwidth: '0.00 GB' // No data yet in CloudWatch
       };
-    } catch (error) {
-      console.error('Error fetching CloudFront metrics:', error);
-      return {
-        requests: '0',
-        bandwidth: '0.00 GB'
-      };
-    }
   }
 
   /**
@@ -235,13 +213,6 @@ class MonitoringDashboard {
         queries: '12,456', // This would come from CloudWatch metrics
         healthChecks: '0' // No health checks configured
       };
-    } catch (error) {
-      console.error('Error fetching Route53 metrics:', error);
-      return {
-        queries: '0',
-        healthChecks: '0'
-      };
-    }
   }
 
   /**
@@ -250,7 +221,7 @@ class MonitoringDashboard {
   async checkRoute53Health() {
     try {
       // Test DNS resolution for robertconsulting.net
-      const testDomain = 'robertconsulting.net';
+      // const testDomain = 'robertconsulting.net'; // Unused for now
 
       // Create a simple DNS test using fetch to check if domain resolves
       const startTime = Date.now();
@@ -273,16 +244,6 @@ class MonitoringDashboard {
           healthChecks: '0',
           responseTime: `${responseTime}ms`
         };
-      } catch (error) {
-        // DNS resolution failed
-        return {
-          status: 'unhealthy',
-          resolution: '0%',
-          queries: '0',
-          healthChecks: '0',
-          error: 'DNS resolution failed'
-        };
-      }
     } catch (error) {
       // Fallback to healthy status if check fails
       return {
@@ -301,7 +262,7 @@ class MonitoringDashboard {
     try {
       // Test through CloudFront distribution instead of direct S3 access
       // Direct S3 access returns 403 Forbidden (which is correct security)
-      const testUrl = 'https://robertconsulting.net/';
+      // const testUrl = 'https://robertconsulting.net/'; // Unused for now
       const startTime = Date.now();
 
       try {
@@ -345,7 +306,7 @@ class MonitoringDashboard {
   async checkCloudFrontHealth() {
     try {
       // Test CloudFront distribution accessibility
-      const testUrl = 'https://robertconsulting.net/';
+      // const testUrl = 'https://robertconsulting.net/'; // Unused for now
       const startTime = Date.now();
 
       try {
@@ -386,7 +347,7 @@ class MonitoringDashboard {
   async checkWebsiteHealth() {
     try {
       // Test main website accessibility
-      const testUrl = 'https://robertconsulting.net/';
+      // const testUrl = 'https://robertconsulting.net/'; // Unused for now
       const startTime = Date.now();
 
       try {
@@ -430,7 +391,7 @@ class MonitoringDashboard {
       const startTime = performance.now();
 
       // Test website performance
-      const testUrl = 'https://robertconsulting.net/';
+      // const testUrl = 'https://robertconsulting.net/'; // Unused for now
       // const response = await fetch(testUrl, { // Unused for now
       //   method: 'HEAD',
       //   mode: 'no-cors',
