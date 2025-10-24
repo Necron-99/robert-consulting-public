@@ -33,7 +33,9 @@ jobs:
           
       - name: Install dependencies
         run: |
-          npm install -g @aws-cli/aws-cli
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
           sudo apt-get update
           sudo apt-get install -y jq
           
@@ -57,9 +59,17 @@ jobs:
       - name: Generate blog content
         id: generate-content
         run: |
+          set -e  # Exit on any error
+          
           DAY="${{ steps.blog-day.outputs.day }}"
           DATE=$(date +%Y-%m-%d)
           BLOG_FILENAME="website/blog-posts/${DAY}-${DATE}.html"
+          
+          echo "🔍 Debug info:"
+          echo "  DAY: $DAY"
+          echo "  DATE: $DATE"
+          echo "  BLOG_FILENAME: $BLOG_FILENAME"
+          echo "  Script exists: $(ls -la scripts/generate-detailed-blog.sh)"
           
           # Set topic and focus based on day
           case "$DAY" in
@@ -94,8 +104,26 @@ jobs:
               ;;
           esac
           
+          echo "📝 Topic details:"
+          echo "  TOPIC: $TOPIC"
+          echo "  FOCUS: $FOCUS"
+          echo "  KEYWORDS: $KEYWORDS"
+          
+          # Create directory if it doesn't exist
+          mkdir -p website/blog-posts
+          
           # Use the external script to generate detailed content
+          echo "🚀 Running blog generation script..."
           ./scripts/generate-detailed-blog.sh "$DAY" "$TOPIC" "$FOCUS" "$KEYWORDS" "$DATE" "$BLOG_FILENAME"
+          
+          # Verify the file was created
+          if [ -f "$BLOG_FILENAME" ]; then
+            echo "✅ Blog file created successfully: $BLOG_FILENAME"
+            echo "📊 File size: $(wc -c < "$BLOG_FILENAME") bytes"
+          else
+            echo "❌ Blog file was not created!"
+            exit 1
+          fi
           
           echo "blog-generated=true" >> $GITHUB_OUTPUT
           echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
@@ -104,9 +132,17 @@ jobs:
       - name: Upload to S3
         if: steps.generate-content.outputs.blog-generated == 'true'
         run: |
+          set -e  # Exit on any error
+          
           BLOG_FILENAME="${{ steps.generate-content.outputs.blog-filename }}"
-          aws s3 cp "$BLOG_FILENAME" "s3://robert-consulting-website/blog-posts/"
-          echo "📤 Uploaded to S3: $BLOG_FILENAME"
+          
+          echo "📤 Uploading to S3: $BLOG_FILENAME"
+          echo "🔍 File exists: $(ls -la "$BLOG_FILENAME")"
+          
+          # Upload to S3
+          aws s3 cp "$BLOG_FILENAME" "s3://robert-consulting-website/blog-posts/" --debug
+          
+          echo "✅ Successfully uploaded to S3: $BLOG_FILENAME"
           
       - name: Invalidate CloudFront
         if: steps.generate-content.outputs.blog-generated == 'true'
