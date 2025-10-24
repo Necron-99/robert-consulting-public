@@ -89,78 +89,78 @@ jobs:
           # Create blog content based on day
           case "$current_day" in
             "monday")
-              cat > "$blog_filename" << 'EOF'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Services and Updates - Monday - Robert Consulting</title>
-    <meta name="description" content="Latest AWS services and updates to existing services">
-    <meta name="keywords" content="AWS, cloud services, updates, new features, AWS announcements">
-    <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
-</head>
-<body>
-    <article class="blog-post">
-        <header class="blog-header">
-            <h1>AWS Services and Updates - Monday</h1>
-            <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
-                <span class="blog-category">AWS Services</span>
-            </div>
-        </header>
-        
-        <div class="blog-content">
-            <h2>Latest AWS Services and Updates</h2>
-            <p>This week we're diving deep into the latest AWS services and updates that are shaping the cloud landscape. AWS continues to innovate at a rapid pace, introducing new services and enhancing existing ones to meet evolving enterprise needs.</p>
-            
-            <h3>New AWS Services</h3>
-            <p>Amazon has recently announced several new services that are worth exploring:</p>
-            <ul>
-                <li><strong>AWS Bedrock</strong> - A fully managed service for building and scaling generative AI applications</li>
-                <li><strong>AWS CodeCatalyst</strong> - A unified software development and delivery service</li>
-                <li><strong>AWS Application Composer</strong> - A visual builder for serverless applications</li>
-            </ul>
-            
-            <h3>Enhanced Existing Services</h3>
-            <p>Several existing AWS services have received significant updates:</p>
-            <ul>
-                <li><strong>Amazon EC2</strong> - New instance types with improved performance and cost efficiency</li>
-                <li><strong>AWS Lambda</strong> - Enhanced cold start performance and new runtime options</li>
-                <li><strong>Amazon RDS</strong> - New database engine versions and improved backup capabilities</li>
-            </ul>
-            
-            <h3>Impact on Cloud Infrastructure</h3>
-            <p>These updates and new services have significant implications for cloud infrastructure design and management. Organizations need to stay informed about these changes to optimize their cloud strategies and take advantage of new capabilities.</p>
-            
-            <h3>Best Practices for AWS Service Adoption</h3>
-            <ul>
-                <li>Evaluate new services against your specific use cases</li>
-                <li>Start with pilot projects to test new capabilities</li>
-                <li>Monitor AWS announcements and update your architecture accordingly</li>
-                <li>Consider the total cost of ownership when adopting new services</li>
-            </ul>
-            
-            <h3>Conclusion</h3>
-            <p>Staying current with AWS services and updates is crucial for maintaining competitive advantage in the cloud. Regular evaluation and adoption of new services can lead to improved efficiency, cost savings, and enhanced capabilities.</p>
-        </div>
-        
-        <footer class="blog-footer">
-            <div class="blog-tags">
-                <span class="tag">AWS</span>
-                <span class="tag">Cloud Services</span>
-                <span class="tag">Infrastructure</span>
-            </div>
-        </footer>
-    </article>
-</body>
-</html>
-EOF
+              cat > "$blog_filename" << 'BLOG_BLOG_EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>AWS Services and Updates - Monday - Robert Consulting</title>
+              <meta name="description" content="Latest AWS services and updates to existing services">
+              <meta name="keywords" content="AWS, cloud services, updates, new features, AWS announcements">
+              <meta name="author" content="Robert Consulting">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>AWS Services and Updates - Monday</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">$(date +%Y-%m-%d)</span>
+                          <span class="blog-category">AWS Services</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>Latest AWS Services and Updates</h2>
+                      <p>This week we're diving deep into the latest AWS services and updates that are shaping the cloud landscape. AWS continues to innovate at a rapid pace, introducing new services and enhancing existing ones to meet evolving enterprise needs.</p>
+                      
+                      <h3>New AWS Services</h3>
+                      <p>Amazon has recently announced several new services that are worth exploring:</p>
+                      <ul>
+                          <li><strong>AWS Bedrock</strong> - A fully managed service for building and scaling generative AI applications</li>
+                          <li><strong>AWS CodeCatalyst</strong> - A unified software development and delivery service</li>
+                          <li><strong>AWS Application Composer</strong> - A visual builder for serverless applications</li>
+                      </ul>
+                      
+                      <h3>Enhanced Existing Services</h3>
+                      <p>Several existing AWS services have received significant updates:</p>
+                      <ul>
+                          <li><strong>Amazon EC2</strong> - New instance types with improved performance and cost efficiency</li>
+                          <li><strong>AWS Lambda</strong> - Enhanced cold start performance and new runtime options</li>
+                          <li><strong>Amazon RDS</strong> - New database engine versions and improved backup capabilities</li>
+                      </ul>
+                      
+                      <h3>Impact on Cloud Infrastructure</h3>
+                      <p>These updates and new services have significant implications for cloud infrastructure design and management. Organizations need to stay informed about these changes to optimize their cloud strategies and take advantage of new capabilities.</p>
+                      
+                      <h3>Best Practices for AWS Service Adoption</h3>
+                      <ul>
+                          <li>Evaluate new services against your specific use cases</li>
+                          <li>Start with pilot projects to test new capabilities</li>
+                          <li>Monitor AWS announcements and update your architecture accordingly</li>
+                          <li>Consider the total cost of ownership when adopting new services</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>Staying current with AWS services and updates is crucial for maintaining competitive advantage in the cloud. Regular evaluation and adoption of new services can lead to improved efficiency, cost savings, and enhanced capabilities.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">AWS</span>
+                          <span class="tag">Cloud Services</span>
+                          <span class="tag">Infrastructure</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
+          BLOG_BLOG_EOF
               ;;
             "tuesday")
-              cat > "$blog_filename" << 'EOF'
-<!DOCTYPE html>
+              cat > "$blog_filename" << 'BLOG_BLOG_EOF'
+          <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -235,11 +235,11 @@ EOF
     </article>
 </body>
 </html>
-EOF
+BLOG_EOF
               ;;
             "wednesday")
-              cat > "$blog_filename" << 'EOF'
-<!DOCTYPE html>
+              cat > "$blog_filename" << 'BLOG_BLOG_EOF'
+          <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -323,11 +323,11 @@ EOF
     </article>
 </body>
 </html>
-EOF
+BLOG_EOF
               ;;
             "thursday")
-              cat > "$blog_filename" << 'EOF'
-<!DOCTYPE html>
+              cat > "$blog_filename" << 'BLOG_BLOG_EOF'
+          <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -416,11 +416,11 @@ EOF
     </article>
 </body>
 </html>
-EOF
+BLOG_EOF
               ;;
             "friday")
-              cat > "$blog_filename" << 'EOF'
-<!DOCTYPE html>
+              cat > "$blog_filename" << 'BLOG_BLOG_EOF'
+          <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -529,7 +529,7 @@ EOF
     </article>
 </body>
 </html>
-EOF
+BLOG_EOF
               ;;
           esac
           
