@@ -89,7 +89,7 @@ jobs:
           # Create blog content based on day
           case "$current_day" in
             "monday")
-              cat > "$blog_filename" << 'BLOG_EOF'
+              cat > "$blog_filename" << '          BLOG_EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -156,10 +156,10 @@ jobs:
               </article>
           </body>
           </html>
-          BLOG_EOF
+                    BLOG_EOF
               ;;
             "tuesday")
-              cat > "$blog_filename" << 'BLOG_EOF'
+              cat > "$blog_filename" << '          BLOG_EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -235,10 +235,10 @@ jobs:
               </article>
           </body>
           </html>
-BLOG_EOF
+          BLOG_EOF
               ;;
             "wednesday")
-              cat > "$blog_filename" << 'BLOG_EOF'
+              cat > "$blog_filename" << '          BLOG_EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -323,10 +323,10 @@ BLOG_EOF
               </article>
           </body>
           </html>
-BLOG_EOF
+          BLOG_EOF
               ;;
             "thursday")
-              cat > "$blog_filename" << 'BLOG_EOF'
+              cat > "$blog_filename" << '          BLOG_EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -416,10 +416,10 @@ BLOG_EOF
               </article>
           </body>
           </html>
-BLOG_EOF
+          BLOG_EOF
               ;;
             "friday")
-              cat > "$blog_filename" << 'BLOG_EOF'
+              cat > "$blog_filename" << '          BLOG_EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -529,7 +529,7 @@ BLOG_EOF
     </article>
 </body>
 </html>
-BLOG_EOF
+          BLOG_EOF
               ;;
           esac
           
