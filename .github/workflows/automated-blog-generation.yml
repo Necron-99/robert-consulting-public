@@ -328,120 +328,120 @@ BLOG_EOF
             "thursday")
               cat > "$blog_filename" << 'BLOG_EOF'
           <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenTofu Analysis - Thursday - Robert Consulting</title>
-    <meta name="description" content="Pros and cons of OpenTofu vs Terraform">
-    <meta name="keywords" content="OpenTofu, Terraform, infrastructure as code, open source, comparison">
-    <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
-</head>
-<body>
-    <article class="blog-post">
-        <header class="blog-header">
-            <h1>OpenTofu Analysis - Thursday</h1>
-            <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
-                <span class="blog-category">Infrastructure</span>
-            </div>
-        </header>
-        
-        <div class="blog-content">
-            <h2>OpenTofu vs Terraform: A Comprehensive Analysis</h2>
-            <p>OpenTofu has emerged as a significant alternative to Terraform, offering an open-source solution for infrastructure as code. This analysis explores the pros and cons of both tools.</p>
-            
-            <h3>What is OpenTofu?</h3>
-            <p>OpenTofu is an open-source fork of Terraform that was created in response to HashiCorp's license change. It maintains compatibility with Terraform while offering additional features and community-driven development.</p>
-            
-            <h3>Pros of OpenTofu</h3>
-            <h4>Open Source</h4>
-            <p>OpenTofu is fully open source with no licensing restrictions, providing complete freedom for commercial use.</p>
-            
-            <h4>Community Driven</h4>
-            <p>Development is driven by the community, ensuring features align with user needs rather than corporate priorities.</p>
-            
-            <h4>Terraform Compatibility</h4>
-            <p>OpenTofu maintains compatibility with Terraform configurations, making migration straightforward.</p>
-            
-            <h4>Enhanced Features</h4>
-            <p>OpenTofu includes additional features not available in Terraform, such as improved state management and enhanced provider support.</p>
-            
-            <h3>Cons of OpenTofu</h3>
-            <h4>Newer Ecosystem</h4>
-            <p>As a newer project, OpenTofu has a smaller ecosystem compared to Terraform's established community.</p>
-            
-            <h4>Provider Compatibility</h4>
-            <p>Some Terraform providers may not be immediately compatible with OpenTofu.</p>
-            
-            <h4>Enterprise Support</h4>
-            <p>Limited enterprise support options compared to HashiCorp's commercial offerings.</p>
-            
-            <h3>Migration Considerations</h3>
-            <p>Migrating from Terraform to OpenTofu involves:</p>
-            <ul>
-                <li>Updating tooling and CI/CD pipelines</li>
-                <li>Testing provider compatibility</li>
-                <li>Training team members</li>
-                <li>Updating documentation</li>
-            </ul>
-            
-            <h3>Use Case Recommendations</h3>
-            <p><strong>Choose OpenTofu if:</strong></p>
-            <ul>
-                <li>You need complete open-source freedom</li>
-                <li>You want community-driven development</li>
-                <li>You're starting a new project</li>
-            </ul>
-            
-            <p><strong>Stick with Terraform if:</strong></p>
-            <ul>
-                <li>You need enterprise support</li>
-                <li>You have complex existing infrastructure</li>
-                <li>You rely heavily on HashiCorp's ecosystem</li>
-            </ul>
-            
-            <h3>Conclusion</h3>
-            <p>Both OpenTofu and Terraform have their place in the infrastructure as code landscape. The choice depends on your specific needs, constraints, and priorities.</p>
-        </div>
-        
-        <footer class="blog-footer">
-            <div class="blog-tags">
-                <span class="tag">OpenTofu</span>
-                <span class="tag">Terraform</span>
-                <span class="tag">Infrastructure as Code</span>
-            </div>
-        </footer>
-    </article>
-</body>
-</html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>OpenTofu Analysis - Thursday - Robert Consulting</title>
+              <meta name="description" content="Pros and cons of OpenTofu vs Terraform">
+              <meta name="keywords" content="OpenTofu, Terraform, infrastructure as code, open source, comparison">
+              <meta name="author" content="Robert Consulting">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>OpenTofu Analysis - Thursday</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">$(date +%Y-%m-%d)</span>
+                          <span class="blog-category">Infrastructure</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
+                      <h2>OpenTofu vs Terraform: A Comprehensive Analysis</h2>
+                      <p>OpenTofu has emerged as a significant alternative to Terraform, offering an open-source solution for infrastructure as code. This analysis explores the pros and cons of both tools.</p>
+                      
+                      <h3>What is OpenTofu?</h3>
+                      <p>OpenTofu is an open-source fork of Terraform that was created in response to HashiCorp's license change. It maintains compatibility with Terraform while offering additional features and community-driven development.</p>
+                      
+                      <h3>Pros of OpenTofu</h3>
+                      <h4>Open Source</h4>
+                      <p>OpenTofu is fully open source with no licensing restrictions, providing complete freedom for commercial use.</p>
+                      
+                      <h4>Community Driven</h4>
+                      <p>Development is driven by the community, ensuring features align with user needs rather than corporate priorities.</p>
+                      
+                      <h4>Terraform Compatibility</h4>
+                      <p>OpenTofu maintains compatibility with Terraform configurations, making migration straightforward.</p>
+                      
+                      <h4>Enhanced Features</h4>
+                      <p>OpenTofu includes additional features not available in Terraform, such as improved state management and enhanced provider support.</p>
+                      
+                      <h3>Cons of OpenTofu</h3>
+                      <h4>Newer Ecosystem</h4>
+                      <p>As a newer project, OpenTofu has a smaller ecosystem compared to Terraform's established community.</p>
+                      
+                      <h4>Provider Compatibility</h4>
+                      <p>Some Terraform providers may not be immediately compatible with OpenTofu.</p>
+                      
+                      <h4>Enterprise Support</h4>
+                      <p>Limited enterprise support options compared to HashiCorp's commercial offerings.</p>
+                      
+                      <h3>Migration Considerations</h3>
+                      <p>Migrating from Terraform to OpenTofu involves:</p>
+                      <ul>
+                          <li>Updating tooling and CI/CD pipelines</li>
+                          <li>Testing provider compatibility</li>
+                          <li>Training team members</li>
+                          <li>Updating documentation</li>
+                      </ul>
+                      
+                      <h3>Use Case Recommendations</h3>
+                      <p><strong>Choose OpenTofu if:</strong></p>
+                      <ul>
+                          <li>You need complete open-source freedom</li>
+                          <li>You want community-driven development</li>
+                          <li>You're starting a new project</li>
+                      </ul>
+                      
+                      <p><strong>Stick with Terraform if:</strong></p>
+                      <ul>
+                          <li>You need enterprise support</li>
+                          <li>You have complex existing infrastructure</li>
+                          <li>You rely heavily on HashiCorp's ecosystem</li>
+                      </ul>
+                      
+                      <h3>Conclusion</h3>
+                      <p>Both OpenTofu and Terraform have their place in the infrastructure as code landscape. The choice depends on your specific needs, constraints, and priorities.</p>
+                  </div>
+                  
+                  <footer class="blog-footer">
+                      <div class="blog-tags">
+                          <span class="tag">OpenTofu</span>
+                          <span class="tag">Terraform</span>
+                          <span class="tag">Infrastructure as Code</span>
+                      </div>
+                  </footer>
+              </article>
+          </body>
+          </html>
 BLOG_EOF
               ;;
             "friday")
               cat > "$blog_filename" << 'BLOG_EOF'
           <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Market Analysis - Friday - Robert Consulting</title>
-    <meta name="description" content="Domo, OpenShift, and other platform players">
-    <meta name="keywords" content="Domo, OpenShift, platform comparison, enterprise platforms, market analysis">
-    <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
-</head>
-<body>
-    <article class="blog-post">
-        <header class="blog-header">
-            <h1>Platform Market Analysis - Friday</h1>
-            <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
-                <span class="blog-category">Platform Analysis</span>
-            </div>
-        </header>
-        
-        <div class="blog-content">
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Platform Market Analysis - Friday - Robert Consulting</title>
+              <meta name="description" content="Domo, OpenShift, and other platform players">
+              <meta name="keywords" content="Domo, OpenShift, platform comparison, enterprise platforms, market analysis">
+              <meta name="author" content="Robert Consulting">
+              <link rel="stylesheet" href="../css/blog.css">
+          </head>
+          <body>
+              <article class="blog-post">
+                  <header class="blog-header">
+                      <h1>Platform Market Analysis - Friday</h1>
+                      <div class="blog-meta">
+                          <span class="blog-date">$(date +%Y-%m-%d)</span>
+                          <span class="blog-category">Platform Analysis</span>
+                      </div>
+                  </header>
+                  
+                  <div class="blog-content">
             <h2>Enterprise Platform Market Analysis: Domo, OpenShift, and Beyond</h2>
             <p>The enterprise platform market is rapidly evolving, with new players and established vendors competing for market share. This analysis examines key platforms and their positioning in the market.</p>
             
