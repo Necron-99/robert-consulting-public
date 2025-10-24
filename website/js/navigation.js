@@ -1,7 +1,10 @@
 // Standardized Navigation JavaScript
 
+// Define hamburger at global scope
+let hamburger;
+
 document.addEventListener('DOMContentLoaded', function() {
-  const hamburger = document.getElementById('hamburger');
+  hamburger = document.getElementById('hamburger');
   const navMenu = document.getElementById('nav-menu');
   const navLinks = document.querySelectorAll('.nav-link');
 

@@ -410,7 +410,24 @@ class ConsolidatedLearningTopics {
       learning: 'status-learning',
       planned: 'status-planned'
     };
-    return statusMap[status] || 'status-default';
+    let statusClass;
+    switch (status) {
+      case 'active':
+        statusClass = 'status-active';
+        break;
+      case 'completed':
+        statusClass = 'status-completed';
+        break;
+      case 'learning':
+        statusClass = 'status-learning';
+        break;
+      case 'planned':
+        statusClass = 'status-planned';
+        break;
+      default:
+        statusClass = 'status-default';
+    }
+    return statusClass;
   }
 
   getStatusText(status) {
@@ -421,13 +438,33 @@ class ConsolidatedLearningTopics {
       learning: 'Learning',
       planned: 'Planned'
     };
-    return statusMap[status] || 'Unknown';
+    let statusText;
+    switch (status) {
+      case 'active':
+        statusText = 'Active';
+        break;
+      case 'completed':
+        statusText = 'Completed';
+        break;
+      case 'proficient':
+        statusText = 'Proficient';
+        break;
+      case 'learning':
+        statusText = 'Learning';
+        break;
+      case 'planned':
+        statusText = 'Planned';
+        break;
+      default:
+        statusText = 'Unknown';
+    }
+    return statusText;
   }
 
   updateStats() {
     const totalCategories = this.categories.length;
     const totalTopics = this.categories.reduce((sum, cat) => sum + cat.subTopics.length, 0);
-    const activeProjects = this.categories.filter(cat => cat.status === 'active').length;
+    // const activeProjects = this.categories.filter(cat => cat.status === 'active').length; // Unused for now
 
     const totalTopicsEl = document.getElementById('total-topics');
     const filteredTopicsEl = document.getElementById('filtered-topics');

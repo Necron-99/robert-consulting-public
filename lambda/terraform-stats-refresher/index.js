@@ -1,6 +1,6 @@
 const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
-const {CloudFormationClient} = require('@aws-sdk/client-cloudformation');
+// const {CloudFormationClient} = require('@aws-sdk/client-cloudformation'); // Unused for now
 const {Route53Client, ListHostedZonesCommand, ListResourceRecordSetsCommand} = require('@aws-sdk/client-route-53');
 const {S3Client: S3ListClient, ListBucketsCommand} = require('@aws-sdk/client-s3');
 const {CloudFrontClient, ListDistributionsCommand} = require('@aws-sdk/client-cloudfront');
@@ -50,7 +50,7 @@ async function countTerraformFiles() {
     console.log('📁 Counting Terraform files...');
 
     const githubToken = await getGitHubToken();
-    // const username = 'Necron-99'; // Unused for now
+    const username = 'Necron-99';
     const repo = 'robert-consulting.net';
 
     const headers = {

@@ -25,7 +25,7 @@ class BestPracticesManager {
         const checkboxes = document.querySelectorAll('.checklist-items input[type="checkbox"]');
         
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', () => {
                 this.updateChecklistProgress();
                 this.saveChecklistData();
                 this.showProgressNotification();
@@ -234,11 +234,12 @@ class BestPracticesManager {
             const checked = category.querySelectorAll('input[type="checkbox"]:checked');
             const categoryProgress = Math.round((checked.length / checkboxes.length) * 100);
             
-            exportData.categories[categoryName] = {
+            const categoryData = {
                 progress: categoryProgress,
                 completed: checked.length,
                 total: checkboxes.length
             };
+            exportData.categories[categoryName] = categoryData;
         });
         
         // Download as JSON

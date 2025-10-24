@@ -5,7 +5,7 @@
 
 const https = require('https');
 
-exports.handler = async(event) => {
+exports.handler = async() => {
   try {
     const username = 'Necron-99';
 
@@ -18,7 +18,7 @@ exports.handler = async(event) => {
     // Calculate statistics
     const totalStars = reposData.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     const totalForks = reposData.reduce((sum, repo) => sum + repo.forks_count, 0);
-    const publicRepos = reposData.filter(repo => !repo.private).length;
+    // const publicRepos = reposData.filter(repo => !repo.private).length; // Unused for now
 
     // Get recent activity (last 30 days)
     const thirtyDaysAgo = new Date();

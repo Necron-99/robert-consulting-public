@@ -80,7 +80,8 @@ class SecureAuth {
   validateSessionToken(token) {
     try {
       const decoded = atob(token);
-      const [timestamp, hash, random] = decoded.split('-');
+      const [timestamp] = decoded.split('-');
+      // const [timestamp, hash, random] = decoded.split('-'); // hash and random unused for now
       const tokenTime = parseInt(timestamp);
       const now = Date.now();
 
