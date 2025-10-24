@@ -39,7 +39,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🧹 Run S3 Cleanup Script
         id: cleanup-script
@@ -132,7 +132,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📊 Generate S3 Analytics
         run: |

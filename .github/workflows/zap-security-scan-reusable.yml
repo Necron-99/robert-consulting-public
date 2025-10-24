@@ -33,7 +33,7 @@ jobs:
       scan_passed: ${{ steps.scan.outputs.scan_passed }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🔍 OWASP ZAP Security Scan
         id: scan
