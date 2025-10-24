@@ -66,14 +66,14 @@ class BlogManager {
             },
             {
                 id: 5,
-                title: "Kubernetes CI/CD with ArgoCD: GitOps for Container Orchestration",
-                excerpt: "Learn how to implement GitOps workflows for Kubernetes using ArgoCD. Master automated deployments, rollbacks, and multi-environment management for containerized applications.",
-                content: "blog-posts/kubernetes-cicd-argocd-gitops.html",
+                title: "Advanced Kubernetes Security Patterns",
+                excerpt: "Learn enterprise-grade security patterns for Kubernetes clusters. Master RBAC, network policies, pod security standards, and advanced security controls for production environments.",
+                content: "blog-posts/kubernetes-security-patterns.html",
                 date: "2025-10-24", // Friday
                 category: "kubernetes",
-                tags: ["Kubernetes", "ArgoCD", "GitOps", "Container Orchestration", "CI/CD", "Deployment"],
-                icon: "☸️",
-                readTime: "11 min read"
+                tags: ["Kubernetes", "Security", "Enterprise", "RBAC", "Network Policies", "Pod Security"],
+                icon: "🔒",
+                readTime: "12 min read"
             },
             // Week of October 13-17, 2025 (Previous Week)
             {
