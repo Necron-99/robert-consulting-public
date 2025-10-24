@@ -217,12 +217,12 @@ class StatusLogicService {
      * Get status priority for sorting
      */
   getStatusPriority(status) {
-    const priorities = {
-      red: 4,
-      yellow: 3,
-      green: 2,
-      unknown: 1
-    };
+    // const priorities = { // Unused for now - replaced with switch statement
+    //   red: 4,
+    //   yellow: 3,
+    //   green: 2,
+    //   unknown: 1
+    // };
     let priority;
     switch (status) {
       case 'critical':
@@ -247,38 +247,38 @@ class StatusLogicService {
      * Get status description
      */
   getStatusDescription(stage, status) {
-    const descriptions = {
-      development: {
-        green: 'Development environment is healthy with all tests passing',
-        yellow: 'Development in progress with some tests running',
-        red: 'Development has critical issues requiring attention'
-      },
-      testing: {
-        green: 'All tests passing with good coverage',
-        yellow: 'Tests in progress or coverage below threshold',
-        red: 'Test failures detected requiring fixes'
-      },
-      staging: {
-        green: 'Staging environment is healthy and ready',
-        yellow: 'Staging environment has minor issues',
-        red: 'Staging environment has critical issues'
-      },
-      security: {
-        green: 'No security vulnerabilities detected',
-        yellow: 'Minor security issues requiring attention',
-        red: 'Critical security vulnerabilities detected'
-      },
-      deployment: {
-        green: 'Deployment completed successfully',
-        yellow: 'Deployment in progress',
-        red: 'Deployment failed or rolled back'
-      },
-      monitoring: {
-        green: 'All systems monitoring healthy',
-        yellow: 'Some monitoring alerts or performance issues',
-        red: 'Critical monitoring alerts or system issues'
-      }
-    };
+    // const descriptions = { // Unused for now - replaced with switch statements
+    //   development: {
+    //     green: 'Development environment is healthy with all tests passing',
+    //     yellow: 'Development in progress with some tests running',
+    //     red: 'Development has critical issues requiring attention'
+    //   },
+    //   testing: {
+    //     green: 'All tests passing with good coverage',
+    //     yellow: 'Tests in progress or coverage below threshold',
+    //     red: 'Test failures detected requiring fixes'
+    //   },
+    //   staging: {
+    //     green: 'Staging environment is healthy and ready',
+    //     yellow: 'Staging environment has minor issues',
+    //     red: 'Staging environment has critical issues'
+    //   },
+    //   security: {
+    //     green: 'No security vulnerabilities detected',
+    //     yellow: 'Minor security issues requiring attention',
+    //     red: 'Critical security vulnerabilities detected'
+    //   },
+    //   deployment: {
+    //     green: 'Deployment completed successfully',
+    //     yellow: 'Deployment in progress',
+    //     red: 'Deployment failed or rolled back'
+    //   },
+    //   monitoring: {
+    //     green: 'All systems monitoring healthy',
+    //     yellow: 'Some monitoring alerts or performance issues',
+    //     red: 'Critical monitoring alerts or system issues'
+    //   }
+    // };
 
     let description;
     if (stage === 'development') {
@@ -458,12 +458,12 @@ class StatusLogicService {
      * Get numeric score for status
      */
   getStatusScore(status) {
-    const scores = {
-      green: 100,
-      yellow: 60,
-      red: 0,
-      unknown: 30
-    };
+    // const scores = { // Unused for now - replaced with switch statement
+    //   green: 100,
+    //   yellow: 60,
+    //   red: 0,
+    //   unknown: 30
+    // };
     let score;
     switch (status) {
       case 'green':
@@ -514,11 +514,41 @@ class StatusLogicService {
       const previous = this.getStatusScore(previousStatus);
 
       if (current > previous) {
-        trends[stage] = 'improving';
+        switch (stage) {
+          case 'development':
+            trends.development = 'improving';
+            break;
+          case 'staging':
+            trends.staging = 'improving';
+            break;
+          case 'production':
+            trends.production = 'improving';
+            break;
+        }
       } else if (current < previous) {
-        trends[stage] = 'declining';
+        switch (stage) {
+          case 'development':
+            trends.development = 'declining';
+            break;
+          case 'staging':
+            trends.staging = 'declining';
+            break;
+          case 'production':
+            trends.production = 'declining';
+            break;
+        }
       } else {
-        trends[stage] = 'stable';
+        switch (stage) {
+          case 'development':
+            trends.development = 'stable';
+            break;
+          case 'staging':
+            trends.staging = 'stable';
+            break;
+          case 'production':
+            trends.production = 'stable';
+            break;
+        }
       }
     });
 
@@ -529,14 +559,14 @@ class StatusLogicService {
      * Validate stage data
      */
   validateStageData(stage, data) {
-    const requiredFields = {
-      development: ['tests', 'conflicts', 'lastCommit'],
-      testing: ['coverage', 'tests'],
-      staging: ['uptime', 'health'],
-      security: ['vulnerabilities', 'dependencies', 'compliance'],
-      deployment: ['status', 'verification'],
-      monitoring: ['uptime', 'responseTime', 'errorRate', 'alerts']
-    };
+    // const requiredFields = { // Unused for now - replaced with switch statement
+    //   development: ['tests', 'conflicts', 'lastCommit'],
+    //   testing: ['coverage', 'tests'],
+    //   staging: ['uptime', 'health'],
+    //   security: ['vulnerabilities', 'dependencies', 'compliance'],
+    //   deployment: ['status', 'verification'],
+    //   monitoring: ['uptime', 'responseTime', 'errorRate', 'alerts']
+    // };
 
     let fields;
     switch (stage) {

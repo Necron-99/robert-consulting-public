@@ -306,10 +306,10 @@ class MonitoringDashboard {
 
       try {
         // const response = await fetch(testUrl, { // Unused for now
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-cache'
-        });
+        //   method: 'HEAD',
+        //   mode: 'no-cors',
+        //   cache: 'no-cache'
+        // });
 
         const responseTime = Date.now() - startTime;
 
@@ -350,10 +350,10 @@ class MonitoringDashboard {
 
       try {
         // const response = await fetch(testUrl, { // Unused for now
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-cache'
-        });
+        //   method: 'HEAD',
+        //   mode: 'no-cors',
+        //   cache: 'no-cache'
+        // });
 
         const responseTime = Date.now() - startTime;
 
@@ -391,10 +391,10 @@ class MonitoringDashboard {
 
       try {
         // const response = await fetch(testUrl, { // Unused for now
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-cache'
-        });
+        //   method: 'HEAD',
+        //   mode: 'no-cors',
+        //   cache: 'no-cache'
+        // });
 
         const responseTime = Date.now() - startTime;
 

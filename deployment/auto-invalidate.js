@@ -114,6 +114,6 @@ if (require.main === module) {
     console.log('Usage:');
     console.log('  node auto-invalidate.js all');
     console.log('  node auto-invalidate.js files index.html learning.html');
-    console.log('  node auto-invalidate.js status I1ODCEPB8MEPURGPH0W0I2EFYO');
+    console.log('  node auto-invalidate.js status <distribution-id>');
   }
 }

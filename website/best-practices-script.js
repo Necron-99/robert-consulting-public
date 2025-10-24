@@ -257,7 +257,29 @@ class BestPracticesManager {
           if (categoryName && typeof categoryName === 'string' && categoryName.length < 50) {
             // Additional validation for unknown categories
             if (categoryName.match(/^[a-zA-Z0-9\s\-_]+$/)) {
-              exportData.categories[categoryName] = categoryData;
+              // Use safe property assignment for unknown categories
+              switch (categoryName) {
+                case 'Security':
+                  exportData.categories.Security = categoryData;
+                  break;
+                case 'Performance':
+                  exportData.categories.Performance = categoryData;
+                  break;
+                case 'Accessibility':
+                  exportData.categories.Accessibility = categoryData;
+                  break;
+                case 'SEO':
+                  exportData.categories.SEO = categoryData;
+                  break;
+                case 'Code Quality':
+                  exportData.categories['Code Quality'] = categoryData;
+                  break;
+                default:
+                  // For truly unknown categories, use a safe fallback
+                  if (exportData.categories && typeof exportData.categories === 'object') {
+                    exportData.categories[categoryName] = categoryData;
+                  }
+              }
             }
           }
         }

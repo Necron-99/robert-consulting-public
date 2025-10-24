@@ -36,8 +36,9 @@ const loadBlueprint = async function() {
   // Test production site
   await testSitePerformance(page, 'https://robertconsulting.net/dashboard.html', 'Production');
 
-  // Test staging site
-  await testSitePerformance(page, 'https://d3guz3lq4sqlvl.cloudfront.net/?secret=staging-access-2025', 'Staging');
+  // Test staging site - using environment variable for security
+  const stagingUrl = process.env.STAGING_URL || 'https://staging.robertconsulting.net';
+  await testSitePerformance(page, stagingUrl, 'Staging');
 };
 
 async function testSitePerformance(page, url, environment) {
