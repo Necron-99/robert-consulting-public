@@ -3,40 +3,7 @@
 # Detailed Blog Content Generator
 # This script generates comprehensive blog content based on the day and topic
 
-DAY="$1"
-TOPIC="$2"
-FOCUS="$3"
-KEYWORDS="$4"
-DATE="$5"
-OUTPUT_FILE="$6"
-
-if [ -z "$DAY" ] || [ -z "$TOPIC" ] || [ -z "$FOCUS" ] || [ -z "$KEYWORDS" ] || [ -z "$DATE" ] || [ -z "$OUTPUT_FILE" ]; then
-    echo "❌ Usage: $0 <day> <topic> <focus> <keywords> <date> <output_file>"
-    exit 1
-fi
-
-# Generate comprehensive blog content based on topic
-case "$TOPIC" in
-    "AWS Services and Updates")
-        generate_aws_content
-        ;;
-    "AIOps")
-        generate_aiops_content
-        ;;
-    "Intelligent Vulnerability Remediation")
-        generate_security_content
-        ;;
-    "OpenTofu Analysis")
-        generate_opentofu_content
-        ;;
-    "Platform Market Analysis")
-        generate_platform_content
-        ;;
-    *)
-        generate_generic_content
-        ;;
-esac
-
+# Function definitions
 generate_aws_content() {
     cat > "$OUTPUT_FILE" << 'EOF'
 <!DOCTYPE html>
@@ -453,3 +420,40 @@ generate_generic_content() {
 </html>
 EOF
 }
+
+# Main script logic
+DAY="$1"
+TOPIC="$2"
+FOCUS="$3"
+KEYWORDS="$4"
+DATE="$5"
+OUTPUT_FILE="$6"
+
+if [ -z "$DAY" ] || [ -z "$TOPIC" ] || [ -z "$FOCUS" ] || [ -z "$KEYWORDS" ] || [ -z "$DATE" ] || [ -z "$OUTPUT_FILE" ]; then
+    echo "❌ Usage: $0 <day> <topic> <focus> <keywords> <date> <output_file>"
+    exit 1
+fi
+
+# Generate comprehensive blog content based on topic
+case "$TOPIC" in
+    "AWS Services and Updates")
+        generate_aws_content
+        ;;
+    "AIOps")
+        generate_aiops_content
+        ;;
+    "Intelligent Vulnerability Remediation")
+        generate_security_content
+        ;;
+    "OpenTofu Analysis")
+        generate_opentofu_content
+        ;;
+    "Platform Market Analysis")
+        generate_platform_content
+        ;;
+    *)
+        generate_generic_content
+        ;;
+esac
+
+echo "✅ Blog content generated successfully: $OUTPUT_FILE"

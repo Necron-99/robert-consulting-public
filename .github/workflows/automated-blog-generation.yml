@@ -17,6 +17,11 @@ on:
           - wednesday
           - thursday
           - friday
+      dryrun:
+        description: 'Run in dry-run mode (no actual content creation)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   generate-blog:
@@ -62,11 +67,13 @@ jobs:
           DAY="${{ steps.blog-day.outputs.day }}"
           DATE=$(date +%Y-%m-%d)
           BLOG_FILENAME="website/blog-posts/${DAY}-${DATE}.html"
+          DRYRUN="${{ github.event.inputs.dryrun }}"
           
           echo "🔍 Debug info:"
           echo "  DAY: $DAY"
           echo "  DATE: $DATE"
           echo "  BLOG_FILENAME: $BLOG_FILENAME"
+          echo "  DRYRUN: $DRYRUN"
           echo "  Script exists: $(ls -la scripts/generate-detailed-blog.sh)"
           
           # Set topic and focus based on day
@@ -107,12 +114,24 @@ jobs:
           echo "  FOCUS: $FOCUS"
           echo "  KEYWORDS: $KEYWORDS"
           
+          if [ "$DRYRUN" = "true" ]; then
+            echo "🧪 DRY RUN MODE - No content will be created"
+            echo "📋 Would create: $BLOG_FILENAME"
+            echo "📋 Topic: $TOPIC"
+            echo "📋 Focus: $FOCUS"
+            echo "📋 Keywords: $KEYWORDS"
+            echo "✅ Dry run completed successfully"
+            echo "blog-generated=false" >> $GITHUB_OUTPUT
+            echo "blog-filename=dryrun" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
           # Create directory if it doesn't exist
           mkdir -p website/blog-posts
           
           # Use the external script to generate detailed content
           echo "🚀 Running blog generation script..."
-          ./scripts/generate-detailed-blog.sh "$DAY" "$TOPIC" "$FOCUS" "$KEYWORDS" "$DATE" "$BLOG_FILENAME"
+          bash scripts/generate-detailed-blog.sh "$DAY" "$TOPIC" "$FOCUS" "$KEYWORDS" "$DATE" "$BLOG_FILENAME"
           
           # Verify the file was created
           if [ -f "$BLOG_FILENAME" ]; then
