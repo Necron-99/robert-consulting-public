@@ -144,14 +144,14 @@ jobs:
           aws configure set default.region $AWS_REGION
           
           # Get bucket statistics
-          local total_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | wc -l || echo "0")
-          local total_size=$(aws s3 ls s3://$S3_BUCKET/ --recursive --summarize | grep "Total Size" | awk '{print $3}' || echo "0")
+          total_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | wc -l || echo "0")
+          total_size=$(aws s3 ls s3://$S3_BUCKET/ --recursive --summarize | grep "Total Size" | awk '{print $3}' || echo "0")
           
           # Get file type breakdown
-          local html_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.html$" | wc -l || echo "0")
-          local css_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.css$" | wc -l || echo "0")
-          local js_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.js$" | wc -l || echo "0")
-          local image_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.(jpg|jpeg|png|gif|svg)$" | wc -l || echo "0")
+          html_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.html$" | wc -l || echo "0")
+          css_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.css$" | wc -l || echo "0")
+          js_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.js$" | wc -l || echo "0")
+          image_files=$(aws s3 ls s3://$S3_BUCKET/ --recursive | grep -E "\.(jpg|jpeg|png|gif|svg)$" | wc -l || echo "0")
           
           # Create analytics report
           cat > s3-analytics-report.md << EOF
