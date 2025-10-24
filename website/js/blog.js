@@ -266,12 +266,21 @@ class BlogManager {
         this.updatePostCount(postsToShow.length);
     }
     
-    updateWeekDisplay(weekData) {
-        const weekDisplay = document.getElementById('current-week');
-        if (weekDisplay) {
-            weekDisplay.textContent = this.formatWeekDisplay(weekData.weekStart, weekData.weekEnd);
+        updateWeekDisplay(weekData) {
+            const weekDisplay = document.getElementById('current-week');
+            if (weekDisplay) {
+                // Show actual post date range instead of calendar week
+                const posts = weekData.posts;
+                if (posts.length > 0) {
+                    const dates = posts.map(post => new Date(post.date)).sort((a, b) => a - b);
+                    const startDate = dates[0];
+                    const endDate = dates[dates.length - 1];
+                    weekDisplay.textContent = this.formatWeekDisplay(startDate, endDate);
+                } else {
+                    weekDisplay.textContent = this.formatWeekDisplay(weekData.weekStart, weekData.weekEnd);
+                }
+            }
         }
-    }
     
     updateWeekNavigation() {
         const currentIndex = this.availableWeeks.indexOf(this.currentWeek);
@@ -314,7 +323,9 @@ class BlogManager {
     }
 
     formatDate(dateString) {
-        const date = new Date(dateString);
+        // Parse date as local time to avoid timezone issues
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
         return date.toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
