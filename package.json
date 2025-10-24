@@ -31,7 +31,7 @@
   "homepage": "https://github.com/Necron-99/robert-consulting-public#readme",
   "devDependencies": {
     "@eslint/js": "^9.38.0",
-    "eslint": "^8.0.0",
+    "eslint": "^9.38.0",
     "eslint-plugin-no-secrets": "^0.8.0",
     "eslint-plugin-security": "^1.7.0",
     "globals": "^16.4.0"
