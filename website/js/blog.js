@@ -233,7 +233,7 @@ class BlogManager {
 
     if (newIndex >= 0 && newIndex < this.availableWeeks.length) {
       const availableWeeks = this.availableWeeks;
-      const weekKey = availableWeeks[newIndex];
+      const weekKey = availableWeeks.at(newIndex);
       this.currentWeek = weekKey;
       this.renderPosts();
     }
