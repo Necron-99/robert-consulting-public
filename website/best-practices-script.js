@@ -275,9 +275,24 @@ class BestPracticesManager {
                   exportData.categories['Code Quality'] = categoryData;
                   break;
                 default:
-                  // For truly unknown categories, use a safe fallback
+                  // For truly unknown categories, use a safe fallback with additional validation
                   if (exportData.categories && typeof exportData.categories === 'object') {
-                    exportData.categories[categoryName] = categoryData;
+                    // Additional security validation for unknown categories
+                    if (categoryName && typeof categoryName === 'string' && 
+                        categoryName.length > 0 && categoryName.length < 50 &&
+                        /^[a-zA-Z0-9\s\-_]+$/.test(categoryName)) {
+                      // Use Object.defineProperty for safer assignment
+                      try {
+                        Object.defineProperty(exportData.categories, categoryName, {
+                          value: categoryData,
+                          writable: true,
+                          enumerable: true,
+                          configurable: true
+                        });
+                      } catch (error) {
+                        console.warn('Failed to assign category data safely:', error);
+                      }
+                    }
                   }
               }
             }

@@ -432,10 +432,10 @@ class MonitoringDashboard {
       // Test website performance
       const testUrl = 'https://robertconsulting.net/';
       // const response = await fetch(testUrl, { // Unused for now
-        method: 'HEAD',
-        mode: 'no-cors',
-        cache: 'no-cache'
-      });
+      //   method: 'HEAD',
+      //   mode: 'no-cors',
+      //   cache: 'no-cache'
+      // });
 
       const loadTime = performance.now() - startTime;
 
