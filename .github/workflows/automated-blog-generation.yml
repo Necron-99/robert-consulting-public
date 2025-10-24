@@ -61,7 +61,7 @@ jobs:
           DATE=$(date +%Y-%m-%d)
           BLOG_FILENAME="website/blog-posts/${DAY}-${DATE}.html"
           
-          # Create blog content based on day
+          # Set topic and focus based on day
           case "$DAY" in
             "monday")
               TOPIC="AWS Services and Updates"
@@ -94,56 +94,8 @@ jobs:
               ;;
           esac
           
-          # Generate HTML content
-          cat > "$BLOG_FILENAME" << 'BLOG_EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>$TOPIC - $DAY - Robert Consulting</title>
-              <meta name="description" content="$FOCUS">
-              <meta name="keywords" content="$KEYWORDS">
-              <meta name="author" content="Robert Consulting">
-              <link rel="stylesheet" href="../css/blog.css">
-          </head>
-          <body>
-              <article class="blog-post">
-                  <header class="blog-header">
-                      <h1>$TOPIC - $DAY</h1>
-                      <div class="blog-meta">
-                          <span class="blog-date">$DATE</span>
-                          <span class="blog-category">$TOPIC</span>
-                      </div>
-                  </header>
-                  
-                  <div class="blog-content">
-                      <h2>$TOPIC</h2>
-                      <p>$FOCUS</p>
-                      
-                      <h3>Key Points</h3>
-                      <ul>
-                          <li>Comprehensive analysis and insights</li>
-                          <li>Industry best practices and trends</li>
-                          <li>Practical implementation guidance</li>
-                          <li>Future outlook and recommendations</li>
-                      </ul>
-                      
-                      <h3>Conclusion</h3>
-                      <p>Stay tuned for detailed analysis and insights on $TOPIC.</p>
-                  </div>
-                  
-                  <footer class="blog-footer">
-                      <div class="blog-tags">
-                          <span class="tag">$TOPIC</span>
-                          <span class="tag">Technology</span>
-                          <span class="tag">Analysis</span>
-                      </div>
-                  </footer>
-              </article>
-          </body>
-          </html>
-          BLOG_EOF
+          # Use the external script to generate detailed content
+          ./scripts/generate-detailed-blog.sh "$DAY" "$TOPIC" "$FOCUS" "$KEYWORDS" "$DATE" "$BLOG_FILENAME"
           
           echo "blog-generated=true" >> $GITHUB_OUTPUT
           echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
