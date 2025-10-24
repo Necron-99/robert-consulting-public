@@ -54,7 +54,9 @@ class EasterEgg {
     }
 
     for (let i = 0; i < this.userInput.length; i++) {
-      if (this.userInput[i] !== this.konamiCode[i]) {
+      const userKey = this.userInput[i];
+      const expectedKey = this.konamiCode[i];
+      if (userKey !== expectedKey) {
         return false;
       }
     }
