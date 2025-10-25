@@ -18,5 +18,12 @@ module "baileylessons" {
   
   # Admin credentials (will be imported from existing)
   admin_basic_auth_username = "bailey_admin"
-  admin_basic_auth_password = "BaileySecure2025!"
+  admin_basic_auth_password = var.baileylessons_admin_password
+}
+
+# Variable for baileylessons admin password
+variable "baileylessons_admin_password" {
+  description = "Admin basic auth password for baileylessons"
+  type        = string
+  sensitive   = true
 }

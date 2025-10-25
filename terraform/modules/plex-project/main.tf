@@ -141,6 +141,7 @@ resource "aws_lambda_function" "plex_analyzer" {
   runtime       = "python3.9"
   handler       = "index.handler"
   role          = aws_iam_role.plex_lambda_role.arn
+  filename      = "lambda/plex-analyzer.zip"
 
   tags = {
     Name        = "Plex Recommendations Analyzer"
