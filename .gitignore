@@ -227,6 +227,58 @@ waf-rules-*.json
 daily-learning-log.md
 
 # =============================================================================
+# GENERATED REPORTS AND ANALYSIS
+# =============================================================================
+
+# Infrastructure analysis reports
+*_ANALYSIS_REPORT.md
+*_CLEANUP_REPORT.md
+*_CLEANUP_SUMMARY.md
+*_CLEANUP_PLAN.md
+*_VERIFICATION_REPORT.md
+*_COMPLETION_REPORT.md
+*_MIGRATION_SUMMARY.md
+*_IMPLEMENTATION.md
+*_SOLUTION.md
+*_STRATEGY.md
+*_SUMMARY.md
+*_OVERVIEW.md
+*_PLAN.md
+
+# Terraform reports
+terraform-drift-report-*.md
+terraform-import-plan.md
+terraform-infrastructure-verification-plan.md
+terraform-security-remediation-plan.md
+terraform-state-comparison.md
+
+# Security assessment reports
+security-assessment-report-*.md
+security-vulnerability-assessment-plan.md
+
+# Workflow and audit reports
+WORKFLOW_AUDIT_REPORT.md
+CI-CD-PIPELINE-OVERVIEW.md
+
+# Phase reports
+PHASE*_VERIFICATION_REPORT.md
+PHASE*_COMPLETION_REPORT.md
+
+# State management reports
+STATE_LOCK_ISSUE_ANALYSIS.md
+TERRAFORM_STATE_*.md
+
+# Infrastructure management reports
+infrastructure-management-*.md
+comprehensive-infrastructure-cleanup-plan.md
+deployment-ready-summary.md
+
+# Project-specific reports
+PLEX_RECOMMENDATIONS_*.md
+PUBLIC_REPOSITORY_ANALYSIS_REPORT.md
+FINAL_CLEANUP_REPORT.md
+
+# =============================================================================
 # TEST AND TEMPORARY FILES
 # =============================================================================
 
@@ -239,6 +291,18 @@ plex-stats-response.json
 # Temporary deployment files
 *-deployment-*.json
 *-temp-*.json
+
+# Test directories
+test-backend/
+test-backend-clean/
+test-*/
+
+# Temporary scripts
+fix_*.sh
+eslint-errors.json
+
+# Cleanup plan files
+REPOSITORY_CLEANUP_PLAN.md
 
 # =============================================================================
 # SEPARATE PROJECTS
@@ -266,3 +330,70 @@ response*.json
 
 # Test artifacts
 response*.json
+# Secure .gitignore additions
+# Prevents accidental commits of sensitive files
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# State backups
+.terraform-state-backups/
+
+# Secure scripts directory
+.secure-scripts/
+
+# Environment files with secrets
+.env
+.env.*
+*.env
+secrets/
+credentials/
+
+# AWS credentials
+.aws/
+aws-credentials
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Certificates
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# Database dumps
+*.sql
+*.dump
+
+# Log files with potential secrets
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Scripts with potential secrets (add specific files here)
+# deploy-with-secrets.sh
+# production-deploy.sh
+# staging-deploy.sh

@@ -189,11 +189,17 @@ resource "aws_api_gateway_deployment" "stats_refresher_deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.stats_refresher_api.id
-  stage_name  = "prod"
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+# API Gateway stage
+resource "aws_api_gateway_stage" "stats_refresher_stage" {
+  deployment_id = aws_api_gateway_deployment.stats_refresher_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.stats_refresher_api.id
+  stage_name    = "prod"
 }
 
 # Data source for current AWS account ID (already defined in state-management.tf)
@@ -229,7 +235,7 @@ output "stats_refresher_lambda_arn" {
 
 output "stats_refresher_api_url" {
   description = "URL of the stats refresher API Gateway"
-  value       = "${aws_api_gateway_deployment.stats_refresher_deployment.invoke_url}/refresh-stats"
+  value       = "${aws_api_gateway_stage.stats_refresher_stage.invoke_url}/refresh-stats"
 }
 
 output "github_token_secret_name" {

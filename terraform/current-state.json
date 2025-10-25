@@ -1,0 +1,8 @@
+{
+  "version": 4,
+  "terraform_version": "1.13.3",
+  "serial": 1,
+  "lineage": "new-lineage",
+  "outputs": {},
+  "resources": []
+}

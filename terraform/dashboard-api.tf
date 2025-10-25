@@ -174,15 +174,21 @@ resource "aws_api_gateway_deployment" "dashboard_api_deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.dashboard_api.id
-  stage_name  = "prod"
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
+# API Gateway stage
+resource "aws_api_gateway_stage" "dashboard_api_stage" {
+  deployment_id = aws_api_gateway_deployment.dashboard_api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.dashboard_api.id
+  stage_name    = "prod"
+}
+
 # Output the API Gateway URL
 output "dashboard_api_url" {
   description = "Dashboard API Gateway URL"
-  value       = "${aws_api_gateway_deployment.dashboard_api_deployment.invoke_url}/dashboard-data"
+  value       = "${aws_api_gateway_stage.dashboard_api_stage.invoke_url}/dashboard-data"
 }

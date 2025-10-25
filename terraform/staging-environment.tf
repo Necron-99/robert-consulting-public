@@ -391,30 +391,32 @@ resource "aws_acm_certificate" "staging_ssl_cert" {
 }
 
 # DNS validation for SSL certificate
-resource "aws_route53_record" "staging_ssl_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.staging_ssl_cert.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# Temporarily commented out to allow imports
+# resource "aws_route53_record" "staging_ssl_validation" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.staging_ssl_cert.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.main.zone_id
-}
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = aws_route53_zone.main.zone_id
+# }
 
 # SSL certificate validation
-resource "aws_acm_certificate_validation" "staging_ssl_cert" {
-  provider = aws.us_east_1
-
-  certificate_arn         = aws_acm_certificate.staging_ssl_cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.staging_ssl_validation : record.fqdn]
-}
+# Temporarily commented out to allow imports
+# resource "aws_acm_certificate_validation" "staging_ssl_cert" {
+#   provider = aws.us_east_1
+#
+#   certificate_arn         = aws_acm_certificate.staging_ssl_cert.arn
+#   validation_record_fqdns = [for record in aws_route53_record.staging_ssl_validation : record.fqdn]
+# }
 
 # Route53 record for staging domain
 resource "aws_route53_record" "staging_domain" {
