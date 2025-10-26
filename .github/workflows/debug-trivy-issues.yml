@@ -1,0 +1,39 @@
+name: 🔍 Debug Trivy Issues
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  debug-alerts:
+    name: 🔍 Debug Code Scanning Alerts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v5
+
+      - name: 🔍 Get Alerts and Debug Structure
+        run: |
+          echo "🔍 Fetching Code Scanning alerts..."
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
+          echo "📊 Found $(jq length alerts.json) alerts"
+          
+          echo "🔍 First alert structure:"
+          jq '.[0]' alerts.json
+          
+          echo "🔍 Available fields:"
+          jq '.[0] | keys' alerts.json
+          
+          echo "🔍 Rule structure:"
+          jq '.[0].rule' alerts.json
+          
+          echo "🔍 Tool structure:"
+          jq '.[0].tool' alerts.json
