@@ -63,15 +63,17 @@ jobs:
             
             if [ -z "$existing" ]; then
               echo "Creating test issue..."
-              gh issue create \
-                --title "🧪 TEST: $severity: $rule_name" \
-                --body "This is a test issue created by the Trivy Issue Creator workflow.
+              body_text="This is a test issue created by the Trivy Issue Creator workflow.
 
 **Severity:** $severity
 **Tool:** $tool
 **Rule:** $rule_name
 
-This is a test to verify the workflow is working correctly." \
+This is a test to verify the workflow is working correctly."
+              
+              gh issue create \
+                --title "🧪 TEST: $severity: $rule_name" \
+                --body "$body_text" \
                 --label "test,security,$severity,$tool,automated" || echo "Failed to create test issue"
             else
               echo "Test issue already exists: #$existing"
