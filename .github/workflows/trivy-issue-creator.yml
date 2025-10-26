@@ -69,9 +69,7 @@ jobs:
                 echo "📝 Creating issue for: $rule_name ($severity)"
                 
                 # Create issue with simple body
-                gh issue create \
-                  --title "🔒 $severity: $rule_name" \
-                  --body "**Severity:** $severity
+                body_text="**Severity:** $severity
 **Tool:** $tool
 **Occurrences:** $count
 
@@ -83,7 +81,11 @@ $description
 - [ ] Test changes in staging
 - [ ] Deploy to production
 
-*Auto-created from Code Scanning alerts*" \
+*Auto-created from Code Scanning alerts*"
+                
+                gh issue create \
+                  --title "🔒 $severity: $rule_name" \
+                  --body "$body_text" \
                   --label "security,$severity,$tool,automated" || echo "Failed to create issue for $rule_name"
               else
                 echo "ℹ️ Issue already exists for $rule_name (#$existing)"
