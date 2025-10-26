@@ -53,7 +53,7 @@ jobs:
               
               if [ -z "$existing" ]; then
                 echo "Creating issue for: $rule_name ($severity)"
-                gh issue create --title "🔒 $severity: $rule_name" --body "Severity: $severity\nTool: $tool\nRule: $rule_name\n\nAuto-created from Code Scanning alerts" --label "security,$tool,automated" || echo "Failed to create issue"
+                gh issue create --title "🔒 $severity: $rule_name" --body "Severity: $severity\nTool: $tool\nRule: $rule_name\n\nAuto-created from Code Scanning alerts" --label "security,automated" || echo "Failed to create issue"
               else
                 echo "Issue already exists for $rule_name (#$existing)"
               fi
