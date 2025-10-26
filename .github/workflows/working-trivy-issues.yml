@@ -44,7 +44,7 @@ jobs:
       - name: 🤖 Create Issues
         run: |
           if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
-            jq -r '.[]' findings.json | while read -r finding; do
+            jq -c '.' findings.json | while read -r finding; do
               rule_name=$(echo "$finding" | jq -r '.rule_name')
               severity=$(echo "$finding" | jq -r '.severity')
               tool=$(echo "$finding" | jq -r '.tool')
