@@ -30,8 +30,16 @@ jobs:
 
       - name: 🎯 Process Findings
         run: |
+          echo "Processing findings..."
           jq -s '.[] | select(.rule.security_severity_level == "critical" or .rule.security_severity_level == "high") | {rule_name: .rule.name, severity: .rule.security_severity_level, tool: .tool.name}' alerts.json > findings.json
           echo "Found $(jq length findings.json) high/critical findings"
+          
+          if [ -f "findings.json" ]; then
+            echo "findings.json exists, content:"
+            cat findings.json
+          else
+            echo "findings.json does not exist"
+          fi
 
       - name: 🤖 Create Issues
         run: |
