@@ -1,0 +1,79 @@
+---
+description: Core project rules and guidelines for Robert Consulting Infrastructure Framework
+globs: ["**/*"]
+tags: [project-rules, infrastructure, security, terraform, aws]
+priority: 1
+version: 1.0.0
+alwaysApply: true
+---
+
+# Robert Consulting Infrastructure Framework - Core Rules
+
+## Context
+This is a production-ready serverless infrastructure framework for Robert Consulting that provides complete AWS infrastructure-as-code with built-in security, monitoring, and cost optimization.
+
+**Core Principles**: High Security, High Maintainability, Low Cost
+
+## Requirements
+
+### Security Standards
+- **Zero tolerance for high/critical security vulnerabilities**
+- All changes must pass comprehensive security scanning (Semgrep, ESLint, Trivy, CodeQL, OWASP ZAP)
+- Follow AWS security best practices: encryption, least privilege, monitoring
+- Use existing security tools and workflows in `.github/workflows/`
+
+### Code Quality
+- **Zero ESLint errors** - all code must pass linting
+- Follow existing patterns - don't reinvent the wheel
+- Use existing scripts in `scripts/` directory
+- Follow naming conventions: kebab-case for files
+- Update documentation with all changes
+
+### Infrastructure Standards
+- **Use Terraform modules** - don't create resources directly
+- Follow existing patterns in `terraform/modules/`
+- Always run `terraform plan` before applying
+- Use staging environment for testing
+- Document all infrastructure changes
+
+### Deployment Process
+1. **Staging first** - all changes go to staging
+2. **Security gates** - comprehensive security scanning
+3. **Quality gates** - code quality and functionality tests
+4. **Production** - manual approval required
+5. **Rollback** - automated rollback on failure
+
+## Key Directories
+- `docs/` - All documentation
+- `scripts/` - Automation scripts
+- `terraform/` - Infrastructure as Code
+- `website/` - Main website content
+- `admin/` - Admin site and client management
+- `.github/workflows/` - CI/CD pipelines
+
+## Examples
+
+<example>
+Good: Using existing deployment script
+```bash
+./scripts/deploy-admin-site.sh
+```
+</example>
+
+<example type="invalid">
+Bad: Creating new deployment process instead of using existing scripts
+</example>
+
+<example>
+Good: Following Terraform module pattern
+```hcl
+module "client_site" {
+  source = "./modules/client-site"
+  # ... configuration
+}
+```
+</example>
+
+<example type="invalid">
+Bad: Creating AWS resources directly in main.tf instead of using modules
+</example>

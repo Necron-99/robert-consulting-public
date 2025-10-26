@@ -1,0 +1,125 @@
+---
+description: JavaScript and Node.js coding standards for the project
+globs: ["**/*.js", "**/*.ts", "**/*.json"]
+tags: [javascript, nodejs, eslint, code-quality]
+priority: 1
+version: 1.0.0
+---
+
+# JavaScript Standards
+
+## Context
+This project uses vanilla JavaScript with Node.js for Lambda functions and build tools. All code must follow strict quality and security standards.
+
+## Requirements
+
+### Code Quality
+- **Zero ESLint errors** - all code must pass linting
+- Use ES modules (`"type": "module"` in package.json)
+- Follow camelCase naming conventions
+- Use single quotes for strings
+- Always use curly braces for control structures
+
+### Security Standards
+- No hardcoded secrets or credentials
+- Use environment variables or AWS Secrets Manager
+- Validate all inputs and sanitize outputs
+- Follow security best practices for Lambda functions
+
+### Node.js Standards
+- **Node.js 18+ required** for Lambda functions
+- Use async/await instead of callbacks
+- Implement proper error handling
+- Use TypeScript for complex Lambda functions
+
+### ESLint Rules
+- **Security**: `eslint-plugin-security`, `eslint-plugin-no-secrets`
+- **Code Quality**: `camelCase`, `curly braces`, `single quotes`
+- **Best Practices**: `no-unused-vars`, `no-undef`, `no-console`
+
+### Lambda Function Standards
+- Use appropriate memory allocation (256MB default)
+- Implement proper timeout settings
+- Use X-Ray tracing for debugging
+- Follow AWS Lambda best practices
+
+## Examples
+
+<example>
+Good: Secure Lambda function
+```javascript
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
+
+const secretsClient = new SecretsManagerClient({ region: 'us-east-1' });
+
+export const handler = async (event) => {
+  try {
+    // Get credentials from Secrets Manager
+    const secret = await secretsClient.send(new GetSecretValueCommand({
+      SecretId: process.env.ADMIN_SECRET_ARN
+    }));
+    
+    const credentials = JSON.parse(secret.SecretString);
+    
+    // Process the request securely
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true })
+    };
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal server error' })
+    };
+  }
+};
+```
+</example>
+
+<example type="invalid">
+Bad: Hardcoded credentials
+```javascript
+export const handler = async (event) => {
+  const username = 'admin';
+  const password = 'admin123'; // NEVER DO THIS
+  
+  // Process request
+  return { statusCode: 200 };
+};
+```
+</example>
+
+<example>
+Good: Proper error handling
+```javascript
+export const handler = async (event) => {
+  try {
+    const result = await processRequest(event);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result)
+    };
+  } catch (error) {
+    console.error('Handler error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        message: error.message 
+      })
+    };
+  }
+};
+```
+</example>
+
+<example type="invalid">
+Bad: No error handling
+```javascript
+export const handler = async (event) => {
+  const result = await processRequest(event); // Could throw
+  return { statusCode: 200, body: JSON.stringify(result) };
+};
+```
+</example>

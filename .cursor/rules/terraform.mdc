@@ -1,0 +1,110 @@
+---
+description: Terraform standards and best practices for infrastructure as code
+globs: ["**/*.tf", "**/*.tfvars", "**/*.tf.example"]
+tags: [terraform, infrastructure, aws, iac]
+priority: 1
+version: 1.0.0
+---
+
+# Terraform Standards
+
+## Context
+All infrastructure must be managed through Terraform with consistent patterns and security best practices.
+
+## Requirements
+
+### Module Usage
+- **Always use Terraform modules** - don't create resources directly
+- Follow existing patterns in `terraform/modules/`
+- Create reusable modules for common patterns
+- Document all module variables and outputs
+
+### State Management
+- Use S3 backend with DynamoDB locking
+- Never commit state files to version control
+- Use consistent state file naming
+- Implement state locking for team collaboration
+
+### Resource Standards
+- **Consistent tagging**: All resources tagged with `Name`, `Environment`, `Project`, `ManagedBy`
+- Use data sources for existing resources
+- Implement proper variable validation
+- Document all resource configurations
+
+### Security Standards
+- No hardcoded credentials in Terraform files
+- Use variables for sensitive data
+- Implement least privilege IAM policies
+- Enable encryption for all storage resources
+
+### Testing & Validation
+- Always run `terraform plan` before applying
+- Use staging environment for testing
+- Validate configurations with `terraform validate`
+- Test module changes in isolation
+
+## Examples
+
+<example>
+Good: Using existing module
+```hcl
+module "client_site" {
+  source = "./modules/client-site"
+  
+  client_name   = "example-client"
+  client_domain = "example.com"
+  environment   = "production"
+  
+  tags = {
+    Name        = "Example Client Site"
+    Environment = "production"
+    Project     = "client-management"
+    ManagedBy   = "Terraform"
+  }
+}
+```
+</example>
+
+<example type="invalid">
+Bad: Creating resources directly
+```hcl
+resource "aws_s3_bucket" "client_bucket" {
+  bucket = "example-client-bucket"
+  # Should use module instead
+}
+```
+</example>
+
+<example>
+Good: Secure variable usage
+```hcl
+variable "admin_password" {
+  description = "Admin password for basic auth"
+  type        = string
+  sensitive   = true
+}
+
+resource "aws_secretsmanager_secret" "admin_credentials" {
+  name = "admin-credentials"
+  
+  secret_string = jsonencode({
+    username = "admin"
+    password = var.admin_password
+  })
+}
+```
+</example>
+
+<example type="invalid">
+Bad: Hardcoded sensitive data
+```hcl
+resource "aws_secretsmanager_secret" "admin_credentials" {
+  name = "admin-credentials"
+  
+  secret_string = jsonencode({
+    username = "admin"
+    password = "hardcoded-password" # NEVER DO THIS
+  })
+}
+```
+</example>

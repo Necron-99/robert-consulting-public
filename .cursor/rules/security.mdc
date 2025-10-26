@@ -1,0 +1,84 @@
+---
+description: Security standards and best practices for Robert Consulting Infrastructure Framework
+globs: ["**/*.tf", "**/*.js", "**/*.ts", "**/*.sh", "**/*.yml", "**/*.yaml"]
+tags: [security, aws, terraform, javascript, ci-cd]
+priority: 1
+version: 1.0.0
+---
+
+# Security Standards
+
+## Context
+Security is paramount in this infrastructure framework. All changes must maintain or improve security posture.
+
+## Requirements
+
+### Security-First Approach
+- **Zero tolerance for high/critical security vulnerabilities**
+- All code must pass security scanning before deployment
+- Use existing security tools: Semgrep, ESLint, Trivy, CodeQL, OWASP ZAP
+- Follow AWS security best practices
+
+### AWS Security Standards
+- **S3**: Server-side encryption (AES256), versioning, public access blocked
+- **CloudFront**: OAC for S3 access, HTTPS redirect, TLS 1.2+ minimum
+- **Lambda**: X-Ray tracing enabled, least privilege IAM roles
+- **Secrets**: AWS Secrets Manager for sensitive data
+- **WAF**: Protection enabled for all public-facing resources
+
+### Code Security
+- No hardcoded secrets or credentials
+- Use environment variables or AWS Secrets Manager
+- Validate all inputs and sanitize outputs
+- Follow OWASP security guidelines
+
+### Authentication & Access Control
+- Basic Auth for admin access via CloudFront Functions
+- IP restrictions for sensitive operations
+- Session management with JWT tokens
+- Audit logging for all admin actions
+
+## Examples
+
+<example>
+Good: Using AWS Secrets Manager
+```javascript
+const secret = await secretsManager.getSecretValue({
+  SecretId: 'admin-credentials'
+}).promise();
+```
+</example>
+
+<example type="invalid">
+Bad: Hardcoded credentials
+```javascript
+const password = "admin123"; // NEVER DO THIS
+```
+</example>
+
+<example>
+Good: Secure S3 bucket configuration
+```hcl
+resource "aws_s3_bucket" "secure_bucket" {
+  bucket = "secure-bucket"
+  
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+```
+</example>
+
+<example type="invalid">
+Bad: Public S3 bucket
+```hcl
+resource "aws_s3_bucket" "public_bucket" {
+  bucket = "public-bucket"
+  # No encryption or access controls
+}
+```
+</example>

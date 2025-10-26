@@ -1,0 +1,133 @@
+---
+description: Documentation standards and requirements for the project
+globs: ["**/*.md", "**/README*", "**/docs/**"]
+tags: [documentation, markdown, guides, reports]
+priority: 1
+version: 1.0.0
+---
+
+# Documentation Standards
+
+## Context
+Comprehensive documentation is essential for maintaining this infrastructure framework. All changes must include proper documentation.
+
+## Requirements
+
+### Documentation Structure
+- **docs/guides/**: Setup and configuration guides
+- **docs/reports/**: Analysis and summary reports
+- **docs/deployment/**: Deployment documentation
+- **docs/security/**: Security documentation
+- **docs/infrastructure/**: Infrastructure documentation
+
+### Documentation Requirements
+- **README.md**: Required for all major directories
+- **Clear examples**: Code examples and usage instructions
+- **Version information**: Keep documentation current
+- **Security notes**: Document security considerations
+
+### Markdown Standards
+- Use clear headings and structure
+- Include code examples with syntax highlighting
+- Use tables for structured data
+- Include links to related documentation
+- Keep line length reasonable (80-120 characters)
+
+### Content Standards
+- **Clear explanations**: Explain the "why" not just the "what"
+- **Step-by-step instructions**: Provide actionable guidance
+- **Troubleshooting**: Include common issues and solutions
+- **Security considerations**: Document security implications
+- **Update frequency**: Keep documentation current with changes
+
+## Examples
+
+<example>
+Good: Clear documentation structure
+```markdown
+# Feature Name
+
+## Overview
+Brief description of what this feature does and why it's important.
+
+## Prerequisites
+- List of requirements
+- Dependencies
+- Permissions needed
+
+## Configuration
+Step-by-step configuration instructions.
+
+## Usage
+```bash
+# Example command
+./scripts/example-script.sh
+```
+
+## Security Considerations
+- Security implications
+- Best practices
+- Potential risks
+
+## Troubleshooting
+Common issues and solutions.
+```
+</example>
+
+<example type="invalid">
+Bad: Minimal documentation
+```markdown
+# Feature
+This does stuff.
+```
+</example>
+
+<example>
+Good: Comprehensive README
+```markdown
+# Module Name
+
+## Purpose
+This module provides [specific functionality] for the Robert Consulting Infrastructure Framework.
+
+## Features
+- Feature 1: Description
+- Feature 2: Description
+- Feature 3: Description
+
+## Usage
+```hcl
+module "example" {
+  source = "./modules/example"
+  
+  variable1 = "value1"
+  variable2 = "value2"
+}
+```
+
+## Variables
+| Name | Description | Type | Default |
+|------|-------------|------|---------|
+| variable1 | Description | string | "default" |
+| variable2 | Description | number | 0 |
+
+## Outputs
+| Name | Description |
+|------|-------------|
+| output1 | Description |
+| output2 | Description |
+
+## Security
+- Security considerations
+- Best practices
+- Compliance notes
+```
+</example>
+
+<example type="invalid">
+Bad: Incomplete documentation
+```markdown
+# Module
+Use this module.
+```
+</example>

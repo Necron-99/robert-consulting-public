@@ -1,0 +1,105 @@
+---
+description: Deployment and CI/CD standards for the project
+globs: ["**/*.yml", "**/*.yaml", "**/*.sh", "**/deploy-*"]
+tags: [deployment, ci-cd, github-actions, staging, production]
+priority: 1
+version: 1.0.0
+---
+
+# Deployment Standards
+
+## Context
+All deployments must follow a strict staging-to-production pipeline with comprehensive security and quality gates.
+
+## Requirements
+
+### Deployment Pipeline
+1. **Staging first** - all changes go to staging
+2. **Security gates** - comprehensive security scanning
+3. **Quality gates** - code quality and functionality tests
+4. **Production** - manual approval required
+5. **Rollback** - automated rollback on failure
+
+### Environment Management
+- **Staging**: `d3guz3lq4sqlvl.cloudfront.net`
+- **Production**: `robertconsulting.net`
+- **Admin**: `admin.robertconsulting.net`
+- **Client Sites**: Separate CloudFront distributions
+
+### Security Gates
+- **Zero high/critical security vulnerabilities**
+- All security scans must pass (Semgrep, ESLint, Trivy, CodeQL, OWASP ZAP)
+- No hardcoded secrets or credentials
+- All AWS resources properly secured
+
+### Quality Gates
+- **Zero ESLint errors**
+- All tests passing
+- Documentation updated
+- Code follows project standards
+
+### GitHub Actions Workflows
+- Use existing workflows in `.github/workflows/`
+- Follow established patterns for security scanning
+- Implement proper error handling and rollback
+- Use appropriate permissions (least privilege)
+
+## Examples
+
+<example>
+Good: Using existing deployment script
+```bash
+# Deploy to staging first
+./scripts/deploy-staging-environment.sh
+
+# After testing, deploy to production
+./scripts/deploy-admin-site.sh
+```
+</example>
+
+<example type="invalid">
+Bad: Direct production deployment
+```bash
+# NEVER deploy directly to production
+aws s3 sync . s3://production-bucket
+```
+</example>
+
+<example>
+Good: Proper workflow structure
+```yaml
+name: Deploy to Staging
+on:
+  push:
+    branches: [staging]
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run security scan
+        run: ./scripts/security-scan.sh
+  deploy:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging
+        run: ./scripts/deploy-staging-environment.sh
+```
+</example>
+
+<example type="invalid">
+Bad: No security gates
+```yaml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy directly
+        run: aws s3 sync . s3://production-bucket
+```
+</example>
