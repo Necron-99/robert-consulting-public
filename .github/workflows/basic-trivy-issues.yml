@@ -1,0 +1,74 @@
+name: 🔒 Basic Trivy Issues
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  create-issues:
+    name: 🔍 Create Issues from Trivy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v5
+
+      - name: 🔍 Get Alerts
+        run: |
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
+          echo "Found $(jq length alerts.json) alerts"
+
+      - name: 🎯 Process Findings
+        run: |
+          jq -r '
+            group_by(.rule.name) | 
+            map(select(.[0].rule.severity == "CRITICAL" or .[0].rule.severity == "ERROR" or .[0].rule.severity == "WARNING")) |
+            .[] | 
+            {
+              rule_name: .[0].rule.name,
+              severity: .[0].rule.severity,
+              count: length,
+              tool: .[0].tool.name
+            }
+          ' alerts.json > findings.json
+          echo "Found $(jq length findings.json) unique findings"
+
+      - name: 🤖 Create Issues
+        run: |
+          if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
+            jq -r '.[]' findings.json | while read -r finding; do
+              rule_name=$(echo "$finding" | jq -r '.rule_name')
+              severity=$(echo "$finding" | jq -r '.severity')
+              count=$(echo "$finding" | jq -r '.count')
+              tool=$(echo "$finding" | jq -r '.tool')
+              
+              existing=$(gh issue list --search "in:title \"$rule_name\"" --state open --json number --jq '.[0].number // empty')
+              
+              if [ -z "$existing" ]; then
+                echo "Creating issue for: $rule_name ($severity)"
+                gh issue create --title "🔒 $severity: $rule_name" --body "Severity: $severity\nTool: $tool\nOccurrences: $count\n\nAuto-created from Code Scanning alerts" --label "security,$severity,$tool,automated" || echo "Failed to create issue"
+              else
+                echo "Issue already exists for $rule_name (#$existing)"
+              fi
+            done
+          fi
+
+      - name: 📊 Summary
+        run: |
+          echo "Summary:"
+          if [ -f "findings.json" ]; then
+            echo "Total findings: $(jq length findings.json)"
+            echo "Critical: $(jq '[.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length' findings.json)"
+            echo "High: $(jq '[.[] | select(.severity == "WARNING")] | length' findings.json)"
+          fi
+          echo "Open security issues: $(gh issue list --label "security" --state open --json number | jq length)"
