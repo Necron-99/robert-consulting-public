@@ -1,0 +1,321 @@
+name: 🔄 Hybrid Security Management System
+
+on:
+  schedule:
+    # Run every 4 hours to check for new critical/high findings
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      severity_filter:
+        description: 'Minimum severity to process'
+        required: true
+        default: 'high'
+        type: choice
+        options:
+          - critical
+          - high
+          - medium
+          - low
+      create_issues:
+        description: 'Create GitHub Issues for findings'
+        required: true
+        default: true
+        type: boolean
+  push:
+    branches: [main, staging]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  # Monitor Code Scanning alerts and create Issues for critical/high findings
+  code-scanning-monitor:
+    name: 🔍 Monitor Code Scanning Alerts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+      pull-requests: read
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 🔍 Get Code Scanning Alerts
+        id: get-alerts
+        run: |
+          echo "🔍 Fetching Code Scanning alerts..."
+          
+          # Get all open code scanning alerts
+          gh api graphql -f query='
+            query($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                vulnerabilityAlerts(first: 100, states: [OPEN]) {
+                  nodes {
+                    id
+                    number
+                    state
+                    createdAt
+                    dismissedAt
+                    securityVulnerability {
+                      severity
+                      package {
+                        name
+                      }
+                    }
+                    securityAdvisory {
+                      summary
+                      description
+                      severity
+                      identifiers {
+                        type
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ' -f owner=${{ github.repository_owner }} -f repo=${{ github.event.repository.name }} > code-scanning-alerts.json
+          
+          # Also get code scanning results (SARIF uploads)
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > sarif-alerts.json
+          
+          echo "📊 Found $(jq length code-scanning-alerts.json) vulnerability alerts"
+          echo "📊 Found $(jq length sarif-alerts.json) SARIF alerts"
+
+      - name: 🎯 Process Critical/High Findings
+        id: process-findings
+        run: |
+          echo "🎯 Processing critical and high severity findings..."
+          
+          # Set minimum severity (default: high)
+          MIN_SEVERITY="${{ github.event.inputs.severity_filter || 'high' }}"
+          CREATE_ISSUES="${{ github.event.inputs.create_issues || 'true' }}"
+          
+          # Process SARIF alerts (Trivy, Semgrep, etc.)
+          if [ -f "sarif-alerts.json" ] && [ "$(jq length sarif-alerts.json)" -gt 0 ]; then
+            echo "🔍 Processing SARIF alerts..."
+            
+            # Filter for critical/high severity and group by rule
+            jq -r --arg min_severity "$MIN_SEVERITY" '
+              group_by(.rule.name) | 
+              map(select(.[0].rule.severity as $sev | 
+                ($sev == "CRITICAL" or $sev == "ERROR") or 
+                ($min_severity == "high" and $sev == "WARNING") or
+                ($min_severity == "medium" and ($sev == "WARNING" or $sev == "NOTE")) or
+                ($min_severity == "low")
+              )) |
+              .[] | 
+              {
+                rule_name: .[0].rule.name,
+                severity: .[0].rule.severity,
+                count: length,
+                files: [.[] | .most_recent_instance.location.physical_location.artifact_location.uri] | unique,
+                first_seen: (.[] | .created_at) | min,
+                last_seen: (.[] | .created_at) | max,
+                tool: .[0].tool.name,
+                description: .[0].rule.description
+              }
+            ' sarif-alerts.json > processed-findings.json
+            
+            echo "📊 Processed $(jq length processed-findings.json) unique findings"
+          fi
+
+      - name: 🤖 Create Issues for Critical/High Findings
+        if: github.event.inputs.create_issues != 'false'
+        run: |
+          echo "🤖 Creating Issues for critical/high findings..."
+          
+          if [ -f "processed-findings.json" ] && [ "$(jq length processed-findings.json)" -gt 0 ]; then
+            jq -r '.[]' processed-findings.json | while read -r finding; do
+              rule_name=$(echo "$finding" | jq -r '.rule_name')
+              severity=$(echo "$finding" | jq -r '.severity')
+              count=$(echo "$finding" | jq -r '.count')
+              tool=$(echo "$finding" | jq -r '.tool')
+              description=$(echo "$finding" | jq -r '.description')
+              files=$(echo "$finding" | jq -r '.files | join(", ")')
+              
+              # Check if issue already exists for this rule
+              existing_issue=$(gh issue list --search "in:title \"$rule_name\"" --state open --json number --jq '.[0].number // empty')
+              
+              if [ -z "$existing_issue" ]; then
+                echo "📝 Creating issue for: $rule_name ($severity)"
+                
+                # Create issue body
+                issue_body="## 🔍 Security Finding Details
+                
+**Rule:** \`$rule_name\`
+**Severity:** \`$severity\`
+**Tool:** $tool
+**Occurrences:** $count
+**Files Affected:** $files
+
+### 📋 Description
+$description
+
+### 🔧 Remediation Steps
+- [ ] Review the affected files
+- [ ] Implement recommended security fixes
+- [ ] Test changes in staging environment
+- [ ] Deploy to production after validation
+
+### 🏷️ Labels
+- security
+- $severity
+- $tool
+- automated
+
+---
+*This issue was automatically created from Code Scanning alerts by the Hybrid Security Management System*"
+                
+                # Create the issue
+                gh issue create \
+                  --title "🔒 $severity: $rule_name" \
+                  --body "$issue_body" \
+                  --label "security,$severity,$tool,automated" \
+                  --assignee "$GITHUB_ACTOR" || echo "⚠️ Failed to create issue for $rule_name"
+              else
+                echo "ℹ️ Issue already exists for $rule_name (#$existing_issue)"
+              fi
+            done
+          fi
+
+      - name: 📊 Generate Security Summary
+        run: |
+          echo "📊 Security Management Summary:"
+          echo "================================"
+          
+          if [ -f "processed-findings.json" ]; then
+            total_findings=$(jq length processed-findings.json)
+            critical_findings=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length' processed-findings.json)
+            high_findings=$(jq '[.[] | select(.severity == "WARNING")] | length' processed-findings.json)
+            
+            echo "🔍 Total Unique Findings: $total_findings"
+            echo "🚨 Critical/Error Findings: $critical_findings"
+            echo "⚠️ High/Warning Findings: $high_findings"
+            echo ""
+            echo "📋 Findings by Tool:"
+            jq -r 'group_by(.tool) | .[] | "- \(.[0].tool): \(length) findings"' processed-findings.json
+          fi
+          
+          echo ""
+          echo "📈 Open Security Issues:"
+          gh issue list --label "security" --state open --json number,title,labels | jq -r '.[] | "- #\(.number): \(.title)"'
+
+  # Monitor and sync with existing Issues
+  issue-sync:
+    name: 🔄 Sync with Existing Issues
+    runs-on: ubuntu-latest
+    needs: code-scanning-monitor
+    permissions:
+      contents: read
+      issues: write
+      security-events: read
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 🔄 Update Issue Status from Code Scanning
+        run: |
+          echo "🔄 Syncing issue status with Code Scanning alerts..."
+          
+          # Get all open security issues
+          gh issue list --label "security" --state open --json number,title,labels > open-security-issues.json
+          
+          # Check each issue against current Code Scanning alerts
+          jq -r '.[] | .number' open-security-issues.json | while read -r issue_number; do
+            issue_title=$(gh issue view "$issue_number" --json title --jq '.title')
+            
+            # Extract rule name from issue title
+            rule_name=$(echo "$issue_title" | sed -E 's/^🔒 (CRITICAL|ERROR|WARNING|NOTE): //')
+            
+            # Check if this rule still has open alerts
+            if [ -f "sarif-alerts.json" ]; then
+              still_open=$(jq -r --arg rule "$rule_name" '[.[] | select(.rule.name == $rule and .state == "open")] | length' sarif-alerts.json)
+              
+              if [ "$still_open" -eq 0 ]; then
+                echo "✅ Rule '$rule_name' appears to be resolved, updating issue #$issue_number"
+                gh issue comment "$issue_number" --body "✅ **Status Update:** This security finding appears to have been resolved in Code Scanning. Please verify and close this issue if the remediation is complete."
+              else
+                echo "ℹ️ Rule '$rule_name' still has $still_open open alerts"
+              fi
+            fi
+          done
+
+  # Generate comprehensive security report
+  security-report:
+    name: 📊 Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [code-scanning-monitor, issue-sync]
+    if: always()
+    permissions:
+      contents: read
+      security-events: read
+      issues: read
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Generate Comprehensive Security Report
+        run: |
+          echo "📊 Generating comprehensive security report..."
+          
+          # Create report
+          cat > security-report.md << 'EOF'
+          # 🔒 Security Management Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref_name }}
+          
+          ## 📈 Code Scanning Status
+          
+          ### Open Alerts by Severity
+          EOF
+          
+          # Add Code Scanning statistics
+          if [ -f "sarif-alerts.json" ]; then
+            echo "### SARIF Alerts" >> security-report.md
+            echo "- **Total Open:** $(jq length sarif-alerts.json)" >> security-report.md
+            echo "- **Critical/Error:** $(jq '[.[] | select(.rule.severity == "CRITICAL" or .rule.severity == "ERROR")] | length' sarif-alerts.json)" >> security-report.md
+            echo "- **High/Warning:** $(jq '[.[] | select(.rule.severity == "WARNING")] | length' sarif-alerts.json)" >> security-report.md
+            echo "- **Medium/Note:** $(jq '[.[] | select(.rule.severity == "NOTE")] | length' sarif-alerts.json)" >> security-report.md
+            echo "" >> security-report.md
+          fi
+          
+          # Add Issue statistics
+          echo "## 🎯 GitHub Issues Status" >> security-report.md
+          echo "" >> security-report.md
+          
+          open_issues=$(gh issue list --label "security" --state open --json number | jq length)
+          closed_issues=$(gh issue list --label "security" --state closed --json number | jq length)
+          
+          echo "- **Open Security Issues:** $open_issues" >> security-report.md
+          echo "- **Closed Security Issues:** $closed_issues" >> security-report.md
+          echo "" >> security-report.md
+          
+          # Add recent findings
+          echo "## 🔍 Recent Critical/High Findings" >> security-report.md
+          echo "" >> security-report.md
+          
+          if [ -f "processed-findings.json" ]; then
+            jq -r '.[] | select(.severity == "CRITICAL" or .severity == "ERROR" or .severity == "WARNING") | "- **\(.rule_name)** (\(.severity)) - \(.count) occurrences in \(.files | length) files"' processed-findings.json >> security-report.md
+          fi
+          
+          echo "" >> security-report.md
+          echo "## 🎯 Recommendations" >> security-report.md
+          echo "" >> security-report.md
+          echo "- Review and prioritize critical/error findings" >> security-report.md
+          echo "- Implement security fixes in staging before production" >> security-report.md
+          echo "- Consider setting up security policies to prevent new critical findings" >> security-report.md
+          
+          # Display report
+          cat security-report.md
+          
+          # Upload as artifact
+          echo "📤 Uploading security report..."
+          # Note: This would need to be in a separate step with upload-artifact action

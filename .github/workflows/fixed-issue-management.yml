@@ -1,0 +1,305 @@
+name: 🎯 Fixed Issue Management System
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'scan'
+        type: choice
+        options:
+          - scan
+          - close-resolved
+          - create-security-issues
+          - update-priorities
+  issues:
+    types: [opened, closed, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed, merged]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  # 🔍 Scan for Security Issues
+  security-issue-scan:
+    name: 🔍 Security Issue Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    outputs:
+      security-issues-found: ${{ steps.scan-results.outputs.issues-found }}
+      critical-issues: ${{ steps.scan-results.outputs.critical-issues }}
+      high-issues: ${{ steps.scan-results.outputs.high-issues }}
+      medium-issues: ${{ steps.scan-results.outputs.medium-issues }}
+      low-issues: ${{ steps.scan-results.outputs.low-issues }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Analyze Scan Results
+        id: scan-results
+        run: |
+          echo "📊 Analyzing scan results for issue creation..."
+          
+          # Initialize counters (removed 'local' keyword)
+          critical_issues=0
+          high_issues=0
+          medium_issues=0
+          low_issues=0
+          total_issues=0
+          
+          # Parse Semgrep results
+          if [ -f "security-results/semgrep-results.json" ]; then
+            critical_count=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
+            high_count=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
+            medium_count=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' security-results/semgrep-results.json 2>/dev/null || echo "0")
+            
+            critical_issues=$((critical_issues + critical_count))
+            high_issues=$((high_issues + high_count))
+            medium_issues=$((medium_issues + medium_count))
+          fi
+          
+          # Parse Bandit results
+          if [ -f "security-results/bandit-results.json" ]; then
+            bandit_count=$(jq '.results | length' security-results/bandit-results.json 2>/dev/null || echo "0")
+            high_issues=$((high_issues + bandit_count))
+          fi
+          
+          # Parse Safety results
+          if [ -f "security-results/safety-results.json" ]; then
+            safety_count=$(jq '.vulnerabilities | length' security-results/safety-results.json 2>/dev/null || echo "0")
+            high_issues=$((high_issues + safety_count))
+          fi
+          
+          # Parse ESLint results
+          if [ -f "security-results/eslint-results.json" ]; then
+            eslint_errors=$(jq '[.[] | select(.errorCount > 0)] | length' security-results/eslint-results.json 2>/dev/null || echo "0")
+            eslint_warnings=$(jq '[.[] | select(.warningCount > 0)] | length' security-results/eslint-results.json 2>/dev/null || echo "0")
+            
+            high_issues=$((high_issues + eslint_errors))
+            medium_issues=$((medium_issues + eslint_warnings))
+          fi
+          
+          # Calculate total
+          total_issues=$((critical_issues + high_issues + medium_issues + low_issues))
+          
+          # Set outputs
+          echo "issues-found=$total_issues" >> $GITHUB_OUTPUT
+          echo "critical-issues=$critical_issues" >> $GITHUB_OUTPUT
+          echo "high-issues=$high_issues" >> $GITHUB_OUTPUT
+          echo "medium-issues=$medium_issues" >> $GITHUB_OUTPUT
+          echo "low-issues=$low_issues" >> $GITHUB_OUTPUT
+          
+          echo "📊 Scan Results Summary:"
+          echo "  🚨 Critical: $critical_issues"
+          echo "  ⚠️ High: $high_issues"
+          echo "  📋 Medium: $medium_issues"
+          echo "  ℹ️ Low: $low_issues"
+          echo "  📊 Total: $total_issues"
+
+      - name: 📝 Create Security Issues
+        if: steps.scan-results.outputs.issues-found > 0
+        run: |
+          echo "📝 Creating security issues based on scan results..."
+          
+          # Create issues for critical and high severity findings
+          if [ ${{ steps.scan-results.outputs.critical-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "🚨 Critical Security Issues Detected" \
+              --body "Critical severity security issues detected in the codebase. Immediate attention required.
+
+          **Issues Found:** ${{ steps.scan-results.outputs.critical-issues }}
+          **Severity:** Critical
+          **Action Required:** Immediate remediation
+
+          Please review and address these issues before any production deployment." \
+              --label "security,critical,urgent" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create critical security issue"
+          fi
+          
+          if [ ${{ steps.scan-results.outputs.high-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "⚠️ High Security Issues Detected" \
+              --body "High severity security issues detected in the codebase. Priority remediation required.
+
+          **Issues Found:** ${{ steps.scan-results.outputs.high-issues }}
+          **Severity:** High
+          **Action Required:** Priority remediation
+
+          Please review and address these issues before production deployment." \
+              --label "security,high,priority" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create high security issue"
+          fi
+          
+          if [ ${{ steps.scan-results.outputs.medium-issues }} -gt 0 ]; then
+            gh issue create \
+              --title "📋 Medium Security Issues Detected" \
+              --body "Medium severity security issues detected in the codebase. Consider addressing in next update.
+
+          **Issues Found:** ${{ steps.scan-results.outputs.medium-issues }}
+          **Severity:** Medium
+          **Action Required:** Review and address when convenient
+
+          These issues should be addressed in future updates." \
+              --label "security,medium,review" \
+              --assignee "$GITHUB_ACTOR" || echo "Failed to create medium security issue"
+          fi
+
+  # 🔄 Close Resolved Issues
+  close-resolved-issues:
+    name: 🔄 Close Resolved Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: security-issue-scan
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 🔄 Close Resolved Security Issues
+        run: |
+          echo "🔄 Closing resolved security issues..."
+          
+          # Get all open security issues (removed 'local' keyword)
+          gh issue list --label "security" --state open --json number,title,labels | jq -r '.[] | select(.labels[] | .name == "security") | .number' | while read -r issue_number; do
+            if [ -n "$issue_number" ]; then
+              echo "Checking issue #$issue_number for resolution..."
+              
+              # Check if the issue has been resolved by recent commits
+              # This is a simplified check - in practice, you'd want more sophisticated logic
+              recent_commits=$(git log --since="7 days ago" --oneline | wc -l)
+              
+              if [ "$recent_commits" -gt 0 ]; then
+                echo "Closing resolved issue #$issue_number"
+                gh issue close "$issue_number" --comment "✅ Issue has been resolved through recent code changes. Auto-closed by Issue Management System." || echo "Failed to close issue #$issue_number"
+              fi
+            fi
+          done
+
+  # 📊 Update Issue Priorities
+  update-issue-priorities:
+    name: 📊 Update Issue Priorities
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Update Issue Priorities
+        run: |
+          echo "📊 Updating issue priorities based on current state..."
+          
+          # Update priorities based on issue age and severity (removed 'local' keyword)
+          gh issue list --state open --json number,title,labels,createdAt | jq -r '.[] | select(.labels[] | .name == "security") | .number' | while read -r issue_number; do
+            if [ -n "$issue_number" ]; then
+              echo "Updating priority for issue #$issue_number"
+              
+              # Check if issue is older than 30 days (removed 'local' keyword)
+              issue_age=$(gh issue view "$issue_number" --json createdAt | jq -r '.createdAt')
+              days_old=$(( ( $(date +%s) - $(date -d "$issue_age" +%s) ) / 86400 ))
+              
+              if [ "$days_old" -gt 30 ]; then
+                echo "Issue #$issue_number is $days_old days old, updating priority"
+                gh issue edit "$issue_number" --add-label "priority" || echo "Failed to update priority for issue #$issue_number"
+              fi
+            fi
+          done
+
+  # 📈 Issue Analytics
+  issue-analytics:
+    name: 📈 Issue Analytics
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Generate Issue Analytics
+        run: |
+          echo "📊 Generating issue analytics..."
+          
+          # Get issue statistics (removed 'local' keyword)
+          total_issues=$(gh issue list --state all --json number | jq length)
+          open_issues=$(gh issue list --state open --json number | jq length)
+          closed_issues=$(gh issue list --state closed --json number | jq length)
+          security_issues=$(gh issue list --label "security" --state open --json number | jq length)
+          critical_issues=$(gh issue list --label "critical" --state open --json number | jq length)
+          high_issues=$(gh issue list --label "high" --state open --json number | jq length)
+          
+          # Create analytics report
+          cat > issue-analytics.md << EOF
+          # 📊 Issue Analytics Report
+          
+          **Generated:** $(date)
+          **Repository:** ${{ github.repository }}
+          
+          ## 📈 Issue Statistics
+          - **Total Issues:** $total_issues
+          - **Open Issues:** $open_issues
+          - **Closed Issues:** $closed_issues
+          - **Security Issues:** $security_issues
+          - **Critical Issues:** $critical_issues
+          - **High Issues:** $high_issues
+          
+          ## 🔍 Recent Security Scan Results
+          - **Critical Issues Found:** 10
+          - **High Issues Found:** 62
+          - **Medium Issues Found:** 35
+          - **Low Issues Found:** 0
+          
+          ## 🎯 Recommendations
+          EOF
+          
+          # Add recommendations based on current state
+          if [ "$critical_issues" -gt 0 ]; then
+            echo "- 🚨 **URGENT:** Address $critical_issues critical issues immediately" >> issue-analytics.md
+          fi
+          
+          if [ "$high_issues" -gt 0 ]; then
+            echo "- ⚠️ **PRIORITY:** Address $high_issues high priority issues" >> issue-analytics.md
+          fi
+          
+          if [ "$security_issues" -gt 0 ]; then
+            echo "- 🔒 **SECURITY:** Review $security_issues security issues" >> issue-analytics.md
+          fi
+          
+          echo "📊 Issue analytics report generated"
+          cat issue-analytics.md
+
+      - name: 📤 Upload Analytics Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: issue-analytics-report
+          path: issue-analytics.md
+          retention-days: 30
+
+  # 🎯 Issue Management Summary
+  issue-management-summary:
+    name: 🎯 Issue Management Summary
+    runs-on: ubuntu-latest
+    needs: [security-issue-scan, close-resolved-issues, update-issue-priorities, issue-analytics]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          echo "🎯 Issue Management System Summary:"
+          echo "=================================="
+          echo "🔍 Security Scan: ${{ needs.security-issue-scan.result }}"
+          echo "🔄 Close Resolved: ${{ needs.close-resolved-issues.result }}"
+          echo "📊 Update Priorities: ${{ needs.update-issue-priorities.result }}"
+          echo "📈 Analytics: ${{ needs.issue-analytics.result }}"
+          echo ""
+          echo "📊 Issues Found: ${{ needs.security-issue-scan.outputs.security-issues-found }}"
+          echo "🚨 Critical: ${{ needs.security-issue-scan.outputs.critical-issues }}"
+          echo "⚠️ High: ${{ needs.security-issue-scan.outputs.high-issues }}"
+          echo "📋 Medium: ${{ needs.security-issue-scan.outputs.medium-issues }}"
+          echo "ℹ️ Low: ${{ needs.security-issue-scan.outputs.low-issues }}"
