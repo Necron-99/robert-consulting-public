@@ -30,13 +30,13 @@ jobs:
 
       - name: 🎯 Process Findings
         run: |
-          jq -r '
+          jq -s -r '
             group_by(.rule.name) | 
-            map(select(.[0].rule.severity == "CRITICAL" or .[0].rule.severity == "ERROR" or .[0].rule.severity == "WARNING")) |
+            map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
             .[] | 
             {
               rule_name: .[0].rule.name,
-              severity: .[0].rule.severity,
+              severity: .[0].rule.security_severity_level,
               count: length,
               tool: .[0].tool.name
             }
@@ -68,7 +68,7 @@ jobs:
           echo "Summary:"
           if [ -f "findings.json" ]; then
             echo "Total findings: $(jq length findings.json)"
-            echo "Critical: $(jq '[.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length' findings.json)"
-            echo "High: $(jq '[.[] | select(.severity == "WARNING")] | length' findings.json)"
+            echo "Critical: $(jq '[.[] | select(.severity == "critical")] | length' findings.json)"
+            echo "High: $(jq '[.[] | select(.severity == "high")] | length' findings.json)"
           fi
           echo "Open security issues: $(gh issue list --label "security" --state open --json number | jq length)"
