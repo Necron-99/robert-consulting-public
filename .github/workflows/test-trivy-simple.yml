@@ -1,0 +1,81 @@
+name: 🧪 Test Trivy Simple
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test-simple:
+    name: 🧪 Test Simple Processing
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v5
+
+      - name: 🔍 Get Alerts
+        run: |
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
+          echo "Found $(jq -s length alerts.json) alerts"
+
+      - name: 🎯 Test Processing
+        run: |
+          echo "Testing jq processing..."
+          
+          # Test 1: Show all alerts
+          echo "=== All Alerts ==="
+          jq -s '.[] | {rule_name: .rule.name, severity: .rule.security_severity_level, tool: .tool.name}' alerts.json
+          
+          # Test 2: Filter for high/critical
+          echo "=== High/Critical Alerts ==="
+          jq -s '.[] | select(.rule.security_severity_level == "critical" or .rule.security_severity_level == "high") | {rule_name: .rule.name, severity: .rule.security_severity_level, tool: .tool.name}' alerts.json > test-findings.json
+          
+          echo "Found $(jq length test-findings.json) high/critical findings"
+          
+          if [ -f "test-findings.json" ] && [ "$(jq length test-findings.json)" -gt 0 ]; then
+            echo "=== First Finding ==="
+            jq '.[0]' test-findings.json
+          else
+            echo "No high/critical findings found"
+          fi
+
+      - name: 🤖 Test Issue Creation
+        run: |
+          if [ -f "test-findings.json" ] && [ "$(jq length test-findings.json)" -gt 0 ]; then
+            echo "Testing issue creation..."
+            first_finding=$(jq '.[0]' test-findings.json)
+            rule_name=$(echo "$first_finding" | jq -r '.rule_name')
+            severity=$(echo "$first_finding" | jq -r '.severity')
+            tool=$(echo "$first_finding" | jq -r '.tool')
+            
+            echo "Would create issue for: $rule_name ($severity) from $tool"
+            
+            # Check if issue already exists
+            existing=$(gh issue list --search "in:title \"$rule_name\"" --state open --json number --jq '.[0].number // empty')
+            
+            if [ -z "$existing" ]; then
+              echo "Creating test issue..."
+              gh issue create \
+                --title "🧪 TEST: $severity: $rule_name" \
+                --body "This is a test issue created by the Trivy Issue Creator workflow.
+
+**Severity:** $severity
+**Tool:** $tool
+**Rule:** $rule_name
+
+This is a test to verify the workflow is working correctly." \
+                --label "test,security,$severity,$tool,automated" || echo "Failed to create test issue"
+            else
+              echo "Test issue already exists: #$existing"
+            fi
+          else
+            echo "No findings to create issues for"
+          fi
