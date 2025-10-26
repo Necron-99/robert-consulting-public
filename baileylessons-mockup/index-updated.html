@@ -73,8 +73,8 @@
     section{ margin-top: var(--space-6) }
     h2{ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); margin:0 0 var(--space-3) }
 
-    /* Alternating subtle section surfaces for scanability */
-    main > section:nth-of-type(odd){ background: var(--surface); border:1px solid #e5e7eb; border-radius: var(--radius); padding: var(--space-5) }
+    /* Consistent section styling */
+    main > section{ background: var(--surface); border:1px solid #e5e7eb; border-radius: var(--radius); padding: var(--space-5) }
 
     .step-list, .cards, .price-grid{ display:grid; gap:var(--space-4) }
     .step-list{ grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); counter-reset: step }
