@@ -1,0 +1,63 @@
+name: 🔒 Working Trivy Issues
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  create-issues:
+    name: 🔍 Create Issues from Trivy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+      issues: write
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v5
+
+      - name: 🔍 Get Alerts
+        run: |
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
+          echo "Found $(jq -s length alerts.json) alerts"
+
+      - name: 🎯 Process Findings
+        run: |
+          jq -s '.[] | select(.rule.security_severity_level == "critical" or .rule.security_severity_level == "high") | {rule_name: .rule.name, severity: .rule.security_severity_level, tool: .tool.name}' alerts.json > findings.json
+          echo "Found $(jq length findings.json) high/critical findings"
+
+      - name: 🤖 Create Issues
+        run: |
+          if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
+            jq -r '.[]' findings.json | while read -r finding; do
+              rule_name=$(echo "$finding" | jq -r '.rule_name')
+              severity=$(echo "$finding" | jq -r '.severity')
+              tool=$(echo "$finding" | jq -r '.tool')
+              
+              existing=$(gh issue list --search "in:title \"$rule_name\"" --state open --json number --jq '.[0].number // empty')
+              
+              if [ -z "$existing" ]; then
+                echo "Creating issue for: $rule_name ($severity)"
+                gh issue create --title "🔒 $severity: $rule_name" --body "Severity: $severity\nTool: $tool\nRule: $rule_name\n\nAuto-created from Code Scanning alerts" --label "security,$severity,$tool,automated" || echo "Failed to create issue"
+              else
+                echo "Issue already exists for $rule_name (#$existing)"
+              fi
+            done
+          fi
+
+      - name: 📊 Summary
+        run: |
+          echo "Summary:"
+          if [ -f "findings.json" ]; then
+            echo "Total findings: $(jq length findings.json)"
+            echo "Critical: $(jq '[.[] | select(.severity == "critical")] | length' findings.json)"
+            echo "High: $(jq '[.[] | select(.severity == "high")] | length' findings.json)"
+          fi
+          echo "Open security issues: $(gh issue list --label "security" --state open --json number | jq length)"
