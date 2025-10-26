@@ -24,16 +24,16 @@ jobs:
         run: |
           echo "🔍 Fetching Code Scanning alerts..."
           gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
-          echo "📊 Found $(jq length alerts.json) alerts"
+          echo "📊 Found $(jq -s length alerts.json) alerts"
           
           echo "🔍 First alert structure:"
-          jq '.[0]' alerts.json
+          jq -s '.[0]' alerts.json
           
           echo "🔍 Available fields:"
-          jq '.[0] | keys' alerts.json
+          jq -s '.[0] | keys' alerts.json
           
           echo "🔍 Rule structure:"
-          jq '.[0].rule' alerts.json
+          jq -s '.[0].rule' alerts.json
           
           echo "🔍 Tool structure:"
-          jq '.[0].tool' alerts.json
+          jq -s '.[0].tool' alerts.json
