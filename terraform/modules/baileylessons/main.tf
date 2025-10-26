@@ -85,16 +85,27 @@ locals {
   })
 }
 
+# Additional variable for certificate handling
+variable "create_certificate" {
+  description = "Whether to create or use existing ACM certificate"
+  type        = bool
+  default     = false
+}
+
 # Random ID for unique naming
 resource "random_id" "admin_suffix" {
   byte_length = 3
 }
 
 # Get existing ACM certificate for baileylessons.com
-data "aws_acm_certificate" "baileylessons" {
-  domain   = var.client_domain
-  statuses = ["ISSUED", "PENDING_VALIDATION"]
-}
+# Note: This certificate exists in the baileylessons account (737915157697)
+# and should be managed separately from the main account infrastructure
+# Disabled for now since certificate is in different account
+# data "aws_acm_certificate" "baileylessons" {
+#   count    = var.create_certificate ? 0 : 1
+#   domain   = var.client_domain
+#   statuses = ["ISSUED", "PENDING_VALIDATION"]
+# }
 
 # S3 Bucket for admin site
 resource "aws_s3_bucket" "admin" {
@@ -250,7 +261,7 @@ resource "aws_cloudfront_distribution" "admin" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = data.aws_acm_certificate.baileylessons.arn
+    cloudfront_default_certificate = true
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
