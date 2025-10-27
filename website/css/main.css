@@ -10,6 +10,7 @@
 @import url('./components/buttons.css');
 @import url('./components/footer.css');
 @import url('./components/icons.css');
+@import url('./components/logo.css');
 
 /* Import Pages */
 @import url('./pages/home.css');

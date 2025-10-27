@@ -24,6 +24,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.nav-logo:hover {
+  text-decoration: none;
 }
 
 .nav-logo h2 {

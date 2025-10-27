@@ -1,0 +1,183 @@
+/* Logo Component - Robert Consulting Retro-Futuristic Logo */
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.logo-container:hover {
+  text-decoration: none;
+}
+
+.logo-image {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all var(--transition-fast);
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.logo-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  font-family: 'Inter', sans-serif;
+}
+
+.logo-tagline {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-1);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Dark theme logo adjustments */
+.dark-theme .logo-image {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.dark-theme .logo-image:hover {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* Light theme logo adjustments */
+.light-theme .logo-image {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.light-theme .logo-image:hover {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Mobile responsive logo */
+@media (max-width: 768px) {
+  .logo-container {
+    gap: var(--space-2);
+  }
+  
+  .logo-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .logo-tagline {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Dashboard logo variant */
+.dashboard-navbar .logo-title {
+  color: var(--text-inverse);
+}
+
+.dashboard-navbar .logo-tagline {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dashboard-navbar .logo-image {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.dashboard-navbar .logo-image:hover {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Logo as background watermark */
+.logo-watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  opacity: 0.03;
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.logo-watermark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%);
+}
+
+/* Footer logo variant */
+.footer-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.footer-logo .logo-image {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-xl);
+}
+
+.footer-logo .logo-title {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+}
+
+.footer-logo .logo-tagline {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Accessibility */
+.logo-container:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .logo-image {
+    filter: none;
+    border: 1px solid var(--text-primary);
+  }
+  
+  .logo-image:hover {
+    filter: none;
+    border-color: var(--accent-color);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .logo-image,
+  .logo-container {
+    transition: none;
+  }
+  
+  .logo-image:hover {
+    transform: none;
+  }
+}
