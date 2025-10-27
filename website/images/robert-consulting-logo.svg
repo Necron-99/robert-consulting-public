@@ -1,59 +1,41 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Robert Consulting Retro-Futuristic Logo -->
-  <!-- Inspired by the retro-futuristic design with sci-fi elements -->
-  
-  <!-- Background with subtle gradient -->
-  <defs>
-    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
-    </radialGradient>
-    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Main background circle -->
-  <circle cx="24" cy="24" r="24" fill="url(#bgGradient)"/>
-  
-  <!-- Outer ring with subtle glow -->
-  <circle cx="24" cy="24" r="22" fill="none" stroke="#fbbf24" stroke-width="0.5" opacity="0.3"/>
-  
-  <!-- Central "R" for Robert with gradient -->
-  <text x="24" y="32" font-family="serif" font-size="24" font-weight="bold" fill="url(#textGradient)" text-anchor="middle">R</text>
-  
-  <!-- Sci-fi decorative elements -->
-  <!-- Top-left: Small planet with ring -->
-  <circle cx="12" cy="12" r="3" fill="#f59e0b" opacity="0.8"/>
-  <ellipse cx="12" cy="12" rx="5" ry="1.5" fill="none" stroke="#fbbf24" stroke-width="0.5" opacity="0.6"/>
-  
-  <!-- Top-right: Geometric shape -->
-  <polygon points="36,8 40,12 36,16 32,12" fill="#10b981" opacity="0.7"/>
-  
-  <!-- Bottom-left: Small robot/tech element -->
-  <rect x="8" y="32" width="4" height="6" fill="#3b82f6" opacity="0.8"/>
-  <circle cx="10" cy="30" r="1" fill="#fbbf24"/>
-  
-  <!-- Bottom-right: Magic wand with star -->
-  <line x1="36" y1="32" x2="40" y2="28" stroke="#fbbf24" stroke-width="1.5" opacity="0.8"/>
-  <polygon points="40,26 42,28 40,30 38,28" fill="#fbbf24" opacity="0.9"/>
-  
-  <!-- Center-left: Book/Knowledge element -->
-  <rect x="6" y="20" width="3" height="4" fill="#8b5cf6" opacity="0.7"/>
-  <rect x="7" y="19" width="1" height="6" fill="#a78bfa" opacity="0.5"/>
-  
-  <!-- Center-right: TARDIS-like element -->
-  <rect x="39" y="20" width="3" height="6" fill="#3b82f6" opacity="0.8"/>
-  <rect x="40" y="19" width="1" height="1" fill="#fbbf24" opacity="0.9"/>
-  
-  <!-- Small stars scattered around -->
-  <circle cx="16" cy="8" r="0.5" fill="#fbbf24" opacity="0.6"/>
-  <circle cx="32" cy="6" r="0.5" fill="#fbbf24" opacity="0.6"/>
-  <circle cx="8" cy="28" r="0.5" fill="#fbbf24" opacity="0.6"/>
-  <circle cx="40" cy="36" r="0.5" fill="#fbbf24" opacity="0.6"/>
-  <circle cx="20" cy="40" r="0.5" fill="#fbbf24" opacity="0.6"/>
-  
-  <!-- Subtle inner glow effect -->
-  <circle cx="24" cy="24" r="18" fill="none" stroke="#fbbf24" stroke-width="0.3" opacity="0.2"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="215" height="56" viewBox="0 0 215 56">
+  <style>
+    :root {
+      --gold: #D9B36B;
+      --teal: #3FA2B1;
+      --light: #F4EEE4;
+      --navy: #0F1C25;
+    }
+    .brand { fill: var(--gold); font-family: Georgia, "Times New Roman", serif; font-weight: 700; letter-spacing: .6px; }
+    .tag   { fill: var(--teal); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; font-weight: 700; letter-spacing: .5px; }
+    .tardis-stroke { stroke: var(--gold); stroke-width: 1; fill: none; stroke-linejoin: round; }
+    .tardis-fill   { fill: var(--light); stroke: none; }
+  </style>
+
+  <!-- Wordmark (centered, full width) -->
+  <text x="107.5" y="22" text-anchor="middle" class="brand" font-size="20">ROBERT CONSULTING</text>
+
+  <!-- Micro TARDIS separator (slightly stylized) -->
+  <g transform="translate(107.5, 32)">
+    <!-- center on x by offsetting half width (8px) -->
+    <g transform="translate(-4,-6)">
+      <!-- body outline -->
+      <rect x="0.5" y="2" width="7" height="9" rx="0.8" class="tardis-stroke"/>
+      <!-- roof -->
+      <path d="M-0.5,2 H8.5 L7.6,0.8 H1.4 Z" class="tardis-stroke"/>
+      <!-- top lamp (stylized) -->
+      <rect x="3.1" y="-0.6" width="1.8" height="1.2" class="tardis-stroke"/>
+      <!-- window slits (light accents) -->
+      <rect x="1.4" y="3.2" width="1.4" height="1.8" class="tardis-fill" rx="0.3"/>
+      <rect x="4.2" y="3.2" width="1.4" height="1.8" class="tardis-fill" rx="0.3"/>
+      <!-- subtle sign bar -->
+      <rect x="1.0" y="1.9" width="5.0" height="0.6" class="tardis-fill" opacity="0.25" rx="0.2"/>
+      <!-- door hint -->
+      <path d="M4,5.4 v4.0" class="tardis-stroke" opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Tagline (slightly narrower & centered) -->
+  <text x="107.5" y="48" text-anchor="middle" class="tag" font-size="10">DEVSECOPS &amp; CLOUD ENGINEERING</text>
 </svg>
