@@ -130,6 +130,18 @@ class BlogManager {
         tags: ['AWS', 'Well-Architected', 'Architecture', 'Best Practices', 'Security', 'Cost Optimization'],
         icon: '🏛️',
         readTime: '13 min read'
+      },
+      // Week of October 27-31, 2025 (New Week)
+      {
+        id: 8,
+        title: 'AWS Services and Updates - Monday',
+        excerpt: 'Latest AWS releases, feature updates, and impact analysis for cloud infrastructure and DevOps teams.',
+        content: 'blog-posts/monday-2025-10-27.html',
+        date: '2025-10-27', // Monday
+        category: 'aws',
+        tags: ['AWS', 'Cloud Services', 'Updates', 'New Features', 'AWS Announcements'],
+        icon: '☁️',
+        readTime: '12 min read'
       }
     ];
   }
