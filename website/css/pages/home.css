@@ -95,10 +95,23 @@
   border-radius: var(--radius-lg);
 }
 
-.hero-image {
+.hero-visual {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  transition: transform var(--transition-base);
+}
+
+.hero-image:hover {
+  transform: scale(1.02);
 }
 
 .hero-graphic {
