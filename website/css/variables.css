@@ -160,7 +160,7 @@
   --grid-gap-lg: var(--space-8);
   
   /* Component Specific Variables */
-  --navbar-height: 4.5rem;
+  --navbar-height: 5rem;
   --sidebar-width: 16rem;
   --sidebar-collapsed-width: 4rem;
   

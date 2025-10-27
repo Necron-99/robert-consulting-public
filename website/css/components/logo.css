@@ -14,7 +14,7 @@
 
 .logo-image {
   width: 320px;
-  height: 70px;
+  height: 80px;
   object-fit: contain;
   transition: all var(--transition-fast);
   /* Minimal legibility improvements */
@@ -59,7 +59,7 @@
 @media (max-width: 768px) {
   .logo-image {
     width: 240px;
-    height: 52px;
+    height: 60px;
   }
 }
 
@@ -67,7 +67,7 @@
 @media (max-width: 480px) {
   .logo-image {
     width: 180px;
-    height: 39px;
+    height: 45px;
   }
 }
 
@@ -75,7 +75,7 @@
 @media (max-width: 360px) {
   .logo-image {
     width: 160px;
-    height: 35px;
+    height: 40px;
   }
 }
 
@@ -88,7 +88,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 450px;
-  height: 98px;
+  height: 112px;
   opacity: 0.03;
   z-index: -1;
   pointer-events: none;
@@ -112,7 +112,7 @@
 
 .footer-logo .logo-image {
   width: 300px;
-  height: 65px;
+  height: 75px;
   border-radius: var(--radius-xl);
 }
 
