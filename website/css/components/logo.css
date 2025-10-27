@@ -13,7 +13,7 @@
 }
 
 .logo-image {
-  width: 56px;
+  width: 215px;
   height: 56px;
   border-radius: var(--radius-lg);
   object-fit: contain;
@@ -28,7 +28,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   /* Background to make logo pop */
   background: rgba(255, 255, 255, 0.05);
-  padding: 2px;
+  padding: 4px 8px;
 }
 
 .logo-image:hover {
@@ -89,8 +89,24 @@
 /* Mobile responsive logo */
 @media (max-width: 768px) {
   .logo-image {
-    width: 48px;
-    height: 48px;
+    width: 160px;
+    height: 42px;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 480px) {
+  .logo-image {
+    width: 120px;
+    height: 31px;
+  }
+}
+
+/* Very small screens - ensure logo fits */
+@media (max-width: 360px) {
+  .logo-image {
+    width: 100px;
+    height: 26px;
   }
 }
 
@@ -109,8 +125,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 78px;
   opacity: 0.03;
   z-index: -1;
   pointer-events: none;
@@ -133,8 +149,8 @@
 }
 
 .footer-logo .logo-image {
-  width: 80px;
-  height: 80px;
+  width: 200px;
+  height: 52px;
   border-radius: var(--radius-xl);
 }
 
