@@ -15,76 +15,17 @@
 .logo-image {
   width: 215px;
   height: 56px;
-  border-radius: var(--radius-lg);
   object-fit: contain;
-  /* Enhanced visibility filters */
-  filter: 
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))
-    contrast(1.2)
-    brightness(1.1);
   transition: all var(--transition-fast);
-  /* Add subtle border for definition */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  /* Background to make logo pop */
-  background: rgba(255, 255, 255, 0.05);
-  padding: 4px 8px;
 }
 
 .logo-image:hover {
-  transform: scale(1.05);
-  filter: 
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 0 12px rgba(255, 255, 255, 0.2))
-    contrast(1.3)
-    brightness(1.2);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.02);
 }
 
 /* Logo text elements removed - using image-only logo */
 
-/* Dark theme logo adjustments */
-.dark-theme .logo-image {
-  filter: 
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 0 8px rgba(255, 255, 255, 0.15))
-    contrast(1.3)
-    brightness(1.2);
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dark-theme .logo-image:hover {
-  filter: 
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 0 12px rgba(255, 255, 255, 0.25))
-    contrast(1.4)
-    brightness(1.3);
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.12);
-}
-
-/* Light theme logo adjustments */
-.light-theme .logo-image {
-  filter: 
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))
-    drop-shadow(0 0 4px rgba(0, 0, 0, 0.1))
-    contrast(1.1)
-    brightness(1.05);
-  border-color: rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.light-theme .logo-image:hover {
-  filter: 
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 6px rgba(0, 0, 0, 0.15))
-    contrast(1.2)
-    brightness(1.1);
-  border-color: rgba(0, 0, 0, 0.15);
-  background: rgba(0, 0, 0, 0.04);
-}
+/* Logo displays consistently across all themes */
 
 /* Mobile responsive logo */
 @media (max-width: 768px) {
@@ -110,14 +51,7 @@
   }
 }
 
-/* Dashboard logo variant */
-.dashboard-navbar .logo-image {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.dashboard-navbar .logo-image:hover {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
+/* Dashboard logo variant - same as regular logo */
 
 /* Logo as background watermark */
 .logo-watermark {
@@ -161,26 +95,7 @@
   border-radius: var(--radius-md);
 }
 
-/* High contrast mode */
-@media (prefers-contrast: high) {
-  .logo-image {
-    filter: 
-      drop-shadow(0 0 0 2px var(--text-primary))
-      contrast(1.5)
-      brightness(1.3);
-    border: 2px solid var(--text-primary);
-    background: var(--background-primary);
-  }
-  
-  .logo-image:hover {
-    filter: 
-      drop-shadow(0 0 0 3px var(--accent-color))
-      contrast(1.6)
-      brightness(1.4);
-    border-color: var(--accent-color);
-    background: var(--surface-primary);
-  }
-}
+/* High contrast mode - logo handles its own contrast */
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
