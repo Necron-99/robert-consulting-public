@@ -13,17 +13,57 @@
 }
 
 .logo-image {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-lg);
+  width: 320px;
+  height: 80px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   transition: all var(--transition-fast);
+  /* Minimal legibility improvements */
+  filter: 
+    contrast(1.1)
+    brightness(1.05)
+    saturate(1.05);
+  /* Ensure crisp rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .logo-image:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  transform: scale(1.02);
+  filter: 
+    contrast(1.15)
+    brightness(1.1)
+    saturate(1.1);
+}
+
+/* Mobile responsive logo */
+@media (max-width: 768px) {
+  .logo-image {
+    width: 240px;
+    height: 60px;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 480px) {
+  .logo-image {
+    width: 180px;
+    height: 45px;
+  }
+}
+
+/* Very small screens - ensure logo fits */
+@media (max-width: 360px) {
+  .logo-image {
+    width: 160px;
+    height: 40px;
+  }
+}
+
+/* Footer logo variant */
+.footer-logo .logo-image {
+  width: 300px;
+  height: 75px;
+  border-radius: var(--radius-xl);
 }
 
 .logo-text {
