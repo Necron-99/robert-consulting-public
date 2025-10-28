@@ -10,6 +10,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   create-issues-from-trivy:
@@ -24,6 +25,11 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v5
 
+      - name: 📦 Install CLI dependencies (gh, jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh jq
+
       - name: 🔍 Get Code Scanning Alerts
         run: |
           echo "🔍 Fetching Code Scanning alerts..."
@@ -34,14 +40,14 @@ jobs:
         run: |
           echo "🎯 Processing high and critical findings..."
           
-          # Group alerts by rule and filter for high/critical
+          # Group alerts by rule and filter for high/critical using security_severity_level
           jq -r '
-            group_by(.rule.name) | 
-            map(select(.[0].rule.severity == "CRITICAL" or .[0].rule.severity == "ERROR" or .[0].rule.severity == "WARNING")) |
-            .[] | 
+            group_by(.rule.name) |
+            map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
+            .[] |
             {
               rule_name: .[0].rule.name,
-              severity: .[0].rule.severity,
+              severity: .[0].rule.security_severity_level,
               count: length,
               tool: .[0].tool.name,
               description: .[0].rule.description
@@ -53,6 +59,7 @@ jobs:
       - name: 🤖 Create Issues
         run: |
           echo "🤖 Creating Issues for findings..."
+          set -e
           
           if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
             jq -r '.[]' findings.json | while read -r finding; do
