@@ -11,7 +11,7 @@ generate_aws_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Services and Updates - Monday - Robert Consulting</title>
+    <title>AWS Services and Updates - Robert Consulting</title>
     <meta name="description" content="Latest AWS releases, feature updates, impact analysis">
     <meta name="keywords" content="AWS, cloud services, updates, new features, AWS announcements">
     <meta name="author" content="Robert Consulting">
@@ -20,7 +20,7 @@ generate_aws_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>AWS Services and Updates - Monday</h1>
+            <h1>AWS Services and Updates</h1>
             <div class="blog-meta">
                 <span class="blog-date">$(date +%Y-%m-%d)</span>
                 <span class="blog-category">AWS</span>
@@ -94,7 +94,7 @@ generate_aiops_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIOps - Tuesday - Robert Consulting</title>
+    <title>AIOps - Robert Consulting</title>
     <meta name="description" content="Artificial Intelligence for IT Operations, predictive analytics, automation">
     <meta name="keywords" content="AIOps, machine learning, IT operations, automation, predictive analytics">
     <meta name="author" content="Robert Consulting">
@@ -103,7 +103,7 @@ generate_aiops_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>AIOps - Tuesday</h1>
+            <h1>AIOps</h1>
             <div class="blog-meta">
                 <span class="blog-date">$(date +%Y-%m-%d)</span>
                 <span class="blog-category">AIOps</span>
@@ -162,7 +162,7 @@ generate_security_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Vulnerability Remediation - Wednesday - Robert Consulting</title>
+    <title>Intelligent Vulnerability Remediation - Robert Consulting</title>
     <meta name="description" content="AI-powered security, threat detection, automated remediation">
     <meta name="keywords" content="vulnerability management, security automation, AI security, threat detection, remediation">
     <meta name="author" content="Robert Consulting">
@@ -171,7 +171,7 @@ generate_security_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>Intelligent Vulnerability Remediation - Wednesday</h1>
+            <h1>Intelligent Vulnerability Remediation</h1>
             <div class="blog-meta">
                 <span class="blog-date">$(date +%Y-%m-%d)</span>
                 <span class="blog-category">Security</span>
@@ -222,7 +222,7 @@ generate_opentofu_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenTofu Analysis - Thursday - Robert Consulting</title>
+    <title>OpenTofu Analysis - Robert Consulting</title>
     <meta name="description" content="Comprehensive comparison with Terraform, pros/cons, migration strategies">
     <meta name="keywords" content="OpenTofu, Terraform, infrastructure as code, open source, comparison">
     <meta name="author" content="Robert Consulting">
@@ -231,7 +231,7 @@ generate_opentofu_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>OpenTofu Analysis - Thursday</h1>
+            <h1>OpenTofu Analysis</h1>
             <div class="blog-meta">
                 <span class="blog-date">$(date +%Y-%m-%d)</span>
                 <span class="blog-category">Infrastructure</span>
@@ -299,7 +299,7 @@ generate_platform_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Market Analysis - Friday - Robert Consulting</title>
+    <title>Platform Market Analysis - Robert Consulting</title>
     <meta name="description" content="Domo, OpenShift, and other enterprise platform players">
     <meta name="keywords" content="Domo, OpenShift, platform comparison, enterprise platforms, market analysis">
     <meta name="author" content="Robert Consulting">
@@ -308,7 +308,7 @@ generate_platform_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>Platform Market Analysis - Friday</h1>
+            <h1>Platform Market Analysis</h1>
             <div class="blog-meta">
                 <span class="blog-date">$(date +%Y-%m-%d)</span>
                 <span class="blog-category">Platform Analysis</span>

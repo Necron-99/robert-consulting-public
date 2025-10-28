@@ -134,7 +134,7 @@ class BlogManager {
       // Week of October 27-31, 2025 (New Week)
       {
         id: 8,
-        title: 'AWS Services and Updates - Monday',
+        title: 'AWS Services and Updates',
         excerpt: 'Latest AWS releases, feature updates, and impact analysis for cloud infrastructure and DevOps teams.',
         content: 'blog-posts/monday-2025-10-27.html',
         date: '2025-10-27', // Monday
@@ -145,7 +145,7 @@ class BlogManager {
       },
       {
         id: 9,
-        title: 'AIOps - Tuesday',
+        title: 'AIOps',
         excerpt: 'Artificial Intelligence for IT Operations, predictive analytics, automation',
         content: 'blog-posts/tuesday-2025-10-28.html',
         date: '2025-10-28', // Tuesday
