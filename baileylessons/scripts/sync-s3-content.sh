@@ -66,7 +66,7 @@ sync_bucket() {
     
     log_info "Syncing $description from $bucket_name..."
     
-    if aws s3 ls "s3://$bucket_name" &> /dev/null; then
+    if aws s3 ls "s3://$bucket_name" --profile "$AWS_PROFILE" &> /dev/null; then
         mkdir -p "$local_dir"
         aws s3 sync "s3://$bucket_name/" "$local_dir/" \
             --profile "$AWS_PROFILE" \
