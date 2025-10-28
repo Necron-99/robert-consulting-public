@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bailey Lessons — Personal Tutoring in Charlottesville & Online</title>
+  <meta name="description" content="Zoom available. 45‑minute tutoring sessions at $75. On‑site available for an additional fee. Math (elementary through Algebra II & personal finance) and Science (elementary through college; biology, chemistry, physics). 20+ years of teaching experience." />
+
+  <!-- Open Graph / Twitter for richer sharing -->
+  <meta property="og:title" content="Bailey Lessons — Personal Tutoring" />
+  <meta property="og:description" content="Zoom available. 45‑minute sessions at $75. On‑site available. Math & Science tutoring by a highly sought‑after instructor with 20+ years’ experience." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://baileylessons.com/" />
+  <meta property="og:image" content="https://baileylessons.com/assets/img/og-cover.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bailey Lessons — Personal Tutoring" />
+  <meta name="twitter:description" content="Friendly, effective 1:1 tutoring in Math & Science. Book a free 20‑min consult." />
+  <meta name="twitter:image" content="https://baileylessons.com/assets/img/og-cover.jpg" />
+
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="stylesheet" href="/styles.css" />
+
+  <!-- Visual polish + accessible, legible colors -->
+  <style>
+    :root{
+      --bg: #ffffff;
+      --ink: #0f172a;          /* slate-900 for strong contrast */
+      --muted:#475569;         /* slate-600 for body copy */
+      --brand:#1e3a8a;         /* indigo-800 accessible brand */
+      --brand-ink:#0b2a7a;     /* deep tone for pills */
+      --accent:#f59e0b;        /* amber-500: warm highlight */
+      --surface:#f8fafc;       /* light section background */
+      --radius:16px;
+      --space-1:.375rem; --space-2:.75rem; --space-3:1rem; --space-4:1.5rem; --space-5:2rem; --space-6:3rem; --space-7:4rem;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#0f1115; --ink:#e5e7eb; --muted:#9ca3af; --brand:#60a5fa; --brand-ink:#dbeafe; --accent:#fbbf24; --surface:#0b0d11; }
+    }
+    body{ margin:0; color:var(--ink); background: var(--bg);
+      font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    .container{ max-width:1100px; margin-inline:auto; padding: var(--space-6) var(--space-4); }
+
+    .site-header{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding: var(--space-3) var(--space-4); border-bottom:1px solid #e5e7eb; background:#fff }
+    .brand{ display:inline-flex; align-items:center; gap:.75rem; text-decoration:none; color:var(--brand); font-weight:800; font-size:3.5rem; }
+    .brand svg{ display:block }
+    nav[aria-label="Primary"]{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap }
+    nav[aria-label="Primary"] a{ color:#1e293b; text-decoration:none; font-weight:600; text-underline-offset: 3px; text-decoration-thickness: 2px }
+    nav[aria-label="Primary"] a:hover{ color:var(--brand); text-decoration: underline }
+
+    a{ color:var(--brand); text-underline-offset:3px; text-decoration-thickness:2px }
+    a:hover{ text-decoration: underline }
+
+    .btn{ display:inline-block; padding:.75rem 1rem; border-radius:999px; text-decoration:none; font-weight:700; border:2px solid transparent }
+    .btn-primary{ background:var(--brand); color:#ffffff }       /* high contrast */
+    .btn-secondary,.btn-outline{ background:transparent; color:var(--brand); border-color:var(--brand) }
+    .btn-secondary:hover,.btn-outline:hover{ background: color-mix(in oklab, var(--brand), #fff 85%); }
+    .cta-row{ display:flex; gap:var(--space-3); margin-top:var(--space-3); flex-wrap:wrap }
+    @media (prefers-reduced-motion:no-preference){
+      .btn-primary{ transition: transform .12s ease, box-shadow .25s ease }
+      .btn-primary:hover{ transform: translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.18) }
+    }
+
+    .hero{ padding: var(--space-7) 0 var(--space-6); position:relative; overflow:hidden }
+    .hero h1{ font-size: clamp(2rem, 3.6vw + 1rem, 3rem); line-height:1.12; letter-spacing:.2px; margin:0 0 var(--space-2); color:var(--ink) }
+    .lead{ font-size:1.15rem; color:var(--muted); max-width:62ch }
+    .trust-badges{ list-style:none; padding:0; margin: var(--space-3) 0 0; display:flex; gap:var(--space-3); flex-wrap:wrap }
+    .hero-ornament{ position:absolute; inset:auto -20% 0 -20%; height:120px; pointer-events:none; opacity:.6 }
+
+    section{ margin-top: var(--space-6) }
+    h2{ font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); margin:0 0 var(--space-3) }
+
+    /* Alternating subtle section surfaces for scanability */
+    main > section:nth-of-type(odd){ background: var(--surface); border:1px solid #e5e7eb; border-radius: var(--radius); padding: var(--space-5) }
+
+    .step-list, .cards, .price-grid{ display:grid; gap:var(--space-4) }
+    .step-list{ grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); counter-reset: step }
+    .step-list li{ padding: var(--space-4); border:1px solid color-mix(in oklab, var(--brand), #000 10%); border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.7), transparent) }
+    .step-list li h3{ margin:.25rem 0 }
+    .step-list li h3::before{ counter-increment: step; content: counter(step) ". "; color:var(--brand) }
+
+    .pill-grid{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top: var(--space-3) }
+    .pill{ 
+      padding:.5rem .75rem; 
+      border-radius:999px; 
+      background: #e0f2fe; 
+      color: #0c4a6e; 
+      border: 1px solid #0284c7;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .pill:hover {
+      background: #0284c7;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .cards{ grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); list-style:none; padding:0 }
+    .card{ padding: var(--space-4); border:1px solid #e5e7eb; border-radius:var(--radius); background:#fff }
+    .card blockquote{ margin:0 0 .5rem 0; font-size:1.05rem; font-style:italic }
+
+    .price-grid{ grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); margin-top:var(--space-3) }
+    .price-card{ padding: var(--space-4); border:1px solid #e5e7eb; border-radius:var(--radius); background:linear-gradient(180deg, rgba(30,58,138,.06), transparent) }
+    .price-card .price{ font-size:2rem; font-weight:800; margin:.25rem 0 }
+    .price-card.featured{ border-color:var(--brand); box-shadow:0 0 0 3px color-mix(in oklab, var(--brand), #fff 70%) }
+
+    .info-strip{ background: var(--surface); border:1px solid #e5e7eb; border-radius: var(--radius); padding: var(--space-3) }
+
+    .accordion details{ border:1px solid #d1d5db; border-radius:var(--radius); padding: .75rem 1rem; background:#fff0 }
+    .accordion details + details{ margin-top:.5rem }
+    .accordion summary{ cursor:pointer; font-weight:600 }
+
+    .letters{ display:grid; gap:var(--space-4); grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); list-style:none; padding:0 }
+
+    .site-footer{ padding: var(--space-6) var(--space-4); text-align:center; color:var(--muted); border-top:1px solid #e5e7eb; background:#fff }
+
+    .skip-link{ position:absolute; left:-9999px }
+    .skip-link:focus{ left:1rem; top:1rem; background:#000; color:#fff; padding:.5rem .75rem; border-radius:.5rem }
+    :focus-visible{ outline:3px solid var(--accent); outline-offset:2px }
+
+    @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" role="banner" aria-label="Site header">
+    <a class="brand" href="/" aria-label="Bailey Lessons Home">
+      <svg width="280" height="48" viewBox="0 0 320 56" aria-hidden="true">
+        <text x="0" y="32" font-family="system-ui,-apple-system,Segoe UI,Roboto" font-weight="800" font-size="36" fill="var(--ink)">Bailey <tspan fill="#3b82f6">Lessons</tspan></text>
+        <path d="M0 30 Q 40 50 80 30 T 160 30" fill="none" stroke="currentColor" stroke-width="2" opacity=".25"/>
+      </svg>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#subjects">Subjects</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#letters">Recommendation letters</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary" href="https://calendly.com/your-handle/consult">Book a free 20‑min consult</a>
+    </nav>
+  </header>
+
+  <main id="main" class="container" role="main">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Personal tutoring that meets you where you are</h1>
+      <p class="lead">Zoom available. Sessions are <strong>45 minutes at $75</strong>. On‑site available for an additional fee. Most students see measurable improvement in 4–6 weeks.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://calendly.com/your-handle/consult">Book a free 20‑min consult</a>
+        <a class="btn btn-secondary" href="#pricing">See pricing & details</a>
+      </div>
+      <ul class="trust-badges" aria-label="Highlights">
+        <li>✔ 20+ years of teaching experience</li>
+        <li>✔ Highly sought‑after instructor</li>
+        <li>✔ Flexible scheduling (Zoom & on‑site)</li>
+      </ul>
+      <svg class="hero-ornament" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,0 C300,120 900,0 1200,120 L1200,0 L0,0 Z" fill="currentColor" opacity="0.06"/>
+      </svg>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="steps" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <ol class="step-list">
+        <li><h3>Tell me your goals</h3><p>Share a recent assignment or concern.</p></li>
+        <li><h3>I assess & plan</h3><p>We identify gaps and agree on a plan.</p></li>
+        <li><h3>Meet, measure, adapt</h3><p>Weekly 45‑minute sessions with clear progress notes.</p></li>
+      </ol>
+    </section>
+
+    <!-- Subjects -->
+    <section id="subjects" aria-labelledby="subjects-title">
+      <h2 id="subjects-title">Subjects I tutor</h2>
+      <div class="info-strip" role="note" aria-label="Subjects overview">
+        <p class="lead" style="margin:0">Math: elementary & middle school math, pre‑algebra, Algebra I & II, personal finance, geometry.</p>
+        <p class="lead" style="margin:.5rem 0 0">Science: elementary through high school/college — specializing in <strong>biology</strong>, <strong>chemistry</strong>, and <strong>physics</strong>.</p>
+      </div>
+      <div class="pill-grid" role="list" aria-label="Subject tags">
+        <span role="listitem" class="pill">Elementary Math</span>
+        <span role="listitem" class="pill">Middle School Math</span>
+        <span role="listitem" class="pill">Pre‑Algebra</span>
+        <span role="listitem" class="pill">Algebra I</span>
+        <span role="listitem" class="pill">Algebra II</span>
+        <span role="listitem" class="pill">Geometry</span>
+        <span role="listitem" class="pill">Personal Finance</span>
+        <span role="listitem" class="pill">Biology</span>
+        <span role="listitem" class="pill">Chemistry</span>
+        <span role="listitem" class="pill">Physics</span>
+      </div>
+    </section>
+
+    <!-- Proof -->
+    <section aria-labelledby="proof-title">
+      <h2 id="proof-title">Results & reviews</h2>
+      <ul class="cards" role="list">
+        <li class="card" role="listitem">
+          <figure>
+            <blockquote>“My son went from a C to an A‑ in six weeks.”</blockquote>
+            <figcaption>— M. Chen, parent</figcaption>
+          </figure>
+        </li>
+        <li class="card" role="listitem">
+          <figure>
+            <blockquote>“Clear explanations and patient coaching. Highly recommend.”</blockquote>
+            <figcaption>— J. Rivera, 10th grade</figcaption>
+          </figure>
+        </li>
+        <li class="card" role="listitem">
+          <figure>
+            <blockquote>“Scheduling was easy and the weekly notes kept us in the loop.”</blockquote>
+            <figcaption>— P. Lee, parent</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Recommendation Letters -->
+    <section id="letters" aria-labelledby="letters-title">
+      <h2 id="letters-title">Recommendation letters</h2>
+      <p class="lead">Selected recommendation letters are available upon request. Please email and I’ll provide PDFs or printed copies.</p>
+      <ul class="letters" role="list">
+        <li class="card" role="listitem"><h3>School Administrator</h3><p>Endorsement highlighting instructional quality and student outcomes.</p><a class="btn btn-outline" href="mailto:rsbailey@necron99.org?subject=Recommendation%20Letter%20Request%20—%20Administrator">Request copy</a></li>
+        <li class="card" role="listitem"><h3>Parent</h3><p>Letter describing grade improvement and confidence gains over a term.</p><a class="btn btn-outline" href="mailto:rsbailey@necron99.org?subject=Recommendation%20Letter%20Request%20—%20Parent">Request copy</a></li>
+        <li class="card" role="listitem"><h3>Student</h3><p>Personal reflection on clarity, patience, and study strategies that stick.</p><a class="btn btn-outline" href="mailto:rsbailey@necron99.org?subject=Recommendation%20Letter%20Request%20—%20Student">Request copy</a></li>
+      </ul>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" aria-labelledby="pricing-title">
+      <h2 id="pricing-title">Simple pricing</h2>
+      <div class="price-grid" role="list">
+        <article class="price-card featured" role="listitem" aria-label="Single Session (45 minutes)">
+          <h3>Single Session</h3>
+          <p class="price">$75</p>
+          <p>One 45‑minute session (Zoom or on‑site*)</p>
+          <a class="btn btn-primary" href="mailto:rsbailey@necron99.org?subject=Single%20Session%20(45%20min)">Book single session</a>
+        </article>
+        <article class="price-card" role="listitem" aria-label="Starter (4 × 45 minutes)">
+          <h3>Starter (4)</h3>
+          <p class="price">$300</p>
+          <p>Four 45‑minute sessions (save $0 vs single)</p>
+          <a class="btn btn-outline" href="mailto:rsbailey@necron99.org?subject=Starter%20Package%20(4%20sessions)">Choose Starter</a>
+        </article>
+        <article class="price-card" role="listitem" aria-label="Intensive (8 × 45 minutes)">
+          <h3>Intensive (8)</h3>
+          <p class="price">$600</p>
+          <p>Eight 45‑minute sessions (best for steady progress)</p>
+          <a class="btn btn-outline" href="mailto:rsbailey@necron99.org?subject=Intensive%20Package%20(8%20sessions)">Choose Intensive</a>
+        </article>
+      </div>
+      <p class="lead" style="margin-top:.75rem">* On‑site available for an additional fee. Sliding scale may be available.</p>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Frequently asked</h2>
+      <div class="accordion" data-accordion>
+        <details>
+          <summary>Is Zoom available?</summary>
+          <p>Yes. Most families prefer Zoom for convenience; on‑site sessions are also available.</p>
+        </details>
+        <details>
+          <summary>How long are sessions?</summary>
+          <p>45 minutes. This length balances focus with retention.</p>
+        </details>
+        <details>
+          <summary>Which subjects do you cover?</summary>
+          <p>Math (elementary through Algebra II, personal finance, geometry) and Science (elementary through college: biology, chemistry, physics).</p>
+        </details>
+        <details>
+          <summary>What’s your experience?</summary>
+          <p>Over 20 years’ of teaching experience; a highly sought‑after instructor focused on clarity and confidence.</p>
+        </details>
+        <details>
+          <summary>What’s your cancellation policy?</summary>
+          <p>Cancel or reschedule up to 24 hours before a session.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact CTA strip -->
+    <section aria-label="Contact">
+      <h2 class="visually-hidden">Contact</h2>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://calendly.com/your-handle/consult">Book a free 20‑min consult</a>
+        <a class="btn btn-secondary" href="mailto:rsbailey@necron99.org?subject=Tutoring%20Inquiry">Email me</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <small>&copy; <span id="year"></span> Bailey Lessons · Crozet, VA · <a href="tel:+14343267225">+1 (434) 326‑7225</a></small>
+  </footer>
+
+  <script>
+    document.getElementById('year')?.append(new Date().getFullYear());
+    document.querySelectorAll('a.btn, button.btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{ window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'cta_click', text:btn.textContent.trim(), href:btn.getAttribute('href')}); });
+    });
+  </script>
+</body>
+</html>
+
