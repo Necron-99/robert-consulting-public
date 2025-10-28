@@ -7,6 +7,7 @@ set -euo pipefail
 
 # Configuration
 AWS_REGION="us-east-1"
+AWS_PROFILE="baileylessons"
 STAGING_BUCKET="baileylessons-staging-static"
 PRODUCTION_BUCKET="baileylessons-production-static"
 CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-}"
@@ -47,8 +48,8 @@ check_prerequisites() {
         exit 1
     fi
     
-    if ! aws sts get-caller-identity &> /dev/null; then
-        log_error "AWS credentials not configured. Please run 'aws configure' first."
+    if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+        log_error "AWS credentials not configured for profile '$AWS_PROFILE'. Please run 'aws configure --profile $AWS_PROFILE' first."
         exit 1
     fi
     
@@ -67,6 +68,7 @@ deploy_to_s3() {
     
     # Deploy website files with whitelist approach
     aws s3 sync "$WEBSITE_DIR" "s3://$bucket_name/" \
+        --profile "$AWS_PROFILE" \
         --delete \
         --exclude "*" \
         --include "**/*.html" \
@@ -93,6 +95,7 @@ deploy_to_s3() {
     # Deploy blog posts separately (preserve existing)
     if [ -d "$WEBSITE_DIR/blog-posts" ]; then
         aws s3 sync "$WEBSITE_DIR/blog-posts" "s3://$bucket_name/blog-posts/" \
+            --profile "$AWS_PROFILE" \
             --exclude "**/.DS_Store" \
             --region "$AWS_REGION"
     fi
@@ -105,6 +108,7 @@ invalidate_cloudfront() {
     if [ -n "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
         log_info "Invalidating CloudFront cache..."
         aws cloudfront create-invalidation \
+            --profile "$AWS_PROFILE" \
             --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
             --paths "/*" \
             --region "$AWS_REGION"

@@ -7,6 +7,7 @@ set -euo pipefail
 
 # Configuration
 AWS_REGION="us-east-1"
+AWS_PROFILE="baileylessons"
 S3_STATIC_BUCKET="baileylessons-production-static"
 S3_UPLOADS_BUCKET="baileylessons-production-uploads"
 S3_BACKUPS_BUCKET="baileylessons-production-backups"
@@ -51,8 +52,8 @@ check_aws_cli() {
 
 # Check AWS credentials
 check_aws_credentials() {
-    if ! aws sts get-caller-identity &> /dev/null; then
-        log_error "AWS credentials not configured. Please run 'aws configure' first."
+    if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+        log_error "AWS credentials not configured for profile '$AWS_PROFILE'. Please run 'aws configure --profile $AWS_PROFILE' first."
         exit 1
     fi
 }
@@ -68,6 +69,7 @@ sync_bucket() {
     if aws s3 ls "s3://$bucket_name" &> /dev/null; then
         mkdir -p "$local_dir"
         aws s3 sync "s3://$bucket_name/" "$local_dir/" \
+            --profile "$AWS_PROFILE" \
             --region "$AWS_REGION" \
             --exclude "*.tmp" \
             --exclude "*.temp" \
@@ -116,6 +118,7 @@ upload_content() {
     
     if [ -d "$local_dir" ] && [ "$(ls -A "$local_dir")" ]; then
         aws s3 sync "$local_dir/" "s3://$bucket_name/" \
+            --profile "$AWS_PROFILE" \
             --region "$AWS_REGION" \
             --exclude "*.tmp" \
             --exclude "*.temp" \
