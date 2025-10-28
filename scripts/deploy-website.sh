@@ -39,4 +39,13 @@ if [ -d "$SITE_DIR/blog-posts" ]; then
     --exclude "**/.DS_Store"
 fi
 
-echo "Deployment complete: main site synced with delete; blog-posts preserved."
+# 3) Invalidate CloudFront cache to ensure changes are visible immediately
+if [ -n "$CLOUDFRONT_DISTRIBUTION_ID" ]; then
+  echo "🔄 Invalidating CloudFront cache..."
+  aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+else
+  echo "⚠️  CLOUDFRONT_DISTRIBUTION_ID not set - skipping cache invalidation"
+  echo "   Set it with: export CLOUDFRONT_DISTRIBUTION_ID=your-distribution-id"
+fi
+
+echo "Deployment complete: main site synced with delete; blog-posts preserved; CloudFront cache invalidated."
