@@ -21,6 +21,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   # Monitor Code Scanning alerts and create Issues for critical/high findings
@@ -36,6 +37,11 @@ jobs:
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v5
+
+      - name: 📦 Install CLI dependencies (gh, jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh jq
 
       - name: 🔍 Get Code Scanning Alerts
         id: get-alerts
