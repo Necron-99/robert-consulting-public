@@ -7,6 +7,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   test-simple:
@@ -20,6 +21,11 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v5
+
+      - name: 📦 Install CLI dependencies (gh, jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh jq
 
       - name: 🔍 Get Alerts
         run: |
@@ -49,6 +55,7 @@ jobs:
 
       - name: 🤖 Test Issue Creation
         run: |
+          set -e
           if [ -f "test-findings.json" ] && [ "$(jq length test-findings.json)" -gt 0 ]; then
             echo "Testing issue creation..."
             first_finding=$(jq '.[0]' test-findings.json)

@@ -9,6 +9,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   create-issues:
@@ -22,6 +23,11 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v5
+
+      - name: 📦 Install CLI dependencies (gh, jq)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh jq
 
       - name: 🔍 Get Alerts
         run: |
@@ -43,6 +49,7 @@ jobs:
 
       - name: 🤖 Create Issues
         run: |
+          set -e
           if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
             jq -c '.' findings.json | while read -r finding; do
               rule_name=$(echo "$finding" | jq -r '.rule_name')
