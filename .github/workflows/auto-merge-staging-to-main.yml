@@ -1,0 +1,68 @@
+name: 🔄 Auto-merge Staging to Main
+
+on:
+  workflow_run:
+    workflows: ["🚀 Staging to Production Pipeline"]
+    types: [completed]
+    branches: [staging]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  auto-merge:
+    name: 🔄 Auto-merge to Main
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "action@github.com"
+
+      - name: 🔄 Merge Staging to Main
+        run: |
+          echo "🔄 Merging staging to main..."
+          
+          # Switch to main branch
+          git checkout main
+          git pull origin main
+          
+          # Merge staging into main
+          git merge origin/staging --no-ff -m "🚀 Auto-merge staging to main after successful tests
+
+          - All security and quality gates passed
+          - Functional tests completed successfully
+          - Ready for production deployment
+          
+          Automated by GitHub Actions workflow: ${{ github.event.workflow_run.html_url }}"
+          
+          # Push to main
+          git push origin main
+          
+          echo "✅ Successfully merged staging to main"
+
+      - name: 🏷️ Create Release Tag
+        run: |
+          # Create a release tag with timestamp
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          TAG="release-$TIMESTAMP"
+          
+          git tag -a "$TAG" -m "Release $TAG - Auto-merged from staging"
+          git push origin "$TAG"
+          
+          echo "🏷️ Created release tag: $TAG"
+
+      - name: 📢 Notify Success
+        run: |
+          echo "🎉 Auto-merge completed successfully!"
+          echo "📅 Merged at: $(date)"
+          echo "🏷️ Release tag: release-$(date +%Y%m%d-%H%M%S)"
+          echo "🚀 Production deployment should trigger automatically"

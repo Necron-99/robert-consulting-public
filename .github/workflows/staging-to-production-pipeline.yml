@@ -315,9 +315,36 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region $AWS_REGION
           
-          # Deploy website files
+          # Deploy website files (whitelist approach to protect blog posts)
           echo "📦 Deploying website files..."
-          aws s3 sync website/ s3://$S3_BUCKET/ --delete --exclude "*.backup" --exclude "*.old"
+          aws s3 sync website/ s3://$S3_BUCKET/ \
+            --delete \
+            --exclude "*" \
+            --include "**/*.html" \
+            --include "**/*.css" \
+            --include "**/*.js" \
+            --include "**/*.png" \
+            --include "**/*.jpg" \
+            --include "**/*.jpeg" \
+            --include "**/*.gif" \
+            --include "**/*.webp" \
+            --include "**/*.svg" \
+            --include "**/*.ico" \
+            --include "**/*.woff" \
+            --include "**/*.woff2" \
+            --include "**/*.ttf" \
+            --include "**/*.otf" \
+            --include "**/*.eot" \
+            --include "**/sitemap.xml" \
+            --include "**/robots.txt" \
+            --include "**/manifest.json" \
+            --exclude "blog-posts/*"
+          
+          # Deploy blog posts separately (preserve existing)
+          if [ -d "website/blog-posts" ]; then
+            aws s3 sync website/blog-posts/ s3://$S3_BUCKET/blog-posts/ \
+              --exclude "**/.DS_Store"
+          fi
           
           # Deploy admin files
           echo "📦 Deploying admin files..."
