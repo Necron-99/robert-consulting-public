@@ -142,6 +142,17 @@ class BlogManager {
         tags: ['AWS', 'Cloud Services', 'Updates', 'New Features', 'AWS Announcements'],
         icon: '☁️',
         readTime: '12 min read'
+      },
+      {
+        id: 9,
+        title: 'AIOps - Tuesday',
+        excerpt: 'Artificial Intelligence for IT Operations, predictive analytics, automation',
+        content: 'blog-posts/tuesday-2025-10-28.html',
+        date: '2025-10-28', // Tuesday
+        category: 'aiops',
+        tags: ['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics'],
+        icon: '🤖',
+        readTime: '10 min read'
       }
     ];
   }
