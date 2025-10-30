@@ -178,13 +178,22 @@ jobs:
       - name: Commit and push changes
         if: steps.generate-content.outputs.blog-generated == 'true'
         run: |
+          set -euo pipefail
+
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+
           BLOG_FILENAME="${{ steps.generate-content.outputs.blog-filename }}"
+
+          if ! git status --porcelain "$BLOG_FILENAME" | grep -q .; then
+            echo "ℹ️ No pending changes for $BLOG_FILENAME. Skipping commit."
+            exit 0
+          fi
+
           git add "$BLOG_FILENAME"
 
-          if git diff --cached --quiet; then
-            echo "ℹ️ No staged changes to commit. Skipping push."
+          if git diff --cached --quiet -- "$BLOG_FILENAME"; then
+            echo "ℹ️ $BLOG_FILENAME staged cleanly but contains no changes. Skipping commit."
             exit 0
           fi
 
