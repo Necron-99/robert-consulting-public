@@ -1,11 +1,15 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Detailed Blog Content Generator
 # This script generates comprehensive blog content based on the day and topic
 
+STYLESHEET_PATH="../blog/css/blog.css"
+
 # Function definitions
 generate_aws_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,14 +19,14 @@ generate_aws_content() {
     <meta name="description" content="Latest AWS releases, feature updates, impact analysis">
     <meta name="keywords" content="AWS, cloud services, updates, new features, AWS announcements">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>AWS Services and Updates - Monday</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">AWS</span>
             </div>
         </header>
@@ -88,7 +92,7 @@ EOF
 }
 
 generate_aiops_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,14 +102,14 @@ generate_aiops_content() {
     <meta name="description" content="Artificial Intelligence for IT Operations, predictive analytics, automation">
     <meta name="keywords" content="AIOps, machine learning, IT operations, automation, predictive analytics">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>AIOps - Tuesday</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">AIOps</span>
             </div>
         </header>
@@ -156,7 +160,7 @@ EOF
 }
 
 generate_security_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -166,14 +170,14 @@ generate_security_content() {
     <meta name="description" content="AI-powered security, threat detection, automated remediation">
     <meta name="keywords" content="vulnerability management, security automation, AI security, threat detection, remediation">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>Intelligent Vulnerability Remediation - Wednesday</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Security</span>
             </div>
         </header>
@@ -216,7 +220,7 @@ EOF
 }
 
 generate_opentofu_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -226,14 +230,14 @@ generate_opentofu_content() {
     <meta name="description" content="Comprehensive comparison with Terraform, pros/cons, migration strategies">
     <meta name="keywords" content="OpenTofu, Terraform, infrastructure as code, open source, comparison">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>OpenTofu Analysis - Thursday</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Infrastructure</span>
             </div>
         </header>
@@ -293,7 +297,7 @@ EOF
 }
 
 generate_platform_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -303,14 +307,14 @@ generate_platform_content() {
     <meta name="description" content="Domo, OpenShift, and other enterprise platform players">
     <meta name="keywords" content="Domo, OpenShift, platform comparison, enterprise platforms, market analysis">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
         <header class="blog-header">
             <h1>Platform Market Analysis - Friday</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Platform Analysis</span>
             </div>
         </header>
@@ -370,7 +374,7 @@ EOF
 }
 
 generate_generic_content() {
-    cat > "$OUTPUT_FILE" << EOF
+    cat > "$OUTPUT_FILE" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -380,7 +384,7 @@ generate_generic_content() {
     <meta name="description" content="$FOCUS">
     <meta name="keywords" content="$KEYWORDS">
     <meta name="author" content="Robert Consulting">
-    <link rel="stylesheet" href="../css/blog.css">
+    <link rel="stylesheet" href="$STYLESHEET_PATH">
 </head>
 <body>
     <article class="blog-post">
