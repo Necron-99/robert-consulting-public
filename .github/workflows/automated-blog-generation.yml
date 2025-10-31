@@ -141,10 +141,18 @@ jobs:
             echo "❌ Blog file was not created!"
             exit 1
           fi
-          
-          echo "blog-generated=true" >> $GITHUB_OUTPUT
-          echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
-          echo "✅ Blog generated: $BLOG_FILENAME"
+
+          if git status --porcelain "$BLOG_FILENAME" | grep -q .; then
+            echo "🆕 Detected changes for $BLOG_FILENAME"
+            echo "blog-generated=true" >> $GITHUB_OUTPUT
+            echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
+            echo "✅ Blog generated: $BLOG_FILENAME"
+          else
+            echo "ℹ️ No changes detected for $BLOG_FILENAME. Skipping downstream actions."
+            echo "blog-generated=false" >> $GITHUB_OUTPUT
+            echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           
       - name: Upload to S3
         if: steps.generate-content.outputs.blog-generated == 'true'
@@ -170,9 +178,25 @@ jobs:
       - name: Commit and push changes
         if: steps.generate-content.outputs.blog-generated == 'true'
         run: |
+          set -euo pipefail
+
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
+
+          BLOG_FILENAME="${{ steps.generate-content.outputs.blog-filename }}"
+
+          if ! git status --porcelain "$BLOG_FILENAME" | grep -q .; then
+            echo "ℹ️ No pending changes for $BLOG_FILENAME. Skipping commit."
+            exit 0
+          fi
+
+          git add "$BLOG_FILENAME"
+
+          if git diff --cached --quiet -- "$BLOG_FILENAME"; then
+            echo "ℹ️ $BLOG_FILENAME staged cleanly but contains no changes. Skipping commit."
+            exit 0
+          fi
+
           git commit -m "📝 Auto-generated blog post for ${{ steps.blog-day.outputs.day }}"
           git push origin main
           echo "✅ Changes committed and pushed"

@@ -1,0 +1,3 @@
+[submodule "plex-recommendations-migration"]
+    path = plex-recommendations-migration
+    url = https://github.com/Necron-99/plex-recommendations-migration.git
