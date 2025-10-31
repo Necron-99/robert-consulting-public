@@ -1,0 +1,4 @@
+; Auto-generated to fix missing submodule configuration
+[submodule "plex-recommendations-migration"]
+	path = plex-recommendations-migration
+	url = https://github.com/robert-consulting/plex-recommendations-migration.git
