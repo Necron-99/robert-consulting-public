@@ -153,6 +153,39 @@ class BlogManager {
         tags: ['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics'],
         icon: '🤖',
         readTime: '10 min read'
+      },
+      {
+        id: 10,
+        title: 'Intelligent Vulnerability Remediation',
+        excerpt: 'AI-powered security, threat detection, automated remediation',
+        content: 'blog-posts/wednesday-2025-10-29.html',
+        date: '2025-10-29', // Wednesday
+        category: 'security',
+        tags: ['Vulnerability Management', 'Security Automation', 'AI Security', 'Threat Detection', 'Remediation'],
+        icon: '🔒',
+        readTime: '8 min read'
+      },
+      {
+        id: 11,
+        title: 'OpenTofu Analysis',
+        excerpt: 'Comprehensive comparison with Terraform, pros/cons, migration strategies',
+        content: 'blog-posts/thursday-2025-10-30.html',
+        date: '2025-10-30', // Thursday
+        category: 'infrastructure',
+        tags: ['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison'],
+        icon: '🏗️',
+        readTime: '10 min read'
+      },
+      {
+        id: 12,
+        title: 'Platform Market Analysis',
+        excerpt: 'Domo, OpenShift, and other enterprise platform players',
+        content: 'blog-posts/friday-2025-10-31.html',
+        date: '2025-10-31', // Friday
+        category: 'platform',
+        tags: ['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis'],
+        icon: '📊',
+        readTime: '9 min read'
       }
     ];
   }
