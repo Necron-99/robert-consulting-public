@@ -133,7 +133,7 @@ class BlogManager {
       },
       // Week of October 27-31, 2025 (New Week)
       {
-        id: 8,
+        id: 13,
         title: 'AWS Services and Updates',
         excerpt: 'Latest AWS releases, feature updates, and impact analysis for cloud infrastructure and DevOps teams.',
         content: 'blog-posts/monday-2025-10-27.html',
@@ -144,7 +144,7 @@ class BlogManager {
         readTime: '12 min read'
       },
       {
-        id: 9,
+        id: 14,
         title: 'AIOps',
         excerpt: 'Artificial Intelligence for IT Operations, predictive analytics, automation',
         content: 'blog-posts/tuesday-2025-10-28.html',
@@ -155,7 +155,7 @@ class BlogManager {
         readTime: '10 min read'
       },
       {
-        id: 10,
+        id: 15,
         title: 'Intelligent Vulnerability Remediation',
         excerpt: 'AI-powered security, threat detection, automated remediation',
         content: 'blog-posts/wednesday-2025-10-29.html',
@@ -166,7 +166,7 @@ class BlogManager {
         readTime: '8 min read'
       },
       {
-        id: 11,
+        id: 16,
         title: 'OpenTofu Analysis',
         excerpt: 'Comprehensive comparison with Terraform, pros/cons, migration strategies',
         content: 'blog-posts/thursday-2025-10-30.html',
@@ -177,7 +177,7 @@ class BlogManager {
         readTime: '10 min read'
       },
       {
-        id: 12,
+        id: 17,
         title: 'Platform Market Analysis',
         excerpt: 'Domo, OpenShift, and other enterprise platform players',
         content: 'blog-posts/friday-2025-10-31.html',

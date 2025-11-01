@@ -27,6 +27,13 @@
   image-rendering: crisp-edges;
 }
 
+/* Logo in navigation bar - smaller size */
+.nav-logo.logo-container .logo-image {
+  width: 215px;
+  height: 56px;
+  max-width: 100%;
+}
+
 .logo-image:hover {
   transform: scale(1.02);
   /* Slightly enhanced legibility on hover */

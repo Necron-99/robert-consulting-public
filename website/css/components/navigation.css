@@ -22,10 +22,19 @@
 
 .nav-logo {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   text-decoration: none;
   transition: all var(--transition-fast);
+}
+
+/* Support both text and image logos */
+.nav-logo.logo-container {
+  flex-direction: row;
+}
+
+.nav-logo:not(.logo-container) {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .nav-logo:hover {
@@ -40,11 +49,21 @@
   line-height: var(--line-height-tight);
 }
 
+/* Hide h2 when logo image is present */
+.nav-logo.logo-container h2 {
+  display: none;
+}
+
 .nav-tagline {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   font-weight: var(--font-weight-medium);
   margin-top: var(--space-1);
+}
+
+/* Hide tagline when logo image is present */
+.nav-logo.logo-container .nav-tagline {
+  display: none;
 }
 
 .nav-menu {
