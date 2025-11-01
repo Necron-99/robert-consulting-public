@@ -13,12 +13,11 @@
     .tardis-fill   { fill: var(--light); stroke: none; }
   </style>
 
-  <!-- Micro TARDIS separator (slightly stylized) -->
-  <g transform="translate(160, 45)">
-  <text x="125" y="26" text-anchor="middle" class="brand" font-size="20">ROBERT CONSULTING</text>
+  <!-- Brand name text -->
+  <text x="125" y="20" text-anchor="middle" class="brand" font-size="20">ROBERT CONSULTING</text>
 
   <!-- Micro TARDIS separator (slightly stylized) -->
-  <g transform="translate(125, 34)">
+  <g transform="translate(125, 30)">
     <!-- center on x by offsetting half width (8px) -->
     <g transform="translate(-4,-6)">
       <!-- body outline -->
@@ -38,6 +37,5 @@
   </g>
 
   <!-- Tagline (slightly narrower & centered) -->
-  <text x="125" y="52" text-anchor="middle" class="tag" font-size="10">DEVSECOPS &amp; CLOUD ENGINEERING</text>
-  </g>
+  <text x="125" y="50" text-anchor="middle" class="tag" font-size="10">DEVSECOPS &amp; CLOUD ENGINEERING</text>
 </svg>
