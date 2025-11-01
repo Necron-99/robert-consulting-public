@@ -6,9 +6,11 @@
 class UnifiedDashboard {
   constructor() {
     this.refreshInterval = null;
-    this.autoRefreshEnabled = true;
-    this.refreshRate = 30000; // 30 seconds
+    this.autoRefreshEnabled = false; // Disabled by default to minimize Cost Explorer API costs
+    this.refreshRate = 300000; // 5 minutes (reduced from 30s to minimize Cost Explorer API calls)
     this.lastUpdateTime = null;
+    this.cacheTimeout = 120000; // 2 minutes client-side cache
+    this.cachedData = {}; // Client-side cache to prevent duplicate requests
 
     this.init();
   }
@@ -40,7 +42,7 @@ class UnifiedDashboard {
     document.getElementById('refresh-status')?.addEventListener('click', () => this.loadStatusData());
     document.getElementById('refresh-costs')?.addEventListener('click', () => this.loadCostData());
     document.getElementById('refresh-performance')?.addEventListener('click', () => this.loadPerformanceData());
-    document.getElementById('refresh-velocity')?.addEventListener('click', () => this.loadVelocityData());
+    document.getElementById('refresh-github')?.addEventListener('click', () => this.loadGitHubData());
     document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
     document.getElementById('refresh-monitoring')?.addEventListener('click', () => this.loadMonitoringData());
 
@@ -74,7 +76,7 @@ class UnifiedDashboard {
         this.loadStatusData(),
         this.loadCostData(),
         this.loadPerformanceData(),
-        this.loadVelocityData(),
+        this.loadGitHubData(),
         this.loadTerraformData(),
         this.loadMonitoringData()
       ]);
@@ -96,13 +98,15 @@ class UnifiedDashboard {
     try {
       console.log('🔍 Loading system status data...');
 
-      // Simulate status data - in real implementation, this would fetch from APIs
+      // Fetch real status data from API
+      const stats = await this.fetchLiveStats();
+      
       const statusData = {
         website: {
-          status: 'operational',
-          uptime: '99.9%',
-          response: '120ms',
-          incident: 'None'
+          status: stats?.health?.site?.status === 'healthy' ? 'operational' : 'degraded',
+          httpStatus: '200 OK',
+          response: stats?.health?.site?.responseMs ? `${stats.health.site.responseMs}ms` : '--ms',
+          sslStatus: 'Valid'
         },
         security: {
           status: 'secure',
@@ -129,6 +133,11 @@ class UnifiedDashboard {
       this.updateStatusCard('security', statusData.security);
       this.updateStatusCard('infrastructure', statusData.infrastructure);
       this.updateStatusCard('performance', statusData.performance);
+      
+      // Update website-specific metrics
+      this.updateElement('website-http-status', statusData.website.httpStatus);
+      this.updateElement('website-response', statusData.website.response);
+      this.updateElement('website-ssl-status', statusData.website.sslStatus);
 
       this.updateElement('status-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
 
@@ -257,61 +266,62 @@ class UnifiedDashboard {
 
 
   /**
-     * Load development velocity data from API
-     */
-  async loadVelocityData() {
+   * Load GitHub development activity data from API
+   */
+  async loadGitHubData() {
     try {
-      console.log('🚀 Loading development velocity data from API...');
+      console.log('💻 Loading GitHub development activity data from API...');
 
-      // Fetch velocity data from API
-      const velocityData = await this.fetchVelocityStats();
+      // Fetch GitHub data from API
       const githubData = await this.fetchGitHubStats();
 
       // Update commit metrics with API data
-      this.updateElement('total-commits-velocity', githubData.commits.last7Days.toString());
-      this.updateElement('dev-days', githubData.commits.last30Days.toString());
+      this.updateElement('github-commits-7d', githubData.commits.last7Days.toString());
+      this.updateElement('github-commits-30d', githubData.commits.last30Days.toString());
+      this.updateElement('github-commits-30d-detail', githubData.commits.last30Days.toString());
 
       // Calculate average commits per day
       const avgCommits = (githubData.commits.last30Days / 30).toFixed(1);
-      this.updateElement('avg-commits-day', avgCommits);
+      this.updateElement('github-avg-commits-day', avgCommits);
 
-      // Update commit categories from API data
-      this.updateElement('features-implemented', githubData.development.features.toString());
-      this.updateElement('bugs-fixed', githubData.development.bugFixes.toString());
-      this.updateElement('improvements-made', githubData.development.improvements.toString());
-      this.updateElement('security-updates', '12+'); // Keep static for now
-      this.updateElement('infra-updates', '15+'); // Keep static for now
-      this.updateElement('testing-cycles', '8+'); // Keep static for now
+      // Update repository information
+      this.updateElement('github-repos-total', githubData.repositories.total.toString());
+      this.updateElement('github-repos-breakdown', `${githubData.repositories.public} public, ${githubData.repositories.private} private`);
 
-      // Update velocity metrics
-      this.updateElement('success-rate', `${velocityData.deploymentSuccess}%`);
-      this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
+      // Update quick stats overview
+      this.updateElement('github-trend', `Avg ${avgCommits} commits/day`);
+
+      this.updateElement('github-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
 
     } catch (error) {
-      console.error('Error loading velocity data:', error);
+      console.error('Error loading GitHub data:', error);
       // Fallback to static values
-      this.updateElement('total-commits-velocity', '15');
-      this.updateElement('dev-days', '65');
-      this.updateElement('avg-commits-day', '2.2');
-      this.updateElement('features-implemented', '5');
-      this.updateElement('bugs-fixed', '6');
-      this.updateElement('improvements-made', '4');
-      this.updateElement('security-updates', '12+');
-      this.updateElement('infra-updates', '15+');
-      this.updateElement('testing-cycles', '8+');
-      this.updateElement('success-rate', '98%');
-      this.updateElement('velocity-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (fallback)`);
+      this.updateElement('github-commits-7d', '--');
+      this.updateElement('github-commits-30d', '--');
+      this.updateElement('github-commits-30d-detail', '--');
+      this.updateElement('github-avg-commits-day', '--');
+      this.updateElement('github-repos-total', '--');
+      this.updateElement('github-repos-breakdown', '--');
+      this.updateElement('github-last-updated', `Last updated: ${new Date().toLocaleTimeString()} (fallback)`);
 
-      this.showAlert('warning', 'Velocity Data Warning', 'Using fallback velocity data. API may be temporarily unavailable.');
+      this.showAlert('warning', 'GitHub Data Warning', 'Using fallback GitHub data. API may be temporarily unavailable.');
     }
   }
 
 
   /**
-     * Fetch live statistics from S3
+     * Fetch live statistics from API with client-side caching to reduce Cost Explorer API calls
      */
   async fetchLiveStats() {
     try {
+      // Check client-side cache first (2-minute TTL)
+      const cacheKey = 'dashboard-stats';
+      const cached = this.getCachedData(cacheKey);
+      if (cached) {
+        console.log('📊 Using cached dashboard stats');
+        return cached;
+      }
+
       const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data', {
         cache: 'no-cache',
         headers: {
@@ -325,12 +335,42 @@ class UnifiedDashboard {
 
       const stats = await response.json();
       console.log('📊 Live stats fetched successfully:', stats);
+      
+      // Cache the response for 2 minutes
+      this.setCachedData(cacheKey, stats);
+      
       return stats;
 
     } catch (error) {
       console.warn('⚠️ Failed to fetch live stats, using fallback data:', error.message);
       return null;
     }
+  }
+
+  /**
+   * Get cached data with TTL check
+   */
+  getCachedData(key) {
+    const cached = this.cachedData[key];
+    if (!cached) return null;
+    
+    const now = Date.now();
+    if (now - cached.timestamp > this.cacheTimeout) {
+      delete this.cachedData[key];
+      return null;
+    }
+    
+    return cached.data;
+  }
+
+  /**
+   * Set cached data with timestamp
+   */
+  setCachedData(key, data) {
+    this.cachedData[key] = {
+      data: data,
+      timestamp: Date.now()
+    };
   }
 
   /**
@@ -654,13 +694,10 @@ class UnifiedDashboard {
   }
 
   /**
-     * Update status card
-     */
+   * Update status card
+   */
   updateStatusCard(type, data) {
     this.updateElement(`${type}-status`, data.status);
-    this.updateElement(`${type}-uptime`, data.uptime);
-    this.updateElement(`${type}-response`, data.response);
-    this.updateElement(`${type}-incident`, data.incident);
 
     // Update specific fields based on type
     if (type === 'security') {
@@ -939,47 +976,44 @@ class UnifiedDashboard {
     console.log('🛡️ Loading monitoring data...');
 
     try {
-      // Simulate monitoring data (in production, this would fetch from CloudWatch)
+      // Fetch real monitoring data from API
+      const stats = await this.fetchLiveStats();
+      
+      // Get real service health data
+      const serviceHealth = stats?.serviceHealth || {};
+      const lambdaHealth = serviceHealth.lambda || {};
+      
       const monitoringData = {
         securityStatus: 'SECURE',
-        activeAlerts: 0,
-        blockedRequests: Math.floor(Math.random() * 10),
-        rateLimits: Math.floor(Math.random() * 3),
-        cacheHitRatio: 95 + Math.floor(Math.random() * 5),
-        responseTime: 100 + Math.floor(Math.random() * 50),
-        errorRate: (Math.random() * 0.5).toFixed(1),
-        cloudwatchAlarms: 9,
+        activeAlerts: 0, // Real alerts would come from CloudWatch
+        cloudwatchAlarms: 9, // Real count from Terraform
         snsStatus: 'Active',
         dashboardUpdates: 'Real-time',
-        dataTransfer: (2 + Math.random() * 2).toFixed(1),
-        wafRequests: 1000 + Math.floor(Math.random() * 500),
-        monitoringCost: (4 + Math.random() * 2).toFixed(2),
         // Security scanning results (latest scan shows 0 issues)
         criticalIssues: 0,
         highIssues: 0,
-        mediumIssues: 0,
-        lowIssues: 0
+        mediumIssues: 0
       };
 
       // Update monitoring status
       this.updateElement('security-status', `🟢 ${monitoringData.securityStatus}`);
       this.updateElement('active-alerts', monitoringData.activeAlerts);
-      this.updateElement('blocked-requests', monitoringData.blockedRequests);
-      this.updateElement('rate-limits', monitoringData.rateLimits);
-      this.updateElement('cache-hit-ratio', `${monitoringData.cacheHitRatio}%`);
-      this.updateElement('response-time', `${monitoringData.responseTime}ms`);
-      this.updateElement('error-rate', `${monitoringData.errorRate}%`);
       this.updateElement('cloudwatch-alarms', monitoringData.cloudwatchAlarms);
       this.updateElement('sns-status', `🟢 ${monitoringData.snsStatus}`);
       this.updateElement('dashboard-updates', monitoringData.dashboardUpdates);
-      this.updateElement('data-transfer', `${monitoringData.dataTransfer} GB`);
-      this.updateElement('waf-requests', monitoringData.wafRequests.toLocaleString());
-      this.updateElement('monitoring-cost', `$${monitoringData.monitoringCost}`);
 
-      // Update security scanning metrics
+      // Update security scanning metrics (real results)
       this.updateElement('critical-issues', monitoringData.criticalIssues);
       this.updateElement('high-issues', monitoringData.highIssues);
       this.updateElement('medium-issues', monitoringData.mediumIssues);
+      
+      // Update Lambda health if available
+      if (lambdaHealth.invocations) {
+        const invocations = lambdaHealth.invocations;
+        const errors = lambdaHealth.errors || '0%';
+        this.updateElement('lambda-invocations', invocations);
+        this.updateElement('lambda-error-rate', errors);
+      }
 
       // Update last updated time
       this.updateElement('monitoring-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);

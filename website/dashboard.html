@@ -81,7 +81,7 @@
                 </div>
                 <div class="refresh-controls">
                     <button id="refresh-all" class="btn btn-primary">🔄 Refresh All</button>
-                    <button id="auto-refresh" class="btn btn-secondary">⏱️ Auto Refresh: ON</button>
+                    <button id="auto-refresh" class="btn btn-secondary">⏱️ Auto Refresh: OFF</button>
                 </div>
             </div>
         </section>
@@ -115,162 +115,59 @@
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">📈</div>
+                        <div class="stat-icon">💻</div>
                         <div class="stat-content">
-                            <div class="stat-value" id="uptime-percentage">99.9%</div>
-                            <div class="stat-label">Uptime</div>
-                            <div class="stat-trend" id="uptime-trend">Excellent</div>
+                            <div class="stat-value" id="github-commits-30d">--</div>
+                            <div class="stat-label">GitHub Commits (30d)</div>
+                            <div class="stat-trend" id="github-trend">Real-time data</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Development Velocity Section -->
-        <section class="development-velocity-section">
+        <!-- Development Activity Section -->
+        <section class="development-activity-section">
             <div class="container">
                 <div class="section-header">
-                    <h3>🚀 Development Velocity</h3>
+                    <h3>💻 Development Activity</h3>
                     <div class="refresh-controls">
-                        <button id="refresh-velocity" class="btn btn-primary">Refresh</button>
-                        <span class="last-updated" id="velocity-last-updated">Last updated: Never</span>
+                        <button id="refresh-github" class="btn btn-primary">Refresh</button>
+                        <span class="last-updated" id="github-last-updated">Last updated: Never</span>
                     </div>
                 </div>
                 
-                <div class="development-velocity">
-                    <div class="velocity-header">
-                        <h4>🚀 Development Velocity</h4>
-                        <span class="velocity-period">Active Development Metrics</span>
-                    </div>
-                    <div class="velocity-stats">
-                        <div class="velocity-item">
-                            <span class="velocity-label">New Features</span>
-                            <span class="velocity-value" id="features-implemented">35+</span>
-                        </div>
-                        <div class="velocity-item">
-                            <span class="velocity-label">Bugs Squashed</span>
-                            <span class="velocity-value" id="bugs-fixed">28+</span>
-                        </div>
-                        <div class="velocity-item">
-                            <span class="velocity-label">Improvements</span>
-                            <span class="velocity-value" id="improvements-made">42+</span>
-                        </div>
-                        <div class="velocity-item">
-                            <span class="velocity-label">Security Enhancements</span>
-                            <span class="velocity-value" id="security-updates">22+</span>
-                        </div>
-                        <div class="velocity-item">
-                            <span class="velocity-label">Infrastructure Updates</span>
-                            <span class="velocity-value" id="infra-updates">18+</span>
-                        </div>
-                        <div class="velocity-item">
-                            <span class="velocity-label">Testing & Validation</span>
-                            <span class="velocity-value" id="testing-cycles">15+</span>
+                <div class="github-stats-grid">
+                    <div class="github-stat-card">
+                        <div class="github-stat-icon">📝</div>
+                        <div class="github-stat-content">
+                            <div class="github-stat-value" id="github-commits-7d">--</div>
+                            <div class="github-stat-label">Commits (Last 7 days)</div>
+                            <div class="github-stat-description">Real GitHub API data</div>
                         </div>
                     </div>
-                    <div class="velocity-summary">
-                        <div class="summary-item">
-                            <span class="summary-label">Recent Commits (7d)</span>
-                            <span class="summary-value" id="total-commits-velocity">156</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Total Commits (30d)</span>
-                            <span class="summary-value" id="dev-days">487</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Avg Commits/Day</span>
-                            <span class="summary-value" id="avg-commits-day">4.2</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Success Rate</span>
-                            <span class="summary-value" id="success-rate">97%</span>
+                    <div class="github-stat-card">
+                        <div class="github-stat-icon">📊</div>
+                        <div class="github-stat-content">
+                            <div class="github-stat-value" id="github-commits-30d-detail">--</div>
+                            <div class="github-stat-label">Commits (Last 30 days)</div>
+                            <div class="github-stat-description">Real GitHub API data</div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Repository Cleanup Achievements -->
-        <section class="cleanup-achievements-section">
-            <div class="container">
-                <div class="section-header">
-                    <h3>🧹 Repository Cleanup Achievements</h3>
-                    <div class="refresh-controls">
-                        <span class="last-updated">Completed: October 13, 2025</span>
-                    </div>
-                </div>
-                
-                <div class="cleanup-grid">
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">📁</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">14</div>
-                            <div class="cleanup-label">Organized Directories</div>
-                            <div class="cleanup-description">docs/, scripts/, config/ structure</div>
+                    <div class="github-stat-card">
+                        <div class="github-stat-icon">📁</div>
+                        <div class="github-stat-content">
+                            <div class="github-stat-value" id="github-repos-total">--</div>
+                            <div class="github-stat-label">Repositories</div>
+                            <div class="github-stat-description" id="github-repos-breakdown">--</div>
                         </div>
                     </div>
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">📄</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">133</div>
-                            <div class="cleanup-label">Documentation Files</div>
-                            <div class="cleanup-description">All organized by category</div>
-                        </div>
-                    </div>
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">🔧</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">68</div>
-                            <div class="cleanup-label">Automation Scripts</div>
-                            <div class="cleanup-description">Deployment, security, utilities</div>
-                        </div>
-                    </div>
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">🏗️</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">44</div>
-                            <div class="cleanup-label">Infrastructure Files</div>
-                            <div class="cleanup-description">Terraform configurations</div>
-                        </div>
-                    </div>
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">🌐</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">21</div>
-                            <div class="cleanup-label">Web Pages</div>
-                            <div class="cleanup-description">HTML files organized</div>
-                        </div>
-                    </div>
-                    <div class="cleanup-card">
-                        <div class="cleanup-icon">🎨</div>
-                        <div class="cleanup-content">
-                            <div class="cleanup-value">22</div>
-                            <div class="cleanup-label">Stylesheets</div>
-                            <div class="cleanup-description">CSS files organized</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="cleanup-summary">
-                    <div class="summary-highlight">
-                        <h4>🎯 Cleanup Impact</h4>
-                        <div class="impact-stats">
-                            <div class="impact-item">
-                                <span class="impact-label">Files Removed</span>
-                                <span class="impact-value">18,111+ lines</span>
-                            </div>
-                            <div class="impact-item">
-                                <span class="impact-label">Duplicates Eliminated</span>
-                                <span class="impact-value">100%</span>
-                            </div>
-                            <div class="impact-item">
-                                <span class="impact-label">Security Improved</span>
-                                <span class="impact-value">Zero sensitive data</span>
-                            </div>
-                            <div class="impact-item">
-                                <span class="impact-label">Maintainability</span>
-                                <span class="impact-value">Significantly improved</span>
-                            </div>
+                    <div class="github-stat-card">
+                        <div class="github-stat-icon">📈</div>
+                        <div class="github-stat-content">
+                            <div class="github-stat-value" id="github-avg-commits-day">--</div>
+                            <div class="github-stat-label">Avg Commits/Day</div>
+                            <div class="github-stat-description">Based on 30-day average</div>
                         </div>
                     </div>
                 </div>
@@ -435,16 +332,16 @@
                         </div>
                         <div class="status-metrics">
                             <div class="metric">
-                                <span class="metric-label">Uptime</span>
-                                <span class="metric-value" id="website-uptime">99.9%</span>
+                                <span class="metric-label">Status</span>
+                                <span class="metric-value" id="website-http-status">200 OK</span>
                             </div>
                             <div class="metric">
                                 <span class="metric-label">Response Time</span>
-                                <span class="metric-value" id="website-response">120ms</span>
+                                <span class="metric-value" id="website-response">--ms</span>
                             </div>
                             <div class="metric">
-                                <span class="metric-label">Last Incident</span>
-                                <span class="metric-value" id="website-incident">None</span>
+                                <span class="metric-label">SSL Certificate</span>
+                                <span class="metric-value" id="website-ssl-status">Valid</span>
                             </div>
                         </div>
                     </div>
@@ -651,14 +548,6 @@
                                 <span class="metric-label">Active Alerts</span>
                                 <span class="metric-value" id="active-alerts">0</span>
                             </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Blocked Requests (24h)</span>
-                                <span class="metric-value" id="blocked-requests">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Rate Limit Triggers</span>
-                                <span class="metric-value" id="rate-limits">0</span>
-                            </div>
                         </div>
                         <div class="monitoring-description">
                             Real-time threat detection and automated response
@@ -687,27 +576,6 @@
                     </div>
                     
                     <div class="monitoring-card">
-                        <h4>⚡ Performance Monitoring</h4>
-                        <div class="monitoring-metrics">
-                            <div class="metric-item">
-                                <span class="metric-label">Cache Hit Ratio</span>
-                                <span class="metric-value" id="cache-hit-ratio">95%</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Response Time</span>
-                                <span class="metric-value" id="response-time">120ms</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Error Rate</span>
-                                <span class="metric-value" id="error-rate">0.1%</span>
-                            </div>
-                        </div>
-                        <div class="monitoring-description">
-                            Continuous performance optimization and monitoring
-                        </div>
-                    </div>
-                    
-                    <div class="monitoring-card">
                         <h4>📊 Monitoring Infrastructure</h4>
                         <div class="monitoring-metrics">
                             <div class="metric-item">
@@ -728,26 +596,6 @@
                         </div>
                     </div>
                     
-                    <div class="monitoring-card">
-                        <h4>💰 Cost Monitoring</h4>
-                        <div class="monitoring-metrics">
-                            <div class="metric-item">
-                                <span class="metric-label">Data Transfer (24h)</span>
-                                <span class="metric-value" id="data-transfer">2.1 GB</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">WAF Requests (24h)</span>
-                                <span class="metric-value" id="waf-requests">1,247</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Monitoring Cost</span>
-                                <span class="metric-value" id="monitoring-cost">$4.20</span>
-                            </div>
-                        </div>
-                        <div class="monitoring-description">
-                            Proactive cost tracking and optimization alerts
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="monitoring-features">

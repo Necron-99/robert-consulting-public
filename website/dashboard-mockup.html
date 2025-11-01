@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mockup - Robert Consulting</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/pages/dashboard.css">
+    <style>
+        /* Mockup-specific styles */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 2rem;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .mockup-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #334155;
+        }
+        .mockup-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #60a5fa;
+        }
+        .mockup-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .section {
+            margin-bottom: 3rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #60a5fa;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 0.25rem;
+        }
+        .stat-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+        .removed-section {
+            background: #1e293b;
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.6;
+        }
+        .removed-section h3 {
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+        }
+        .removed-section p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+        .kept-section {
+            background: #0f172a;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .kept-section h3 {
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        .note {
+            background: #1e293b;
+            border-left: 4px solid #fbbf24;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+        .note strong {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <div class="mockup-header">
+            <h1>📊 Dashboard Cleanup Mockup</h1>
+            <p>Focusing on Real Metrics That Demonstrate Employability</p>
+        </div>
+
+        <!-- REMOVED SECTIONS -->
+        <div class="section">
+            <h2 class="section-title">❌ Sections Removed (Invented/Useless Metrics)</h2>
+            
+            <div class="removed-section">
+                <h3>🚀 Development Velocity (REMOVED)</h3>
+                <p><strong>Reason:</strong> Contains invented counts like "35+ New Features", "28+ Bugs Squashed", "42+ Improvements" - these are not based on real data tracking.</p>
+            </div>
+
+            <div class="removed-section">
+                <h3>🧹 Repository Cleanup Achievements (REMOVED)</h3>
+                <p><strong>Reason:</strong> One-time cleanup event from October 2025 - not an ongoing metric relevant for current employability.</p>
+            </div>
+
+            <div class="removed-section">
+                <h3>Over-detailed Monitoring Cards (SIMPLIFIED)</h3>
+                <p><strong>Reason:</strong> Random/simulated metrics like "Blocked Requests", "Rate Limit Triggers" that don't add real value. Security metrics should be real scanning results only.</p>
+            </div>
+
+            <div class="removed-section">
+                <h3>Fake Uptime Percentages (REMOVED)</h3>
+                <p><strong>Reason:</strong> Hardcoded "99.9%" values that aren't calculated from actual monitoring data.</p>
+            </div>
+        </div>
+
+        <!-- KEPT SECTIONS -->
+        <div class="section">
+            <h2 class="section-title">✅ Kept Sections (Real Metrics)</h2>
+
+            <!-- Quick Stats Overview -->
+            <div class="kept-section">
+                <h3>📊 Quick Stats Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Monthly AWS Cost</div>
+                        <div class="stat-value">$6.82</div>
+                        <div class="stat-description">Real-time from AWS Cost Explorer API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average Response Time</div>
+                        <div class="stat-value">120ms</div>
+                        <div class="stat-description">Measured from actual API responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">GitHub Activity (30d)</div>
+                        <div class="stat-value">487 commits</div>
+                        <div class="stat-description">Real commits from GitHub API</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Monitoring -->
+            <div class="kept-section">
+                <h3>💰 AWS Cost Management</h3>
+                <p><strong>Why this matters:</strong> Demonstrates cost optimization skills and AWS proficiency.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Monthly Cost</div>
+                        <div class="stat-value">$6.82</div>
+                        <div class="stat-description">From AWS Cost Explorer</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">S3 Storage</div>
+                        <div class="stat-value">$0.16</div>
+                        <div class="stat-description">2.1 GB stored</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CloudFront</div>
+                        <div class="stat-value">$0.08</div>
+                        <div class="stat-description">Content delivery</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Route53</div>
+                        <div class="stat-value">$3.05</div>
+                        <div class="stat-description">DNS resolution</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">WAF</div>
+                        <div class="stat-value">$1.46</div>
+                        <div class="stat-description">Security protection</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CloudWatch</div>
+                        <div class="stat-value">$2.24</div>
+                        <div class="stat-description">Monitoring & logging</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infrastructure as Code -->
+            <div class="kept-section">
+                <h3>🏗️ Infrastructure as Code (Terraform)</h3>
+                <p><strong>Why this matters:</strong> Shows IaC expertise, automation, and infrastructure management skills.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Resources Managed</div>
+                        <div class="stat-value">79</div>
+                        <div class="stat-description">All AWS resources in Terraform</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Terraform Files</div>
+                        <div class="stat-value">27</div>
+                        <div class="stat-description">4,758 lines of IaC</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">AWS Services</div>
+                        <div class="stat-value">15</div>
+                        <div class="stat-description">Multi-service architecture</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Security Resources</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-description">WAF, IAM, Encryption</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Development Activity -->
+            <div class="kept-section">
+                <h3>💻 Development Activity (GitHub)</h3>
+                <p><strong>Why this matters:</strong> Demonstrates consistent coding activity and contribution history.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Commits (Last 7 days)</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-description">Real GitHub API data</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Commits (Last 30 days)</div>
+                        <div class="stat-value">487</div>
+                        <div class="stat-description">Real GitHub API data</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Repositories</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-description">8 public, 4 private</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Commits/Day</div>
+                        <div class="stat-value">16.2</div>
+                        <div class="stat-description">Based on 30-day average</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="kept-section">
+                <h3>⚡ Performance Metrics</h3>
+                <p><strong>Why this matters:</strong> Shows optimization skills and attention to user experience.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">LCP (Largest Contentful Paint)</div>
+                        <div class="stat-value">1.2s</div>
+                        <div class="stat-description">✅ Good (target: &lt;2.5s)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">FID (First Input Delay)</div>
+                        <div class="stat-value">45ms</div>
+                        <div class="stat-description">✅ Good (target: &lt;100ms)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CLS (Cumulative Layout Shift)</div>
+                        <div class="stat-value">0.05</div>
+                        <div class="stat-description">✅ Good (target: &lt;0.1)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Page Speed (Mobile)</div>
+                        <div class="stat-value">95</div>
+                        <div class="stat-description">✅ Grade A</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Posture -->
+            <div class="kept-section">
+                <h3>🛡️ Security Posture</h3>
+                <p><strong>Why this matters:</strong> Shows security awareness and DevSecOps practices.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Critical Issues</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-description">From real security scans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">High Issues</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-description">CodeQL, Semgrep, Trivy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">WAF Protection</div>
+                        <div class="stat-value">Active</div>
+                        <div class="stat-description">Real-time threat blocking</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">SSL/TLS</div>
+                        <div class="stat-value">Valid</div>
+                        <div class="stat-description">Encrypted connections</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health (Simplified) -->
+            <div class="kept-section">
+                <h3>🏥 System Health (Simplified)</h3>
+                <p><strong>Why this matters:</strong> Shows operational awareness and monitoring capabilities.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Lambda Functions</div>
+                        <div class="stat-value">Healthy</div>
+                        <div class="stat-description">3,653 invocations, 0 errors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Route53</div>
+                        <div class="stat-value">Operational</div>
+                        <div class="stat-description">DNS resolution working</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CloudWatch Alarms</div>
+                        <div class="stat-value">9 Active</div>
+                        <div class="stat-description">Real monitoring alerts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Notes -->
+        <div class="note">
+            <strong>Summary of Changes:</strong><br>
+            ✅ <strong>Kept:</strong> Real AWS costs, Terraform infrastructure counts, GitHub activity (real commits), Performance metrics (Core Web Vitals), Security scanning results<br>
+            ❌ <strong>Removed:</strong> Invented development velocity counts, one-time cleanup achievements, fake uptime percentages, simulated monitoring data<br>
+            📊 <strong>Focus:</strong> Metrics that directly demonstrate skills relevant to DevOps/Cloud Engineering roles
+        </div>
+    </div>
+</body>
+</html>
+

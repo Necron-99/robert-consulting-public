@@ -1273,110 +1273,87 @@
 }
 
 /* Development Velocity Section */
-.development-velocity-section {
+.development-activity-section {
     padding: 4rem 0;
     background: var(--bg-secondary);
 }
 
-.development-velocity {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 2rem;
+.github-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
     margin-top: 2rem;
-    border: 1px solid var(--border-color);
 }
 
-.velocity-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.velocity-header h4 {
-    color: var(--text-primary);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.velocity-period {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    background: var(--accent-color);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-weight: 500;
-}
-
-.velocity-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.velocity-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--background-secondary);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-
-.velocity-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--accent-color);
-}
-
-.velocity-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.velocity-value {
-    color: var(--accent-color);
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.velocity-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.summary-item {
+.github-stat-card {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 1rem;
-    background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
-    border-radius: 8px;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.github-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #60a5fa, #3b82f6);
+}
+
+.github-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: #60a5fa;
+}
+
+.github-stat-icon {
+    font-size: 2.5rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-radius: 20px;
     color: white;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.2);
 }
 
-.summary-label {
-    font-size: 0.8rem;
-    opacity: 0.9;
+.github-stat-content {
+    width: 100%;
+}
+
+.github-stat-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
-    font-weight: 500;
+    line-height: 1.2;
 }
 
-.summary-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.github-stat-label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.github-stat-description {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    font-style: italic;
 }
 
 /* Responsive Design */
@@ -1728,60 +1705,7 @@
 }
 
 /* Repository Cleanup Achievements Section */
-.cleanup-achievements-section {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 2rem 0;
-    box-shadow: var(--card-shadow);
-}
-
-.cleanup-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.cleanup-card {
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.cleanup-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--primary-color);
-}
-
-.cleanup-icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.cleanup-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.cleanup-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 0.5rem;
-}
-
-.cleanup-description {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
+/* Cleanup achievements section removed - replaced with Development Activity */
 
 .cleanup-summary {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -1824,26 +1748,18 @@
 
 /* Responsive Design for Cleanup Section */
 @media (max-width: 768px) {
-    .cleanup-grid {
+    .github-stats-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .impact-stats {
-        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 480px) {
-    .cleanup-grid {
+    .github-stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .cleanup-value {
+    .github-stat-value {
         font-size: 1.5rem;
-    }
-    
-    .cleanup-summary {
-        padding: 1.5rem;
     }
 }
 
