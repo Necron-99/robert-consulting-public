@@ -21,10 +21,9 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Robert Consulting</h2>
-                <span class="nav-tagline">System Dashboard</span>
-            </div>
+            <a href="index.html" class="nav-logo logo-container">
+                <img src="images/robert-consulting-logo.svg" alt="Robert Consulting - DevSecOps & Cloud Engineering" class="logo-image">
+            </a>
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item">
                     <a href="index.html" class="nav-link">Home</a>
@@ -127,47 +126,50 @@
         </section>
 
         <!-- Development Activity Section -->
-        <section class="development-activity-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('dev-activity')">
                     <h3>💻 Development Activity</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-github" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-github" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="github-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="dev-activity-icon">▼</span>
                     </div>
                 </div>
                 
-                <div class="github-stats-grid">
-                    <div class="github-stat-card">
-                        <div class="github-stat-icon">📝</div>
-                        <div class="github-stat-content">
-                            <div class="github-stat-value" id="github-commits-7d">--</div>
-                            <div class="github-stat-label">Commits (Last 7 days)</div>
-                            <div class="github-stat-description">Real GitHub API data</div>
+                <div class="collapsible-content" id="dev-activity-content">
+                    <div class="github-stats-grid">
+                        <div class="github-stat-card">
+                            <div class="github-stat-icon">📝</div>
+                            <div class="github-stat-content">
+                                <div class="github-stat-value" id="github-commits-7d">--</div>
+                                <div class="github-stat-label">Commits (Last 7 days)</div>
+                                <div class="github-stat-description">Real GitHub API data</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="github-stat-card">
-                        <div class="github-stat-icon">📊</div>
-                        <div class="github-stat-content">
-                            <div class="github-stat-value" id="github-commits-30d-detail">--</div>
-                            <div class="github-stat-label">Commits (Last 30 days)</div>
-                            <div class="github-stat-description">Real GitHub API data</div>
+                        <div class="github-stat-card">
+                            <div class="github-stat-icon">📊</div>
+                            <div class="github-stat-content">
+                                <div class="github-stat-value" id="github-commits-30d-detail">--</div>
+                                <div class="github-stat-label">Commits (Last 30 days)</div>
+                                <div class="github-stat-description">Real GitHub API data</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="github-stat-card">
-                        <div class="github-stat-icon">📁</div>
-                        <div class="github-stat-content">
-                            <div class="github-stat-value" id="github-repos-total">--</div>
-                            <div class="github-stat-label">Repositories</div>
-                            <div class="github-stat-description" id="github-repos-breakdown">--</div>
+                        <div class="github-stat-card">
+                            <div class="github-stat-icon">📁</div>
+                            <div class="github-stat-content">
+                                <div class="github-stat-value" id="github-repos-total">--</div>
+                                <div class="github-stat-label">Repositories</div>
+                                <div class="github-stat-description" id="github-repos-breakdown">--</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="github-stat-card">
-                        <div class="github-stat-icon">📈</div>
-                        <div class="github-stat-content">
-                            <div class="github-stat-value" id="github-avg-commits-day">--</div>
-                            <div class="github-stat-label">Avg Commits/Day</div>
-                            <div class="github-stat-description">Based on 30-day average</div>
+                        <div class="github-stat-card">
+                            <div class="github-stat-icon">📈</div>
+                            <div class="github-stat-content">
+                                <div class="github-stat-value" id="github-avg-commits-day">--</div>
+                                <div class="github-stat-label">Avg Commits/Day</div>
+                                <div class="github-stat-description">Based on 30-day average</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -175,15 +177,18 @@
         </section>
 
         <!-- Terraform Infrastructure Section -->
-        <section class="terraform-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('terraform')">
                     <h3>🏗️ Infrastructure as Code</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-terraform" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-terraform" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="terraform-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="terraform-icon">▼</span>
                     </div>
                 </div>
+                
+                <div class="collapsible-content" id="terraform-content">
                 
                 <div class="terraform-grid">
                     <div class="terraform-card">
@@ -309,20 +314,23 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </section>
 
         <!-- System Status Section -->
-        <section class="status-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('system-status')">
                     <h3>🏥 System Status</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-status" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-status" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="status-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="system-status-icon">▼</span>
                     </div>
                 </div>
                 
+                <div class="collapsible-content" id="system-status-content">
                 <div class="status-grid">
                     <!-- Website Status -->
                     <div class="status-card">
@@ -412,19 +420,23 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </section>
 
         <!-- Cost Monitoring Section -->
-        <section class="cost-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('cost-monitoring')">
                     <h3>💰 Cost Monitoring</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-costs" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-costs" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="cost-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="cost-monitoring-icon">▼</span>
                     </div>
                 </div>
+                
+                <div class="collapsible-content" id="cost-monitoring-content">
                 
                 <div class="cost-overview">
                     <div class="cost-summary">
@@ -502,19 +514,23 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </section>
 
         <!-- Security & Monitoring Section -->
-        <section class="monitoring-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('security-monitoring')">
                     <h3>🛡️ Security & Monitoring</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-monitoring" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-monitoring" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="monitoring-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="security-monitoring-icon">▼</span>
                     </div>
                 </div>
+                
+                <div class="collapsible-content collapsed" id="security-monitoring-content">
                 
                 <div class="monitoring-overview">
                     <div class="monitoring-summary">
@@ -648,21 +664,24 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </section>
 
 
         <!-- Performance Metrics Section -->
-        <section class="performance-section">
+        <section class="dashboard-section collapsible-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header collapsible-header" onclick="toggleSection('performance')">
                     <h3>⚡ Performance Metrics</h3>
-                    <div class="refresh-controls">
-                        <button id="refresh-performance" class="btn btn-primary">Refresh</button>
+                    <div class="header-actions">
+                        <button id="refresh-performance" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
                         <span class="last-updated" id="performance-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="performance-icon">▼</span>
                     </div>
                 </div>
                 
+                <div class="collapsible-content collapsed" id="performance-content">
                 <div class="performance-grid">
                     <div class="performance-card" id="core-web-vitals">
                         <h4>Core Web Vitals</h4>
@@ -725,6 +744,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </section>
 
@@ -784,6 +804,37 @@
 
     <!-- Scripts -->
     <script src="dashboard-script.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/theme-toggle.js"></script>
     <script src="js/easter-egg.js"></script>
+    <script>
+        // Collapsible sections functionality
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('collapsed');
+                icon.textContent = '▶';
+            }
+        }
+
+        // Initialize: Keep Quick Stats and first section expanded, collapse others
+        document.addEventListener('DOMContentLoaded', () => {
+            // Expand first sections by default
+            const defaultExpanded = ['dev-activity', 'terraform', 'system-status', 'cost-monitoring'];
+            defaultExpanded.forEach(sectionId => {
+                const content = document.getElementById(sectionId + '-content');
+                const icon = document.getElementById(sectionId + '-icon');
+                if (content && icon) {
+                    content.classList.remove('collapsed');
+                    icon.textContent = '▼';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
