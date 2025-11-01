@@ -39,4 +39,5 @@
 
   <!-- Tagline (slightly narrower & centered) -->
   <text x="125" y="52" text-anchor="middle" class="tag" font-size="10">DEVSECOPS &amp; CLOUD ENGINEERING</text>
+  </g>
 </svg>
