@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" style="background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);">
+  <defs>
+    <!-- Gradients for retro-futuristic effects -->
+    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffed4e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Octarine glow (Discworld - the color of magic) -->
+    <radialGradient id="octarineGlow">
+      <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:0.3" />
+      <stop offset="50%" style="stop-color:#00ffff;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#ffff00;stop-opacity:0" />
+    </radialGradient>
+
+    <!-- Glow effect for neon -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="strongGlow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background stars -->
+  <circle cx="100" cy="80" r="1.5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="250" cy="50" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="680" cy="120" r="1.5" fill="#ffffff" opacity="0.7"/>
+  <circle cx="720" cy="90" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="150" cy="500" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="650" cy="480" r="1.5" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Octarine magical glow (Discworld) in background -->
+  <circle cx="400" cy="300" r="350" fill="url(#octarineGlow)" opacity="0.15"/>
+
+  <!-- Art Deco outer frame -->
+  <rect x="50" y="50" width="700" height="500" fill="none" stroke="url(#chromeGrad)" stroke-width="3" opacity="0.6"/>
+  <rect x="60" y="60" width="680" height="480" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.8"/>
+
+  <!-- Great A'Tuin (Discworld) - Turtle and Elephants at the bottom -->
+  <g transform="translate(400, 520)">
+    <!-- Turtle shell -->
+    <ellipse cx="0" cy="0" rx="45" ry="20" fill="#2d5016" opacity="0.7"/>
+    <ellipse cx="0" cy="0" rx="40" ry="17" fill="#3d6b1f" opacity="0.7"/>
+    <!-- Turtle head -->
+    <ellipse cx="-35" cy="-5" rx="8" ry="6" fill="#2d5016" opacity="0.7"/>
+    <!-- Four elephants (represented as simplified shapes) -->
+    <ellipse cx="-25" cy="8" rx="6" ry="10" fill="#8b7355" opacity="0.6"/>
+    <ellipse cx="-8" cy="8" rx="6" ry="10" fill="#8b7355" opacity="0.6"/>
+    <ellipse cx="8" cy="8" rx="6" ry="10" fill="#8b7355" opacity="0.6"/>
+    <ellipse cx="25" cy="8" rx="6" ry="10" fill="#8b7355" opacity="0.6"/>
+  </g>
+
+  <!-- Retro atomic orbits with hidden meanings -->
+  <g opacity="0.4">
+    <!-- Outer orbit (represents the One Ring) -->
+    <ellipse cx="400" cy="250" rx="280" ry="180" fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.5"/>
+    <!-- The Ring inscription hint -->
+    <path d="M 300,180 Q 400,160 500,180" fill="none" stroke="#ff6600" stroke-width="0.8" opacity="0.7"/>
+
+    <!-- Middle orbit (represents Improbability Drive paths) -->
+    <ellipse cx="400" cy="250" rx="220" ry="140" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.5" stroke-dasharray="10,5"/>
+
+    <!-- Inner orbit -->
+    <ellipse cx="400" cy="250" rx="160" ry="100" fill="none" stroke="#ff00ff" stroke-width="1" opacity="0.4"/>
+  </g>
+
+  <!-- Central retro badge/emblem -->
+  <g transform="translate(400, 250)">
+    <!-- Art Deco sunburst rays -->
+    <g opacity="0.3">
+      <line x1="0" y1="0" x2="0" y2="-120" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="85" y2="-85" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="120" y2="0" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="85" y2="85" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="-85" y2="-85" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="-120" y2="0" stroke="#ffd700" stroke-width="2"/>
+      <line x1="0" y1="0" x2="-85" y2="85" stroke="#ffd700" stroke-width="2"/>
+    </g>
+
+    <!-- Main circular badge -->
+    <circle r="100" fill="#1a1f3a" stroke="url(#goldGrad)" stroke-width="4"/>
+    <circle r="95" fill="none" stroke="url(#chromeGrad)" stroke-width="2"/>
+
+    <!-- The Eye of Sauron (subtle) -->
+    <ellipse cx="0" cy="-30" rx="25" ry="15" fill="#ff4500" opacity="0.2"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="15" fill="#000000" opacity="0.3"/>
+
+    <!-- Company initials "RC" in retro font style -->
+    <text x="-35" y="15" font-family="'Courier New', monospace" font-size="48" font-weight="bold" fill="url(#goldGrad)" filter="url(#glow)">RC</text>
+
+    <!-- The number 42 (Hitchhiker's Guide) hidden in the design -->
+    <text x="-55" y="-45" font-family="'Courier New', monospace" font-size="12" fill="#00d4ff" opacity="0.6">42</text>
+    <text x="35" y="45" font-family="'Courier New', monospace" font-size="10" fill="#00d4ff" opacity="0.5" transform="rotate(180, 35, 45)">42</text>
+  </g>
+
+  <!-- Babel Fish (Hitchhiker's Guide) - small fish silhouette -->
+  <g transform="translate(150, 180)">
+    <ellipse cx="0" cy="0" rx="8" ry="4" fill="#ffff00" opacity="0.4"/>
+    <polygon points="8,0 14,-2 14,2" fill="#ffff00" opacity="0.4"/>
+  </g>
+
+  <!-- Towel (Hitchhiker's Guide - a towel is the most useful thing) -->
+  <rect x="620" y="180" width="20" height="30" fill="#87ceeb" opacity="0.3" rx="2"/>
+
+  <!-- Company name in retro-futuristic style -->
+  <text x="400" y="380" font-family="'Arial Black', sans-serif" font-size="42" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle" filter="url(#glow)">ROBERT CONSULTING</text>
+
+  <!-- Tagline with hidden pun (Xanth style - "Cloud" with actual clouds) -->
+  <g>
+    <text x="400" y="420" font-family="'Arial', sans-serif" font-size="20" fill="#00d4ff" text-anchor="middle" filter="url(#glow)">DevSecOps &amp; Cloud Engineering</text>
+
+    <!-- Small cloud shapes around "Cloud" (Xanth pun element) -->
+    <ellipse cx="330" cy="415" rx="8" ry="5" fill="#ffffff" opacity="0.2"/>
+    <ellipse cx="337" cy="413" rx="6" ry="4" fill="#ffffff" opacity="0.2"/>
+    <ellipse cx="325" cy="413" rx="5" ry="3" fill="#ffffff" opacity="0.2"/>
+  </g>
+
+  <!-- "Don't Panic" (Hitchhiker's Guide) - subtle text at bottom -->
+  <text x="400" y="460" font-family="'Courier New', monospace" font-size="14" fill="#ff6b6b" text-anchor="middle" opacity="0.6">Don't Panic</text>
+
+  <!-- Magic sparkles (Xanth) scattered around -->
+  <g opacity="0.5">
+    <path d="M 180,280 L 182,284 L 186,282 L 184,286 L 188,288 L 184,288 L 182,292 L 180,288 L 176,288 L 180,286 L 178,282 Z" fill="#ff00ff" filter="url(#strongGlow)"/>
+    <path d="M 620,280 L 622,284 L 626,282 L 624,286 L 628,288 L 624,288 L 622,292 L 620,288 L 616,288 L 620,286 L 618,282 Z" fill="#00ffff" filter="url(#strongGlow)"/>
+    <path d="M 400,150 L 402,154 L 406,152 L 404,156 L 408,158 L 404,158 L 402,162 L 400,158 L 396,158 L 400,156 L 398,152 Z" fill="#ffff00" filter="url(#strongGlow)"/>
+  </g>
+
+  <!-- Hidden Elvish script (LOTR) - "One Ring" inscription hint -->
+  <text x="400" y="100" font-family="'Times New Roman', serif" font-size="11" fill="#ff6600" text-anchor="middle" opacity="0.4" font-style="italic">ash nazg durbatulûk</text>
+
+  <!-- Corner ornaments (Art Deco style) -->
+  <g opacity="0.5">
+    <!-- Top left -->
+    <path d="M 70,70 L 90,70 L 70,90 Z" fill="url(#goldGrad)"/>
+    <!-- Top right -->
+    <path d="M 730,70 L 710,70 L 730,90 Z" fill="url(#goldGrad)"/>
+    <!-- Bottom left -->
+    <path d="M 70,530 L 90,530 L 70,510 Z" fill="url(#goldGrad)"/>
+    <!-- Bottom right -->
+    <path d="M 730,530 L 710,530 L 730,510 Z" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- The Gap Chasm (Xanth) - represented as a small zigzag -->
+  <path d="M 100,400 L 105,395 L 110,405 L 115,395 L 120,400" fill="none" stroke="#8b4513" stroke-width="1" opacity="0.3"/>
+
+  <!-- Luggage feet (Discworld - The Luggage) tiny Easter egg -->
+  <g transform="translate(680, 400)" opacity="0.3">
+    <rect x="0" y="0" width="15" height="10" fill="#8b4513" rx="1"/>
+    <rect x="-2" y="10" width="3" height="4" fill="#654321"/>
+    <rect x="5" y="10" width="3" height="4" fill="#654321"/>
+    <rect x="12" y="10" width="3" height="4" fill="#654321"/>
+  </g>
+
+  <!-- Mended Drum (Discworld pub) - tankard silhouette -->
+  <g transform="translate(120, 400)" opacity="0.3">
+    <rect x="0" y="5" width="10" height="12" fill="#d4a76a" rx="1"/>
+    <path d="M 10,8 Q 14,8 14,12 Q 14,14 10,14" fill="none" stroke="#d4a76a" stroke-width="2"/>
+  </g>
+
+  <!-- Atomic symbol (retro-futuristic element) -->
+  <g transform="translate(400, 250)" opacity="0.2">
+    <circle r="5" fill="#00ff00"/>
+    <ellipse rx="40" ry="15" fill="none" stroke="#00ff00" stroke-width="1" transform="rotate(0)"/>
+    <ellipse rx="40" ry="15" fill="none" stroke="#00ff00" stroke-width="1" transform="rotate(60)"/>
+    <ellipse rx="40" ry="15" fill="none" stroke="#00ff00" stroke-width="1" transform="rotate(120)"/>
+  </g>
+
+  <!-- Heart of Gold (Hitchhiker's Guide) - golden heart shape -->
+  <g transform="translate(200, 320)" opacity="0.3">
+    <path d="M 0,3 C 0,1 -2,0 -3,0 C -5,0 -6,2 -6,4 C -6,7 0,10 0,10 C 0,10 6,7 6,4 C 6,2 5,0 3,0 C 2,0 0,1 0,3 Z" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- Thinking cap (Xanth) - wizard hat silhouette -->
+  <g transform="translate(600, 320)" opacity="0.3">
+    <polygon points="0,0 -5,10 5,10" fill="#4b0082"/>
+    <ellipse cx="0" cy="10" rx="6" ry="2" fill="#4b0082"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80">
+<svg xmlns="http://www.w3.org/2000/svg" width="215" height="56" viewBox="0 0 250 64">
   <style>
     :root {
       --gold: #D9B36B;
@@ -13,11 +13,12 @@
     .tardis-fill   { fill: var(--light); stroke: none; }
   </style>
 
-  <!-- Wordmark (centered, full width) -->
-  <text x="160" y="30" text-anchor="middle" class="brand" font-size="24">ROBERT CONSULTING</text>
-
   <!-- Micro TARDIS separator (slightly stylized) -->
   <g transform="translate(160, 45)">
+  <text x="125" y="26" text-anchor="middle" class="brand" font-size="20">ROBERT CONSULTING</text>
+
+  <!-- Micro TARDIS separator (slightly stylized) -->
+  <g transform="translate(125, 34)">
     <!-- center on x by offsetting half width (8px) -->
     <g transform="translate(-4,-6)">
       <!-- body outline -->
@@ -37,5 +38,5 @@
   </g>
 
   <!-- Tagline (slightly narrower & centered) -->
-  <text x="160" y="68" text-anchor="middle" class="tag" font-size="12">DEVSECOPS &amp; CLOUD ENGINEERING</text>
+  <text x="125" y="52" text-anchor="middle" class="tag" font-size="10">DEVSECOPS &amp; CLOUD ENGINEERING</text>
 </svg>
