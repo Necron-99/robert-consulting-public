@@ -5,7 +5,7 @@
 
 # Function definitions
 generate_aws_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" << EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +22,7 @@ generate_aws_content() {
         <header class="blog-header">
             <h1>AWS Services and Updates</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">AWS</span>
             </div>
         </header>
@@ -88,7 +88,7 @@ EOF
 }
 
 generate_aiops_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" << EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,7 +105,7 @@ generate_aiops_content() {
         <header class="blog-header">
             <h1>AIOps</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">AIOps</span>
             </div>
         </header>
@@ -156,7 +156,7 @@ EOF
 }
 
 generate_security_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" << EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,7 +173,7 @@ generate_security_content() {
         <header class="blog-header">
             <h1>Intelligent Vulnerability Remediation</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Security</span>
             </div>
         </header>
@@ -216,7 +216,7 @@ EOF
 }
 
 generate_opentofu_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" << EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -233,7 +233,7 @@ generate_opentofu_content() {
         <header class="blog-header">
             <h1>OpenTofu Analysis</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Infrastructure</span>
             </div>
         </header>
@@ -293,7 +293,7 @@ EOF
 }
 
 generate_platform_content() {
-    cat > "$OUTPUT_FILE" << 'EOF'
+    cat > "$OUTPUT_FILE" << EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -310,7 +310,7 @@ generate_platform_content() {
         <header class="blog-header">
             <h1>Platform Market Analysis</h1>
             <div class="blog-meta">
-                <span class="blog-date">$(date +%Y-%m-%d)</span>
+                <span class="blog-date">$DATE</span>
                 <span class="blog-category">Platform Analysis</span>
             </div>
         </header>
