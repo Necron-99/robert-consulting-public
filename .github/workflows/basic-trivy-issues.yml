@@ -31,35 +31,60 @@ jobs:
 
       - name: 🔍 Get Alerts
         run: |
-          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json || true
-          # Check if alerts.json exists and has valid content
-          if [ -f "alerts.json" ] && [ -s "alerts.json" ]; then
-            alert_count=$(jq -s 'length' alerts.json || echo "0")
-            echo "Found $alert_count alerts"
+          # Get alerts and ensure valid JSON output
+          gh api repos/${{ github.repository }}/code-scanning/alerts > all-alerts.json || echo "[]" > all-alerts.json
+          
+          # Filter for open alerts and ensure valid JSON array
+          if [ -f "all-alerts.json" ] && [ -s "all-alerts.json" ]; then
+            # Filter for open alerts and wrap in array
+            jq '[.[] | select(.state == "open")]' all-alerts.json > alerts.json || echo "[]" > alerts.json
           else
             echo "[]" > alerts.json
-            echo "Found 0 alerts"
           fi
+          
+          # Validate alerts.json is valid JSON
+          if ! jq empty alerts.json 2>/dev/null; then
+            echo "⚠️ alerts.json is invalid, creating empty array"
+            echo "[]" > alerts.json
+          fi
+          
+          alert_count=$(jq 'length' alerts.json || echo "0")
+          echo "Found $alert_count alerts"
+          
+          # Clean up
+          rm -f all-alerts.json
 
       - name: 🎯 Process Findings
         run: |
           # Process alerts and create findings.json, defaulting to empty array if no results
           if [ -f "alerts.json" ] && [ -s "alerts.json" ]; then
-            jq -s '
-              if length > 0 then
-                group_by(.rule.name) | 
-                map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
-                map({
-                  rule_name: .[0].rule.name,
-                  severity: .[0].rule.security_severity_level,
-                  count: length,
-                  tool: .[0].tool.name
-                })
-              else
-                []
-              end
-            ' alerts.json > findings.json
+            # Validate alerts.json is valid JSON before processing
+            if jq empty alerts.json 2>/dev/null; then
+              jq '
+                if length > 0 then
+                  group_by(.rule.name) | 
+                  map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
+                  map({
+                    rule_name: .[0].rule.name,
+                    severity: .[0].rule.security_severity_level,
+                    count: length,
+                    tool: .[0].tool.name
+                  })
+                else
+                  []
+                end
+              ' alerts.json > findings.json || echo "[]" > findings.json
+            else
+              echo "⚠️ alerts.json is invalid JSON, creating empty findings"
+              echo "[]" > findings.json
+            fi
           else
+            echo "[]" > findings.json
+          fi
+          
+          # Validate findings.json is valid JSON
+          if ! jq empty findings.json 2>/dev/null; then
+            echo "⚠️ findings.json is invalid, creating empty array"
             echo "[]" > findings.json
           fi
           
@@ -69,14 +94,37 @@ jobs:
       - name: 🤖 Create Issues
         run: |
           set -e
+          # Validate findings.json exists and is valid JSON
+          if [ ! -f "findings.json" ]; then
+            echo "⚠️ findings.json does not exist, creating empty array"
+            echo "[]" > findings.json
+          fi
+          
+          # Validate JSON before processing
+          if ! jq empty findings.json 2>/dev/null; then
+            echo "⚠️ findings.json is invalid JSON, creating empty array"
+            echo "[]" > findings.json
+          fi
+          
           if [ -f "findings.json" ] && [ -s "findings.json" ]; then
-            finding_count=$(jq 'length' findings.json || echo "0")
-            if [ "$finding_count" -gt 0 ]; then
-            jq -r '.[]' findings.json | while read -r finding; do
-              rule_name=$(echo "$finding" | jq -r '.rule_name')
-              severity=$(echo "$finding" | jq -r '.severity')
-              count=$(echo "$finding" | jq -r '.count')
-              tool=$(echo "$finding" | jq -r '.tool')
+            finding_count=$(jq 'length' findings.json 2>/dev/null || echo "0")
+            # Convert to integer for comparison (handle case where finding_count might be empty)
+            finding_count_int=${finding_count:-0}
+            if [ "$finding_count_int" -gt 0 ]; then
+            jq -r '.[]' findings.json 2>/dev/null | while IFS= read -r finding || [ -n "$finding" ]; do
+              if [ -z "$finding" ]; then
+                continue
+              fi
+              rule_name=$(echo "$finding" | jq -r '.rule_name // empty' 2>/dev/null)
+              severity=$(echo "$finding" | jq -r '.severity // empty' 2>/dev/null)
+              count=$(echo "$finding" | jq -r '.count // empty' 2>/dev/null)
+              tool=$(echo "$finding" | jq -r '.tool // empty' 2>/dev/null)
+              
+              # Skip if any required field is empty
+              if [ -z "$rule_name" ] || [ -z "$severity" ]; then
+                echo "⚠️ Skipping invalid finding entry"
+                continue
+              fi
               
               existing=$(gh issue list --search "in:title \"$rule_name\"" --state open --json number --jq '.[0].number // empty')
               
