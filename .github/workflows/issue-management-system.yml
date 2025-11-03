@@ -212,7 +212,7 @@ jobs:
               
               # Check if the issue has been resolved by recent commits
               # This is a simplified check - in practice, you'd want more sophisticated logic
-              local recent_commits=$(git log --since="7 days ago" --oneline | wc -l)
+              recent_commits=$(git log --since="7 days ago" --oneline 2>/dev/null | wc -l || echo "0")
               
               if [ "$recent_commits" -gt 0 ]; then
                 echo "Closing resolved issue #$issue_number"
@@ -240,9 +240,13 @@ jobs:
             if [ -n "$issue_number" ]; then
               echo "Updating priority for issue #$issue_number"
               
-              # Check if issue is older than 30 days
-              local issue_age=$(gh issue view "$issue_number" --json createdAt | jq -r '.createdAt')
-              local days_old=$(( ( $(date +%s) - $(date -d "$issue_age" +%s) ) / 86400 ))
+              # Check if issue is older than 30 days (removed 'local' keyword - not needed outside functions)
+              issue_age=$(gh issue view "$issue_number" --json createdAt 2>/dev/null | jq -r '.createdAt' || echo "")
+              if [ -n "$issue_age" ]; then
+                days_old=$(( ( $(date +%s) - $(date -d "$issue_age" +%s 2>/dev/null) ) / 86400 || echo "0" ))
+              else
+                days_old=0
+              fi
               
               if [ "$days_old" -gt 30 ]; then
                 echo "Issue #$issue_number is $days_old days old, updating priority"
@@ -263,13 +267,13 @@ jobs:
         run: |
           echo "📊 Generating issue analytics..."
           
-          # Get issue statistics
-          local total_issues=$(gh issue list --state all --json number | jq length)
-          local open_issues=$(gh issue list --state open --json number | jq length)
-          local closed_issues=$(gh issue list --state closed --json number | jq length)
-          local security_issues=$(gh issue list --label "security" --state open --json number | jq length)
-          local critical_issues=$(gh issue list --label "critical" --state open --json number | jq length)
-          local high_issues=$(gh issue list --label "high" --state open --json number | jq length)
+          # Get issue statistics (removed 'local' keyword - not needed outside functions)
+          total_issues=$(gh issue list --state all --json number | jq length || echo "0")
+          open_issues=$(gh issue list --state open --json number | jq length || echo "0")
+          closed_issues=$(gh issue list --state closed --json number | jq length || echo "0")
+          security_issues=$(gh issue list --label "security" --state open --json number | jq length || echo "0")
+          critical_issues=$(gh issue list --label "critical" --state open --json number | jq length || echo "0")
+          high_issues=$(gh issue list --label "high" --state open --json number | jq length || echo "0")
           
           # Create analytics report
           cat > issue-analytics.md << EOF
