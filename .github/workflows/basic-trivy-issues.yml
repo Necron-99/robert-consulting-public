@@ -31,28 +31,47 @@ jobs:
 
       - name: 🔍 Get Alerts
         run: |
-          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
-          echo "Found $(jq length alerts.json) alerts"
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json || true
+          # Check if alerts.json exists and has valid content
+          if [ -f "alerts.json" ] && [ -s "alerts.json" ]; then
+            alert_count=$(jq -s 'length' alerts.json || echo "0")
+            echo "Found $alert_count alerts"
+          else
+            echo "[]" > alerts.json
+            echo "Found 0 alerts"
+          fi
 
       - name: 🎯 Process Findings
         run: |
-          jq -s -r '
-            group_by(.rule.name) | 
-            map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
-            .[] | 
-            {
-              rule_name: .[0].rule.name,
-              severity: .[0].rule.security_severity_level,
-              count: length,
-              tool: .[0].tool.name
-            }
-          ' alerts.json > findings.json
-          echo "Found $(jq length findings.json) unique findings"
+          # Process alerts and create findings.json, defaulting to empty array if no results
+          if [ -f "alerts.json" ] && [ -s "alerts.json" ]; then
+            jq -s '
+              if length > 0 then
+                group_by(.rule.name) | 
+                map(select(.[0].rule.security_severity_level == "critical" or .[0].rule.security_severity_level == "high")) |
+                map({
+                  rule_name: .[0].rule.name,
+                  severity: .[0].rule.security_severity_level,
+                  count: length,
+                  tool: .[0].tool.name
+                })
+              else
+                []
+              end
+            ' alerts.json > findings.json
+          else
+            echo "[]" > findings.json
+          fi
+          
+          finding_count=$(jq 'length' findings.json || echo "0")
+          echo "Found $finding_count unique findings"
 
       - name: 🤖 Create Issues
         run: |
           set -e
-          if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
+          if [ -f "findings.json" ] && [ -s "findings.json" ]; then
+            finding_count=$(jq 'length' findings.json || echo "0")
+            if [ "$finding_count" -gt 0 ]; then
             jq -r '.[]' findings.json | while read -r finding; do
               rule_name=$(echo "$finding" | jq -r '.rule_name')
               severity=$(echo "$finding" | jq -r '.severity')
@@ -68,14 +87,27 @@ jobs:
                 echo "Issue already exists for $rule_name (#$existing)"
               fi
             done
+            else
+              echo "No high/critical findings to process"
+            fi
+          else
+            echo "No findings.json file or file is empty"
           fi
 
       - name: 📊 Summary
         run: |
           echo "Summary:"
-          if [ -f "findings.json" ]; then
-            echo "Total findings: $(jq length findings.json)"
-            echo "Critical: $(jq '[.[] | select(.severity == "critical")] | length' findings.json)"
-            echo "High: $(jq '[.[] | select(.severity == "high")] | length' findings.json)"
+          if [ -f "findings.json" ] && [ -s "findings.json" ]; then
+            total=$(jq 'length' findings.json || echo "0")
+            critical=$(jq '[.[] | select(.severity == "critical")] | length' findings.json || echo "0")
+            high=$(jq '[.[] | select(.severity == "high")] | length' findings.json || echo "0")
+            echo "Total findings: $total"
+            echo "Critical: $critical"
+            echo "High: $high"
+          else
+            echo "Total findings: 0"
+            echo "Critical: 0"
+            echo "High: 0"
           fi
-          echo "Open security issues: $(gh issue list --label "security" --state open --json number | jq length)"
+          open_issues=$(gh issue list --label "security" --state open --json number 2>/dev/null | jq 'length' || echo "0")
+          echo "Open security issues: $open_issues"
