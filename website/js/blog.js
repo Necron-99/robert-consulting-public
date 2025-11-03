@@ -186,6 +186,17 @@ class BlogManager {
         tags: ['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis'],
         icon: '📊',
         readTime: '9 min read'
+      },
+      {
+        id: 18,
+        title: 'AWS Services and Updates',
+        excerpt: 'Latest AWS releases, feature updates, and impact analysis for cloud infrastructure and DevOps teams.',
+        content: 'blog-posts/monday-2025-11-03.html',
+        date: '2025-11-03', // Monday
+        category: 'aws',
+        tags: ['AWS', 'Cloud Services', 'Updates', 'New Features', 'AWS Announcements'],
+        icon: '☁️',
+        readTime: '12 min read'
       }
     ];
   }

@@ -144,7 +144,147 @@ jobs:
           
           echo "blog-generated=true" >> $GITHUB_OUTPUT
           echo "blog-filename=$BLOG_FILENAME" >> $GITHUB_OUTPUT
+          echo "blog-topic=$TOPIC" >> $GITHUB_OUTPUT
+          echo "blog-focus=$FOCUS" >> $GITHUB_OUTPUT
+          echo "blog-keywords=$KEYWORDS" >> $GITHUB_OUTPUT
           echo "✅ Blog generated: $BLOG_FILENAME"
+          
+      - name: Update blog.js with new post
+        if: steps.generate-content.outputs.blog-generated == 'true'
+        run: |
+          set -e
+          
+          DAY="${{ steps.blog-day.outputs.day }}"
+          BLOG_FILENAME="${{ steps.generate-content.outputs.blog-filename }}"
+          DATE_ONLY=$(echo "$BLOG_FILENAME" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' || date +%Y-%m-%d)
+          TOPIC="${{ steps.generate-content.outputs.blog-topic }}"
+          FOCUS="${{ steps.generate-content.outputs.blog-focus }}"
+          KEYWORDS="${{ steps.generate-content.outputs.blog-keywords }}"
+          BLOG_JS="website/js/blog.js"
+          
+          echo "📝 Updating blog.js with new post entry..."
+          echo "   Day: $DAY"
+          echo "   Date: $DATE_ONLY"
+          echo "   Topic: $TOPIC"
+          
+          # Determine category, icon, and tags based on topic
+          case "$TOPIC" in
+            "AWS Services and Updates")
+              CATEGORY="aws"
+              ICON="☁️"
+              TAGS_STR="['AWS', 'Cloud Services', 'Updates', 'New Features', 'AWS Announcements']"
+              READ_TIME="12 min read"
+              ;;
+            "AIOps")
+              CATEGORY="aiops"
+              ICON="🤖"
+              TAGS_STR="['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics']"
+              READ_TIME="10 min read"
+              ;;
+            "Intelligent Vulnerability Remediation")
+              CATEGORY="security"
+              ICON="🔒"
+              TAGS_STR="['Vulnerability Management', 'Security Automation', 'AI Security', 'Threat Detection', 'Remediation']"
+              READ_TIME="8 min read"
+              ;;
+            "OpenTofu Analysis")
+              CATEGORY="infrastructure"
+              ICON="🏗️"
+              TAGS_STR="['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison']"
+              READ_TIME="10 min read"
+              ;;
+            "Platform Market Analysis")
+              CATEGORY="platform"
+              ICON="📊"
+              TAGS_STR="['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis']"
+              READ_TIME="9 min read"
+              ;;
+            *)
+              CATEGORY="general"
+              ICON="📝"
+              TAGS_STR="['Technology', 'Analysis']"
+              READ_TIME="8 min read"
+              ;;
+          esac
+          
+          # Extract title from the blog post HTML
+          TITLE=$(grep -oE '<h1>[^<]+</h1>' "$BLOG_FILENAME" | sed 's/<h1>//;s/<\/h1>//' || echo "$TOPIC")
+          
+          # Create excerpt from focus (first 100 chars)
+          EXCERPT=$(echo "$FOCUS" | cut -c1-100)
+          if [ ${#FOCUS} -gt 100 ]; then
+            EXCERPT="${EXCERPT}..."
+          fi
+          
+          # Capitalize first letter of day for comment
+          DAY_CAP=$(echo "$DAY" | sed 's/^./\U&/')
+          
+          # Use Node.js to update blog.js (more reliable than sed for JSON-like structures)
+          node -e "
+          const fs = require('fs');
+          const blogJs = fs.readFileSync('$BLOG_JS', 'utf8');
+          
+          // Variables from shell
+          const day = '$DAY';
+          const dateOnly = '$DATE_ONLY';
+          const title = '$(echo "$TITLE" | sed "s/'/\\\\'/g")';
+          const excerpt = '$(echo "$EXCERPT" | sed "s/'/\\\\'/g")';
+          const category = '$CATEGORY';
+          const tagsStr = '$TAGS_STR';
+          const icon = '$ICON';
+          const readTime = '$READ_TIME';
+          const dayCap = '$DAY_CAP';
+          
+          // Find max ID
+          const idMatches = blogJs.match(/id: (\d+)/g) || [];
+          const maxId = Math.max(...idMatches.map(m => parseInt(m.match(/\d+/)[0])));
+          const nextId = maxId + 1;
+          
+          // Find the insertion point (before the closing bracket)
+          const insertPoint = blogJs.lastIndexOf('    }');
+          if (insertPoint === -1) {
+            console.error('❌ Could not find insertion point');
+            process.exit(1);
+          }
+          
+          // Add comma to last entry if needed
+          let updatedBlogJs = blogJs;
+          const beforeInsert = blogJs.substring(0, insertPoint);
+          const afterInsert = blogJs.substring(insertPoint);
+          
+          // Check if last entry has comma
+          if (!beforeInsert.trimEnd().endsWith(',')) {
+            // Find the last entry's closing brace and add comma
+            updatedBlogJs = beforeInsert.replace(/(\s+})\s*$/, '\$1,') + afterInsert;
+          }
+          
+          // Create new entry
+          const newEntry = \`      {
+        id: \${nextId},
+        title: '\${title}',
+        excerpt: '\${excerpt}',
+        content: 'blog-posts/\${day}-\${dateOnly}.html',
+        date: '\${dateOnly}', // \${dayCap}
+        category: '\${category}',
+        tags: \${tagsStr},
+        icon: '\${icon}',
+        readTime: '\${readTime}'
+      }\`;
+          
+          // Insert new entry before the closing bracket
+          const finalInsertPoint = updatedBlogJs.lastIndexOf('    }');
+          const finalBefore = updatedBlogJs.substring(0, finalInsertPoint);
+          const finalAfter = updatedBlogJs.substring(finalInsertPoint);
+          
+          const result = finalBefore + newEntry + ',\n' + finalAfter;
+          
+          fs.writeFileSync('$BLOG_JS', result, 'utf8');
+          console.log('✅ Added blog entry to blog.js:');
+          console.log('   ID:', nextId);
+          console.log('   Title:', title);
+          console.log('   Date:', dateOnly);
+          console.log('   Category:', category);
+          "
           
       - name: Upload to S3
         if: steps.generate-content.outputs.blog-generated == 'true'
