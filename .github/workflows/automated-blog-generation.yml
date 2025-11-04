@@ -220,49 +220,50 @@ jobs:
           DAY_CAP=$(echo "$DAY" | sed 's/^./\U&/')
           
           # Use Node.js to update blog.js (more reliable than sed for JSON-like structures)
-          node -e "
+          # Create a temporary Node.js script to avoid YAML quoting issues
+          cat > /tmp/update-blog.js << 'NODE_SCRIPT'
           const fs = require('fs');
-          const blogJs = fs.readFileSync('$BLOG_JS', 'utf8');
+          const day = process.env.DAY;
+          const dateOnly = process.env.DATE_ONLY;
+          const title = process.env.TITLE;
+          const excerpt = process.env.EXCERPT;
+          const category = process.env.CATEGORY;
+          const tagsStr = process.env.TAGS_STR;
+          const icon = process.env.ICON;
+          const readTime = process.env.READ_TIME;
+          const dayCap = process.env.DAY_CAP;
+          const blogJs = process.env.BLOG_JS;
           
-          // Variables from shell
-          const day = '$DAY';
-          const dateOnly = '$DATE_ONLY';
-          const title = '$(echo "$TITLE" | sed "s/'/\\\\'/g")';
-          const excerpt = '$(echo "$EXCERPT" | sed "s/'/\\\\'/g")';
-          const category = '$CATEGORY';
-          const tagsStr = '$TAGS_STR';
-          const icon = '$ICON';
-          const readTime = '$READ_TIME';
-          const dayCap = '$DAY_CAP';
+          const blogJsContent = fs.readFileSync(blogJs, 'utf8');
           
           // Find max ID
-          const idMatches = blogJs.match(/id: (\d+)/g) || [];
+          const idMatches = blogJsContent.match(/id: (\d+)/g) || [];
           const maxId = Math.max(...idMatches.map(m => parseInt(m.match(/\d+/)[0])));
           const nextId = maxId + 1;
           
           // Find the insertion point (before the closing bracket)
-          const insertPoint = blogJs.lastIndexOf('    }');
+          const insertPoint = blogJsContent.lastIndexOf('    }');
           if (insertPoint === -1) {
             console.error('❌ Could not find insertion point');
             process.exit(1);
           }
           
           // Add comma to last entry if needed
-          let updatedBlogJs = blogJs;
-          const beforeInsert = blogJs.substring(0, insertPoint);
-          const afterInsert = blogJs.substring(insertPoint);
+          let updatedBlogJs = blogJsContent;
+          const beforeInsert = blogJsContent.substring(0, insertPoint);
+          const afterInsert = blogJsContent.substring(insertPoint);
           
           // Check if last entry has comma
           if (!beforeInsert.trimEnd().endsWith(',')) {
             // Find the last entry's closing brace and add comma
-            updatedBlogJs = beforeInsert.replace(/(\s+})\s*$/, '\$1,') + afterInsert;
+            updatedBlogJs = beforeInsert.replace(/(\s+})\s*$/, '$1,') + afterInsert;
           }
           
           // Create new entry
           const newEntry = \`      {
         id: \${nextId},
-        title: '\${title}',
-        excerpt: '\${excerpt}',
+        title: '\${title.replace(/'/g, "\\\\'")}',
+        excerpt: '\${excerpt.replace(/'/g, "\\\\'")}',
         content: 'blog-posts/\${day}-\${dateOnly}.html',
         date: '\${dateOnly}', // \${dayCap}
         category: '\${category}',
@@ -278,13 +279,29 @@ jobs:
           
           const result = finalBefore + newEntry + ',\n' + finalAfter;
           
-          fs.writeFileSync('$BLOG_JS', result, 'utf8');
+          fs.writeFileSync(blogJs, result, 'utf8');
           console.log('✅ Added blog entry to blog.js:');
           console.log('   ID:', nextId);
           console.log('   Title:', title);
           console.log('   Date:', dateOnly);
           console.log('   Category:', category);
-          "
+NODE_SCRIPT
+          
+          # Run the Node.js script with environment variables
+          DAY="$DAY" \
+          DATE_ONLY="$DATE_ONLY" \
+          TITLE="$(echo "$TITLE" | sed "s/'/\\\\'/g")" \
+          EXCERPT="$(echo "$EXCERPT" | sed "s/'/\\\\'/g")" \
+          CATEGORY="$CATEGORY" \
+          TAGS_STR="$TAGS_STR" \
+          ICON="$ICON" \
+          READ_TIME="$READ_TIME" \
+          DAY_CAP="$DAY_CAP" \
+          BLOG_JS="$BLOG_JS" \
+          node /tmp/update-blog.js
+          
+          # Clean up
+          rm -f /tmp/update-blog.js
           
       - name: Upload to S3
         if: steps.generate-content.outputs.blog-generated == 'true'
