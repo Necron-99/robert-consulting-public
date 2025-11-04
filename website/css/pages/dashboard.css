@@ -1782,51 +1782,168 @@
     }
 }
 
-/* Repository Cleanup Achievements Section */
-/* Cleanup achievements section removed - replaced with Development Activity */
-
-.cleanup-summary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border-radius: 8px;
-    padding: 2rem;
-    color: white;
-}
-
-.summary-highlight h4 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.impact-stats {
+/* Development Velocity Section - Consistent Card Layout */
+.velocity-metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.impact-item {
+.velocity-metric-card {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    backdrop-filter: blur(10px);
+    gap: 1rem;
+    transition: all 0.3s ease;
 }
 
-.impact-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
+.velocity-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
 }
 
-.impact-value {
-    font-size: 1rem;
+.velocity-metric-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.velocity-metric-content {
+    flex: 1;
+}
+
+.velocity-metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.velocity-metric-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.velocity-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.velocity-summary-card {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.velocity-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.velocity-summary-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.velocity-summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Repository Cleanup Achievements Section - Consistent Card Layout */
+.cleanup-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.cleanup-metric-card {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.cleanup-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.cleanup-metric-icon {
+    font-size: 2.5rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+}
+
+.cleanup-metric-content {
+    width: 100%;
+}
+
+.cleanup-metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.cleanup-metric-label {
+    font-size: 0.95rem;
+    color: var(--text-primary);
     font-weight: 600;
+    margin-bottom: 0.25rem;
 }
 
-/* Responsive Design for Cleanup Section */
+.cleanup-metric-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Responsive Design for Velocity and Cleanup Sections */
 @media (max-width: 768px) {
     .github-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .velocity-metrics-grid,
+    .cleanup-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .velocity-summary-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
@@ -1837,6 +1954,24 @@
     }
     
     .github-stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .velocity-metrics-grid,
+    .cleanup-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .velocity-summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .velocity-metric-value,
+    .cleanup-metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .velocity-summary-value {
         font-size: 1.5rem;
     }
 }

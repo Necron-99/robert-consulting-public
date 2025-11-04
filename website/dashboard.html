@@ -176,6 +176,151 @@
             </div>
         </section>
 
+        <!-- Development Velocity Section -->
+        <section class="dashboard-section collapsible-section">
+            <div class="container">
+                <div class="section-header collapsible-header" onclick="toggleSection('development-velocity')">
+                    <h3>🚀 Development Velocity</h3>
+                    <div class="header-actions">
+                        <button id="refresh-velocity" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
+                        <span class="last-updated" id="velocity-last-updated">Last updated: Never</span>
+                        <span class="expand-icon" id="development-velocity-icon">▼</span>
+                    </div>
+                </div>
+                
+                <div class="collapsible-content" id="development-velocity-content">
+                    <div class="velocity-metrics-grid">
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">✨</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="features-implemented">52</div>
+                                <div class="velocity-metric-label">New Features</div>
+                            </div>
+                        </div>
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">🐛</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="bugs-fixed">30</div>
+                                <div class="velocity-metric-label">Bugs Squashed</div>
+                            </div>
+                        </div>
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">⚡</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="improvements-made">5</div>
+                                <div class="velocity-metric-label">Improvements</div>
+                            </div>
+                        </div>
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">🔒</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="security-updates">12+</div>
+                                <div class="velocity-metric-label">Security Enhancements</div>
+                            </div>
+                        </div>
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">🏗️</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="infra-updates">15+</div>
+                                <div class="velocity-metric-label">Infrastructure Updates</div>
+                            </div>
+                        </div>
+                        <div class="velocity-metric-card">
+                            <div class="velocity-metric-icon">✅</div>
+                            <div class="velocity-metric-content">
+                                <div class="velocity-metric-value" id="testing-cycles">8+</div>
+                                <div class="velocity-metric-label">Testing & Validation</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="velocity-summary-grid">
+                        <div class="velocity-summary-card">
+                            <div class="velocity-summary-label">Recent Commits (7d)</div>
+                            <div class="velocity-summary-value" id="total-commits-velocity">32</div>
+                        </div>
+                        <div class="velocity-summary-card">
+                            <div class="velocity-summary-label">Total Commits (30d)</div>
+                            <div class="velocity-summary-value" id="dev-days">115</div>
+                        </div>
+                        <div class="velocity-summary-card">
+                            <div class="velocity-summary-label">Avg Commits/Day</div>
+                            <div class="velocity-summary-value" id="avg-commits-day">3.8</div>
+                        </div>
+                        <div class="velocity-summary-card">
+                            <div class="velocity-summary-label">Success Rate</div>
+                            <div class="velocity-summary-value" id="success-rate">100%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Cleanup Achievements Section -->
+        <section class="dashboard-section collapsible-section">
+            <div class="container">
+                <div class="section-header collapsible-header" onclick="toggleSection('cleanup-achievements')">
+                    <h3>🧹 Repository Cleanup Achievements</h3>
+                    <div class="header-actions">
+                        <span class="last-updated">Completed: October 13, 2025</span>
+                        <span class="expand-icon" id="cleanup-achievements-icon">▼</span>
+                    </div>
+                </div>
+                
+                <div class="collapsible-content" id="cleanup-achievements-content">
+                    <div class="cleanup-metrics-grid">
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">📁</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">14</div>
+                                <div class="cleanup-metric-label">Organized Directories</div>
+                                <div class="cleanup-metric-description">docs/, scripts/, config/ structure</div>
+                            </div>
+                        </div>
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">📄</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">133</div>
+                                <div class="cleanup-metric-label">Documentation Files</div>
+                                <div class="cleanup-metric-description">All organized by category</div>
+                            </div>
+                        </div>
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">🔧</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">68</div>
+                                <div class="cleanup-metric-label">Automation Scripts</div>
+                                <div class="cleanup-metric-description">Deployment, security, utilities</div>
+                            </div>
+                        </div>
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">🏗️</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">44</div>
+                                <div class="cleanup-metric-label">Infrastructure Files</div>
+                                <div class="cleanup-metric-description">Terraform configurations</div>
+                            </div>
+                        </div>
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">🌐</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">21</div>
+                                <div class="cleanup-metric-label">Web Pages</div>
+                                <div class="cleanup-metric-description">HTML files organized</div>
+                            </div>
+                        </div>
+                        <div class="cleanup-metric-card">
+                            <div class="cleanup-metric-icon">🎨</div>
+                            <div class="cleanup-metric-content">
+                                <div class="cleanup-metric-value">22</div>
+                                <div class="cleanup-metric-label">Stylesheets</div>
+                                <div class="cleanup-metric-description">CSS files organized</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Terraform Infrastructure Section -->
         <section class="dashboard-section collapsible-section">
             <div class="container">
@@ -825,7 +970,7 @@
         // Initialize: Keep Quick Stats and first section expanded, collapse others
         document.addEventListener('DOMContentLoaded', () => {
             // Expand first sections by default
-            const defaultExpanded = ['dev-activity', 'terraform', 'system-status', 'cost-monitoring'];
+            const defaultExpanded = ['dev-activity', 'development-velocity', 'cleanup-achievements', 'terraform', 'system-status', 'cost-monitoring'];
             defaultExpanded.forEach(sectionId => {
                 const content = document.getElementById(sectionId + '-content');
                 const icon = document.getElementById(sectionId + '-icon');
