@@ -9,6 +9,7 @@ const {APIGatewayClient, GetRestApisCommand} = require('@aws-sdk/client-api-gate
 const {CloudWatchClient, DescribeAlarmsCommand} = require('@aws-sdk/client-cloudwatch');
 const {LambdaClient, ListFunctionsCommand} = require('@aws-sdk/client-lambda');
 const {IAMClient, ListRolesCommand, ListPoliciesCommand} = require('@aws-sdk/client-iam');
+const {DynamoDBClient, ListTablesCommand} = require('@aws-sdk/client-dynamodb');
 
 // AWS SDK clients
 const s3Client = new S3Client({region: 'us-east-1'});
@@ -22,6 +23,7 @@ const apiGatewayClient = new APIGatewayClient({region: 'us-east-1'});
 const cloudWatchClient = new CloudWatchClient({region: 'us-east-1'});
 const lambdaClient = new LambdaClient({region: 'us-east-1'});
 const iamClient = new IAMClient({region: 'us-east-1'});
+const dynamodbClient = new DynamoDBClient({region: 'us-east-1'});
 
 const CACHE_BUCKET = 'robert-consulting-cache';
 const CACHE_KEY = 'terraform-stats.json';
@@ -126,7 +128,7 @@ async function countAWSResources() {
   try {
     console.log('☁️ Counting AWS resources...');
 
-    const [route53Data, s3Data, cloudFrontData, wafData, apiGatewayData, cloudWatchData, lambdaData, iamData] = await Promise.all([
+    const [route53Data, s3Data, cloudFrontData, wafData, apiGatewayData, cloudWatchData, lambdaData, iamData, dynamodbData] = await Promise.all([
       // Route53
       route53Client.send(new ListHostedZonesCommand({})).then(async(response) => {
         let recordCount = 0;
@@ -176,21 +178,26 @@ async function countAWSResources() {
       ]).then(([roles, policies]) => ({
         roles: (roles.Roles || []).length,
         policies: (policies.Policies || []).length
-      })).catch(() => ({roles: 0, policies: 0}))
+      })).catch(() => ({roles: 0, policies: 0})),
+
+      // DynamoDB
+      dynamodbClient.send(new ListTablesCommand({})).then(response => ({
+        tables: (response.TableNames || []).length
+      })).catch(() => ({tables: 0}))
     ]);
 
     // Calculate totals
     const totalResources = route53Data.records + s3Data.buckets + cloudFrontData.distributions +
                               wafData.webACLs + apiGatewayData.restApis + cloudWatchData.alarms +
-                              lambdaData.functions + iamData.roles + iamData.policies;
+                              lambdaData.functions + iamData.roles + iamData.policies + dynamodbData.tables;
 
     const awsServices = [route53Data.hostedZones, s3Data.buckets, cloudFrontData.distributions,
       wafData.webACLs, apiGatewayData.restApis, cloudWatchData.alarms,
-      lambdaData.functions, iamData.roles, iamData.policies].filter(count => count > 0).length;
+      lambdaData.functions, iamData.roles, iamData.policies, dynamodbData.tables].filter(count => count > 0).length;
 
     const securityResources = wafData.webACLs + iamData.roles + iamData.policies;
     const networkingResources = route53Data.records + cloudFrontData.distributions + apiGatewayData.restApis;
-    const storageResources = s3Data.buckets;
+    const storageResources = s3Data.buckets + dynamodbData.tables;
 
     return {
       totalResources,
@@ -201,6 +208,7 @@ async function countAWSResources() {
       resourceBreakdown: {
         route53: route53Data.records,
         s3: s3Data.buckets,
+        dynamodb: dynamodbData.tables,
         cloudwatch: cloudWatchData.alarms,
         cloudfront: cloudFrontData.distributions,
         waf: wafData.webACLs,
@@ -222,6 +230,7 @@ async function countAWSResources() {
       resourceBreakdown: {
         route53: 10,
         s3: 5,
+        dynamodb: 3,
         cloudwatch: 5,
         cloudfront: 3,
         waf: 2,
@@ -286,6 +295,7 @@ exports.handler = async(event) => {
       resourceBreakdown: {
         route53: awsData.resourceBreakdown.route53.toString(),
         s3: awsData.resourceBreakdown.s3.toString(),
+        dynamodb: awsData.resourceBreakdown.dynamodb.toString(),
         cloudwatch: awsData.resourceBreakdown.cloudwatch.toString(),
         cloudfront: awsData.resourceBreakdown.cloudfront.toString(),
         waf: awsData.resourceBreakdown.waf.toString(),

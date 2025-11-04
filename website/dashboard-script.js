@@ -39,18 +39,13 @@ class UnifiedDashboard {
   setupEventListeners() {
     // Refresh buttons
     document.getElementById('refresh-all')?.addEventListener('click', () => this.refreshAll());
-    document.getElementById('refresh-status')?.addEventListener('click', () => this.loadStatusData());
     document.getElementById('refresh-costs')?.addEventListener('click', () => this.loadCostData());
-    document.getElementById('refresh-performance')?.addEventListener('click', () => this.loadPerformanceData());
     document.getElementById('refresh-github')?.addEventListener('click', () => this.loadGitHubData());
     document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
     document.getElementById('refresh-monitoring')?.addEventListener('click', () => this.loadMonitoringData());
 
     // Auto-refresh toggle
     document.getElementById('auto-refresh')?.addEventListener('click', () => this.toggleAutoRefresh());
-
-    // Clear alerts
-    document.getElementById('clear-alerts')?.addEventListener('click', () => this.clearAlerts());
 
     // Mobile menu toggle
     const hamburger = document.getElementById('hamburger');
@@ -73,9 +68,7 @@ class UnifiedDashboard {
     try {
       // Load all data in parallel for better performance
       await Promise.all([
-        this.loadStatusData(),
         this.loadCostData(),
-        this.loadPerformanceData(),
         this.loadGitHubData(),
         this.loadTerraformData(),
         this.loadMonitoringData()
@@ -91,61 +84,6 @@ class UnifiedDashboard {
     }
   }
 
-  /**
-     * Load system status data
-     */
-  async loadStatusData() {
-    try {
-      console.log('🔍 Loading system status data...');
-
-      // Fetch real status data from API
-      const stats = await this.fetchLiveStats();
-      
-      const statusData = {
-        website: {
-          status: stats?.health?.site?.status === 'healthy' ? 'operational' : 'degraded',
-          httpStatus: '200 OK',
-          response: stats?.health?.site?.responseMs ? `${stats.health.site.responseMs}ms` : '--ms',
-          sslStatus: 'Valid'
-        },
-        security: {
-          status: 'secure',
-          waf: 'Active',
-          ssl: 'Valid',
-          threats: '0'
-        },
-        infrastructure: {
-          status: 'healthy',
-          s3: 'Operational',
-          cloudfront: 'Deployed',
-          route53: 'Resolving'
-        },
-        performance: {
-          status: 'optimal',
-          loadTime: '1.2s',
-          cacheHit: '95%',
-          webVitals: 'Good'
-        }
-      };
-
-      // Update status displays
-      this.updateStatusCard('website', statusData.website);
-      this.updateStatusCard('security', statusData.security);
-      this.updateStatusCard('infrastructure', statusData.infrastructure);
-      this.updateStatusCard('performance', statusData.performance);
-      
-      // Update website-specific metrics
-      this.updateElement('website-http-status', statusData.website.httpStatus);
-      this.updateElement('website-response', statusData.website.response);
-      this.updateElement('website-ssl-status', statusData.website.sslStatus);
-
-      this.updateElement('status-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-
-    } catch (error) {
-      console.error('Error loading status data:', error);
-      this.showAlert('error', 'Status Error', 'Failed to load system status data.');
-    }
-  }
 
   /**
      * Load cost monitoring data from live stats
@@ -391,13 +329,9 @@ class UnifiedDashboard {
       this.updateElement('networking-resources', terraformData.networkingResources);
       this.updateElement('storage-resources', terraformData.storageResources);
 
-      // Update resource breakdown
-      this.updateElement('route53-count', terraformData.resourceBreakdown.route53);
-      this.updateElement('s3-count', terraformData.resourceBreakdown.s3);
-      this.updateElement('cloudwatch-count', terraformData.resourceBreakdown.cloudwatch);
-      this.updateElement('cloudfront-count', terraformData.resourceBreakdown.cloudfront);
-      this.updateElement('waf-count', terraformData.resourceBreakdown.waf);
-      this.updateElement('api-gateway-count', terraformData.resourceBreakdown.apiGateway);
+      // Update resource breakdown (for display in storage resources)
+      this.updateElement('s3-count', terraformData.resourceBreakdown.s3 || '0');
+      this.updateElement('dynamodb-count', terraformData.resourceBreakdown.dynamodb || '0');
 
       this.updateElement('terraform-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
 
@@ -451,6 +385,7 @@ class UnifiedDashboard {
         resourceBreakdown: {
           route53: '10',
           s3: '5',
+          dynamodb: '3',
           cloudwatch: '5',
           cloudfront: '3',
           waf: '2',
@@ -461,32 +396,6 @@ class UnifiedDashboard {
     }
   }
 
-  /**
-     * Load performance monitoring data
-     */
-  async loadPerformanceData() {
-    try {
-      console.log('⚡ Loading performance data...');
-
-      // Fetch real performance metrics
-      const performanceData = await this.fetchPerformanceMetrics();
-
-      // Update Quick Stats section
-      this.updateElement('avg-response-time', performanceData.resourceTiming.ttfb);
-      this.updateElement('performance-trend', 'Optimal');
-
-      // Update performance displays
-      this.updatePerformanceMetrics('core-web-vitals', performanceData.coreWebVitals);
-      this.updatePerformanceMetrics('page-speed', performanceData.pageSpeed);
-      this.updatePerformanceMetrics('resource-timing', performanceData.resourceTiming);
-
-      this.updateElement('performance-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-
-    } catch (error) {
-      console.error('Error loading performance data:', error);
-      this.showAlert('error', 'Performance Data Error', 'Failed to load performance metrics.');
-    }
-  }
 
   /**
      * Fetch real AWS cost data
@@ -693,77 +602,6 @@ class UnifiedDashboard {
     }
   }
 
-  /**
-   * Update status card
-   */
-  updateStatusCard(type, data) {
-    this.updateElement(`${type}-status`, data.status);
-
-    // Update specific fields based on type
-    if (type === 'security') {
-      this.updateElement('waf-status', data.waf);
-      this.updateElement('ssl-status', data.ssl);
-      this.updateElement('threats-blocked', data.threats);
-    } else if (type === 'infrastructure') {
-      this.updateElement('s3-status', data.s3);
-      this.updateElement('cloudfront-status', data.cloudfront);
-      this.updateElement('route53-status', data.route53);
-    } else if (type === 'performance') {
-      this.updateElement('load-time', data.loadTime);
-      this.updateElement('cache-hit-rate', data.cacheHit);
-      this.updateElement('core-web-vitals', data.webVitals);
-    }
-  }
-
-
-  /**
-     * Update performance metrics display
-     */
-  updatePerformanceMetrics(elementId, data) {
-    const element = document.getElementById(elementId);
-    if (!element) {
-      return;
-    }
-
-    if (data.lcp) {
-      this.updateElement(`${elementId}-lcp`, data.lcp.value);
-      this.updateElement(`${elementId}-lcp-score`, data.lcp.score);
-    }
-    if (data.fid) {
-      this.updateElement(`${elementId}-fid`, data.fid.value);
-      this.updateElement(`${elementId}-fid-score`, data.fid.score);
-    }
-    if (data.cls) {
-      this.updateElement(`${elementId}-cls`, data.cls.value);
-      this.updateElement(`${elementId}-cls-score`, data.cls.score);
-    }
-    if (data.mobile) {
-      this.updateElement(`${elementId}-mobile-score`, data.mobile.score);
-      this.updateElement(`${elementId}-mobile-grade`, data.mobile.grade);
-    }
-    if (data.desktop) {
-      this.updateElement(`${elementId}-desktop-score`, data.desktop.score);
-      this.updateElement(`${elementId}-desktop-grade`, data.desktop.grade);
-    }
-    if (data.dns) {
-      this.updateElement(`${elementId}-dns`, data.dns);
-    }
-    if (data.connect) {
-      this.updateElement(`${elementId}-connect`, data.connect);
-    }
-    if (data.ssl) {
-      this.updateElement(`${elementId}-ssl`, data.ssl);
-    }
-    if (data.ttfb) {
-      this.updateElement(`${elementId}-ttfb`, data.ttfb);
-    }
-    if (data.dom) {
-      this.updateElement(`${elementId}-dom`, data.dom);
-    }
-    if (data.load) {
-      this.updateElement(`${elementId}-load`, data.load);
-    }
-  }
 
   /**
      * Update overall status

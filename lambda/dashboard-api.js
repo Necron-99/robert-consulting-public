@@ -6,7 +6,7 @@
 
 const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
 const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
-const {S3Client, GetObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, GetObjectCommand, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
 
 // AWS SDK clients
@@ -425,6 +425,12 @@ async function getTrafficData() {
   }
 }
 
+// Cache configuration
+const CACHE_BUCKET = 'robert-consulting-cache';
+const CACHE_KEY_TERRAFORM = 'terraform-stats.json';
+const CACHE_KEY_COSTS = 'cost-data.json';
+const COST_CACHE_TTL = 3600000; // 1 hour in milliseconds (costs don't change frequently)
+
 /**
  * Get Terraform statistics from S3 cache
  */
@@ -434,8 +440,8 @@ async function getTerraformStatistics() {
 
     // Try to get cached data from S3
     const command = new GetObjectCommand({
-      Bucket: 'robert-consulting-cache',
-      Key: 'terraform-stats.json'
+      Bucket: CACHE_BUCKET,
+      Key: CACHE_KEY_TERRAFORM
     });
 
     const response = await s3Client.send(command);
@@ -470,6 +476,7 @@ async function getTerraformStatistics() {
       resourceBreakdown: {
         route53: '10',
         s3: '5',
+        dynamodb: '3',
         cloudwatch: '5',
         cloudfront: '3',
         waf: '2',
@@ -653,11 +660,79 @@ async function getGitHubStats() {
 }
 
 /**
- * Fetch real AWS cost data from Cost Explorer
+ * Get cached cost data from S3
+ */
+async function getCachedCostData() {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: CACHE_BUCKET,
+      Key: CACHE_KEY_COSTS
+    });
+
+    const response = await s3Client.send(command);
+    const cachedData = JSON.parse(await response.Body.transformToString());
+
+    // Check if cache is still valid (within TTL)
+    const cacheAge = Date.now() - new Date(cachedData.cachedAt).getTime();
+    if (cacheAge < COST_CACHE_TTL) {
+      console.log(`✅ Using cached cost data (age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
+      return cachedData.costData;
+    }
+
+    console.log('⚠️ Cost cache expired, will fetch fresh data');
+    return null;
+  } catch (error) {
+    if (error.name === 'NoSuchKey') {
+      console.log('📝 No cached cost data found, will fetch fresh data');
+    } else {
+      console.warn('⚠️ Error reading cost cache, will fetch fresh data:', error.message);
+    }
+    return null;
+  }
+}
+
+/**
+ * Save cost data to S3 cache
+ */
+async function saveCostDataToCache(costData) {
+  try {
+    const cacheData = {
+      costData: costData,
+      cachedAt: new Date().toISOString()
+    };
+
+    const command = new PutObjectCommand({
+      Bucket: CACHE_BUCKET,
+      Key: CACHE_KEY_COSTS,
+      Body: JSON.stringify(cacheData, null, 2),
+      ContentType: 'application/json',
+      CacheControl: `max-age=${COST_CACHE_TTL / 1000}, must-revalidate`,
+      Metadata: {
+        'last-updated': new Date().toISOString(),
+        source: 'dashboard-api-cost-cache'
+      }
+    });
+
+    await s3Client.send(command);
+    console.log('✅ Cost data cached successfully');
+  } catch (error) {
+    console.warn('⚠️ Failed to cache cost data (non-fatal):', error.message);
+    // Don't throw - caching failure shouldn't break the API
+  }
+}
+
+/**
+ * Fetch real AWS cost data from Cost Explorer (with caching)
  */
 async function fetchRealAWSCosts() {
   try {
-    console.log('💰 Fetching real AWS cost data...');
+    // Try to get cached data first
+    const cachedCostData = await getCachedCostData();
+    if (cachedCostData) {
+      return cachedCostData;
+    }
+
+    console.log('💰 Fetching fresh AWS cost data from Cost Explorer...');
 
     const endDate = new Date();
     const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // First day of current month
@@ -770,16 +845,30 @@ async function fetchRealAWSCosts() {
       };
     }
 
-    return {
+    const costData = {
       total: Math.round(totalCost * 100) / 100,
       registrarCost: Math.round(registrarCost * 100) / 100,
       monthlyCost: calculatedMonthlyCost,
       services: finalServices
     };
 
+    // Cache the fresh cost data
+    await saveCostDataToCache(costData);
+
+    return costData;
+
   } catch (error) {
     console.error('Error fetching AWS costs:', error);
-    // Return fallback data if Cost Explorer fails
+    
+    // Try to return cached data even if expired (better than fallback)
+    const cachedCostData = await getCachedCostData();
+    if (cachedCostData) {
+      console.log('⚠️ Using expired cache due to Cost Explorer error');
+      return cachedCostData;
+    }
+
+    // Return fallback data if Cost Explorer fails and no cache available
+    console.log('⚠️ Using fallback cost data');
     return {
       total: 6.82,
       registrarCost: 0,

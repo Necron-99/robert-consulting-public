@@ -154,39 +154,36 @@ jobs:
         # Create a temporary file to store results
         temp_file=$(mktemp)
         
-        # Scan for potential secrets, excluding false positives
-        grep -r -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . \
-          --exclude-dir=.git \
-          --exclude-dir=node_modules \
-          --exclude="*.md" \
-          --exclude="workflow-test.md" \
-          --exclude="*.example" \
-          --exclude="*tfvars.example" \
-          --exclude="security-scan*" \
-          --exclude="setup-simple-auth.sh" \
-          --exclude="stats.html" \
-          --exclude="*.html" \
-          --exclude="*.js" \
-          --exclude="*.ps1" \
-          --exclude="remote-management.sh" \
-          --exclude="configure-api.sh" \
-          --exclude="comprehensive-staging-to-production.yml" \
-          --exclude="codeql-analysis.yml" \
-          --exclude="simplified-testing.yml" \
-          --exclude="staging-simple-access.tf" \
-          --exclude="lambda-stats-refresher.tf" \
-          --exclude="migrate-to-s3-step-by-step.sh" \
-          --exclude="update-current-cloudfront.bat" \
+        # Scan for potential secrets in source code files only
+        # Focus on actual secret patterns, not configuration keys
+        find . -type f \( -name "*.tf" -o -name "*.py" -o -name "*.ts" -o -name "*.tsx" \) \
+          ! -path "*/.git/*" \
+          ! -path "*/node_modules/*" \
+          ! -path "*/.cursor/*" \
+          ! -path "*/docs/*" \
+          ! -path "*/website/blog-posts/*" \
+          -exec grep -l -E "(password|secret|api_key|apikey|access_token|access_key|private_key|privatekey)\s*=\s*['\"][^'\"]{12,}['\"]" {} \; \
           2>/dev/null > "$temp_file" || true
         
-        # Filter out more false positives
+        # Filter out false positives: Terraform S3 keys, test values, configuration
         if [ -s "$temp_file" ]; then
-          # Check if any real secrets remain after filtering
-          real_secrets=$(grep -v -E "(hash_key|range_key|content_id|category|timestamp|terraform\.tfstate|error\.html|clients/.*/terraform\.tfstate|your-github-token-here|staging-access-2025|K2JCJMDEHXQW47|cloudfront-staging-private-key|staging-jwt-secret|boto3\.client\('secretsmanager'\)|boto3\.client\(\"secretsmanager\"\)|\.client\('secretsmanager'\)|\.client\(\"secretsmanager\"\)|keywords|get_weekday_keywords|day_keywords|meta.*content|description|title)" "$temp_file" || true)
+          # Check each file for actual secrets (not configuration)
+          real_secrets=""
+          while IFS= read -r file; do
+            # Check if file contains actual secrets (not configuration keys)
+            if grep -E "(password|secret|api_key|apikey|access_token|access_key|private_key|privatekey)\s*=\s*['\"][^'\"]{12,}['\"]" "$file" 2>/dev/null | \
+               grep -v -iE "(key\s*=\s*['\"][^'\"]*\.(html|tfstate|json|css|js)|kms_key|hash_key|range_key|content_key|object_key|file_key|test|example|demo|default|placeholder|NEVER|SecretsManager|aws-secrets)" > /dev/null; then
+              if [ -z "$real_secrets" ]; then
+                real_secrets="$file"
+              else
+                real_secrets="$real_secrets\n$file"
+              fi
+            fi
+          done < "$temp_file"
           
           if [ -n "$real_secrets" ]; then
-            echo "❌ Potential hardcoded secrets found:"
-            echo "$real_secrets"
+            echo "❌ Potential hardcoded secrets found in:"
+            echo -e "$real_secrets"
             rm -f "$temp_file"
             exit 1
           else

@@ -114,11 +114,11 @@
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">💻</div>
+                        <div class="stat-icon">⏱️</div>
                         <div class="stat-content">
-                            <div class="stat-value" id="github-commits-30d">--</div>
-                            <div class="stat-label">GitHub Commits (30d)</div>
-                            <div class="stat-trend" id="github-trend">Real-time data</div>
+                            <div class="stat-value" id="uptime-percentage">99.9%</div>
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-trend" id="uptime-trend">Excellent</div>
                         </div>
                     </div>
                 </div>
@@ -169,151 +169,6 @@
                                 <div class="github-stat-value" id="github-avg-commits-day">--</div>
                                 <div class="github-stat-label">Avg Commits/Day</div>
                                 <div class="github-stat-description">Based on 30-day average</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Development Velocity Section -->
-        <section class="dashboard-section collapsible-section">
-            <div class="container">
-                <div class="section-header collapsible-header" onclick="toggleSection('development-velocity')">
-                    <h3>🚀 Development Velocity</h3>
-                    <div class="header-actions">
-                        <button id="refresh-velocity" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
-                        <span class="last-updated" id="velocity-last-updated">Last updated: Never</span>
-                        <span class="expand-icon" id="development-velocity-icon">▼</span>
-                    </div>
-                </div>
-                
-                <div class="collapsible-content" id="development-velocity-content">
-                    <div class="velocity-metrics-grid">
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">✨</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="features-implemented">52</div>
-                                <div class="velocity-metric-label">New Features</div>
-                            </div>
-                        </div>
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">🐛</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="bugs-fixed">30</div>
-                                <div class="velocity-metric-label">Bugs Squashed</div>
-                            </div>
-                        </div>
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">⚡</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="improvements-made">5</div>
-                                <div class="velocity-metric-label">Improvements</div>
-                            </div>
-                        </div>
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">🔒</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="security-updates">12+</div>
-                                <div class="velocity-metric-label">Security Enhancements</div>
-                            </div>
-                        </div>
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">🏗️</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="infra-updates">15+</div>
-                                <div class="velocity-metric-label">Infrastructure Updates</div>
-                            </div>
-                        </div>
-                        <div class="velocity-metric-card">
-                            <div class="velocity-metric-icon">✅</div>
-                            <div class="velocity-metric-content">
-                                <div class="velocity-metric-value" id="testing-cycles">8+</div>
-                                <div class="velocity-metric-label">Testing & Validation</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="velocity-summary-grid">
-                        <div class="velocity-summary-card">
-                            <div class="velocity-summary-label">Recent Commits (7d)</div>
-                            <div class="velocity-summary-value" id="total-commits-velocity">32</div>
-                        </div>
-                        <div class="velocity-summary-card">
-                            <div class="velocity-summary-label">Total Commits (30d)</div>
-                            <div class="velocity-summary-value" id="dev-days">115</div>
-                        </div>
-                        <div class="velocity-summary-card">
-                            <div class="velocity-summary-label">Avg Commits/Day</div>
-                            <div class="velocity-summary-value" id="avg-commits-day">3.8</div>
-                        </div>
-                        <div class="velocity-summary-card">
-                            <div class="velocity-summary-label">Success Rate</div>
-                            <div class="velocity-summary-value" id="success-rate">100%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Repository Cleanup Achievements Section -->
-        <section class="dashboard-section collapsible-section">
-            <div class="container">
-                <div class="section-header collapsible-header" onclick="toggleSection('cleanup-achievements')">
-                    <h3>🧹 Repository Cleanup Achievements</h3>
-                    <div class="header-actions">
-                        <span class="last-updated">Completed: October 13, 2025</span>
-                        <span class="expand-icon" id="cleanup-achievements-icon">▼</span>
-                    </div>
-                </div>
-                
-                <div class="collapsible-content" id="cleanup-achievements-content">
-                    <div class="cleanup-metrics-grid">
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">📁</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">14</div>
-                                <div class="cleanup-metric-label">Organized Directories</div>
-                                <div class="cleanup-metric-description">docs/, scripts/, config/ structure</div>
-                            </div>
-                        </div>
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">📄</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">133</div>
-                                <div class="cleanup-metric-label">Documentation Files</div>
-                                <div class="cleanup-metric-description">All organized by category</div>
-                            </div>
-                        </div>
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">🔧</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">68</div>
-                                <div class="cleanup-metric-label">Automation Scripts</div>
-                                <div class="cleanup-metric-description">Deployment, security, utilities</div>
-                            </div>
-                        </div>
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">🏗️</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">44</div>
-                                <div class="cleanup-metric-label">Infrastructure Files</div>
-                                <div class="cleanup-metric-description">Terraform configurations</div>
-                            </div>
-                        </div>
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">🌐</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">21</div>
-                                <div class="cleanup-metric-label">Web Pages</div>
-                                <div class="cleanup-metric-description">HTML files organized</div>
-                            </div>
-                        </div>
-                        <div class="cleanup-metric-card">
-                            <div class="cleanup-metric-icon">🎨</div>
-                            <div class="cleanup-metric-content">
-                                <div class="cleanup-metric-value">22</div>
-                                <div class="cleanup-metric-label">Stylesheets</div>
-                                <div class="cleanup-metric-description">CSS files organized</div>
                             </div>
                         </div>
                     </div>
@@ -386,40 +241,7 @@
                         <div class="terraform-content">
                             <div class="terraform-value" id="storage-resources">8</div>
                             <div class="terraform-label">Storage Resources</div>
-                            <div class="terraform-trend">S3, DynamoDB, State Management</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="terraform-breakdown">
-                    <div class="breakdown-header">
-                        <h4>🔧 Resource Breakdown</h4>
-                        <span class="breakdown-period">Current Infrastructure</span>
-                    </div>
-                    <div class="breakdown-stats">
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">Route53 Records</span>
-                            <span class="breakdown-value" id="route53-count">10</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">S3 Buckets</span>
-                            <span class="breakdown-value" id="s3-count">5</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">CloudWatch Alarms</span>
-                            <span class="breakdown-value" id="cloudwatch-count">5</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">CloudFront Distributions</span>
-                            <span class="breakdown-value" id="cloudfront-count">3</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">WAF Web ACLs</span>
-                            <span class="breakdown-value" id="waf-count">2</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span class="breakdown-label">API Gateway Resources</span>
-                            <span class="breakdown-value" id="api-gateway-count">8</span>
+                            <div class="terraform-trend">S3: <span id="s3-count">--</span>, DynamoDB: <span id="dynamodb-count">--</span></div>
                         </div>
                     </div>
                 </div>
@@ -455,112 +277,6 @@
                                 <span class="feature-stat">🗄️ S3 Backend</span>
                                 <span class="feature-stat">🔒 State Locking</span>
                                 <span class="feature-stat">📈 Versioning</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- System Status Section -->
-        <section class="dashboard-section collapsible-section">
-            <div class="container">
-                <div class="section-header collapsible-header" onclick="toggleSection('system-status')">
-                    <h3>🏥 System Status</h3>
-                    <div class="header-actions">
-                        <button id="refresh-status" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
-                        <span class="last-updated" id="status-last-updated">Last updated: Never</span>
-                        <span class="expand-icon" id="system-status-icon">▼</span>
-                    </div>
-                </div>
-                
-                <div class="collapsible-content" id="system-status-content">
-                <div class="status-grid">
-                    <!-- Website Status -->
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <h4>🌐 Website</h4>
-                            <div class="status-badge" id="website-status">Operational</div>
-                        </div>
-                        <div class="status-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Status</span>
-                                <span class="metric-value" id="website-http-status">200 OK</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Response Time</span>
-                                <span class="metric-value" id="website-response">--ms</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">SSL Certificate</span>
-                                <span class="metric-value" id="website-ssl-status">Valid</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Status -->
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <h4>🔒 Security</h4>
-                            <div class="status-badge" id="security-status">Secure</div>
-                        </div>
-                        <div class="status-metrics">
-                            <div class="metric">
-                                <span class="metric-label">WAF Status</span>
-                                <span class="metric-value" id="waf-status">Active</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">SSL Certificate</span>
-                                <span class="metric-value" id="ssl-status">Valid</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Threats Blocked</span>
-                                <span class="metric-value" id="threats-blocked">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Infrastructure Status -->
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <h4>🏗️ Infrastructure</h4>
-                            <div class="status-badge" id="infrastructure-status">Healthy</div>
-                        </div>
-                        <div class="status-metrics">
-                            <div class="metric">
-                                <span class="metric-label">S3 Buckets</span>
-                                <span class="metric-value" id="s3-status">Operational</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">CloudFront</span>
-                                <span class="metric-value" id="cloudfront-status">Deployed</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Route53</span>
-                                <span class="metric-value" id="route53-status">Resolving</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Performance Status -->
-                    <div class="status-card">
-                        <div class="status-card-header">
-                            <h4>⚡ Performance</h4>
-                            <div class="status-badge" id="performance-status">Optimal</div>
-                        </div>
-                        <div class="status-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Load Time</span>
-                                <span class="metric-value" id="load-time">1.2s</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Cache Hit Rate</span>
-                                <span class="metric-value" id="cache-hit-rate">95%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Core Web Vitals</span>
-                                <span class="metric-value" id="core-web-vitals">Good</span>
                             </div>
                         </div>
                     </div>
@@ -814,107 +530,6 @@
         </section>
 
 
-        <!-- Performance Metrics Section -->
-        <section class="dashboard-section collapsible-section">
-            <div class="container">
-                <div class="section-header collapsible-header" onclick="toggleSection('performance')">
-                    <h3>⚡ Performance Metrics</h3>
-                    <div class="header-actions">
-                        <button id="refresh-performance" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Refresh</button>
-                        <span class="last-updated" id="performance-last-updated">Last updated: Never</span>
-                        <span class="expand-icon" id="performance-icon">▼</span>
-                    </div>
-                </div>
-                
-                <div class="collapsible-content collapsed" id="performance-content">
-                <div class="performance-grid">
-                    <div class="performance-card" id="core-web-vitals">
-                        <h4>Core Web Vitals</h4>
-                        <div class="vital-metric">
-                            <span class="vital-label">LCP</span>
-                            <span class="vital-value" id="core-web-vitals-lcp">1.2s</span>
-                            <span class="vital-score" id="core-web-vitals-lcp-score">good</span>
-                        </div>
-                        <div class="vital-metric">
-                            <span class="vital-label">FID</span>
-                            <span class="vital-value" id="core-web-vitals-fid">45ms</span>
-                            <span class="vital-score" id="core-web-vitals-fid-score">good</span>
-                        </div>
-                        <div class="vital-metric">
-                            <span class="vital-label">CLS</span>
-                            <span class="vital-value" id="core-web-vitals-cls">0.05</span>
-                            <span class="vital-score" id="core-web-vitals-cls-score">good</span>
-                        </div>
-                    </div>
-                    
-                    <div class="performance-card" id="page-speed">
-                        <h4>Page Speed</h4>
-                        <div class="speed-metric">
-                            <span class="speed-label">Mobile</span>
-                            <span class="speed-value" id="page-speed-mobile-score">95</span>
-                            <span class="speed-grade" id="page-speed-mobile-grade">A</span>
-                        </div>
-                        <div class="speed-metric">
-                            <span class="speed-label">Desktop</span>
-                            <span class="speed-value" id="page-speed-desktop-score">98</span>
-                            <span class="speed-grade" id="page-speed-desktop-grade">A</span>
-                        </div>
-                    </div>
-                    
-                    <div class="performance-card" id="resource-timing">
-                        <h4>Resource Timing</h4>
-                        <div class="timing-metric">
-                            <span class="timing-label">DNS</span>
-                            <span class="timing-value" id="resource-timing-dns">12ms</span>
-                        </div>
-                        <div class="timing-metric">
-                            <span class="timing-label">Connect</span>
-                            <span class="timing-value" id="resource-timing-connect">45ms</span>
-                        </div>
-                        <div class="timing-metric">
-                            <span class="timing-label">SSL</span>
-                            <span class="timing-value" id="resource-timing-ssl">23ms</span>
-                        </div>
-                        <div class="timing-metric">
-                            <span class="timing-label">TTFB</span>
-                            <span class="timing-value" id="resource-timing-ttfb">180ms</span>
-                        </div>
-                        <div class="timing-metric">
-                            <span class="timing-label">DOM</span>
-                            <span class="timing-value" id="resource-timing-dom">320ms</span>
-                        </div>
-                        <div class="timing-metric">
-                            <span class="timing-label">Load</span>
-                            <span class="timing-value" id="resource-timing-load">1.2s</span>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Alerts and Notifications -->
-        <section class="alerts-section">
-            <div class="container">
-                <div class="section-header">
-                    <h3>🚨 Alerts & Notifications</h3>
-                    <div class="alert-controls">
-                        <button id="clear-alerts" class="btn btn-secondary">Clear All</button>
-                    </div>
-                </div>
-                
-                <div class="alerts-container" id="alerts-container">
-                    <div class="alert alert-info">
-                        <div class="alert-icon">ℹ️</div>
-                        <div class="alert-content">
-                            <div class="alert-title">System Status</div>
-                            <div class="alert-message">All systems are operational. No issues detected.</div>
-                            <div class="alert-time">Just now</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
@@ -970,7 +585,7 @@
         // Initialize: Keep Quick Stats and first section expanded, collapse others
         document.addEventListener('DOMContentLoaded', () => {
             // Expand first sections by default
-            const defaultExpanded = ['dev-activity', 'development-velocity', 'cleanup-achievements', 'terraform', 'system-status', 'cost-monitoring'];
+            const defaultExpanded = ['dev-activity', 'terraform', 'cost-monitoring'];
             defaultExpanded.forEach(sectionId => {
                 const content = document.getElementById(sectionId + '-content');
                 const icon = document.getElementById(sectionId + '-icon');
