@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Script to update blog.js with a new blog post entry
 
-const fs = require('fs');
+import fs from 'fs';
 
 const day = process.env.DAY;
 const dateOnly = process.env.DATE_ONLY;
