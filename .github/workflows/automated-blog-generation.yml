@@ -148,7 +148,7 @@ jobs:
           echo "blog-focus=$FOCUS" >> $GITHUB_OUTPUT
           echo "blog-keywords=$KEYWORDS" >> $GITHUB_OUTPUT
           echo "✅ Blog generated: $BLOG_FILENAME"
-          
+
       - name: Update blog.js with new post
         if: steps.generate-content.outputs.blog-generated == 'true'
         run: |
