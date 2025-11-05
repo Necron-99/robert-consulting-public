@@ -33,8 +33,13 @@ jobs:
       - name: 🔍 Get Code Scanning Alerts
         run: |
           echo "🔍 Fetching Code Scanning alerts..."
-          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json
-          echo "📊 Found $(jq length alerts.json) open alerts"
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > alerts.json || echo "[]" > alerts.json
+          
+          if [ -f "alerts.json" ] && jq empty alerts.json 2>/dev/null; then
+            echo "📊 Found $(jq 'if type == "array" then length else 0 end' alerts.json) open alerts"
+          else
+            echo "📊 Found 0 open alerts"
+          fi
 
       - name: 🎯 Process High/Critical Findings
         run: |
@@ -54,14 +59,18 @@ jobs:
             }
           ' alerts.json > findings.json
           
-          echo "📊 Found $(jq length findings.json) unique high/critical findings"
+          if [ -f "findings.json" ] && jq empty findings.json 2>/dev/null; then
+            echo "📊 Found $(jq 'if type == "array" then length else 0 end' findings.json) unique high/critical findings"
+          else
+            echo "📊 Found 0 unique high/critical findings"
+          fi
 
       - name: 🤖 Create Issues
         run: |
           echo "🤖 Creating Issues for findings..."
           set -e
           
-          if [ -f "findings.json" ] && [ "$(jq length findings.json)" -gt 0 ]; then
+          if [ -f "findings.json" ] && jq empty findings.json 2>/dev/null && [ "$(jq 'if type == "array" then length else 0 end' findings.json)" -gt 0 ]; then
             jq -r '.[]' findings.json | while read -r finding; do
               rule_name=$(echo "$finding" | jq -r '.rule_name')
               severity=$(echo "$finding" | jq -r '.severity')
@@ -104,9 +113,14 @@ $description
         run: |
           echo "📊 Summary:"
           echo "==========="
-          if [ -f "findings.json" ]; then
-            echo "🔍 Total findings: $(jq length findings.json)"
-            echo "🚨 Critical: $(jq '[.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length' findings.json)"
-            echo "⚠️ High: $(jq '[.[] | select(.severity == "WARNING")] | length' findings.json)"
+          if [ -f "findings.json" ] && jq empty findings.json 2>/dev/null; then
+            echo "🔍 Total findings: $(jq 'if type == "array" then length else 0 end' findings.json)"
+            echo "🚨 Critical: $(jq 'if type == "array" then [.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length else 0 end' findings.json)"
+            echo "⚠️ High: $(jq 'if type == "array" then [.[] | select(.severity == "WARNING")] | length else 0 end' findings.json)"
+          else
+            echo "🔍 Total findings: 0"
+            echo "🚨 Critical: 0"
+            echo "⚠️ High: 0"
           fi
-          echo "📈 Open security issues: $(gh issue list --label "security" --state open --json number | jq length)"
+          security_issues=$(gh issue list --label "security" --state open --json number 2>/dev/null | jq 'if type == "array" then length else 0 end' || echo "0")
+          echo "📈 Open security issues: $security_issues"

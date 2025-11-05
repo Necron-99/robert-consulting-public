@@ -77,13 +77,23 @@ jobs:
                 }
               }
             }
-          ' -f owner=${{ github.repository_owner }} -f repo=${{ github.event.repository.name }} > code-scanning-alerts.json
+          ' -f owner=${{ github.repository_owner }} -f repo=${{ github.event.repository.name }} > code-scanning-alerts.json || echo '{"data":{"repository":{"vulnerabilityAlerts":{"nodes":[]}}}}' > code-scanning-alerts.json
           
           # Also get code scanning results (SARIF uploads)
-          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > sarif-alerts.json
+          gh api repos/${{ github.repository }}/code-scanning/alerts --jq '.[] | select(.state == "open")' > sarif-alerts.json || echo "[]" > sarif-alerts.json
           
-          echo "📊 Found $(jq length code-scanning-alerts.json) vulnerability alerts"
-          echo "📊 Found $(jq length sarif-alerts.json) SARIF alerts"
+          # Safely count alerts (handle empty or invalid JSON)
+          if [ -f "code-scanning-alerts.json" ] && jq empty code-scanning-alerts.json 2>/dev/null; then
+            echo "📊 Found $(jq 'if type == "array" then length else 0 end' code-scanning-alerts.json) vulnerability alerts"
+          else
+            echo "📊 Found 0 vulnerability alerts"
+          fi
+          
+          if [ -f "sarif-alerts.json" ] && jq empty sarif-alerts.json 2>/dev/null; then
+            echo "📊 Found $(jq 'if type == "array" then length else 0 end' sarif-alerts.json) SARIF alerts"
+          else
+            echo "📊 Found 0 SARIF alerts"
+          fi
 
       - name: 🎯 Process Critical/High Findings
         id: process-findings
@@ -95,7 +105,7 @@ jobs:
           CREATE_ISSUES="${{ github.event.inputs.create_issues || 'true' }}"
           
           # Process SARIF alerts (Trivy, Semgrep, etc.)
-          if [ -f "sarif-alerts.json" ] && [ "$(jq length sarif-alerts.json)" -gt 0 ]; then
+          if [ -f "sarif-alerts.json" ] && jq empty sarif-alerts.json 2>/dev/null && [ "$(jq 'if type == "array" then length else 0 end' sarif-alerts.json)" -gt 0 ]; then
             echo "🔍 Processing SARIF alerts..."
             
             # Filter for critical/high severity and group by rule
@@ -120,7 +130,11 @@ jobs:
               }
             ' sarif-alerts.json > processed-findings.json
             
-            echo "📊 Processed $(jq length processed-findings.json) unique findings"
+            if [ -f "processed-findings.json" ] && jq empty processed-findings.json 2>/dev/null; then
+              echo "📊 Processed $(jq 'if type == "array" then length else 0 end' processed-findings.json) unique findings"
+            else
+              echo "📊 Processed 0 unique findings"
+            fi
           fi
 
       - name: 🤖 Create Issues for Critical/High Findings
@@ -128,7 +142,7 @@ jobs:
         run: |
           echo "🤖 Creating Issues for critical/high findings..."
           
-          if [ -f "processed-findings.json" ] && [ "$(jq length processed-findings.json)" -gt 0 ]; then
+          if [ -f "processed-findings.json" ] && jq empty processed-findings.json 2>/dev/null && [ "$(jq 'if type == "array" then length else 0 end' processed-findings.json)" -gt 0 ]; then
             jq -r '.[]' processed-findings.json | while read -r finding; do
               rule_name=$(echo "$finding" | jq -r '.rule_name')
               severity=$(echo "$finding" | jq -r '.severity')
@@ -190,10 +204,10 @@ EOF
           echo "📊 Security Management Summary:"
           echo "================================"
           
-          if [ -f "processed-findings.json" ]; then
-            total_findings=$(jq length processed-findings.json)
-            critical_findings=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length' processed-findings.json)
-            high_findings=$(jq '[.[] | select(.severity == "WARNING")] | length' processed-findings.json)
+          if [ -f "processed-findings.json" ] && jq empty processed-findings.json 2>/dev/null; then
+            total_findings=$(jq 'if type == "array" then length else 0 end' processed-findings.json)
+            critical_findings=$(jq 'if type == "array" then [.[] | select(.severity == "CRITICAL" or .severity == "ERROR")] | length else 0 end' processed-findings.json)
+            high_findings=$(jq 'if type == "array" then [.[] | select(.severity == "WARNING")] | length else 0 end' processed-findings.json)
             
             echo "🔍 Total Unique Findings: $total_findings"
             echo "🚨 Critical/Error Findings: $critical_findings"
