@@ -208,6 +208,17 @@ class BlogManager {
         tags: ['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics'],
         icon: '🤖',
         readTime: '10 min read'
+      },,
+      {
+        id: 20,
+        title: 'Intelligent Vulnerability Remediation',
+        excerpt: 'AI-powered security, threat detection, automated remediation',
+        content: 'blog-posts/wednesday-2025-11-05.html',
+        date: '2025-11-05', // Wednesday
+        category: 'security',
+        tags: ['Vulnerability Management', 'Security Automation', 'AI Security', 'Threat Detection', 'Remediation'],
+        icon: '🔒',
+        readTime: '8 min read'
       }
     ];
   }
