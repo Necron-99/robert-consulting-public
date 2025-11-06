@@ -43,9 +43,9 @@ if (lastBraceIndex === -1) {
   process.exit(1);
 }
 
-// Check if last entry already has a comma
-const textBeforeLastBrace = beforeClosing.substring(0, lastBraceIndex).trimEnd();
-const needsComma = !textBeforeLastBrace.endsWith(',');
+// Check if last entry already has a comma after the closing brace
+const afterLastBrace = beforeClosing.substring(lastBraceIndex + 7).trimStart();
+const hasComma = afterLastBrace.startsWith(',');
 
 // Create new entry
 const newEntry = `      {
@@ -63,7 +63,9 @@ const newEntry = `      {
 // Build the result: insert new entry before the closing ];
 const beforeInsert = beforeClosing.substring(0, lastBraceIndex + 7); // Include '      }'
 const afterInsert = blogJsContent.substring(closingBracketIndex);
-const result = beforeInsert + (needsComma ? ',' : '') + ',\n' + newEntry + '\n' + afterInsert;
+// Add comma to last entry if needed, then add new entry with comma
+const commaForLast = hasComma ? '' : ',';
+const result = beforeInsert + commaForLast + ',\n' + newEntry + '\n' + afterInsert;
 
 fs.writeFileSync(blogJs, result, 'utf8');
 

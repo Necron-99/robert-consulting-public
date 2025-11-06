@@ -219,6 +219,17 @@ class BlogManager {
         tags: ['Vulnerability Management', 'Security Automation', 'AI Security', 'Threat Detection', 'Remediation'],
         icon: '🔒',
         readTime: '8 min read'
+      },
+      {
+        id: 21,
+        title: 'OpenTofu Analysis',
+        excerpt: 'Comprehensive comparison with Terraform, pros/cons, migration strategies',
+        content: 'blog-posts/thursday-2025-11-06.html',
+        date: '2025-11-06', // Thursday
+        category: 'infrastructure',
+        tags: ['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison'],
+        icon: '🏗️',
+        readTime: '10 min read'
       }
     ];
   }
