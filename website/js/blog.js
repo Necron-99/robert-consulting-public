@@ -208,7 +208,7 @@ class BlogManager {
         tags: ['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics'],
         icon: '🤖',
         readTime: '10 min read'
-      },,
+      },
       {
         id: 20,
         title: 'Intelligent Vulnerability Remediation',
