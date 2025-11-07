@@ -76,51 +76,72 @@ jobs:
           echo "  DRYRUN: $DRYRUN"
           echo "  Script exists: $(ls -la scripts/generate-detailed-blog.sh)"
           
-          # Check for date-specific topic overrides
-          DATE_OVERRIDE=""
-          if [ "$DATE" = "2025-11-10" ] && [ "$DAY" = "monday" ]; then
-            DATE_OVERRIDE="cost-management"
-            echo "📅 Date-specific override detected: AWS Cost Management for $DATE"
+          # Check blog-schedule.json for scheduled topic
+          SCHEDULED_TOPIC=""
+          SCHEDULED_FOCUS=""
+          SCHEDULED_KEYWORDS=""
+          RESEARCH_NOTES=""
+          
+          if [ -f "blog-schedule.json" ]; then
+            SCHEDULED_ENTRY=$(jq -r --arg date "$DATE" '.schedule[] | select(.date == $date and .status == "approved")' blog-schedule.json 2>/dev/null || echo "")
+            if [ -n "$SCHEDULED_ENTRY" ] && [ "$SCHEDULED_ENTRY" != "null" ]; then
+              SCHEDULED_TOPIC=$(echo "$SCHEDULED_ENTRY" | jq -r '.topic // empty')
+              SCHEDULED_FOCUS=$(echo "$SCHEDULED_ENTRY" | jq -r '.focus // empty')
+              SCHEDULED_KEYWORDS=$(echo "$SCHEDULED_ENTRY" | jq -r '.keywords // empty')
+              RESEARCH_NOTES=$(echo "$SCHEDULED_ENTRY" | jq -r '.researchNotes // empty')
+              if [ -n "$SCHEDULED_TOPIC" ] && [ "$SCHEDULED_TOPIC" != "null" ]; then
+                echo "📅 Found scheduled topic for $DATE: $SCHEDULED_TOPIC"
+              fi
+            fi
           fi
           
-          # Set topic and focus based on day (with date overrides)
-          case "$DAY" in
-            "monday")
-              if [ "$DATE_OVERRIDE" = "cost-management" ]; then
-                TOPIC="AWS Cost Management"
-                FOCUS="Practical strategies to keep AWS costs in check and avoid unexpected charges"
-                KEYWORDS="AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies"
-              else
+          # Use scheduled topic if available, otherwise use defaults
+          if [ -n "$SCHEDULED_TOPIC" ] && [ "$SCHEDULED_TOPIC" != "null" ]; then
+            TOPIC="$SCHEDULED_TOPIC"
+            FOCUS="$SCHEDULED_FOCUS"
+            KEYWORDS="$SCHEDULED_KEYWORDS"
+            echo "✅ Using scheduled topic: $TOPIC"
+          else
+            # Fallback to default topics based on day
+            case "$DAY" in
+              "monday")
                 TOPIC="AWS & Cloud Infrastructure"
                 FOCUS="Latest developments, best practices, and insights in AWS and cloud infrastructure"
                 KEYWORDS="AWS, cloud infrastructure, cloud services, AWS best practices, cloud architecture"
-              fi
-              ;;
-            "tuesday")
-              TOPIC="DevOps & Automation"
-              FOCUS="DevOps methodologies, automation strategies, CI/CD pipelines, and operational excellence"
-              KEYWORDS="DevOps, automation, CI/CD, continuous integration, continuous deployment, operational excellence"
-              ;;
-            "wednesday")
-              TOPIC="Security & DevSecOps"
-              FOCUS="Security best practices, DevSecOps integration, threat detection, and vulnerability management"
-              KEYWORDS="security, DevSecOps, threat detection, vulnerability management, security automation, cybersecurity"
-              ;;
-            "thursday")
-              TOPIC="Infrastructure as Code (IaC)"
-              FOCUS="Terraform, OpenTofu, CloudFormation, and infrastructure automation strategies"
-              KEYWORDS="Infrastructure as Code, IaC, Terraform, OpenTofu, CloudFormation, infrastructure automation"
-              ;;
-            "friday")
-              TOPIC="Container Orchestration & Advanced Topics"
-              FOCUS="Kubernetes, Docker, container orchestration, and advanced cloud-native technologies"
-              KEYWORDS="Kubernetes, Docker, container orchestration, cloud-native, microservices, advanced topics"
-              ;;
-            *)
-              echo "❌ Invalid day: $DAY"
-              exit 1
-              ;;
-          esac
+                ;;
+              "tuesday")
+                TOPIC="DevOps & Automation"
+                FOCUS="DevOps methodologies, automation strategies, CI/CD pipelines, and operational excellence"
+                KEYWORDS="DevOps, automation, CI/CD, continuous integration, continuous deployment, operational excellence"
+                ;;
+              "wednesday")
+                TOPIC="Security & DevSecOps"
+                FOCUS="Security best practices, DevSecOps integration, threat detection, and vulnerability management"
+                KEYWORDS="security, DevSecOps, threat detection, vulnerability management, security automation, cybersecurity"
+                ;;
+              "thursday")
+                TOPIC="Infrastructure as Code (IaC)"
+                FOCUS="Terraform, OpenTofu, CloudFormation, and infrastructure automation strategies"
+                KEYWORDS="Infrastructure as Code, IaC, Terraform, OpenTofu, CloudFormation, infrastructure automation"
+                ;;
+              "friday")
+                TOPIC="Container Orchestration & Advanced Topics"
+                FOCUS="Kubernetes, Docker, container orchestration, and advanced cloud-native technologies"
+                KEYWORDS="Kubernetes, Docker, container orchestration, cloud-native, microservices, advanced topics"
+                ;;
+              *)
+                echo "❌ Invalid day: $DAY"
+                exit 1
+                ;;
+            esac
+            echo "ℹ️  Using default topic for $DAY: $TOPIC"
+          fi
+          
+          # Export research notes path if available
+          if [ -n "$RESEARCH_NOTES" ] && [ "$RESEARCH_NOTES" != "null" ] && [ "$RESEARCH_NOTES" != "" ]; then
+            export RESEARCH_NOTES_PATH="$RESEARCH_NOTES"
+            echo "📚 Research notes available: $RESEARCH_NOTES"
+          fi
           
           echo "📝 Topic details:"
           echo "  TOPIC: $TOPIC"
@@ -282,6 +303,16 @@ jobs:
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/blog-posts/*"
           echo "🔄 CloudFront cache invalidated"
+          
+      - name: Update schedule status
+        if: steps.generate-content.outputs.blog-generated == 'true'
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          if [ -f "blog-schedule.json" ]; then
+            # Update status to "generated" for today's entry
+            jq --arg date "$DATE" '(.schedule[] | select(.date == $date) | .status) = "generated"' blog-schedule.json > blog-schedule.json.tmp && mv blog-schedule.json.tmp blog-schedule.json
+            echo "✅ Updated schedule status to 'generated' for $DATE"
+          fi
           
       - name: Commit and push changes
         if: steps.generate-content.outputs.blog-generated == 'true'

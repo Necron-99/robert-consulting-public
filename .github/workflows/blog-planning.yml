@@ -1,0 +1,73 @@
+name: Weekly Blog Planning
+
+on:
+  schedule:
+    - cron: '0 18 * * 0'  # Run every Sunday at 6 PM
+  workflow_dispatch:
+    inputs:
+      horizon:
+        description: 'Planning horizon in days'
+        required: false
+        default: '14'
+        type: string
+
+jobs:
+  generate-proposals:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          
+      - name: Generate topic proposals
+        id: generate
+        run: |
+          HORIZON="${{ github.event.inputs.horizon || '14' }}"
+          echo "📅 Generating blog topic proposals for next $HORIZON days..."
+          
+          node scripts/generate-blog-proposals.js --horizon=$HORIZON
+          
+          # Count proposals
+          PROPOSAL_COUNT=$(jq '[.schedule[] | select(.status == "approved" or .status == "proposed")] | length' blog-schedule.json)
+          echo "proposal-count=$PROPOSAL_COUNT" >> $GITHUB_OUTPUT
+          
+      - name: Create summary
+        run: |
+          echo "## 📅 Weekly Blog Topic Proposals" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Generated topic proposals for the next ${{ github.event.inputs.horizon || '14' }} days." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Upcoming Topics:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract next 7 days of topics
+          jq -r '.schedule[] | select(.status == "approved" or .status == "proposed") | "| \(.date) (\(.day)) | \(.topic) | \(.status) |"' blog-schedule.json | head -7 >> $GITHUB_STEP_SUMMARY || echo "No topics found" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Commit proposals
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet blog-schedule.json; then
+            echo "ℹ️  No changes to blog-schedule.json"
+            exit 0
+          fi
+          
+          git add blog-schedule.json
+          git commit -m "📅 Weekly blog topic proposals generated" || {
+            echo "⚠️ Commit failed (may be no changes)"
+            exit 0
+          }
+          
+          git push origin main || {
+            echo "⚠️ Push failed"
+            exit 0
+          }
+          
+          echo "✅ Proposals committed and pushed"
+
