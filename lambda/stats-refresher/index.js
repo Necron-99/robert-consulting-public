@@ -26,24 +26,17 @@ exports.handler = async() => {
     // Get GitHub token from Secrets Manager
     const githubToken = await getGitHubToken();
 
-    // Fetch all statistics in parallel
-    const [githubStats, awsCosts, awsTraffic, healthStats] = await Promise.allSettled([
+    // Fetch all statistics in parallel (cost data removed)
+    const [githubStats, awsTraffic, healthStats] = await Promise.allSettled([
       fetchGitHubStats(githubToken),
-      fetchAWSCosts(),
       fetchAWSTraffic(),
       fetchHealthStats()
     ]);
 
-    // Compile the final stats object
+    // Compile the final stats object (cost data removed)
     const stats = {
       generatedAt: new Date().toISOString(),
       github: githubStats.status === 'fulfilled' ? githubStats.value : {error: 'Failed to fetch GitHub stats'},
-      aws: {
-        monthlyCostTotal: awsCosts.status === 'fulfilled' ? awsCosts.value.monthlyCost : 0,
-        registrarCost: awsCosts.status === 'fulfilled' ? awsCosts.value.registrarCost : 0,
-        totalCost: awsCosts.status === 'fulfilled' ? awsCosts.value.total : 0,
-        services: awsCosts.status === 'fulfilled' ? awsCosts.value.services : {}
-      },
       traffic: awsTraffic.status === 'fulfilled' ? awsTraffic.value : {error: 'Failed to fetch traffic stats'},
       health: healthStats.status === 'fulfilled' ? healthStats.value : {error: 'Failed to fetch health stats'}
     };
@@ -197,49 +190,9 @@ async function fetchGitHubStats(token) {
 }
 
 /**
- * Get static AWS cost data (Cost Explorer removed to eliminate costs)
+ * AWS cost data function removed completely to eliminate Cost Explorer costs
+ * This function is no longer used and cost data is not included in the response
  */
-async function fetchAWSCosts() {
-  try {
-    console.log('💰 Using static AWS cost data (Cost Explorer disabled to eliminate costs)...');
-
-    // Return static cost data - no Cost Explorer API calls
-    return {
-      total: 45.35,
-      registrarCost: 28.85,
-      monthlyCost: 16.5,
-      services: {
-        s3: 0.05,
-        cloudfront: 0.000003259,
-        route53: 3.551444,
-        lambda: 0,
-        ses: 0,
-        waf: 9.5925290772,
-        cloudwatch: 0.1,
-        other: 3.2560313085
-      }
-    };
-
-  } catch (error) {
-    console.error('Error getting AWS costs:', error);
-    // Return fallback data
-    return {
-      total: 16.5,
-      registrarCost: 0,
-      monthlyCost: 16.5,
-      services: {
-        s3: 0.05,
-        cloudfront: 0.000003259,
-        route53: 3.551444,
-        lambda: 0,
-        ses: 0,
-        waf: 9.5925290772,
-        cloudwatch: 0.1,
-        other: 3.2560313085
-      }
-    };
-  }
-}
 
 /**
  * Fetch AWS traffic metrics
