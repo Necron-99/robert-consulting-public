@@ -48,18 +48,24 @@ jobs:
           # Extract next 7 days of topics
           jq -r '.schedule[] | select(.status == "approved" or .status == "proposed") | "| \(.date) (\(.day)) | \(.topic) | \(.status) |"' blog-schedule.json | head -7 >> $GITHUB_STEP_SUMMARY || echo "No topics found" >> $GITHUB_STEP_SUMMARY
           
-      - name: Commit proposals
+      - name: Generate coming soon section
+        run: |
+          echo "📝 Generating coming soon section for blog.html..."
+          node scripts/generate-coming-soon.js
+          
+      - name: Commit proposals and coming soon
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          if git diff --quiet blog-schedule.json; then
-            echo "ℹ️  No changes to blog-schedule.json"
+          # Check for changes
+          if git diff --quiet blog-schedule.json website/blog.html; then
+            echo "ℹ️  No changes to commit"
             exit 0
           fi
           
-          git add blog-schedule.json
-          git commit -m "📅 Weekly blog topic proposals generated" || {
+          git add blog-schedule.json website/blog.html
+          git commit -m "📅 Weekly blog topic proposals and coming soon section updated" || {
             echo "⚠️ Commit failed (may be no changes)"
             exit 0
           }
@@ -69,5 +75,5 @@ jobs:
             exit 0
           }
           
-          echo "✅ Proposals committed and pushed"
+          echo "✅ Proposals and coming soon section committed and pushed"
 
