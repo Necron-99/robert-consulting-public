@@ -60,8 +60,8 @@ resource "aws_iam_role_policy" "client_management_policy" {
           # Account management
           "account:*",
           
-          # Billing and cost management
-          "ce:*",
+          # Billing and cost management (Cost Explorer removed to eliminate costs)
+          # "ce:*",  # Cost Explorer removed to eliminate costs
           "cur:*",
           "budgets:*",
           

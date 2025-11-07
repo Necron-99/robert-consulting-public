@@ -48,8 +48,8 @@ resource "aws_iam_role_policy" "remote_management_additional" {
       {
         Effect = "Allow"
         Action = [
-          # Cost and billing management
-          "ce:*",
+          # Cost and billing management (Cost Explorer removed to eliminate costs)
+          # "ce:*",  # Cost Explorer removed to eliminate costs
           "cur:*",
           "budgets:*",
           "pricing:*",
