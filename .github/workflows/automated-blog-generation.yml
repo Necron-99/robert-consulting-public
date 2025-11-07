@@ -79,9 +79,9 @@ jobs:
           # Set topic and focus based on day
           case "$DAY" in
             "monday")
-              TOPIC="AWS Services and Updates"
-              FOCUS="Latest AWS releases, feature updates, impact analysis"
-              KEYWORDS="AWS, cloud services, updates, new features, AWS announcements"
+              TOPIC="AWS Cost Management"
+              FOCUS="Practical strategies to keep AWS costs in check and avoid unexpected charges"
+              KEYWORDS="AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies"
               ;;
             "tuesday")
               TOPIC="AIOps"
@@ -180,10 +180,10 @@ jobs:
           
           # Determine category, icon, and tags based on topic
           case "$TOPIC" in
-            "AWS Services and Updates")
+            "AWS Cost Management")
               CATEGORY="aws"
-              ICON="☁️"
-              TAGS_STR="['AWS', 'Cloud Services', 'Updates', 'New Features', 'AWS Announcements']"
+              ICON="💰"
+              TAGS_STR="['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings']"
               READ_TIME="12 min read"
               ;;
             "AIOps")
