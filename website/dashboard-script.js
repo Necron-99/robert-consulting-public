@@ -6,8 +6,8 @@
 class UnifiedDashboard {
   constructor() {
     this.refreshInterval = null;
-    this.autoRefreshEnabled = false; // Disabled by default to minimize Cost Explorer API costs
-    this.refreshRate = 300000; // 5 minutes (reduced from 30s to minimize Cost Explorer API calls)
+    this.autoRefreshEnabled = false; // Disabled by default
+    this.refreshRate = 300000; // 5 minutes
     this.lastUpdateTime = null;
     this.cacheTimeout = 120000; // 2 minutes client-side cache
     this.cachedData = {}; // Client-side cache to prevent duplicate requests
@@ -39,7 +39,6 @@ class UnifiedDashboard {
   setupEventListeners() {
     // Refresh buttons
     document.getElementById('refresh-all')?.addEventListener('click', () => this.refreshAll());
-    document.getElementById('refresh-costs')?.addEventListener('click', () => this.loadCostData());
     document.getElementById('refresh-github')?.addEventListener('click', () => this.loadGitHubData());
     document.getElementById('refresh-terraform')?.addEventListener('click', () => this.loadTerraformData());
     document.getElementById('refresh-monitoring')?.addEventListener('click', () => this.loadMonitoringData());
@@ -68,7 +67,6 @@ class UnifiedDashboard {
     try {
       // Load all data in parallel for better performance
       await Promise.all([
-        this.loadCostData(),
         this.loadGitHubData(),
         this.loadTerraformData(),
         this.loadMonitoringData()
@@ -81,124 +79,6 @@ class UnifiedDashboard {
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
       this.showAlert('error', 'Data Loading Error', 'Failed to load some dashboard data. Please refresh the page.');
-    }
-  }
-
-
-  /**
-     * Load cost monitoring data from live stats
-     */
-  async loadCostData() {
-    try {
-      console.log('💰 Loading cost data...');
-
-      // Fetch live stats from S3
-      const stats = await this.fetchLiveStats();
-
-      if (stats && stats.aws) {
-        // Use live AWS cost data
-        const totalCost = stats.aws.monthlyCostTotal || 0;
-        const services = stats.aws.services || {};
-
-        // Calculate AWS Services total
-        const awsTotal = (services.s3 || 0) + (services.cloudfront || 0) + (services.lambda || 0) +
-                               (services.route53 || 0) + (services.ses || 0) + (services.waf || 0) +
-                               (services.cloudwatch || 0) + (services.other || 0);
-
-        // Update cost displays with live data
-        this.updateElement('total-cost', `$${totalCost.toFixed(2)}`);
-        this.updateElement('total-monthly-cost', `$${totalCost.toFixed(2)}`);
-        this.updateElement('cost-trend', '+0.0%'); // Could be calculated from historical data
-
-        // Update AWS Services total and Domain Registrar
-        this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
-        this.updateElement('registrar-cost', `$${(stats.aws.domainRegistrar || 1.25).toFixed(2)}`); // Domain registrar: $75 for 5 years = $1.25/month
-
-        this.updateElement('s3-cost', `$${(services.s3 || 0).toFixed(2)}`);
-        this.updateElement('cloudfront-cost', `$${(services.cloudfront || 0).toFixed(2)}`);
-        this.updateElement('lambda-cost', `$${(services.lambda || 0).toFixed(2)}`);
-        this.updateElement('route53-cost', `$${(services.route53 || 0).toFixed(2)}`);
-        this.updateElement('ses-cost', `$${(services.ses || 0).toFixed(2)}`);
-        this.updateElement('waf-cost', `$${(services.waf || 0).toFixed(2)}`);
-        this.updateElement('cloudwatch-cost', `$${(services.cloudwatch || 0).toFixed(2)}`);
-        this.updateElement('other-cost', `$${(services.other || 0).toFixed(2)}`);
-
-        // Update traffic metrics if available
-        if (stats.traffic) {
-          this.updateElement('s3-storage', stats.traffic.s3?.storageGB ? `${stats.traffic.s3.storageGB} GB` : '0.00 GB');
-          this.updateElement('s3-objects', stats.traffic.s3?.objects || '0');
-          this.updateElement('cloudfront-requests', stats.traffic.cloudfront?.requests24h || '0');
-          this.updateElement('cloudfront-bandwidth', stats.traffic.cloudfront?.bandwidth24h || '0 GB');
-          this.updateElement('route53-queries', stats.traffic.route53?.queries24h || '0');
-        } else {
-          // Fallback values
-          this.updateElement('s3-storage', '0.00 GB');
-          this.updateElement('s3-objects', '0');
-          this.updateElement('cloudfront-requests', '0');
-          this.updateElement('cloudfront-bandwidth', '0 GB');
-          this.updateElement('route53-queries', '0');
-        }
-
-        this.updateElement('lambda-invocations', '0'); // Could be added to stats
-        this.updateElement('lambda-duration', '0s');
-        this.updateElement('route53-health-checks', '0');
-        this.updateElement('ses-emails', '0');
-        this.updateElement('ses-bounces', '0');
-        this.updateElement('cost-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-
-      } else {
-        // Fallback to existing cost calculation if live stats not available
-        const [costData, s3Metrics, cloudfrontMetrics, route53Metrics] = await Promise.all([
-          this.fetchCostData(),
-          this.fetchS3Metrics(),
-          this.fetchCloudFrontMetrics(),
-          this.fetchRoute53Metrics()
-        ]);
-
-        // Calculate AWS Services total
-        const awsTotal = costData.s3Cost + costData.cloudfrontCost + costData.lambdaCost +
-                               costData.route53Cost + costData.sesCost + costData.wafCost +
-                               costData.cloudwatchCost + costData.otherCost;
-
-        // Update cost displays
-        this.updateElement('total-cost', `$${costData.totalMonthly.toFixed(2)}`);
-        this.updateElement('total-monthly-cost', `$${costData.totalMonthly.toFixed(2)}`);
-        this.updateElement('cost-trend', costData.trend);
-
-        // Update AWS Services total and Domain Registrar
-        this.updateElement('aws-total', `$${awsTotal.toFixed(2)}`);
-        this.updateElement('registrar-cost', '$1.25'); // Domain registrar: $75 for 5 years = $1.25/month
-
-        this.updateElement('s3-cost', `$${costData.s3Cost.toFixed(2)}`);
-        this.updateElement('s3-storage', s3Metrics.storage);
-        this.updateElement('s3-objects', s3Metrics.objects);
-
-        this.updateElement('cloudfront-cost', `$${costData.cloudfrontCost.toFixed(2)}`);
-        this.updateElement('cloudfront-requests', cloudfrontMetrics.requests);
-        this.updateElement('cloudfront-bandwidth', cloudfrontMetrics.bandwidth);
-
-        this.updateElement('lambda-cost', `$${costData.lambdaCost.toFixed(2)}`);
-        this.updateElement('lambda-invocations', '0');
-        this.updateElement('lambda-duration', '0s');
-
-        this.updateElement('route53-cost', `$${costData.route53Cost.toFixed(2)}`);
-        this.updateElement('route53-queries', route53Metrics.queries);
-        this.updateElement('route53-health-checks', route53Metrics.healthChecks);
-
-        this.updateElement('waf-cost', `$${costData.wafCost.toFixed(2)}`);
-        this.updateElement('cloudwatch-cost', `$${costData.cloudwatchCost.toFixed(2)}`);
-        this.updateElement('other-cost', `$${costData.otherCost.toFixed(2)}`);
-
-        this.updateElement('ses-cost', `$${costData.sesCost.toFixed(2)}`);
-        this.updateElement('ses-emails', '0');
-        this.updateElement('ses-bounces', '0');
-
-        this.updateElement('cost-last-updated', `Last updated: ${new Date().toLocaleTimeString()}`);
-      }
-
-    } catch (error) {
-      console.error('Error loading cost data:', error);
-      this.showAlert('error', 'Cost Data Error', 'Failed to load cost monitoring data.');
     }
   }
 
@@ -248,7 +128,7 @@ class UnifiedDashboard {
 
 
   /**
-     * Fetch live statistics from API with client-side caching to reduce Cost Explorer API calls
+     * Fetch live statistics from API with client-side caching
      */
   async fetchLiveStats() {
     try {
@@ -396,48 +276,6 @@ class UnifiedDashboard {
     }
   }
 
-
-  /**
-     * Fetch real AWS cost data
-     */
-  async fetchCostData() {
-    try {
-      // Fetch real-time data from the dashboard API
-      const response = await fetch('https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      return {
-        totalMonthly: data.aws.monthlyCostTotal,
-        s3Cost: data.aws.services.s3,
-        cloudfrontCost: data.aws.services.cloudfront,
-        lambdaCost: data.aws.services.lambda,
-        route53Cost: data.aws.services.route53,
-        sesCost: data.aws.services.ses,
-        wafCost: data.aws.services.waf,
-        cloudwatchCost: data.aws.services.cloudwatch,
-        otherCost: data.aws.services.other,
-        trend: '-12.5%' // Cost reduction from optimization
-      };
-    } catch (error) {
-      console.error('Error fetching cost data:', error);
-      // Fallback to verified static values
-      return {
-        totalMonthly: 16.50,
-        s3Cost: 0.16,
-        cloudfrontCost: 0.08,
-        lambdaCost: 0.12,
-        route53Cost: 3.05,
-        sesCost: 5.88,
-        wafCost: 5.72,
-        cloudwatchCost: 0.24,
-        otherCost: 1.25,
-        trend: '-12.5%'
-      };
-    }
-  }
 
   /**
      * Fetch real S3 metrics

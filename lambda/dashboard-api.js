@@ -658,10 +658,11 @@ async function getGitHubStats() {
 }
 
 /**
- * Get cached cost data from S3
+ * Get cached cost data from S3 (removed - cost data eliminated)
  */
 async function getCachedCostData() {
-  try {
+  // Cost data removed to eliminate Cost Explorer costs
+  return null;
     const command = new GetObjectCommand({
       Bucket: CACHE_BUCKET,
       Key: CACHE_KEY_COSTS
@@ -690,9 +691,11 @@ async function getCachedCostData() {
 }
 
 /**
- * Save cost data to S3 cache
+ * Save cost data to S3 cache (removed - cost data eliminated)
  */
 async function saveCostDataToCache(costData) {
+  // Cost data removed to eliminate Cost Explorer costs
+  return;
   try {
     const cacheData = {
       costData: costData,
@@ -720,68 +723,12 @@ async function saveCostDataToCache(costData) {
 }
 
 /**
- * Get static AWS cost data (Cost Explorer removed to eliminate costs)
+ * Get AWS cost data (removed - cost data eliminated to prevent Cost Explorer costs)
  */
 async function fetchRealAWSCosts() {
-  try {
-    // Try to get cached data first
-    const cachedCostData = await getCachedCostData();
-    if (cachedCostData) {
-      return cachedCostData;
-    }
-
-    console.log('💰 Using static AWS cost data (Cost Explorer disabled to eliminate costs)...');
-
-    // Return static cost data - no Cost Explorer API calls
-    const costData = {
-      total: 45.35,
-      registrarCost: 28.85,
-      monthlyCost: 16.5,
-      services: {
-        s3: 0.05,
-        cloudfront: 0.000003259,
-        route53: 3.551444,
-        lambda: 0,
-        ses: 0,
-        waf: 9.5925290772,
-        cloudwatch: 0.1,
-        other: 3.2560313085
-      }
-    };
-
-    // Cache the static cost data
-    await saveCostDataToCache(costData);
-
-    return costData;
-
-  } catch (error) {
-    console.error('Error getting AWS costs:', error);
-    
-    // Try to return cached data even if expired (better than fallback)
-    const cachedCostData = await getCachedCostData();
-    if (cachedCostData) {
-      console.log('⚠️ Using expired cache due to error');
-      return cachedCostData;
-    }
-
-    // Return fallback data if Cost Explorer fails and no cache available
-    console.log('⚠️ Using fallback cost data');
-    return {
-      total: 6.82,
-      registrarCost: 0,
-      monthlyCost: 6.82,
-      services: {
-        s3: 0.05,
-        cloudfront: 0.00,
-        route53: 3.04,
-        waf: 1.46,
-        cloudwatch: 2.24,
-        lambda: 0.00,
-        ses: 0.00,
-        other: 0.03
-      }
-    };
-  }
+  // Cost data completely removed to eliminate Cost Explorer costs
+  // This function is kept for compatibility but returns null
+  return null;
 }
 
 /**
@@ -865,8 +812,7 @@ exports.handler = async(event) => {
     // Get development velocity
     const velocityStats = await getVelocityStats();
 
-    // Get real AWS cost data
-    const awsCostData = await fetchRealAWSCosts();
+    // Cost data removed to eliminate Cost Explorer costs
 
     // Get real traffic data
     const trafficData = await getTrafficData();
@@ -877,11 +823,6 @@ exports.handler = async(event) => {
     // Return real-time data from AWS APIs
     const response = {
       generatedAt: new Date().toISOString(),
-      aws: {
-        monthlyCostTotal: awsCostData.monthlyCost,
-        domainRegistrar: awsCostData.registrarCost,
-        services: awsCostData.services
-      },
       traffic: trafficData,
       health: {
         site: {
