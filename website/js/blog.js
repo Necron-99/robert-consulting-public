@@ -230,6 +230,17 @@ class BlogManager {
         tags: ['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison'],
         icon: '🏗️',
         readTime: '10 min read'
+      },,
+      {
+        id: 22,
+        title: 'Platform Market Analysis',
+        excerpt: 'Domo, OpenShift, and other enterprise platform players',
+        content: 'blog-posts/friday-2025-11-07.html',
+        date: '2025-11-07', // Friday
+        category: 'platform',
+        tags: ['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis'],
+        icon: '📊',
+        readTime: '9 min read'
       }
     ];
   }
