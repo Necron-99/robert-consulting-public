@@ -230,7 +230,7 @@ class BlogManager {
         tags: ['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison'],
         icon: '🏗️',
         readTime: '10 min read'
-      },,
+      },
       {
         id: 22,
         title: 'Platform Market Analysis',
