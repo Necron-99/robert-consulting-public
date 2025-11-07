@@ -79,29 +79,29 @@ jobs:
           # Set topic and focus based on day
           case "$DAY" in
             "monday")
-              TOPIC="AWS Cost Management"
-              FOCUS="Practical strategies to keep AWS costs in check and avoid unexpected charges"
-              KEYWORDS="AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies"
+              TOPIC="AWS & Cloud Infrastructure"
+              FOCUS="Latest developments, best practices, and insights in AWS and cloud infrastructure"
+              KEYWORDS="AWS, cloud infrastructure, cloud services, AWS best practices, cloud architecture"
               ;;
             "tuesday")
-              TOPIC="AIOps"
-              FOCUS="Artificial Intelligence for IT Operations, predictive analytics, automation"
-              KEYWORDS="AIOps, machine learning, IT operations, automation, predictive analytics"
+              TOPIC="DevOps & Automation"
+              FOCUS="DevOps methodologies, automation strategies, CI/CD pipelines, and operational excellence"
+              KEYWORDS="DevOps, automation, CI/CD, continuous integration, continuous deployment, operational excellence"
               ;;
             "wednesday")
-              TOPIC="Intelligent Vulnerability Remediation"
-              FOCUS="AI-powered security, threat detection, automated remediation"
-              KEYWORDS="vulnerability management, security automation, AI security, threat detection, remediation"
+              TOPIC="Security & DevSecOps"
+              FOCUS="Security best practices, DevSecOps integration, threat detection, and vulnerability management"
+              KEYWORDS="security, DevSecOps, threat detection, vulnerability management, security automation, cybersecurity"
               ;;
             "thursday")
-              TOPIC="OpenTofu Analysis"
-              FOCUS="Comprehensive comparison with Terraform, pros/cons, migration strategies"
-              KEYWORDS="OpenTofu, Terraform, infrastructure as code, open source, comparison"
+              TOPIC="Infrastructure as Code (IaC)"
+              FOCUS="Terraform, OpenTofu, CloudFormation, and infrastructure automation strategies"
+              KEYWORDS="Infrastructure as Code, IaC, Terraform, OpenTofu, CloudFormation, infrastructure automation"
               ;;
             "friday")
-              TOPIC="Platform Market Analysis"
-              FOCUS="Domo, OpenShift, and other enterprise platform players"
-              KEYWORDS="Domo, OpenShift, platform comparison, enterprise platforms, market analysis"
+              TOPIC="Container Orchestration & Advanced Topics"
+              FOCUS="Kubernetes, Docker, container orchestration, and advanced cloud-native technologies"
+              KEYWORDS="Kubernetes, Docker, container orchestration, cloud-native, microservices, advanced topics"
               ;;
             *)
               echo "❌ Invalid day: $DAY"
@@ -180,35 +180,35 @@ jobs:
           
           # Determine category, icon, and tags based on topic
           case "$TOPIC" in
-            "AWS Cost Management")
+            "AWS & Cloud Infrastructure")
               CATEGORY="aws"
-              ICON="💰"
-              TAGS_STR="['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings']"
+              ICON="☁️"
+              TAGS_STR="['AWS', 'Cloud Infrastructure', 'Cloud Services', 'AWS Best Practices', 'Cloud Architecture']"
               READ_TIME="12 min read"
               ;;
-            "AIOps")
-              CATEGORY="aiops"
-              ICON="🤖"
-              TAGS_STR="['AIOps', 'Machine Learning', 'IT Operations', 'Automation', 'Predictive Analytics']"
+            "DevOps & Automation")
+              CATEGORY="devops"
+              ICON="⚙️"
+              TAGS_STR="['DevOps', 'Automation', 'CI/CD', 'Continuous Integration', 'Continuous Deployment']"
               READ_TIME="10 min read"
               ;;
-            "Intelligent Vulnerability Remediation")
+            "Security & DevSecOps")
               CATEGORY="security"
               ICON="🔒"
-              TAGS_STR="['Vulnerability Management', 'Security Automation', 'AI Security', 'Threat Detection', 'Remediation']"
-              READ_TIME="8 min read"
-              ;;
-            "OpenTofu Analysis")
-              CATEGORY="infrastructure"
-              ICON="🏗️"
-              TAGS_STR="['OpenTofu', 'Terraform', 'Infrastructure as Code', 'Open Source', 'Comparison']"
+              TAGS_STR="['Security', 'DevSecOps', 'Threat Detection', 'Vulnerability Management', 'Security Automation']"
               READ_TIME="10 min read"
               ;;
-            "Platform Market Analysis")
-              CATEGORY="platform"
-              ICON="📊"
-              TAGS_STR="['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis']"
-              READ_TIME="9 min read"
+            "Infrastructure as Code (IaC)")
+              CATEGORY="infrastructure"
+              ICON="🏗️"
+              TAGS_STR="['Infrastructure as Code', 'IaC', 'Terraform', 'OpenTofu', 'CloudFormation']"
+              READ_TIME="10 min read"
+              ;;
+            "Container Orchestration & Advanced Topics")
+              CATEGORY="containers"
+              ICON="🐳"
+              TAGS_STR="['Kubernetes', 'Docker', 'Container Orchestration', 'Cloud-Native', 'Microservices']"
+              READ_TIME="11 min read"
               ;;
             *)
               CATEGORY="general"
