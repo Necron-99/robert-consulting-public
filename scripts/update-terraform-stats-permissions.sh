@@ -19,15 +19,7 @@ cat > terraform-stats-policy.json << 'EOF'
             "Effect": "Allow",
             "Resource": "arn:aws:logs:*:*:*"
         },
-        {
-            "Action": [
-                "ce:GetCostAndUsage",
-                "ce:GetUsageReport",
-                "ce:ListCostCategoryDefinitions"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
+        # Cost Explorer permissions removed to eliminate costs
         {
             "Action": [
                 "cloudwatch:GetMetricStatistics",

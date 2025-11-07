@@ -70,15 +70,7 @@ resource "aws_iam_role_policy" "dashboard_api_policy" {
         ]
         Resource = "arn:aws:logs:*:*:*"
       },
-      {
-        Effect = "Allow"
-        Action = [
-          "ce:GetCostAndUsage",
-          "ce:GetUsageReport",
-          "ce:ListCostCategoryDefinitions"
-        ]
-        Resource = "*"
-      },
+      # Cost Explorer permissions removed to eliminate costs
       {
         Effect = "Allow"
         Action = [

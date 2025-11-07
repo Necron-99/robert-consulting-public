@@ -4,13 +4,11 @@
  * Node.js 20.x - Fetches live data from AWS APIs
  */
 
-const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
 const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
 const {S3Client, GetObjectCommand, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-secrets-manager');
 
 // AWS SDK clients
-const costExplorerClient = new CostExplorerClient({region: 'us-east-1'});
 const cloudwatchClient = new CloudWatchClient({region: 'us-east-1'});
 const s3Client = new S3Client({region: 'us-east-1'});
 const secretsManagerClient = new SecretsManagerClient({region: 'us-east-1'});
@@ -722,7 +720,7 @@ async function saveCostDataToCache(costData) {
 }
 
 /**
- * Fetch real AWS cost data from Cost Explorer (with caching)
+ * Get static AWS cost data (Cost Explorer removed to eliminate costs)
  */
 async function fetchRealAWSCosts() {
   try {
@@ -732,138 +730,37 @@ async function fetchRealAWSCosts() {
       return cachedCostData;
     }
 
-    console.log('💰 Fetching fresh AWS cost data from Cost Explorer...');
+    console.log('💰 Using static AWS cost data (Cost Explorer disabled to eliminate costs)...');
 
-    const endDate = new Date();
-    const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // First day of current month
-
-    const command = new GetCostAndUsageCommand({
-      TimePeriod: {
-        Start: startDate.toISOString().split('T')[0],
-        End: endDate.toISOString().split('T')[0]
-      },
-      Granularity: 'MONTHLY',
-      Metrics: ['BlendedCost'],
-      GroupBy: [
-        {
-          Type: 'DIMENSION',
-          Key: 'SERVICE'
-        }
-      ]
-    });
-
-    const response = await costExplorerClient.send(command);
-
-    let totalCost = 0;
-    let registrarCost = 0;
-    const services = {};
-
-    if (response.ResultsByTime && response.ResultsByTime.length > 0) {
-      const groups = response.ResultsByTime[0].Groups || [];
-
-      for (const group of groups) {
-        const serviceName = group.Keys[0];
-        const cost = parseFloat(group.Metrics.BlendedCost.Amount);
-        totalCost += cost;
-
-        // Categorize services
-        if (serviceName.includes('Amazon S3')) {
-          services.s3 = (services.s3 || 0) + cost;
-        } else if (serviceName.includes('Amazon CloudFront')) {
-          services.cloudfront = (services.cloudfront || 0) + cost;
-        } else if (serviceName.includes('Amazon Route 53')) {
-          services.route53 = (services.route53 || 0) + cost;
-        } else if (serviceName.includes('AWS Lambda')) {
-          services.lambda = (services.lambda || 0) + cost;
-        } else if (serviceName.includes('Amazon Simple Email Service')) {
-          services.ses = (services.ses || 0) + cost;
-        } else if (serviceName.includes('AWS WAF')) {
-          services.waf = (services.waf || 0) + cost;
-        } else if (serviceName.includes('Amazon CloudWatch')) {
-          services.cloudwatch = (services.cloudwatch || 0) + cost;
-        } else {
-          // Check if this might be a registrar service
-          const isRegistrarService = serviceName.toLowerCase().includes('registrar') ||
-                        serviceName.toLowerCase().includes('domain registration') ||
-                        serviceName.toLowerCase().includes('domain renewal') ||
-                        (cost > 50 && serviceName.toLowerCase().includes('other'));
-
-          if (!isRegistrarService) {
-            services.other = (services.other || 0) + cost;
-          } else {
-            registrarCost += cost;
-          }
-        }
-      }
-    }
-
-    // Ensure all services have default values
-    const defaultServices = {
-      s3: 0,
-      cloudfront: 0,
-      route53: 0,
-      lambda: 0,
-      ses: 0,
-      waf: 0,
-      cloudwatch: 0,
-      other: 0
-    };
-
-    // Merge with actual services data
-    const finalServices = {...defaultServices, ...services};
-
-    const calculatedMonthlyCost = Math.round((totalCost - registrarCost) * 100) / 100;
-
-    // If the calculated cost is significantly different from expected, use fallback
-    if (calculatedMonthlyCost > 50 || calculatedMonthlyCost < 5) {
-      console.log('Cost calculation seems incorrect, using fallback data');
-      return {
-        total: 45.35,
-        registrarCost: 28.85,
-        monthlyCost: 16.5,
-        services: {
-          s3: 0.05,
-          cloudfront: 0.000003259,
-          route53: 3.551444,
-          lambda: 0,
-          ses: 0,
-          waf: 9.5925290772,
-          cloudwatch: 0.1,
-          other: 3.2560313085
-        }
-      };
-    }
-
-    // Force the monthly cost to be $16.5 for testing purposes
-    if (calculatedMonthlyCost !== 16.5) {
-      console.log('Adjusting monthly cost to expected value for testing');
-      return {
-        total: 45.35,
-        registrarCost: 28.85,
-        monthlyCost: 16.5,
-        services: finalServices
-      };
-    }
-
+    // Return static cost data - no Cost Explorer API calls
     const costData = {
-      total: Math.round(totalCost * 100) / 100,
-      registrarCost: Math.round(registrarCost * 100) / 100,
-      monthlyCost: calculatedMonthlyCost,
-      services: finalServices
+      total: 45.35,
+      registrarCost: 28.85,
+      monthlyCost: 16.5,
+      services: {
+        s3: 0.05,
+        cloudfront: 0.000003259,
+        route53: 3.551444,
+        lambda: 0,
+        ses: 0,
+        waf: 9.5925290772,
+        cloudwatch: 0.1,
+        other: 3.2560313085
+      }
     };
 
-    // Cache the fresh cost data
+    // Cache the static cost data
     await saveCostDataToCache(costData);
 
     return costData;
 
   } catch (error) {
-    console.error('Error fetching AWS costs:', error);
+    console.error('Error getting AWS costs:', error);
     
     // Try to return cached data even if expired (better than fallback)
     const cachedCostData = await getCachedCostData();
     if (cachedCostData) {
-      console.log('⚠️ Using expired cache due to Cost Explorer error');
+      console.log('⚠️ Using expired cache due to error');
       return cachedCostData;
     }
 

@@ -10,36 +10,34 @@ AWS.config.update({
   region: 'us-east-1'
 });
 
-const costExplorer = new AWS.CostExplorer();
+// Cost Explorer removed to eliminate costs
 const cloudWatch = new AWS.CloudWatch();
 const s3 = new AWS.S3();
 const route53 = new AWS.Route53();
 
 /**
- * Get real AWS cost data from Cost Explorer API
+ * Get static AWS cost data (Cost Explorer removed to eliminate costs)
  */
 async function getRealCostData() {
   try {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 1);
-
-    const params = {
-      TimePeriod: {
-        Start: startDate.toISOString().split('T')[0],
-        End: endDate.toISOString().split('T')[0]
-      },
-      Granularity: 'MONTHLY',
-      Metrics: ['BlendedCost'],
-      GroupBy: [
-        {
-          Type: 'DIMENSION',
-          Key: 'SERVICE'
-        }
-      ]
+    // Return static cost data - no Cost Explorer API calls
+    console.log('💰 Using static AWS cost data (Cost Explorer disabled to eliminate costs)...');
+    
+    // Return static data structure matching the expected format
+    const result = {
+      ResultsByTime: [{
+        Groups: [
+          { Keys: ['Amazon Simple Storage Service'], Metrics: { BlendedCost: { Amount: '0.05' } } },
+          { Keys: ['Amazon CloudFront'], Metrics: { BlendedCost: { Amount: '0.000003259' } } },
+          { Keys: ['Amazon Route 53'], Metrics: { BlendedCost: { Amount: '3.551444' } } },
+          { Keys: ['AWS Lambda'], Metrics: { BlendedCost: { Amount: '0' } } },
+          { Keys: ['Amazon Simple Email Service'], Metrics: { BlendedCost: { Amount: '0' } } },
+          { Keys: ['AWS WAF'], Metrics: { BlendedCost: { Amount: '9.5925290772' } } },
+          { Keys: ['AmazonCloudWatch'], Metrics: { BlendedCost: { Amount: '0.1' } } },
+          { Keys: ['Other'], Metrics: { BlendedCost: { Amount: '3.2560313085' } } }
+        ]
+      }]
     };
-
-    const result = await costExplorer.getCostAndUsage(params).promise();
 
     // Process the results
     const services = {};
@@ -205,16 +203,7 @@ async function calculateCostTrend() {
       Metrics: ['BlendedCost']
     };
 
-    const result = await costExplorer.getCostAndUsage(params).promise();
-
-    if (result.ResultsByTime && result.ResultsByTime.length >= 2) {
-      const currentMonth = parseFloat(result.ResultsByTime[1].Total.BlendedCost.Amount);
-      const previousMonth = parseFloat(result.ResultsByTime[0].Total.BlendedCost.Amount);
-
-      const change = ((currentMonth - previousMonth) / previousMonth) * 100;
-      return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
-    }
-
+    // Cost Explorer removed - return static change value
     return '+0.0%';
   } catch (error) {
     console.error('Error calculating cost trend:', error);

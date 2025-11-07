@@ -73,13 +73,7 @@ resource "aws_iam_role_policy" "stats_refresher_policy" {
         ]
         Resource = aws_secretsmanager_secret.github_token.arn
       },
-      {
-        Effect = "Allow"
-        Action = [
-          "ce:GetCostAndUsage"
-        ]
-        Resource = "*"
-      },
+      # Cost Explorer permissions removed to eliminate costs
       {
         Effect = "Allow"
         Action = [

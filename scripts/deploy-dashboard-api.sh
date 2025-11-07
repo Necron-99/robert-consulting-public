@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Deploy Dashboard API with Real AWS Data Integration
-# Updates the dashboard API Lambda function to fetch live data from AWS Cost Explorer
+# Deploy Dashboard API
+# Updates the dashboard API Lambda function (Cost Explorer removed to eliminate costs)
 
 set -e
 
@@ -49,4 +49,4 @@ rm -f dashboard-api.zip response.json
 
 echo "✅ Dashboard API deployment completed successfully!"
 echo "🔗 API Endpoint: https://lbfggdldp3.execute-api.us-east-1.amazonaws.com/prod/dashboard-data"
-echo "📊 The dashboard will now fetch real-time AWS cost data from Cost Explorer"
+echo "📊 The dashboard uses static cost data (Cost Explorer removed to eliminate costs)"

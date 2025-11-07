@@ -7,14 +7,13 @@ const {SecretsManagerClient, GetSecretValueCommand} = require('@aws-sdk/client-s
 const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
 const {CloudFrontClient, CreateInvalidationCommand} = require('@aws-sdk/client-cloudfront');
 const {CloudWatchClient, GetMetricDataCommand} = require('@aws-sdk/client-cloudwatch');
-const {CostExplorerClient, GetCostAndUsageCommand} = require('@aws-sdk/client-cost-explorer');
+// Cost Explorer removed to eliminate costs
 
 // AWS SDK clients
 const secretsClient = new SecretsManagerClient({region: process.env.AWS_REGION});
 const s3Client = new S3Client({region: process.env.AWS_REGION});
 const cloudfrontClient = new CloudFrontClient({region: process.env.AWS_REGION});
 const cloudwatchClient = new CloudWatchClient({region: process.env.AWS_REGION});
-const costExplorerClient = new CostExplorerClient({region: process.env.AWS_REGION});
 
 /**
  * Main Lambda handler
@@ -196,86 +195,45 @@ async function fetchGitHubStats(token) {
 }
 
 /**
- * Fetch AWS cost data
+ * Get static AWS cost data (Cost Explorer removed to eliminate costs)
  */
 async function fetchAWSCosts() {
   try {
-    console.log('💰 Fetching AWS cost data...');
+    console.log('💰 Using static AWS cost data (Cost Explorer disabled to eliminate costs)...');
 
-    const endDate = new Date();
-    const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // First day of current month
-
-    const command = new GetCostAndUsageCommand({
-      TimePeriod: {
-        Start: startDate.toISOString().split('T')[0],
-        End: endDate.toISOString().split('T')[0]
-      },
-      Granularity: 'MONTHLY',
-      Metrics: ['BlendedCost'],
-      GroupBy: [
-        {
-          Type: 'DIMENSION',
-          Key: 'SERVICE'
-        }
-      ]
-    });
-
-    const response = await costExplorerClient.send(command);
-
-    let totalCost = 0;
-    const services = {};
-
-    if (response.ResultsByTime && response.ResultsByTime.length > 0) {
-      const groups = response.ResultsByTime[0].Groups || [];
-
-      for (const group of groups) {
-        const serviceName = group.Keys[0];
-        const cost = parseFloat(group.Metrics.BlendedCost.Amount);
-
-        if (cost > 0) {
-          totalCost += cost;
-
-          // Map service names to our dashboard categories
-          if (serviceName.includes('Amazon Simple Storage Service') || serviceName.includes('S3')) {
-            services.s3 = (services.s3 || 0) + cost;
-          } else if (serviceName.includes('Amazon CloudFront')) {
-            services.cloudfront = (services.cloudfront || 0) + cost;
-          } else if (serviceName.includes('AWS Lambda')) {
-            services.lambda = (services.lambda || 0) + cost;
-          } else if (serviceName.includes('Amazon Route 53')) {
-            services.route53 = (services.route53 || 0) + cost;
-          } else if (serviceName.includes('Amazon Simple Email Service') || serviceName.includes('SES')) {
-            services.ses = (services.ses || 0) + cost;
-          } else if (serviceName.includes('AWS WAF')) {
-            services.waf = (services.waf || 0) + cost;
-          } else if (serviceName.includes('Amazon CloudWatch')) {
-            services.cloudwatch = (services.cloudwatch || 0) + cost;
-          } else {
-            services.other = (services.other || 0) + cost;
-          }
-        }
-      }
-    }
-
+    // Return static cost data - no Cost Explorer API calls
     return {
-      total: Math.round(totalCost * 100) / 100,
-      services: services
+      total: 16.5,
+      registrarCost: 0,
+      monthlyCost: 16.5,
+      services: {
+        s3: 0.05,
+        cloudfront: 0.000003259,
+        route53: 3.551444,
+        lambda: 0,
+        ses: 0,
+        waf: 9.5925290772,
+        cloudwatch: 0.1,
+        other: 3.2560313085
+      }
     };
 
   } catch (error) {
-    console.error('Error fetching AWS costs:', error);
+    console.error('Error getting AWS costs:', error);
     // Return fallback data
     return {
-      total: 6.82,
+      total: 16.5,
+      registrarCost: 0,
+      monthlyCost: 16.5,
       services: {
         s3: 0.05,
-        cloudfront: 2.10,
-        lambda: 0.15,
-        route53: 0.50,
-        ses: 0.10,
-        waf: 0.20,
-        cloudwatch: 0.10,
-        other: 3.62
+        cloudfront: 0.000003259,
+        route53: 3.551444,
+        lambda: 0,
+        ses: 0,
+        waf: 9.5925290772,
+        cloudwatch: 0.1,
+        other: 3.2560313085
       }
     };
   }

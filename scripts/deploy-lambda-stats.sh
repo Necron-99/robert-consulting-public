@@ -75,13 +75,7 @@ EOF
             ],
             "Resource": "arn:aws:secretsmanager:us-east-1:*:secret:github-token-dashboard-stats*"
         },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ce:GetCostAndUsage"
-            ],
-            "Resource": "*"
-        },
+        # Cost Explorer permissions removed to eliminate costs
         {
             "Effect": "Allow",
             "Action": [
