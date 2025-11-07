@@ -663,31 +663,6 @@ async function getGitHubStats() {
 async function getCachedCostData() {
   // Cost data removed to eliminate Cost Explorer costs
   return null;
-    const command = new GetObjectCommand({
-      Bucket: CACHE_BUCKET,
-      Key: CACHE_KEY_COSTS
-    });
-
-    const response = await s3Client.send(command);
-    const cachedData = JSON.parse(await response.Body.transformToString());
-
-    // Check if cache is still valid (within TTL)
-    const cacheAge = Date.now() - new Date(cachedData.cachedAt).getTime();
-    if (cacheAge < COST_CACHE_TTL) {
-      console.log(`✅ Using cached cost data (age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
-      return cachedData.costData;
-    }
-
-    console.log('⚠️ Cost cache expired, will fetch fresh data');
-    return null;
-  } catch (error) {
-    if (error.name === 'NoSuchKey') {
-      console.log('📝 No cached cost data found, will fetch fresh data');
-    } else {
-      console.warn('⚠️ Error reading cost cache, will fetch fresh data:', error.message);
-    }
-    return null;
-  }
 }
 
 /**
@@ -696,30 +671,6 @@ async function getCachedCostData() {
 async function saveCostDataToCache(costData) {
   // Cost data removed to eliminate Cost Explorer costs
   return;
-  try {
-    const cacheData = {
-      costData: costData,
-      cachedAt: new Date().toISOString()
-    };
-
-    const command = new PutObjectCommand({
-      Bucket: CACHE_BUCKET,
-      Key: CACHE_KEY_COSTS,
-      Body: JSON.stringify(cacheData, null, 2),
-      ContentType: 'application/json',
-      CacheControl: `max-age=${COST_CACHE_TTL / 1000}, must-revalidate`,
-      Metadata: {
-        'last-updated': new Date().toISOString(),
-        source: 'dashboard-api-cost-cache'
-      }
-    });
-
-    await s3Client.send(command);
-    console.log('✅ Cost data cached successfully');
-  } catch (error) {
-    console.warn('⚠️ Failed to cache cost data (non-fatal):', error.message);
-    // Don't throw - caching failure shouldn't break the API
-  }
 }
 
 /**
