@@ -76,12 +76,25 @@ jobs:
           echo "  DRYRUN: $DRYRUN"
           echo "  Script exists: $(ls -la scripts/generate-detailed-blog.sh)"
           
-          # Set topic and focus based on day
+          # Check for date-specific topic overrides
+          DATE_OVERRIDE=""
+          if [ "$DATE" = "2025-11-10" ] && [ "$DAY" = "monday" ]; then
+            DATE_OVERRIDE="cost-management"
+            echo "📅 Date-specific override detected: AWS Cost Management for $DATE"
+          fi
+          
+          # Set topic and focus based on day (with date overrides)
           case "$DAY" in
             "monday")
-              TOPIC="AWS & Cloud Infrastructure"
-              FOCUS="Latest developments, best practices, and insights in AWS and cloud infrastructure"
-              KEYWORDS="AWS, cloud infrastructure, cloud services, AWS best practices, cloud architecture"
+              if [ "$DATE_OVERRIDE" = "cost-management" ]; then
+                TOPIC="AWS Cost Management"
+                FOCUS="Practical strategies to keep AWS costs in check and avoid unexpected charges"
+                KEYWORDS="AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies"
+              else
+                TOPIC="AWS & Cloud Infrastructure"
+                FOCUS="Latest developments, best practices, and insights in AWS and cloud infrastructure"
+                KEYWORDS="AWS, cloud infrastructure, cloud services, AWS best practices, cloud architecture"
+              fi
               ;;
             "tuesday")
               TOPIC="DevOps & Automation"
@@ -180,6 +193,12 @@ jobs:
           
           # Determine category, icon, and tags based on topic
           case "$TOPIC" in
+            "AWS Cost Management")
+              CATEGORY="aws"
+              ICON="💰"
+              TAGS_STR="['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings']"
+              READ_TIME="12 min read"
+              ;;
             "AWS & Cloud Infrastructure")
               CATEGORY="aws"
               ICON="☁️"
