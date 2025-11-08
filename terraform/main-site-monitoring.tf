@@ -1,17 +1,6 @@
 # Comprehensive Monitoring for Main Website
 # Provides security, performance, and cost monitoring with CloudWatch alarms
-
-variable "monitoring_enabled" {
-  description = "Enable comprehensive monitoring for main site"
-  type        = bool
-  default     = true
-}
-
-variable "alert_email" {
-  description = "Email address for receiving monitoring alerts"
-  type        = string
-  default     = "info@robertconsulting.net"
-}
+# Variables are defined in variables.tf
 
 locals {
   monitoring_tags = {
@@ -92,7 +81,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx_errors" {
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = var.cloudfront_distribution_id
   }
 
   tags = local.monitoring_tags
@@ -114,7 +103,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx_errors" {
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = var.cloudfront_distribution_id
   }
 
   tags = local.monitoring_tags
@@ -140,7 +129,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_cache_hit_ratio" {
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = var.cloudfront_distribution_id
   }
 
   tags = local.monitoring_tags
@@ -162,7 +151,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_origin_response_time" {
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = var.cloudfront_distribution_id
   }
 
   tags = local.monitoring_tags
@@ -188,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_data_transfer" {
   alarm_actions       = [aws_sns_topic.main_site_alerts[0].arn]
 
   dimensions = {
-    DistributionId = "E36DBYPHUUKB3V"
+    DistributionId = var.cloudfront_distribution_id
   }
 
   tags = local.monitoring_tags

@@ -13,7 +13,7 @@ resource "aws_lambda_function" "stats_refresher" {
     variables = {
       GITHUB_USERNAME            = "Necron-99"
       GITHUB_TOKEN_SECRET_ID     = aws_secretsmanager_secret.github_token.name
-      CLOUDFRONT_DISTRIBUTION_ID = "E36DBYPHUUKB3V"
+      CLOUDFRONT_DISTRIBUTION_ID = var.cloudfront_distribution_id
       PROD_BUCKET                = "robert-consulting-website"
       LOG_LEVEL                  = "INFO"
     }
@@ -94,7 +94,7 @@ resource "aws_iam_role_policy" "stats_refresher_policy" {
         Action = [
           "cloudfront:CreateInvalidation"
         ]
-        Resource = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/E36DBYPHUUKB3V"
+        Resource = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
       }
     ]
   })

@@ -1,5 +1,6 @@
 # AWS CloudWatch Dashboards for Cost and Service Monitoring
 # Fixed configuration without problematic dot notation
+# Variables are defined in variables.tf
 
 # SNS Topic for Alerts
 resource "aws_sns_topic" "alerts" {
@@ -16,7 +17,7 @@ resource "aws_sns_topic" "alerts" {
 resource "aws_sns_topic_subscription" "email_alerts" {
   topic_arn = aws_sns_topic.alerts.arn
   protocol  = "email"
-  endpoint  = "rsbailey@necron99.org"
+  endpoint  = var.alert_email
 }
 
 # Cost Monitoring Dashboard
@@ -51,7 +52,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "BucketSizeBytes", "BucketName", "robert-consulting-website", "StorageType", "StandardStorage"]
+            ["AWS/S3", "BucketSizeBytes", "BucketName", var.main_site_bucket_name, "StorageType", "StandardStorage"]
           ]
           view    = "timeSeries"
           stacked = false
@@ -69,7 +70,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "Requests", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -87,7 +88,7 @@ resource "aws_cloudwatch_dashboard" "cost_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -115,7 +116,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "4xxErrors", "BucketName", "robert-consulting-website"]
+            ["AWS/S3", "4xxErrors", "BucketName", var.main_site_bucket_name]
           ]
           view    = "timeSeries"
           stacked = false
@@ -133,7 +134,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/S3", "5xxErrors", "BucketName", "robert-consulting-website"]
+            ["AWS/S3", "5xxErrors", "BucketName", var.main_site_bucket_name]
           ]
           view    = "timeSeries"
           stacked = false
@@ -151,7 +152,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "4xxErrorRate", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -169,7 +170,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "5xxErrorRate", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -187,7 +188,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -205,7 +206,7 @@ resource "aws_cloudwatch_dashboard" "service_status" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -233,7 +234,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "OriginLatency", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "OriginLatency", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -251,7 +252,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "CacheHitRate", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "CacheHitRate", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -269,7 +270,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "Requests", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -287,7 +288,7 @@ resource "aws_cloudwatch_dashboard" "performance_monitoring" {
         height = 6
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "CLOUDFRONT_DISTRIBUTION_ID"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", var.cloudfront_distribution_id]
           ]
           view    = "timeSeries"
           stacked = false
@@ -377,7 +378,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_error_rate" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    DistributionId = "CLOUDFRONT_DISTRIBUTION_ID"
+    DistributionId = var.cloudfront_distribution_id
   }
 }
 
@@ -396,7 +397,139 @@ resource "aws_cloudwatch_metric_alarm" "s3_error_rate" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    BucketName = "robert-consulting-website"
+    BucketName = var.main_site_bucket_name
+  }
+}
+
+# =============================================================================
+# LAMBDA FUNCTION MONITORING
+# =============================================================================
+
+# Lambda Error Rate Alarm - Dashboard API
+resource "aws_cloudwatch_metric_alarm" "lambda_dashboard_api_errors" {
+  alarm_name          = "robert-consulting-lambda-dashboard-api-errors"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "5"
+  alarm_description   = "This metric monitors Lambda function errors for dashboard-api"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = "robert-consulting-dashboard-api"
+  }
+}
+
+# Lambda Duration Alarm - Dashboard API
+resource "aws_cloudwatch_metric_alarm" "lambda_dashboard_api_duration" {
+  alarm_name          = "robert-consulting-lambda-dashboard-api-duration"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "Duration"
+  namespace           = "AWS/Lambda"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "10000"  # 10 seconds
+  alarm_description   = "This metric monitors Lambda function duration for dashboard-api"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = "robert-consulting-dashboard-api"
+  }
+}
+
+# Lambda Throttles Alarm - Dashboard API
+resource "aws_cloudwatch_metric_alarm" "lambda_dashboard_api_throttles" {
+  alarm_name          = "robert-consulting-lambda-dashboard-api-throttles"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Throttles"
+  namespace           = "AWS/Lambda"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  alarm_description   = "This metric monitors Lambda function throttles for dashboard-api"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = "robert-consulting-dashboard-api"
+  }
+}
+
+# Lambda Error Rate Alarm - Stats Refresher
+resource "aws_cloudwatch_metric_alarm" "lambda_stats_refresher_errors" {
+  alarm_name          = "robert-consulting-lambda-stats-refresher-errors"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "5"
+  alarm_description   = "This metric monitors Lambda function errors for stats-refresher"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = "robert-consulting-stats-refresher"
+  }
+}
+
+# =============================================================================
+# API COST MONITORING (Daily)
+# =============================================================================
+
+# Daily API Cost Alarm - Alert if daily API costs exceed $5
+# Note: This uses a custom metric that should be published by the rate limiter
+resource "aws_cloudwatch_metric_alarm" "daily_api_cost_alert" {
+  alarm_name          = "robert-consulting-daily-api-cost-alert"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "DailyAPICost"
+  namespace           = "CostControl/API"
+  period              = "86400"  # 24 hours
+  statistic           = "Maximum"
+  threshold           = "5.0"
+  alarm_description   = "This metric monitors daily API costs (alerts if > $5/day)"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  tags = {
+    Name      = "Daily API Cost Alert"
+    Purpose   = "cost-control"
+    ManagedBy = "Terraform"
+  }
+}
+
+# Lambda Invocation Cost Alarm - Alert if Lambda invocations exceed threshold
+# This is a proxy for cost since high invocations = higher costs
+resource "aws_cloudwatch_metric_alarm" "lambda_high_invocations" {
+  alarm_name          = "robert-consulting-lambda-high-invocations"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Invocations"
+  namespace           = "AWS/Lambda"
+  period              = "3600"  # 1 hour
+  statistic           = "Sum"
+  threshold           = "1000"   # 1000 invocations per hour
+  alarm_description   = "This metric monitors Lambda invocations (high invocations = higher costs)"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    FunctionName = "robert-consulting-dashboard-api"
   }
 }
 

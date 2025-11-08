@@ -1,0 +1,20 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and update with your values
+# terraform.tfvars is gitignored and should not be committed
+
+# CloudFront Distribution ID for the main website
+# Default: "E36DBYPHUUKB3V"
+# cloudfront_distribution_id = "E36DBYPHUUKB3V"
+
+# S3 Bucket Name for the main website
+# Default: "robert-consulting-website"
+# main_site_bucket_name = "robert-consulting-website"
+
+# Email address for receiving monitoring alerts
+# Default: "rsbailey@necron99.org"
+# alert_email = "rsbailey@necron99.org"
+
+# Enable comprehensive monitoring
+# Default: true
+# monitoring_enabled = true
+

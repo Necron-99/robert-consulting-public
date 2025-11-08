@@ -17,7 +17,7 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
 
         properties = {
           metrics = [
-            ["AWS/CloudFront", "Requests", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+            ["AWS/CloudFront", "Requests", "DistributionId", var.cloudfront_distribution_id, "Region", "Global"],
             [".", "4xxErrorRate", ".", ".", ".", "."],
             [".", "5xxErrorRate", ".", ".", ".", "."]
           ]
@@ -50,7 +50,7 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
 
         properties = {
           metrics = [
-            ["AWS/CloudFront", "TotalErrorRate", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"],
+            ["AWS/CloudFront", "TotalErrorRate", "DistributionId", var.cloudfront_distribution_id, "Region", "Global"],
             [".", "BytesUploaded", ".", ".", ".", "."]
           ]
           view    = "timeSeries"
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_dashboard" "main_site_monitoring" {
 
         properties = {
           metrics = [
-            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", "E36DBYPHUUKB3V", "Region", "Global"]
+            ["AWS/CloudFront", "BytesDownloaded", "DistributionId", var.cloudfront_distribution_id, "Region", "Global"]
           ]
           view    = "timeSeries"
           stacked = false
