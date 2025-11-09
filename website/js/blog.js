@@ -353,12 +353,14 @@ class BlogManager {
   renderPosts() {
     const blogGrid = document.getElementById('blog-grid');
     if (!blogGrid) {
+      console.warn('⚠️ [BlogManager] blog-grid element not found');
       return;
     }
 
     // Get posts for current week
     const currentWeekData = this.weeklyPosts.get(this.currentWeek);
     if (!currentWeekData) {
+      console.warn('⚠️ [BlogManager] No data for current week:', this.currentWeek);
       return;
     }
 
@@ -384,6 +386,20 @@ class BlogManager {
     this.updateWeekDisplay(currentWeekData);
     this.updateWeekNavigation();
     this.updatePostCount(postsToShow.length);
+    
+    // Debug: Verify coming soon section still exists after rendering
+    const comingSoon = document.querySelector('.coming-soon');
+    if (!comingSoon) {
+      console.error('❌ [BlogManager] Coming soon section missing after renderPosts()!');
+    } else {
+      const style = window.getComputedStyle(comingSoon);
+      if (style.display === 'none' || style.visibility === 'hidden') {
+        console.warn('⚠️ [BlogManager] Coming soon section is hidden:', {
+          display: style.display,
+          visibility: style.visibility
+        });
+      }
+    }
   }
 
   updateWeekDisplay(weekData) {
