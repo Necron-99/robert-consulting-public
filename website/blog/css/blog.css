@@ -296,6 +296,9 @@
   background: linear-gradient(135deg, var(--surface-secondary), var(--surface-primary));
   border-top: 2px solid var(--border-primary);
   border-bottom: 2px solid var(--border-primary);
+  display: block !important;
+  visibility: visible !important;
+  min-height: 200px;
 }
 
 .coming-soon h2 {
