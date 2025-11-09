@@ -299,6 +299,21 @@
   display: block !important;
   visibility: visible !important;
   min-height: 200px;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Debug: Add visible border when debugging (remove in production) */
+.coming-soon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px dashed rgba(255, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .coming-soon h2 {

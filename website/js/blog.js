@@ -463,7 +463,27 @@ class BlogManager {
 
 // Initialize blog manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('📝 [BlogManager] Initializing...');
+  
+  // Check if coming soon section exists before initialization
+  const comingSoonBefore = document.querySelector('.coming-soon');
+  if (comingSoonBefore) {
+    console.log('✅ [BlogManager] Coming soon section found before initialization');
+  } else {
+    console.error('❌ [BlogManager] Coming soon section NOT FOUND before initialization!');
+  }
+  
   const blogManager = new BlogManager();
   // Store reference if needed for future use
   window.blogManager = blogManager;
+  
+  // Check again after initialization
+  setTimeout(() => {
+    const comingSoonAfter = document.querySelector('.coming-soon');
+    if (comingSoonAfter) {
+      console.log('✅ [BlogManager] Coming soon section still exists after initialization');
+    } else {
+      console.error('❌ [BlogManager] Coming soon section MISSING after initialization!');
+    }
+  }, 100);
 });
