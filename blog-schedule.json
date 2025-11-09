@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-11-07T14:57:13.379Z",
+  "lastUpdated": "2025-11-09T18:26:07.104Z",
   "schedule": [
     {
       "date": "2025-11-07",
@@ -529,6 +529,552 @@
           "topic": "Cloud Security Posture Management",
           "focus": "Managing and improving cloud security posture across AWS, Azure, and GCP",
           "keywords": "cloud security, CSPM, security posture, cloud compliance"
+        }
+      ]
+    },
+    {
+      "date": "2025-11-27",
+      "day": "thursday",
+      "status": "approved",
+      "topic": "Terraform State Management",
+      "focus": "Best practices for managing Terraform state files, remote backends, and state locking",
+      "keywords": "Terraform, state management, remote backend, state locking, infrastructure as code",
+      "category": "infrastructure",
+      "icon": "🏗️",
+      "tags": [
+        "Infrastructure as Code",
+        "IaC",
+        "Terraform"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.943Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.943Z",
+      "alternatives": [
+        {
+          "topic": "Terraform Workspaces and Environments",
+          "focus": "Managing multiple environments with Terraform workspaces and best practices",
+          "keywords": "Terraform workspaces, environments, multi-environment, infrastructure management"
+        },
+        {
+          "topic": "Infrastructure Drift Detection",
+          "focus": "Detecting and managing infrastructure drift in Terraform-managed environments",
+          "keywords": "drift detection, infrastructure drift, Terraform, configuration management"
+        },
+        {
+          "topic": "Pulumi: Code-Based Infrastructure",
+          "focus": "Using Pulumi to define infrastructure using familiar programming languages",
+          "keywords": "Pulumi, infrastructure as code, programming languages, IaC"
+        }
+      ]
+    },
+    {
+      "date": "2025-11-28",
+      "day": "friday",
+      "status": "approved",
+      "topic": "Docker Best Practices",
+      "focus": "Optimizing Docker images, multi-stage builds, and container security",
+      "keywords": "Docker, container optimization, multi-stage builds, container security",
+      "category": "containers",
+      "icon": "🐳",
+      "tags": [
+        "Kubernetes",
+        "Docker",
+        "Container Orchestration"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.944Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.944Z",
+      "alternatives": [
+        {
+          "topic": "Kubernetes Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring for Kubernetes clusters and applications",
+          "keywords": "Kubernetes monitoring, observability, Prometheus, Grafana, cluster monitoring"
+        },
+        {
+          "topic": "Container Registry Management",
+          "focus": "Managing container registries, image scanning, and security best practices",
+          "keywords": "container registry, Docker registry, image scanning, container security"
+        },
+        {
+          "topic": "Kubernetes Networking Deep Dive",
+          "focus": "Understanding Kubernetes networking, CNI plugins, and network policies",
+          "keywords": "Kubernetes networking, CNI, network policies, cluster networking"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-01",
+      "day": "monday",
+      "status": "approved",
+      "topic": "AWS Security Best Practices",
+      "focus": "Implementing comprehensive security controls across AWS services including IAM, encryption, and monitoring",
+      "keywords": "AWS security, IAM, encryption, security best practices, compliance",
+      "category": "aws",
+      "icon": "☁️",
+      "tags": [
+        "AWS",
+        "Cloud Infrastructure",
+        "Cloud Services"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.944Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.944Z",
+      "alternatives": [
+        {
+          "topic": "AWS Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring with CloudWatch, X-Ray, and other AWS observability tools",
+          "keywords": "CloudWatch, monitoring, observability, AWS X-Ray, logging"
+        },
+        {
+          "topic": "AWS Networking Fundamentals",
+          "focus": "Understanding VPC, subnets, routing, and network security in AWS",
+          "keywords": "VPC, networking, subnets, routing, AWS networking"
+        },
+        {
+          "topic": "EC2 Instance Optimization",
+          "focus": "Selecting and optimizing EC2 instances for performance and cost efficiency",
+          "keywords": "EC2, instance types, optimization, cost efficiency"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-02",
+      "day": "tuesday",
+      "status": "approved",
+      "topic": "Infrastructure Monitoring and Alerting",
+      "focus": "Setting up comprehensive monitoring and alerting for infrastructure and applications",
+      "keywords": "monitoring, alerting, infrastructure monitoring, observability, DevOps",
+      "category": "devops",
+      "icon": "⚙️",
+      "tags": [
+        "DevOps",
+        "Automation",
+        "CI/CD"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.944Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.944Z",
+      "alternatives": [
+        {
+          "topic": "Infrastructure Testing Strategies",
+          "focus": "Testing infrastructure code and configurations for reliability and compliance",
+          "keywords": "infrastructure testing, testing strategies, compliance, reliability"
+        },
+        {
+          "topic": "DevOps Metrics and KPIs",
+          "focus": "Measuring DevOps success with key metrics and performance indicators",
+          "keywords": "DevOps metrics, KPIs, DORA metrics, performance measurement"
+        },
+        {
+          "topic": "Configuration Management Tools",
+          "focus": "Comparing and using tools like Ansible, Puppet, and Chef for infrastructure automation",
+          "keywords": "configuration management, Ansible, Puppet, Chef, automation"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-03",
+      "day": "wednesday",
+      "status": "approved",
+      "topic": "SAST and DAST Integration",
+      "focus": "Integrating Static and Dynamic Application Security Testing into CI/CD pipelines",
+      "keywords": "SAST, DAST, security testing, application security, CI/CD security",
+      "category": "security",
+      "icon": "🔒",
+      "tags": [
+        "Security",
+        "DevSecOps",
+        "Threat Detection"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.944Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.944Z",
+      "alternatives": [
+        {
+          "topic": "Security Incident Response",
+          "focus": "Building effective incident response procedures and automation for security events",
+          "keywords": "incident response, security incidents, automation, security operations"
+        },
+        {
+          "topic": "Cloud Security Posture Management",
+          "focus": "Managing and improving cloud security posture across AWS, Azure, and GCP",
+          "keywords": "cloud security, CSPM, security posture, cloud compliance"
+        },
+        {
+          "topic": "Container Security Best Practices",
+          "focus": "Securing containerized applications and container registries",
+          "keywords": "container security, Docker security, Kubernetes security, container scanning"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-04",
+      "day": "thursday",
+      "status": "approved",
+      "topic": "Terraform Modules and Reusability",
+      "focus": "Creating reusable Terraform modules for common infrastructure patterns",
+      "keywords": "Terraform modules, infrastructure patterns, code reuse, IaC best practices",
+      "category": "infrastructure",
+      "icon": "🏗️",
+      "tags": [
+        "Infrastructure as Code",
+        "IaC",
+        "Terraform"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.945Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.945Z",
+      "alternatives": [
+        {
+          "topic": "Pulumi: Code-Based Infrastructure",
+          "focus": "Using Pulumi to define infrastructure using familiar programming languages",
+          "keywords": "Pulumi, infrastructure as code, programming languages, IaC"
+        },
+        {
+          "topic": "Infrastructure Drift Detection",
+          "focus": "Detecting and managing infrastructure drift in Terraform-managed environments",
+          "keywords": "drift detection, infrastructure drift, Terraform, configuration management"
+        },
+        {
+          "topic": "Terraform Workspaces and Environments",
+          "focus": "Managing multiple environments with Terraform workspaces and best practices",
+          "keywords": "Terraform workspaces, environments, multi-environment, infrastructure management"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-05",
+      "day": "friday",
+      "status": "approved",
+      "topic": "Container Orchestration Patterns",
+      "focus": "Common patterns for deploying and managing containerized applications at scale",
+      "keywords": "container orchestration, Kubernetes patterns, deployment patterns, microservices",
+      "category": "containers",
+      "icon": "🐳",
+      "tags": [
+        "Kubernetes",
+        "Docker",
+        "Container Orchestration"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.945Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.945Z",
+      "alternatives": [
+        {
+          "topic": "Kubernetes Networking Deep Dive",
+          "focus": "Understanding Kubernetes networking, CNI plugins, and network policies",
+          "keywords": "Kubernetes networking, CNI, network policies, cluster networking"
+        },
+        {
+          "topic": "Container Registry Management",
+          "focus": "Managing container registries, image scanning, and security best practices",
+          "keywords": "container registry, Docker registry, image scanning, container security"
+        },
+        {
+          "topic": "Kubernetes Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring for Kubernetes clusters and applications",
+          "keywords": "Kubernetes monitoring, observability, Prometheus, Grafana, cluster monitoring"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-08",
+      "day": "monday",
+      "status": "approved",
+      "topic": "AWS Cost Optimization Strategies",
+      "focus": "Practical approaches to reducing AWS costs through right-sizing, reserved instances, and intelligent resource management",
+      "keywords": "AWS cost optimization, cost management, reserved instances, right-sizing, cost analysis",
+      "category": "aws",
+      "icon": "☁️",
+      "tags": [
+        "AWS",
+        "Cloud Infrastructure",
+        "Cloud Services"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.945Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.945Z",
+      "alternatives": [
+        {
+          "topic": "AWS Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring with CloudWatch, X-Ray, and other AWS observability tools",
+          "keywords": "CloudWatch, monitoring, observability, AWS X-Ray, logging"
+        },
+        {
+          "topic": "AWS Networking Fundamentals",
+          "focus": "Understanding VPC, subnets, routing, and network security in AWS",
+          "keywords": "VPC, networking, subnets, routing, AWS networking"
+        },
+        {
+          "topic": "EC2 Instance Optimization",
+          "focus": "Selecting and optimizing EC2 instances for performance and cost efficiency",
+          "keywords": "EC2, instance types, optimization, cost efficiency"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-09",
+      "day": "tuesday",
+      "status": "approved",
+      "topic": "Container CI/CD Strategies",
+      "focus": "Implementing CI/CD pipelines for containerized applications with Docker and Kubernetes",
+      "keywords": "containers, CI/CD, Docker, Kubernetes, container pipelines",
+      "category": "devops",
+      "icon": "⚙️",
+      "tags": [
+        "DevOps",
+        "Automation",
+        "CI/CD"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.945Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.945Z",
+      "alternatives": [
+        {
+          "topic": "Configuration Management Tools",
+          "focus": "Comparing and using tools like Ansible, Puppet, and Chef for infrastructure automation",
+          "keywords": "configuration management, Ansible, Puppet, Chef, automation"
+        },
+        {
+          "topic": "DevOps Metrics and KPIs",
+          "focus": "Measuring DevOps success with key metrics and performance indicators",
+          "keywords": "DevOps metrics, KPIs, DORA metrics, performance measurement"
+        },
+        {
+          "topic": "Infrastructure Testing Strategies",
+          "focus": "Testing infrastructure code and configurations for reliability and compliance",
+          "keywords": "infrastructure testing, testing strategies, compliance, reliability"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-10",
+      "day": "wednesday",
+      "status": "approved",
+      "topic": "DevSecOps Pipeline Implementation",
+      "focus": "Building security into CI/CD pipelines from the start with automated security checks",
+      "keywords": "DevSecOps, security pipeline, CI/CD security, shift-left security",
+      "category": "security",
+      "icon": "🔒",
+      "tags": [
+        "Security",
+        "DevSecOps",
+        "Threat Detection"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.945Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.945Z",
+      "alternatives": [
+        {
+          "topic": "Container Security Best Practices",
+          "focus": "Securing containerized applications and container registries",
+          "keywords": "container security, Docker security, Kubernetes security, container scanning"
+        },
+        {
+          "topic": "Cloud Security Posture Management",
+          "focus": "Managing and improving cloud security posture across AWS, Azure, and GCP",
+          "keywords": "cloud security, CSPM, security posture, cloud compliance"
+        },
+        {
+          "topic": "Security Incident Response",
+          "focus": "Building effective incident response procedures and automation for security events",
+          "keywords": "incident response, security incidents, automation, security operations"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-11",
+      "day": "thursday",
+      "status": "approved",
+      "topic": "Terragrunt for DRY Infrastructure",
+      "focus": "Using Terragrunt to reduce duplication and manage complex Terraform configurations",
+      "keywords": "Terragrunt, Terraform, DRY principles, configuration management",
+      "category": "infrastructure",
+      "icon": "🏗️",
+      "tags": [
+        "Infrastructure as Code",
+        "IaC",
+        "Terraform"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.946Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.946Z",
+      "alternatives": [
+        {
+          "topic": "Terraform Workspaces and Environments",
+          "focus": "Managing multiple environments with Terraform workspaces and best practices",
+          "keywords": "Terraform workspaces, environments, multi-environment, infrastructure management"
+        },
+        {
+          "topic": "Infrastructure Drift Detection",
+          "focus": "Detecting and managing infrastructure drift in Terraform-managed environments",
+          "keywords": "drift detection, infrastructure drift, Terraform, configuration management"
+        },
+        {
+          "topic": "Pulumi: Code-Based Infrastructure",
+          "focus": "Using Pulumi to define infrastructure using familiar programming languages",
+          "keywords": "Pulumi, infrastructure as code, programming languages, IaC"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-12",
+      "day": "friday",
+      "status": "approved",
+      "topic": "Kubernetes Deployment Strategies",
+      "focus": "Implementing rolling updates, blue-green, and canary deployments in Kubernetes",
+      "keywords": "Kubernetes, deployment strategies, rolling updates, blue-green, canary",
+      "category": "containers",
+      "icon": "🐳",
+      "tags": [
+        "Kubernetes",
+        "Docker",
+        "Container Orchestration"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.946Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.946Z",
+      "alternatives": [
+        {
+          "topic": "Kubernetes Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring for Kubernetes clusters and applications",
+          "keywords": "Kubernetes monitoring, observability, Prometheus, Grafana, cluster monitoring"
+        },
+        {
+          "topic": "Container Registry Management",
+          "focus": "Managing container registries, image scanning, and security best practices",
+          "keywords": "container registry, Docker registry, image scanning, container security"
+        },
+        {
+          "topic": "Kubernetes Networking Deep Dive",
+          "focus": "Understanding Kubernetes networking, CNI plugins, and network policies",
+          "keywords": "Kubernetes networking, CNI, network policies, cluster networking"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-15",
+      "day": "monday",
+      "status": "approved",
+      "topic": "Amazon S3 Storage Optimization",
+      "focus": "Strategies for optimizing S3 storage costs, lifecycle policies, and intelligent tiering",
+      "keywords": "S3, storage optimization, lifecycle policies, intelligent tiering, cost reduction",
+      "category": "aws",
+      "icon": "☁️",
+      "tags": [
+        "AWS",
+        "Cloud Infrastructure",
+        "Cloud Services"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.946Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.946Z",
+      "alternatives": [
+        {
+          "topic": "EC2 Instance Optimization",
+          "focus": "Selecting and optimizing EC2 instances for performance and cost efficiency",
+          "keywords": "EC2, instance types, optimization, cost efficiency"
+        },
+        {
+          "topic": "AWS Networking Fundamentals",
+          "focus": "Understanding VPC, subnets, routing, and network security in AWS",
+          "keywords": "VPC, networking, subnets, routing, AWS networking"
+        },
+        {
+          "topic": "AWS Monitoring and Observability",
+          "focus": "Implementing comprehensive monitoring with CloudWatch, X-Ray, and other AWS observability tools",
+          "keywords": "CloudWatch, monitoring, observability, AWS X-Ray, logging"
+        }
+      ]
+    },
+    {
+      "date": "2025-12-16",
+      "day": "tuesday",
+      "status": "approved",
+      "topic": "Container CI/CD Strategies",
+      "focus": "Implementing CI/CD pipelines for containerized applications with Docker and Kubernetes",
+      "keywords": "containers, CI/CD, Docker, Kubernetes, container pipelines",
+      "category": "devops",
+      "icon": "⚙️",
+      "tags": [
+        "DevOps",
+        "Automation",
+        "CI/CD"
+      ],
+      "readTime": "10 min read",
+      "notes": "",
+      "researchNotes": "",
+      "suggestedBy": "system",
+      "suggestedAt": "2025-11-09T18:26:06.946Z",
+      "approvedBy": "system",
+      "approvedAt": "2025-11-09T18:26:06.946Z",
+      "alternatives": [
+        {
+          "topic": "Configuration Management Tools",
+          "focus": "Comparing and using tools like Ansible, Puppet, and Chef for infrastructure automation",
+          "keywords": "configuration management, Ansible, Puppet, Chef, automation"
+        },
+        {
+          "topic": "Infrastructure Testing Strategies",
+          "focus": "Testing infrastructure code and configurations for reliability and compliance",
+          "keywords": "infrastructure testing, testing strategies, compliance, reliability"
+        },
+        {
+          "topic": "DevOps Metrics and KPIs",
+          "focus": "Measuring DevOps success with key metrics and performance indicators",
+          "keywords": "DevOps metrics, KPIs, DORA metrics, performance measurement"
         }
       ]
     }
