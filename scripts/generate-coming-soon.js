@@ -59,22 +59,22 @@ function generateComingSoonHTML(schedule) {
   
   if (upcoming.length === 0) {
     return `
-            <!-- Coming Soon Section -->
-            <section class="coming-soon">
-                <div class="container">
-                    <h2>📅 Coming Soon</h2>
-                    <p>New blog topics are being planned. Check back soon!</p>
-                </div>
-            </section>`;
+    <!-- Coming Soon Section -->
+    <section class="coming-soon">
+        <div class="container">
+            <h2>📅 Coming Soon</h2>
+            <p>New blog topics are being planned. Check back soon!</p>
+        </div>
+    </section>`;
   }
   
   let html = `
-            <!-- Coming Soon Section -->
-            <section class="coming-soon">
-                <div class="container">
-                    <h2>📅 Coming Soon</h2>
-                    <p>Upcoming blog posts scheduled for the next two weeks:</p>
-                    <div class="coming-soon-grid">`;
+    <!-- Coming Soon Section -->
+    <section class="coming-soon">
+        <div class="container">
+            <h2>📅 Coming Soon</h2>
+            <p>Upcoming blog posts scheduled for the next two weeks:</p>
+            <div class="coming-soon-grid">`;
   
   for (const entry of upcoming) {
     const formattedDate = formatDate(entry.date);
@@ -82,33 +82,33 @@ function generateComingSoonHTML(schedule) {
     const statusIcon = entry.status === 'approved' ? '✅' : '⏳';
     
     html += `
-                        <div class="coming-soon-item">
-                            <div class="coming-soon-date">
-                                <span class="date-icon">${entry.icon || '📝'}</span>
-                                <div class="date-info">
-                                    <span class="date-day">${dayName}</span>
-                                    <span class="date-full">${formattedDate}</span>
-                                </div>
-                                <span class="status-badge">${statusIcon}</span>
-                            </div>
-                            <div class="coming-soon-content">
-                                <h3>${entry.topic}</h3>
-                                <p>${entry.focus}</p>
-                                ${entry.alternatives && entry.alternatives.length > 0 ? 
-                                  `<div class="alternatives-hint">
-                                    <small>💡 ${entry.alternatives.length} alternative topic${entry.alternatives.length > 1 ? 's' : ''} available</small>
-                                  </div>` : ''}
-                            </div>
-                        </div>`;
+                <div class="coming-soon-item">
+                    <div class="coming-soon-date">
+                        <span class="date-icon">${entry.icon || '📝'}</span>
+                        <div class="date-info">
+                            <span class="date-day">${dayName}</span>
+                            <span class="date-full">${formattedDate}</span>
+                        </div>
+                        <span class="status-badge">${statusIcon}</span>
+                    </div>
+                    <div class="coming-soon-content">
+                        <h3>${entry.topic}</h3>
+                        <p>${entry.focus}</p>
+                        ${entry.alternatives && entry.alternatives.length > 0 ? 
+                          `<div class="alternatives-hint">
+                            <small>💡 ${entry.alternatives.length} alternative topic${entry.alternatives.length > 1 ? 's' : ''} available</small>
+                          </div>` : ''}
+                    </div>
+                </div>`;
   }
   
   html += `
-                    </div>
-                    <p class="coming-soon-footer">
-                        <small>Topics are auto-generated weekly. Check back every Sunday for new proposals!</small>
-                    </p>
-                </div>
-            </section>`;
+            </div>
+            <p class="coming-soon-footer">
+                <small>Topics are auto-generated weekly. Check back every Sunday for new proposals!</small>
+            </p>
+        </div>
+    </section>`;
   
   return html;
 }
@@ -121,27 +121,29 @@ function updateBlogHTML() {
   let blogHTML = fs.readFileSync(BLOG_HTML_PATH, 'utf8');
   
   // Find and replace the coming soon section
-  // Look for existing coming soon section or insert before blog-schedule-info
+  // Look for existing coming soon section (now a top-level section, not nested)
   const comingSoonRegex = /<!-- Coming Soon Section -->[\s\S]*?<\/section>/;
   const scheduleInfoRegex = /<!-- Blog Schedule Info -->/;
   
   if (comingSoonRegex.test(blogHTML)) {
-    // Replace existing section
+    // Replace existing section - preserve the structure (top-level section)
     blogHTML = blogHTML.replace(comingSoonRegex, comingSoonHTML.trim());
   } else if (scheduleInfoRegex.test(blogHTML)) {
-    // Insert before schedule info
-    blogHTML = blogHTML.replace(scheduleInfoRegex, comingSoonHTML.trim() + '\n\n            ' + '<!-- Blog Schedule Info -->');
-  } else {
-    // Insert before closing blog-posts section
-    const blogPostsClose = blogHTML.indexOf('            </div>\n            \n            <!-- Blog Schedule Info -->');
-    if (blogPostsClose !== -1) {
-      blogHTML = blogHTML.substring(0, blogPostsClose) + 
-                 comingSoonHTML.trim() + '\n            \n            <!-- Blog Schedule Info -->' +
-                 blogHTML.substring(blogPostsClose + '            </div>\n            \n            <!-- Blog Schedule Info -->'.length);
+    // Insert before schedule info (as a top-level section)
+    // Find the blog-posts section that contains schedule info
+    const beforeSchedule = blogHTML.indexOf('    <!-- Blog Posts (continued for schedule info) -->');
+    if (beforeSchedule !== -1) {
+      blogHTML = blogHTML.substring(0, beforeSchedule) + 
+                 comingSoonHTML.trim() + '\n\n' +
+                 blogHTML.substring(beforeSchedule);
     } else {
-      console.error('❌ Could not find insertion point in blog.html');
-      process.exit(1);
+      // Fallback: insert before schedule info comment
+      blogHTML = blogHTML.replace(scheduleInfoRegex, comingSoonHTML.trim() + '\n\n    ' + '<!-- Blog Schedule Info -->');
     }
+  } else {
+    console.error('❌ Could not find insertion point in blog.html');
+    console.error('   Looking for "Coming Soon Section" comment or "Blog Schedule Info" comment');
+    process.exit(1);
   }
   
   fs.writeFileSync(BLOG_HTML_PATH, blogHTML, 'utf8');
