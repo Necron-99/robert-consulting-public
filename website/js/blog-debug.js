@@ -112,21 +112,26 @@
     console.groupEnd();
   }
 
+  // Expose diagnostic function globally IMMEDIATELY (before DOM ready)
+  window.debugBlogPage = logSectionDiagnostics;
+  
   // Run diagnostics when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      console.log('🔧 [Blog Debug] DOM loaded, running diagnostics...');
       setTimeout(logSectionDiagnostics, 100); // Small delay to ensure all scripts run
     });
   } else {
+    console.log('🔧 [Blog Debug] DOM already loaded, running diagnostics...');
     setTimeout(logSectionDiagnostics, 100);
   }
 
   // Also run after a short delay to catch any dynamic changes
-  setTimeout(logSectionDiagnostics, 1000);
+  setTimeout(() => {
+    console.log('🔧 [Blog Debug] Running delayed diagnostics...');
+    logSectionDiagnostics();
+  }, 1000);
   
-  // Expose diagnostic function globally for manual testing
-  window.debugBlogPage = logSectionDiagnostics;
-  
-  console.log('🔧 Blog debug script loaded. Run window.debugBlogPage() to check diagnostics.');
+  console.log('✅ [Blog Debug] Script loaded. Run window.debugBlogPage() to check diagnostics.');
 })();
 
