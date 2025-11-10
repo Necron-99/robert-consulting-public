@@ -45,29 +45,32 @@ const RESOURCE_CHECKERS = {
     let name = values.name;
     const type = values.type || 'A';
     
-    // Normalize name (add trailing dot if missing)
+    // Normalize name (add trailing dot if missing for Route53 API)
+    let normalizedName = name;
     if (name && !name.endsWith('.')) {
-      name = name + '.';
+      normalizedName = name + '.';
     }
     
     if (zoneId && name) {
       try {
-        // Try to find the record
+        // Try to find the record in the zone
         const output = execSync(
-          `aws route53 list-resource-record-sets --hosted-zone-id "${zoneId}" --query "ResourceRecordSets[?Name=='${name}' && Type=='${type}']"`,
+          `aws route53 list-resource-record-sets --hosted-zone-id "${zoneId}" --query "ResourceRecordSets[?Name=='${normalizedName}' && Type=='${type}']"`,
           { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
         );
         const records = JSON.parse(output);
         if (records && records.length > 0) {
-          // Import format: zone_id_name_type
-          const importName = name.replace(/\.$/, ''); // Remove trailing dot for import
+          // Import format: zone_id_name_type (name without trailing dot)
+          const importName = name.replace(/\.$/, '');
           return { exists: true, importId: `${zoneId}_${importName}_${type}` };
         }
       } catch (error) {
-        // If zone doesn't exist or other error, try to construct import ID anyway
+        // If zone doesn't exist or other error, still try to construct import ID
+        // Many Route53 records exist but analyzer can't detect them easily
         if (zoneId && name) {
           const importName = name.replace(/\.$/, '');
-          return { exists: null, importId: `${zoneId}_${importName}_${type}` };
+          // Return as "likely exists" since Route53 records are usually pre-created
+          return { exists: null, importId: `${zoneId}_${importName}_${type}`, note: 'Route53 records often exist - check manually' };
         }
       }
     }
