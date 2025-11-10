@@ -42,8 +42,14 @@ const RESOURCE_CHECKERS = {
   'aws_route53_record': (values) => {
     // Route53 records need zone_id + name + type
     const zoneId = values.zone_id || values.hosted_zone_id;
-    const name = values.name;
+    let name = values.name;
     const type = values.type || 'A';
+    
+    // Normalize name (add trailing dot if missing)
+    if (name && !name.endsWith('.')) {
+      name = name + '.';
+    }
+    
     if (zoneId && name) {
       try {
         // Try to find the record
@@ -53,13 +59,19 @@ const RESOURCE_CHECKERS = {
         );
         const records = JSON.parse(output);
         if (records && records.length > 0) {
-          return { exists: true, importId: `${zoneId}_${name}_${type}` };
+          // Import format: zone_id_name_type
+          const importName = name.replace(/\.$/, ''); // Remove trailing dot for import
+          return { exists: true, importId: `${zoneId}_${importName}_${type}` };
         }
-      } catch {
-        // Continue to return unknown
+      } catch (error) {
+        // If zone doesn't exist or other error, try to construct import ID anyway
+        if (zoneId && name) {
+          const importName = name.replace(/\.$/, '');
+          return { exists: null, importId: `${zoneId}_${importName}_${type}` };
+        }
       }
     }
-    return { exists: null, importId: zoneId && name ? `${zoneId}_${name}_${values.type || 'A'}` : null };
+    return { exists: null, importId: null };
   },
   'aws_route53_zone': (id) => {
     try {
@@ -103,27 +115,213 @@ const RESOURCE_CHECKERS = {
           { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
         );
         if (output.trim()) {
-          return { exists: true, importId: output.trim().split('\t')[0] };
+          const arn = output.trim().split('\t')[0];
+          return { exists: true, importId: arn };
         }
       } catch {
         // Continue
       }
     }
     return { exists: null };
+  },
+  'aws_cloudwatch_dashboard': (values) => {
+    const name = values.dashboard_name || values.name;
+    if (name) {
+      try {
+        execSync(`aws cloudwatch get-dashboard --dashboard-name "${name}"`, { stdio: 'ignore' });
+        return { exists: true, importId: name };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_cloudwatch_event_rule': (values) => {
+    const name = values.name;
+    if (name) {
+      try {
+        execSync(`aws events describe-rule --name "${name}"`, { stdio: 'ignore' });
+        return { exists: true, importId: name };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_cloudwatch_event_target': (values) => {
+    // Event targets are part of rules, check if rule exists
+    const rule = values.rule;
+    if (rule) {
+      try {
+        const output = execSync(
+          `aws events list-targets-by-rule --rule "${rule}" --query "Targets[?Arn=='${values.arn || ''}']"`,
+          { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+        );
+        const targets = JSON.parse(output);
+        if (targets && targets.length > 0) {
+          // Import format: rule_name/target_id
+          const targetId = values.target_id || 'default';
+          return { exists: true, importId: `${rule}/${targetId}` };
+        }
+      } catch {
+        // Rule might not exist
+      }
+    }
+    return { exists: null };
+  },
+  'aws_cloudwatch_metric_alarm': (values) => {
+    const name = values.alarm_name || values.name;
+    if (name) {
+      try {
+        execSync(`aws cloudwatch describe-alarms --alarm-names "${name}"`, { stdio: 'ignore' });
+        return { exists: true, importId: name };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_iam_role_policy': (values) => {
+    // IAM role policies are attached to roles
+    const roleName = values.role;
+    const policyName = values.name;
+    if (roleName && policyName) {
+      try {
+        execSync(`aws iam get-role-policy --role-name "${roleName}" --policy-name "${policyName}"`, { stdio: 'ignore' });
+        return { exists: true, importId: `${roleName}:${policyName}` };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_lambda_permission': (values) => {
+    // Lambda permissions are tricky - they're identified by statement_id
+    // Usually these are new unless we're recreating
+    const functionName = values.function_name;
+    const statementId = values.statement_id || 'AllowExecutionFromAPIGateway';
+    if (functionName) {
+      try {
+        // Check if function exists first
+        execSync(`aws lambda get-function --function-name "${functionName}"`, { stdio: 'ignore' });
+        // Permission exists if function exists (can't easily check permission itself)
+        // Most permissions are created fresh, so default to new
+        return { exists: false };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_s3_bucket_policy': (values) => {
+    const bucket = values.bucket;
+    if (bucket) {
+      try {
+        execSync(`aws s3api get-bucket-policy --bucket "${bucket}"`, { stdio: 'ignore' });
+        return { exists: true, importId: bucket };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_secretsmanager_secret_version': (values) => {
+    // Secret versions are versioned - check if secret exists
+    const secretId = values.secret_id || values.secret_arn;
+    if (secretId) {
+      try {
+        execSync(`aws secretsmanager describe-secret --secret-id "${secretId}"`, { stdio: 'ignore' });
+        // Secret exists, but version might be new - default to checking
+        return { exists: null, importId: secretId };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_sns_topic_subscription': (values) => {
+    // SNS subscriptions are identified by ARN
+    const arn = values.arn || values.subscription_arn;
+    if (arn) {
+      try {
+        execSync(`aws sns get-subscription-attributes --subscription-arn "${arn}"`, { stdio: 'ignore' });
+        return { exists: true, importId: arn };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_wafv2_web_acl_association': (values) => {
+    // WAF associations are identified by resource ARN + web ACL ARN
+    const resourceArn = values.resource_arn;
+    const webAclArn = values.web_acl_arn;
+    if (resourceArn && webAclArn) {
+      try {
+        // Check if association exists (hard to check directly, but if resources exist, likely new)
+        return { exists: false };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'aws_api_gateway_usage_plan_key': (values) => {
+    // Usage plan keys are identified by usage_plan_id + key_id
+    const usagePlanId = values.usage_plan_id;
+    const keyId = values.key_id;
+    if (usagePlanId && keyId) {
+      try {
+        execSync(`aws apigateway get-usage-plan-key --usage-plan-id "${usagePlanId}" --key-id "${keyId}"`, { stdio: 'ignore' });
+        return { exists: true, importId: `${usagePlanId}/${keyId}` };
+      } catch {
+        return { exists: false };
+      }
+    }
+    return { exists: null };
+  },
+  'null_resource': () => {
+    // Null resources are always new - they're local-only
+    return { exists: false };
   }
 };
 
 function extractResourceId(resourceType, values) {
-  // Try common ID fields
-  return values.id || 
-         values.bucket || 
-         values.name || 
-         values.function_name || 
-         values.distribution_id ||
-         values.zone_id ||
-         values.hosted_zone_id ||
-         values.table_name ||
-         null;
+  // Try common ID fields based on resource type
+  switch (resourceType) {
+    case 'aws_s3_bucket':
+      return values.bucket || values.id;
+    case 'aws_lambda_function':
+      return values.function_name || values.id;
+    case 'aws_cloudfront_distribution':
+      return values.distribution_id || values.id;
+    case 'aws_route53_zone':
+      return values.zone_id || values.hosted_zone_id || values.id;
+    case 'aws_route53_record':
+      return values.name || values.fqdn || values.id;
+    case 'aws_dynamodb_table':
+      return values.table_name || values.name || values.id;
+    case 'aws_iam_role':
+      return values.role_name || values.name || values.id;
+    case 'aws_sns_topic':
+      return values.name || values.topic_arn || values.id;
+    case 'aws_cloudwatch_dashboard':
+      return values.dashboard_name || values.name || values.id;
+    case 'aws_cloudwatch_event_rule':
+      return values.name || values.id;
+    case 'aws_cloudwatch_metric_alarm':
+      return values.alarm_name || values.name || values.id;
+    default:
+      return values.id || 
+             values.bucket || 
+             values.name || 
+             values.function_name || 
+             values.distribution_id ||
+             values.zone_id ||
+             values.hosted_zone_id ||
+             values.table_name ||
+             null;
+  }
 }
 
 function analyzePlan(planJsonPath) {
