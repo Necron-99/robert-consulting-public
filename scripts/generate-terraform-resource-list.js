@@ -80,20 +80,71 @@ function getResourceARN(resourceType, resourceName) {
   try {
     const cwd = TERRAFORM_DIR;
     const resourceAddress = `${resourceType}.${resourceName}`;
-    const output = execSync(`terraform state show -json "${resourceAddress}"`, {
-      cwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
-    const state = JSON.parse(output);
     
-    const mapper = RESOURCE_TYPE_MAP[resourceType];
-    if (mapper) {
-      return mapper(state);
+    // Try JSON format first (Terraform 1.0+)
+    let output;
+    try {
+      output = execSync(`terraform state show -json "${resourceAddress}"`, {
+        cwd,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+    } catch (jsonError) {
+      // Fallback to text format and parse
+      output = execSync(`terraform state show "${resourceAddress}"`, {
+        cwd,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+      
+      // Parse text output for ARN
+      const arnMatch = output.match(/arn:aws:[^\s]+/);
+      if (arnMatch) {
+        return arnMatch[0];
+      }
+      
+      // Try to extract ID and construct ARN
+      const idMatch = output.match(/id\s+=\s+([^\s]+)/);
+      const bucketMatch = output.match(/bucket\s+=\s+([^\s]+)/);
+      const nameMatch = output.match(/name\s+=\s+([^\s]+)/);
+      
+      if (bucketMatch && resourceType === 'aws_s3_bucket') {
+        return `arn:aws:s3:::${bucketMatch[1]}`;
+      }
+      
+      if (idMatch) {
+        const id = idMatch[1];
+        if (resourceType === 'aws_cloudfront_distribution') {
+          return `arn:aws:cloudfront::228480945348:distribution/${id}`;
+        }
+        if (resourceType === 'aws_lambda_function' && nameMatch) {
+          // Lambda ARN format: arn:aws:lambda:region:account:function:name
+          return `arn:aws:lambda:us-east-1:228480945348:function:${nameMatch[1]}`;
+        }
+      }
+      
+      return null;
     }
     
-    // Fallback: try to get ARN directly
-    return state.attributes?.arn || null;
+    // Parse JSON output
+    const state = JSON.parse(output);
+    
+    // First try to get ARN directly (most reliable)
+    if (state.values?.arn) {
+      return state.values.arn;
+    }
+    if (state.attributes?.arn) {
+      return state.attributes.arn;
+    }
+    
+    // Then try resource-specific mapper
+    const mapper = RESOURCE_TYPE_MAP[resourceType];
+    if (mapper) {
+      const arn = mapper(state);
+      if (arn) return arn;
+    }
+    
+    return null;
   } catch (error) {
     // Resource might not exist in state or show failed
     return null;
