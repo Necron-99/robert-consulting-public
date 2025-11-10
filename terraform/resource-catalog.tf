@@ -1,0 +1,302 @@
+# Resource Catalog System - Solution 4 (Hybrid Approach)
+# Provides comprehensive resource cataloging, tagging enforcement, and utilization tracking
+# SAFETY: Never auto-deletes resources - all deletions require explicit manual approval
+
+# =============================================================================
+# DYNAMODB TABLE FOR RESOURCE CATALOG
+# =============================================================================
+
+resource "aws_dynamodb_table" "resource_catalog" {
+  name           = "robert-consulting-resource-catalog"
+  billing_mode   = "PAY_PER_REQUEST" # On-demand pricing (~$1.25/million operations)
+  hash_key       = "resource_arn"
+
+  attribute {
+    name = "resource_arn"
+    type = "S"
+  }
+
+  # GSI for querying by status
+  attribute {
+    name = "status"
+    type = "S"
+  }
+
+  attribute {
+    name = "resource_type"
+    type = "S"
+  }
+
+  attribute {
+    name = "last_updated"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "status-index"
+    hash_key        = "status"
+    range_key       = "last_updated"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "type-index"
+    hash_key        = "resource_type"
+    range_key       = "last_updated"
+    projection_type = "ALL"
+  }
+
+  point_in_time_recovery {
+    enabled = true # Enable PITR for safety
+  }
+
+  tags = {
+    Name        = "Resource Catalog"
+    Purpose     = "resource-tracking"
+    ManagedBy   = "Terraform"
+    Environment = "production"
+    Project     = "Robert Consulting"
+  }
+}
+
+# =============================================================================
+# LAMBDA FUNCTION FOR RESOURCE DISCOVERY AND CATALOGING
+# =============================================================================
+
+resource "aws_lambda_function" "resource_cataloger" {
+  function_name = "robert-consulting-resource-cataloger"
+  runtime       = "nodejs22.x"
+  handler       = "index.handler"
+  role          = aws_iam_role.resource_cataloger_role.arn
+  timeout       = 900 # 15 minutes max
+  memory_size   = 512
+
+  filename         = data.archive_file.resource_cataloger_zip.output_path
+  source_code_hash = data.archive_file.resource_cataloger_zip.output_base64sha256
+
+  environment {
+    variables = {
+      CATALOG_TABLE_NAME = aws_dynamodb_table.resource_catalog.name
+      DRY_RUN            = "true" # Always start in dry-run mode for safety
+      REQUIRE_APPROVAL   = "true"
+    }
+  }
+
+  tags = {
+    Name        = "Resource Cataloger"
+    Purpose     = "resource-tracking"
+    ManagedBy   = "Terraform"
+    Environment = "production"
+    Project     = "Robert Consulting"
+  }
+}
+
+# IAM Role for Resource Cataloger
+resource "aws_iam_role" "resource_cataloger_role" {
+  name = "robert-consulting-resource-cataloger-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "Resource Cataloger Role"
+    Purpose     = "resource-tracking"
+    ManagedBy   = "Terraform"
+    Environment = "production"
+    Project     = "Robert Consulting"
+  }
+}
+
+# IAM Policy for Resource Cataloger - Read-only access to discover resources
+resource "aws_iam_role_policy" "resource_cataloger_policy" {
+  name = "robert-consulting-resource-cataloger-policy"
+  role = aws_iam_role.resource_cataloger_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          # DynamoDB - Catalog operations
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = [
+          aws_dynamodb_table.resource_catalog.arn,
+          "${aws_dynamodb_table.resource_catalog.arn}/index/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # CloudWatch - Get metrics for utilization
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:GetMetricData",
+          "cloudwatch:ListMetrics"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # Resource Groups Tagging API - Discover all resources
+          "resourcegroupstaggingapi:GetResources",
+          "resourcegroupstaggingapi:GetTagKeys",
+          "resourcegroupstaggingapi:GetTagValues"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # S3 - Check bucket size and object count (read-only)
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetBucketTagging"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # CloudFront - Get distribution info (read-only)
+          "cloudfront:ListDistributions",
+          "cloudfront:GetDistribution",
+          "cloudfront:GetDistributionConfig"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # Lambda - Get function info (read-only)
+          "lambda:ListFunctions",
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          # CloudWatch Logs
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+# Lambda package
+data "archive_file" "resource_cataloger_zip" {
+  type        = "zip"
+  source_dir  = "${path.root}/lambda/resource-cataloger"
+  output_path = "${path.root}/lambda/resource-cataloger.zip"
+  excludes    = ["node_modules", "*.md", ".git"]
+  
+  depends_on = [null_resource.build_resource_cataloger_package]
+}
+
+# Build Lambda package
+resource "null_resource" "build_resource_cataloger_package" {
+  triggers = {
+    always_run = timestamp()
+  }
+  
+  provisioner "local-exec" {
+    command = <<-EOT
+      cd ${path.root}/lambda/resource-cataloger
+      if [ -f package.json ]; then
+        npm install --production
+      fi
+    EOT
+  }
+}
+
+# CloudWatch Event Rule - Run daily at 2 AM
+resource "aws_cloudwatch_event_rule" "resource_cataloger_schedule" {
+  name                = "resource-cataloger-daily-scan"
+  description         = "Trigger resource cataloger daily at 2 AM"
+  schedule_expression = "cron(0 2 * * ? *)" # 2 AM UTC daily
+
+  tags = {
+    Name        = "Resource Cataloger Schedule"
+    Purpose     = "resource-tracking"
+    ManagedBy   = "Terraform"
+    Environment = "production"
+    Project     = "Robert Consulting"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "resource_cataloger_target" {
+  rule      = aws_cloudwatch_event_rule.resource_cataloger_schedule.name
+  target_id = "ResourceCatalogerTarget"
+  arn       = aws_lambda_function.resource_cataloger.arn
+}
+
+resource "aws_lambda_permission" "resource_cataloger_event" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.resource_cataloger.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.resource_cataloger_schedule.arn
+}
+
+# =============================================================================
+# SNS TOPIC FOR RESOURCE ALERTS
+# =============================================================================
+
+resource "aws_sns_topic" "resource_alerts" {
+  name = "robert-consulting-resource-alerts"
+
+  tags = {
+    Name        = "Resource Alerts"
+    Purpose     = "resource-tracking"
+    ManagedBy   = "Terraform"
+    Environment = "production"
+    Project     = "Robert Consulting"
+  }
+}
+
+resource "aws_sns_topic_subscription" "resource_alerts_email" {
+  topic_arn = aws_sns_topic.resource_alerts.arn
+  protocol  = "email"
+  endpoint  = var.alert_email
+}
+
+# =============================================================================
+# OUTPUTS
+# =============================================================================
+
+output "resource_catalog_table_name" {
+  description = "DynamoDB table name for resource catalog"
+  value       = aws_dynamodb_table.resource_catalog.name
+}
+
+output "resource_cataloger_function_name" {
+  description = "Lambda function name for resource cataloger"
+  value       = aws_lambda_function.resource_cataloger.function_name
+}
+
+output "resource_alerts_topic_arn" {
+  description = "SNS topic ARN for resource alerts"
+  value       = aws_sns_topic.resource_alerts.arn
+}
+
