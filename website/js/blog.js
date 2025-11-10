@@ -416,16 +416,13 @@ class BlogManager {
   updateWeekDisplay(weekData) {
     const weekDisplay = document.getElementById('current-week');
     if (weekDisplay) {
-      // Show actual post date range instead of calendar week
-      const posts = weekData.posts;
-      if (posts.length > 0) {
-        const dates = posts.map(post => new Date(post.date)).sort((a, b) => a - b);
-        const startDate = dates[0];
-        const endDate = dates[dates.length - 1];
-        weekDisplay.textContent = this.formatWeekDisplay(startDate, endDate);
-      } else {
-        weekDisplay.textContent = this.formatWeekDisplay(weekData.weekStart, weekData.weekEnd);
-      }
+      // Use calendar week range (Monday-Friday for work weeks)
+      // Calculate week end (Friday) from week start (Monday)
+      const weekStart = new Date(weekData.weekStart);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 4); // Add 4 days to get Friday (Mon + 4 = Fri)
+      
+      weekDisplay.textContent = this.formatWeekDisplay(weekStart, weekEnd);
     }
   }
 
