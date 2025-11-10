@@ -161,7 +161,19 @@ function updateBlogHTML() {
   }
   
   fs.writeFileSync(BLOG_HTML_PATH, blogHTML, 'utf8');
-  console.log(`✅ Updated coming soon section in blog.html with ${schedule.schedule.filter(e => (e.status === 'approved' || e.status === 'proposed') && new Date(e.date) >= new Date()).length} upcoming topics`);
+  
+  // Count upcoming topics (excluding published/generated and existing files)
+  const upcomingCount = schedule.schedule.filter(e => {
+    if (e.status === 'published' || e.status === 'generated') return false;
+    const dayName = e.day || getDayName(e.date).toLowerCase();
+    const blogPostPath = path.join(__dirname, '..', 'website', 'blog-posts', `${dayName}-${e.date}.html`);
+    if (fs.existsSync(blogPostPath)) return false;
+    const entryDate = new Date(e.date + 'T12:00:00');
+    entryDate.setHours(0, 0, 0, 0);
+    return entryDate >= new Date() && (e.status === 'approved' || e.status === 'proposed');
+  }).length;
+  
+  console.log(`✅ Updated coming soon section in blog.html with ${upcomingCount} upcoming topics`);
 }
 
 // Main
