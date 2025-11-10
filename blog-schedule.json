@@ -44,7 +44,7 @@
     {
       "date": "2025-11-10",
       "day": "monday",
-      "status": "approved",
+      "status": "generated",
       "topic": "AWS Cost Management",
       "focus": "Practical strategies to keep AWS costs in check and avoid unexpected charges",
       "keywords": "AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies",
