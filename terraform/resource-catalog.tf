@@ -221,8 +221,8 @@ resource "null_resource" "generate_terraform_arns" {
   }
   
   provisioner "local-exec" {
-    command     = "cd ${path.root} && node scripts/generate-terraform-resource-list.js"
-    working_dir = path.root
+    command     = "cd ${path.root}/.. && node scripts/generate-terraform-resource-list.js"
+    working_dir = "${path.root}/.."
   }
 }
 
@@ -231,11 +231,11 @@ resource "null_resource" "copy_terraform_arns" {
   depends_on = [null_resource.generate_terraform_arns]
   
   triggers = {
-    source_hash = fileexists("${path.root}/terraform/terraform-resource-arns.json") ? filemd5("${path.root}/terraform/terraform-resource-arns.json") : "missing"
+    source_hash = fileexists("${path.root}/terraform-resource-arns.json") ? filemd5("${path.root}/terraform-resource-arns.json") : "missing"
   }
   
   provisioner "local-exec" {
-    command     = "cp ${path.root}/terraform/terraform-resource-arns.json ${path.root}/lambda/resource-cataloger/terraform-resource-arns.json || echo '{}' > ${path.root}/lambda/resource-cataloger/terraform-resource-arns.json"
+    command     = "cp ${path.root}/terraform-resource-arns.json ${path.root}/../lambda/resource-cataloger/terraform-resource-arns.json || echo '{}' > ${path.root}/../lambda/resource-cataloger/terraform-resource-arns.json"
     working_dir = path.root
   }
 }

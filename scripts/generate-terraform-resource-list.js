@@ -13,8 +13,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const TERRAFORM_DIR = path.join(__dirname, '..', 'terraform');
-const OUTPUT_FILE = path.join(__dirname, '..', 'terraform', 'terraform-resource-arns.json');
+// Script can be run from root or terraform directory
+const ROOT_DIR = path.resolve(__dirname, '..');
+const TERRAFORM_DIR = path.join(ROOT_DIR, 'terraform');
+const OUTPUT_FILE = path.join(TERRAFORM_DIR, 'terraform-resource-arns.json');
 
 // Resource type to ARN mapping
 const RESOURCE_TYPE_MAP = {
