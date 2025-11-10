@@ -241,6 +241,17 @@ class BlogManager {
         tags: ['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis'],
         icon: '📊',
         readTime: '9 min read'
+      },,
+      {
+        id: 23,
+        title: 'AWS Cost Management',
+        excerpt: 'Practical strategies to keep AWS costs in check and avoid unexpected charges',
+        content: 'blog-posts/monday-2025-11-10.html',
+        date: '2025-11-10', // Monday
+        category: 'aws',
+        tags: ['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings'],
+        icon: '💰',
+        readTime: '12 min read'
       }
     ];
   }
