@@ -20,7 +20,13 @@ Additionally, Terraform is trying to **create a 4th zone** (`aws_route53_zone.ma
 
 ### Step 1: Identify the Active Zone
 
-Check your domain registrar (Namecheap, etc.) to see which nameservers are configured. The zone with matching nameservers is the **active** one.
+Since AWS is your registrar, the active zone is the one whose nameservers match the registered domain's nameservers:
+- `ns-170.awsdns-21.com`
+- `ns-1850.awsdns-39.co.uk`
+- `ns-874.awsdns-45.net`
+- `ns-1359.awsdns-41.org`
+
+The zone with matching nameservers is the **active** one.
 
 ```bash
 # Run the analysis script
@@ -36,10 +42,15 @@ This will show you:
 ### Step 2: Determine Which Zone to Keep
 
 **Recommended approach:**
-1. **Check domain registrar** - Which nameservers are configured?
+1. **Run the consolidation script** - It will automatically match nameservers:
+   ```bash
+   ./scripts/consolidate-route53-zones.sh
+   ```
 2. **Check Terraform state** - Is one already imported?
 3. **Check record count** - Zone with most records is likely the active one
 4. **Check record content** - Which zone has the correct CloudFront aliases?
+
+The script will automatically identify which zone matches the AWS registrar nameservers.
 
 ### Step 3: Import the Correct Zone into Terraform
 

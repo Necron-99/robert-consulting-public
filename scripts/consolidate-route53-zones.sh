@@ -20,10 +20,18 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Zone IDs from the image
+# Zone IDs from AWS console
 ZONE_1="Z05682173V2H2T5QWU8P0"  # 7 records
 ZONE_2="Z0219036XF42XEMQOJ4"    # 10 records  
-ZONE_3="Z0232243368137F38UDI1"   # 20 records (most records - likely the active one)
+ZONE_3="Z0232243368137F38UDI1"   # 20 records
+
+# AWS nameservers for robertconsulting.net (from domain registration)
+AWS_NAMESERVERS=(
+  "ns-170.awsdns-21.com"
+  "ns-1850.awsdns-39.co.uk"
+  "ns-874.awsdns-45.net"
+  "ns-1359.awsdns-41.org"
+)
 
 echo -e "${BLUE}📊 Analyzing Zones:${NC}"
 echo ""
@@ -49,9 +57,30 @@ for zone_id in "$ZONE_1" "$ZONE_2" "$ZONE_3"; do
   echo -e "${CYAN}Zone: $zone_id${NC}"
   
   # Get name servers
-  ns=$(aws route53 get-hosted-zone --id "$zone_id" --query 'DelegationSet.NameServers' --output text 2>/dev/null | tr '\t' ' ' || echo "unknown")
-  ZONE_NAMESERVERS["$zone_id"]="$ns"
-  echo "  Name Servers: $ns"
+  ns_array=($(aws route53 get-hosted-zone --id "$zone_id" --query 'DelegationSet.NameServers[]' --output text 2>/dev/null || echo ""))
+  ns_string=$(IFS=','; echo "${ns_array[*]}")
+  ZONE_NAMESERVERS["$zone_id"]="$ns_string"
+  echo "  Name Servers: ${ns_array[*]}"
+  
+  # Check if this zone matches the registered domain's nameservers
+  matches_aws=0
+  for aws_ns in "${AWS_NAMESERVERS[@]}"; do
+    for zone_ns in "${ns_array[@]}"; do
+      if [ "$zone_ns" = "$aws_ns" ]; then
+        matches_aws=$((matches_aws + 1))
+        break
+      fi
+    done
+  done
+  
+  if [ $matches_aws -eq 4 ]; then
+    echo -e "  ${GREEN}✅ MATCHES AWS REGISTRAR NAMESERVERS - THIS IS THE ACTIVE ZONE!${NC}"
+    ACTIVE_ZONE="$zone_id"
+  elif [ $matches_aws -gt 0 ]; then
+    echo -e "  ${YELLOW}⚠️  Partial match ($matches_aws/4 nameservers)${NC}"
+  else
+    echo -e "  ${RED}❌ Does NOT match AWS registrar nameservers${NC}"
+  fi
   
   # Count and list important records
   records=$(aws route53 list-resource-record-sets --hosted-zone-id "$zone_id" --query 'ResourceRecordSets[?Type==`A` || Type==`AAAA` || Type==`CNAME` || Type==`MX` || Type==`TXT`].{Name:Name,Type:Type}' --output json 2>/dev/null)
@@ -73,27 +102,51 @@ for zone_id in "$ZONE_1" "$ZONE_2" "$ZONE_3"; do
   echo ""
 done
 
-# Determine which zone to keep (usually the one with most records or in Terraform)
+# Determine which zone to keep
 KEEP_ZONE=""
-if [ -n "$TERRAFORM_ZONE" ]; then
+ACTIVE_ZONE=""
+
+# Priority 1: Zone that matches AWS registrar nameservers
+if [ -n "$ACTIVE_ZONE" ]; then
+  KEEP_ZONE="$ACTIVE_ZONE"
+  echo -e "${GREEN}✅ ACTIVE ZONE IDENTIFIED: $KEEP_ZONE (matches AWS registrar nameservers)${NC}"
+# Priority 2: Zone in Terraform state
+elif [ -n "$TERRAFORM_ZONE" ]; then
   KEEP_ZONE="$TERRAFORM_ZONE"
-  echo -e "${GREEN}✅ Recommended to keep: $KEEP_ZONE (in Terraform)${NC}"
+  echo -e "${YELLOW}⚠️  Recommended to keep: $KEEP_ZONE (in Terraform, but verify nameservers match)${NC}"
+# Priority 3: Zone with most records
 elif [ "${ZONE_RECORDS[$ZONE_3]}" -gt "${ZONE_RECORDS[$ZONE_1]}" ] && [ "${ZONE_RECORDS[$ZONE_3]}" -gt "${ZONE_RECORDS[$ZONE_2]}" ]; then
   KEEP_ZONE="$ZONE_3"
-  echo -e "${GREEN}✅ Recommended to keep: $KEEP_ZONE (most records: ${ZONE_RECORDS[$ZONE_3]})${NC}"
+  echo -e "${YELLOW}⚠️  Recommended to keep: $KEEP_ZONE (most records: ${ZONE_RECORDS[$ZONE_3]}, but verify nameservers)${NC}"
 else
-  echo -e "${YELLOW}⚠️  Could not determine which zone to keep automatically${NC}"
-  echo "   Please check your domain registrar's nameservers to find the active zone"
+  echo -e "${RED}❌ Could not determine which zone to keep automatically${NC}"
+  echo "   Check which zone's nameservers match: ${AWS_NAMESERVERS[*]}"
 fi
 
 echo ""
 echo -e "${BLUE}📝 Next Steps:${NC}"
 echo ""
-echo "1. Verify which zone is ACTIVE by checking your domain registrar"
-echo "2. Export records from duplicate zones (if needed)"
-echo "3. Ensure all records are in the zone you're keeping"
-echo "4. Update Terraform to use the correct zone ID"
-echo "5. Delete duplicate zones (only after verification!)"
+if [ -n "$ACTIVE_ZONE" ]; then
+  echo -e "${GREEN}1. ✅ Active zone identified: $ACTIVE_ZONE${NC}"
+  echo "2. Import this zone into Terraform:"
+  echo "   cd terraform"
+  echo "   terraform import aws_route53_zone.main $ACTIVE_ZONE"
+  echo "3. Export records from duplicate zones (backup)"
+  echo "4. Verify all important records are in zone $ACTIVE_ZONE"
+  echo "5. Delete duplicate zones (AFTER verification!):"
+  for zone_id in "$ZONE_1" "$ZONE_2" "$ZONE_3"; do
+    if [ "$zone_id" != "$ACTIVE_ZONE" ]; then
+      echo "   aws route53 delete-hosted-zone --id $zone_id"
+    fi
+  done
+else
+  echo "1. Check which zone's nameservers match AWS registrar:"
+  echo "   ${AWS_NAMESERVERS[*]}"
+  echo "2. Import that zone into Terraform"
+  echo "3. Export records from duplicate zones (backup)"
+  echo "4. Verify all records are in the zone you're keeping"
+  echo "5. Delete duplicate zones (only after verification!)"
+fi
 echo ""
 echo -e "${YELLOW}💡 To export records from a zone:${NC}"
 echo "   aws route53 list-resource-record-sets --hosted-zone-id <zone-id> > zone-backup.json"
