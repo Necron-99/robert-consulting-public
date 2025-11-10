@@ -138,10 +138,16 @@ resource "aws_cloudfront_origin_access_identity" "plex_oai" {
 # Lambda function for Plex analysis
 resource "aws_lambda_function" "plex_analyzer" {
   function_name = "plex-recommendations-analyzer"
-  runtime       = "python3.9"
+  runtime       = "nodejs22.x"
   handler       = "index.handler"
   role          = aws_iam_role.plex_lambda_role.arn
-  filename      = "lambda/plex-analyzer.zip"
+  filename      = "../../lambda/plex-analyzer.zip"
+
+  environment {
+    variables = {
+      S3_BUCKET = aws_s3_bucket.plex_data.bucket
+    }
+  }
 
   tags = {
     Name        = "Plex Recommendations Analyzer"
@@ -174,6 +180,39 @@ resource "aws_iam_role" "plex_lambda_role" {
     Project     = var.project_name
     ManagedBy   = "Terraform"
   }
+}
+
+# IAM Policy for Lambda S3 access
+resource "aws_iam_role_policy" "plex_lambda_s3_policy" {
+  name = "plex-s3-access"
+  role = aws_iam_role.plex_lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.plex_data.arn,
+          "${aws_s3_bucket.plex_data.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
 }
 
 # Outputs
