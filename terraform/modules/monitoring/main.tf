@@ -61,7 +61,7 @@ resource "aws_lambda_function" "dashboard_api" {
   role            = aws_iam_role.dashboard_api_role.arn
   handler         = "index.handler"
   source_code_hash = data.archive_file.dashboard_api_zip.output_base64sha256
-  runtime         = "nodejs18.x"
+  runtime         = "nodejs22.x"
   timeout         = 30
 
   environment {
@@ -85,7 +85,7 @@ resource "aws_lambda_function" "stats_refresher" {
   role            = aws_iam_role.stats_refresher_role.arn
   handler         = "index.handler"
   source_code_hash = data.archive_file.stats_refresher_zip.output_base64sha256
-  runtime         = "nodejs18.x"
+  runtime         = "nodejs22.x"
   timeout         = 300
 
   environment {
