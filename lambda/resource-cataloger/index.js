@@ -23,9 +23,45 @@ const cloudfrontClient = new CloudFrontClient({ region: 'us-east-1' }); // Cloud
 const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
 const cloudwatchClient = new CloudWatchClient({ region: process.env.AWS_REGION || 'us-east-1' });
 
+const fs = require('fs');
+const path = require('path');
+
 const CATALOG_TABLE = process.env.CATALOG_TABLE_NAME || 'robert-consulting-resource-catalog';
 const DRY_RUN = process.env.DRY_RUN === 'true';
 const REQUIRE_APPROVAL = process.env.REQUIRE_APPROVAL === 'true';
+
+// Resource targeting configuration
+const CATALOG_MODE = process.env.CATALOG_MODE || 'terraform-only';
+const TERRAFORM_ARNS_FILE = process.env.TERRAFORM_ARNS_FILE || 'terraform-resource-arns.json';
+
+// Load Terraform-managed resource ARNs if in terraform-only mode
+let TERRAFORM_MANAGED_ARNS = new Set();
+if (CATALOG_MODE === 'terraform-only') {
+  try {
+    const arnsPath = path.join(__dirname, TERRAFORM_ARNS_FILE);
+    if (fs.existsSync(arnsPath)) {
+      const arnsData = JSON.parse(fs.readFileSync(arnsPath, 'utf8'));
+      TERRAFORM_MANAGED_ARNS = new Set(arnsData.resources || []);
+      console.log(`📋 Loaded ${TERRAFORM_MANAGED_ARNS.size} Terraform-managed resource ARNs`);
+    } else {
+      console.warn(`⚠️  Terraform ARN file not found: ${arnsPath}`);
+      console.warn('   Cataloging all resources (fallback mode)');
+    }
+  } catch (error) {
+    console.error('Error loading Terraform ARN list:', error.message);
+    console.warn('   Cataloging all resources (fallback mode)');
+  }
+}
+
+// Resource types to scan
+const TARGET_RESOURCE_TYPES = [
+  's3:bucket',
+  'cloudfront:distribution',
+  'lambda:function',
+  'apigateway:restapi',
+  'route53:hostedzone',
+  'wafv2:webacl'
+];
 
 // Required tags for resources
 const REQUIRED_TAGS = ['Project', 'Environment', 'ManagedBy', 'Purpose'];
@@ -275,17 +311,13 @@ async function discoverAndCatalogResources() {
   try {
     // Use Resource Groups Tagging API to discover all tagged resources
     console.log('🔍 Discovering resources using Resource Groups Tagging API...');
+    console.log(`📋 Catalog mode: ${CATALOG_MODE}`);
+    console.log(`📋 Target resource types: ${TARGET_RESOURCE_TYPES.join(', ')}`);
+    if (CATALOG_MODE === 'terraform-only') {
+      console.log(`📋 Terraform-managed resources: ${TERRAFORM_MANAGED_ARNS.size} ARNs loaded`);
+    }
     
-    const resourceTypes = [
-      's3:bucket',
-      'cloudfront:distribution',
-      'lambda:function',
-      'apigateway:restapi',
-      'route53:hostedzone',
-      'wafv2:webacl'
-    ];
-    
-    for (const resourceType of resourceTypes) {
+    for (const resourceType of TARGET_RESOURCE_TYPES) {
       try {
         let paginationToken = null;
         let pageCount = 0;
@@ -397,12 +429,28 @@ async function discoverAndCatalogResources() {
  * Discover untagged resources (not found via Tagging API)
  */
 async function discoverUntaggedResources(results) {
+  // Only discover untagged resources if in 'all' mode
+  // In terraform-only mode, we only catalog what's in Terraform state
+  if (CATALOG_MODE === 'terraform-only') {
+    console.log('⏭️  Skipping untagged resource discovery (terraform-only mode)');
+    return;
+  }
+  
   try {
     // S3 buckets
     const s3Response = await s3Client.send(new ListBucketsCommand({}));
     for (const bucket of s3Response.Buckets || []) {
+      const bucketArn = `arn:aws:s3:::${bucket.Name}`;
+      
+      // Filter to Terraform-managed if in terraform-only mode
+      if (CATALOG_MODE === 'terraform-only' && TERRAFORM_MANAGED_ARNS.size > 0) {
+        if (!TERRAFORM_MANAGED_ARNS.has(bucketArn)) {
+          continue;
+        }
+      }
+      
       // Check if already cataloged
-      const existing = await checkIfCataloged(`arn:aws:s3:::${bucket.Name}`);
+      const existing = await checkIfCataloged(bucketArn);
       if (!existing) {
         results.discovered++;
         results.byType['s3'] = (results.byType['s3'] || 0) + 1;
@@ -446,6 +494,13 @@ async function discoverUntaggedResources(results) {
     // Lambda functions
     const lambdaResponse = await lambdaClient.send(new ListFunctionsCommand({}));
     for (const func of lambdaResponse.Functions || []) {
+      // Filter to Terraform-managed if in terraform-only mode
+      if (CATALOG_MODE === 'terraform-only' && TERRAFORM_MANAGED_ARNS.size > 0) {
+        if (!TERRAFORM_MANAGED_ARNS.has(func.FunctionArn)) {
+          continue;
+        }
+      }
+      
       const existing = await checkIfCataloged(func.FunctionArn);
       if (!existing) {
         results.discovered++;

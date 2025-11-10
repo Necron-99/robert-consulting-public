@@ -30,3 +30,20 @@ variable "monitoring_enabled" {
   default     = true
 }
 
+variable "resource_catalog_mode" {
+  description = "Catalog mode: 'terraform-only' (only Terraform-managed resources) or 'all' (all resources)"
+  type        = string
+  default     = "terraform-only"
+  
+  validation {
+    condition     = contains(["terraform-only", "all"], var.resource_catalog_mode)
+    error_message = "Catalog mode must be 'terraform-only' or 'all'"
+  }
+}
+
+variable "resource_catalog_terraform_arns_file" {
+  description = "Path to JSON file containing Terraform-managed resource ARNs (relative to Lambda package)"
+  type        = string
+  default     = "terraform-resource-arns.json"
+}
+
