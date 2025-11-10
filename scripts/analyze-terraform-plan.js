@@ -357,7 +357,16 @@ function analyzePlan(planJsonPath) {
       // Check if resource exists
       const checker = RESOURCE_CHECKERS[resourceType];
       if (checker) {
-        const result = checker(resourceId || values);
+        // Some checkers need the full values object, others just need the ID
+        // Route53 records and SNS topics need values
+        const needsValues = ['aws_route53_record', 'aws_sns_topic', 'aws_cloudwatch_dashboard', 
+                            'aws_cloudwatch_event_rule', 'aws_cloudwatch_event_target',
+                            'aws_cloudwatch_metric_alarm', 'aws_iam_role_policy', 
+                            'aws_lambda_permission', 'aws_s3_bucket_policy',
+                            'aws_secretsmanager_secret_version', 'aws_sns_topic_subscription',
+                            'aws_wafv2_web_acl_association', 'aws_api_gateway_usage_plan_key'];
+        const checkerInput = needsValues.includes(resourceType) ? values : (resourceId || values);
+        const result = checker(checkerInput);
         
         if (result.exists === true) {
           console.log(`   ${'\x1b[33m'}Status: EXISTS - Should be IMPORTED${'\x1b[0m'}`);
