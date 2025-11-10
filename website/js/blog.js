@@ -244,7 +244,7 @@ class BlogManager {
       },,
       {
         id: 23,
-        title: 'AWS Cost Management - monday',
+        title: 'AWS Cost Management',
         excerpt: 'Practical strategies to keep AWS costs in check and avoid unexpected charges',
         content: 'blog-posts/monday-2025-11-10.html',
         date: '2025-11-10', // Monday
