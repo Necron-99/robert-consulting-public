@@ -376,7 +376,7 @@ generate_generic_content() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>$TOPIC - $DAY - Robert Consulting</title>
+    <title>$TOPIC - Robert Consulting</title>
     <meta name="description" content="$FOCUS">
     <meta name="keywords" content="$KEYWORDS">
     <meta name="author" content="Robert Consulting">
@@ -385,7 +385,7 @@ generate_generic_content() {
 <body>
     <article class="blog-post">
         <header class="blog-header">
-            <h1>$TOPIC - $DAY</h1>
+            <h1>$TOPIC</h1>
             <div class="blog-meta">
                 <span class="blog-date">$DATE</span>
                 <span class="blog-category">$TOPIC</span>
