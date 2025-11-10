@@ -214,6 +214,32 @@ resource "aws_iam_role_policy" "resource_cataloger_policy" {
   })
 }
 
+# Generate Terraform resource ARN list
+resource "null_resource" "generate_terraform_arns" {
+  triggers = {
+    always_run = timestamp()
+  }
+  
+  provisioner "local-exec" {
+    command     = "cd ${path.root} && node scripts/generate-terraform-resource-list.js"
+    working_dir = path.root
+  }
+}
+
+# Copy Terraform ARN list to Lambda directory
+resource "null_resource" "copy_terraform_arns" {
+  depends_on = [null_resource.generate_terraform_arns]
+  
+  triggers = {
+    source_hash = fileexists("${path.root}/terraform/terraform-resource-arns.json") ? filemd5("${path.root}/terraform/terraform-resource-arns.json") : "missing"
+  }
+  
+  provisioner "local-exec" {
+    command     = "cp ${path.root}/terraform/terraform-resource-arns.json ${path.root}/lambda/resource-cataloger/terraform-resource-arns.json || echo '{}' > ${path.root}/lambda/resource-cataloger/terraform-resource-arns.json"
+    working_dir = path.root
+  }
+}
+
 # Lambda package
 data "archive_file" "resource_cataloger_zip" {
   type        = "zip"
@@ -221,7 +247,10 @@ data "archive_file" "resource_cataloger_zip" {
   output_path = "${path.root}/lambda/resource-cataloger.zip"
   excludes    = ["node_modules", "*.md", ".git"]
   
-  depends_on = [null_resource.build_resource_cataloger_package]
+  depends_on = [
+    null_resource.build_resource_cataloger_package,
+    null_resource.copy_terraform_arns
+  ]
 }
 
 # Build Lambda package

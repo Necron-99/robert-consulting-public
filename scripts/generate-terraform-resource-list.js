@@ -5,9 +5,13 @@
  * Reads Terraform state and outputs resource ARNs for the cataloger
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TERRAFORM_DIR = path.join(__dirname, '..', 'terraform');
 const OUTPUT_FILE = path.join(__dirname, '..', 'terraform', 'terraform-resource-arns.json');
@@ -15,40 +19,46 @@ const OUTPUT_FILE = path.join(__dirname, '..', 'terraform', 'terraform-resource-
 // Resource type to ARN mapping
 const RESOURCE_TYPE_MAP = {
   'aws_s3_bucket': (state) => {
-    const bucket = state.attributes?.bucket || state.attributes?.id;
+    // Try multiple ways to get bucket name
+    const bucket = state.values?.bucket || 
+                   state.attributes?.bucket || 
+                   state.attributes?.id ||
+                   state.values?.id;
     return bucket ? `arn:aws:s3:::${bucket}` : null;
   },
   'aws_cloudfront_distribution': (state) => {
-    const id = state.attributes?.id;
-    return id ? `arn:aws:cloudfront::${state.attributes?.account_id || '228480945348'}:distribution/${id}` : null;
+    const id = state.values?.id || state.attributes?.id;
+    const accountId = state.values?.account_id || state.attributes?.account_id || '228480945348';
+    return id ? `arn:aws:cloudfront::${accountId}:distribution/${id}` : null;
   },
   'aws_lambda_function': (state) => {
-    return state.attributes?.arn || null;
+    return state.values?.arn || state.attributes?.arn || null;
   },
   'aws_api_gateway_rest_api': (state) => {
-    const id = state.attributes?.id;
-    const region = state.attributes?.region || 'us-east-1';
-    const accountId = state.attributes?.account_id || '228480945348';
+    const id = state.values?.id || state.attributes?.id;
+    const region = state.values?.region || state.attributes?.region || 'us-east-1';
+    const accountId = state.values?.account_id || state.attributes?.account_id || '228480945348';
     return id ? `arn:aws:apigateway:${region}::/restapis/${id}` : null;
   },
   'aws_route53_zone': (state) => {
-    const zoneId = state.attributes?.zone_id || state.attributes?.id;
+    const zoneId = state.values?.zone_id || state.attributes?.zone_id || state.values?.id || state.attributes?.id;
     return zoneId ? `arn:aws:route53:::hostedzone/${zoneId}` : null;
   },
   'aws_wafv2_web_acl': (state) => {
-    return state.attributes?.arn || null;
+    return state.values?.arn || state.attributes?.arn || null;
   }
 };
 
 function getTerraformState() {
   try {
     const cwd = TERRAFORM_DIR;
-    const output = execSync('terraform state list -json', { 
+    const output = execSync('terraform state list', { 
       cwd, 
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
-    return JSON.parse(output);
+    // Parse text output into array
+    return output.trim().split('\n').filter(line => line.trim().length > 0);
   } catch (error) {
     console.error('Error reading Terraform state:', error.message);
     return [];
@@ -58,7 +68,8 @@ function getTerraformState() {
 function getResourceARN(resourceType, resourceName) {
   try {
     const cwd = TERRAFORM_DIR;
-    const output = execSync(`terraform state show -json ${resourceType}.${resourceName}`, {
+    const resourceAddress = `${resourceType}.${resourceName}`;
+    const output = execSync(`terraform state show -json "${resourceAddress}"`, {
       cwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
@@ -73,7 +84,7 @@ function getResourceARN(resourceType, resourceName) {
     // Fallback: try to get ARN directly
     return state.attributes?.arn || null;
   } catch (error) {
-    // Resource might not exist in state
+    // Resource might not exist in state or show failed
     return null;
   }
 }
@@ -93,6 +104,9 @@ function generateResourceList() {
   const errors = [];
   
   for (const resource of stateList) {
+    if (!resource || typeof resource !== 'string') {
+      continue;
+    }
     // Skip data sources and modules for now
     if (resource.startsWith('data.') || resource.includes('module.')) {
       continue;
@@ -141,9 +155,9 @@ function generateResourceList() {
 }
 
 // Main
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   generateResourceList();
 }
 
-module.exports = { generateResourceList };
+export { generateResourceList };
 

@@ -328,7 +328,14 @@ async function discoverAndCatalogResources() {
             PaginationToken: paginationToken
           }));
           
-          for (const resource of response.ResourceTagList || []) {
+          for (const resource of response.ResourceTagMappingList || []) {
+            // Filter to only Terraform-managed resources if in terraform-only mode
+            if (CATALOG_MODE === 'terraform-only') {
+              if (TERRAFORM_MANAGED_ARNS.size > 0 && !TERRAFORM_MANAGED_ARNS.has(resource.ResourceARN)) {
+                continue; // Skip resources not managed by Terraform
+              }
+            }
+            
             results.discovered++;
             const type = resourceType.split(':')[0];
             
