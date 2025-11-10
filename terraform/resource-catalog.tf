@@ -165,8 +165,10 @@ resource "aws_iam_role_policy" "resource_cataloger_policy" {
         Action = [
           # S3 - Check bucket size and object count (read-only)
           "s3:ListBucket",
+          "s3:ListBucketVersions",
           "s3:GetBucketLocation",
-          "s3:GetBucketTagging"
+          "s3:GetBucketTagging",
+          "s3:HeadBucket"
         ]
         Resource = "*"
       },
