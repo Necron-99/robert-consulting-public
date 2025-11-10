@@ -252,7 +252,7 @@ resource "null_resource" "copy_terraform_arns" {
 # Lambda package
 data "archive_file" "resource_cataloger_zip" {
   type        = "zip"
-  source_dir  = "${path.root}/lambda/resource-cataloger"
+  source_dir  = "${path.root}/../lambda/resource-cataloger"
   output_path = "${path.root}/lambda/resource-cataloger.zip"
   excludes    = ["node_modules", "*.md", ".git"]
   
