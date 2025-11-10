@@ -22,10 +22,19 @@ const OUTPUT_FILE = path.join(TERRAFORM_DIR, 'terraform-resource-arns.json');
 const RESOURCE_TYPE_MAP = {
   'aws_s3_bucket': (state) => {
     // Try multiple ways to get bucket name
+    // Terraform state JSON structure: state.values or state.attributes
     const bucket = state.values?.bucket || 
                    state.attributes?.bucket || 
                    state.attributes?.id ||
-                   state.values?.id;
+                   state.values?.id ||
+                   (state.values && Object.keys(state.values).length > 0 ? Object.values(state.values)[0] : null);
+    
+    // If still no bucket, try to extract from ARN if present
+    if (!bucket && state.values?.arn) {
+      const arnMatch = state.values.arn.match(/arn:aws:s3:::(.+)/);
+      if (arnMatch) return state.values.arn;
+    }
+    
     return bucket ? `arn:aws:s3:::${bucket}` : null;
   },
   'aws_cloudfront_distribution': (state) => {

@@ -233,14 +233,18 @@ resource "null_resource" "copy_terraform_arns" {
   depends_on = [null_resource.generate_terraform_arns]
   
   triggers = {
-    source_hash = fileexists("${path.root}/terraform-resource-arns.json") ? filemd5("${path.root}/terraform-resource-arns.json") : "missing"
+    # Use timestamp to ensure it runs after generate_terraform_arns
+    always_run = null_resource.generate_terraform_arns.id
   }
   
   provisioner "local-exec" {
     command = <<-EOT
       cd "${path.root}/.." && \
-      cp terraform/terraform-resource-arns.json lambda/resource-cataloger/terraform-resource-arns.json || \
-      echo '{}' > lambda/resource-cataloger/terraform-resource-arns.json
+      if [ -f terraform/terraform-resource-arns.json ]; then \
+        cp terraform/terraform-resource-arns.json lambda/resource-cataloger/terraform-resource-arns.json; \
+      else \
+        echo '{"resources":[],"totalResources":0}' > lambda/resource-cataloger/terraform-resource-arns.json; \
+      fi
     EOT
   }
 }
