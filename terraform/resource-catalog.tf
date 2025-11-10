@@ -270,9 +270,9 @@ resource "null_resource" "build_resource_cataloger_package" {
   
   provisioner "local-exec" {
     command = <<-EOT
-      cd ${path.root}/lambda/resource-cataloger
-      if [ -f package.json ]; then
-        npm install --production
+      cd "${path.root}/../lambda/resource-cataloger" && \
+      if [ -f package.json ]; then \
+        npm install --production; \
       fi
     EOT
   }
