@@ -46,10 +46,24 @@ function generateComingSoonHTML(schedule) {
   today.setHours(0, 0, 0, 0);
   
   // Get upcoming approved/proposed topics (next 14 days)
+  // Exclude published, generated, or posts that already exist
   const upcoming = schedule.schedule
     .filter(entry => {
       const entryDate = new Date(entry.date + 'T12:00:00');
       entryDate.setHours(0, 0, 0, 0);
+      
+      // Skip if already published or generated
+      if (entry.status === 'published' || entry.status === 'generated') {
+        return false;
+      }
+      
+      // Skip if blog post file already exists
+      const dayName = entry.day || getDayName(entry.date).toLowerCase();
+      const blogPostPath = path.join(__dirname, '..', 'website', 'blog-posts', `${dayName}-${entry.date}.html`);
+      if (fs.existsSync(blogPostPath)) {
+        return false;
+      }
+      
       return entryDate >= today && 
              (entry.status === 'approved' || entry.status === 'proposed') &&
              entryDate <= new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);

@@ -309,10 +309,17 @@ jobs:
         run: |
           DATE=$(date +%Y-%m-%d)
           if [ -f "blog-schedule.json" ]; then
-            # Update status to "generated" for today's entry
-            jq --arg date "$DATE" '(.schedule[] | select(.date == $date) | .status) = "generated"' blog-schedule.json > blog-schedule.json.tmp && mv blog-schedule.json.tmp blog-schedule.json
-            echo "✅ Updated schedule status to 'generated' for $DATE"
+            # Update status to "published" for today's entry (removes from coming soon)
+            jq --arg date "$DATE" '(.schedule[] | select(.date == $date) | .status) = "published"' blog-schedule.json > blog-schedule.json.tmp && mv blog-schedule.json.tmp blog-schedule.json
+            echo "✅ Updated schedule status to 'published' for $DATE"
           fi
+          
+      - name: Update coming soon section
+        if: steps.generate-content.outputs.blog-generated == 'true'
+        run: |
+          echo "🔄 Updating coming soon section to remove published post..."
+          node scripts/generate-coming-soon.js
+          echo "✅ Coming soon section updated"
           
       - name: Commit and push changes
         if: steps.generate-content.outputs.blog-generated == 'true'
