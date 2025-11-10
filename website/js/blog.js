@@ -241,7 +241,7 @@ class BlogManager {
         tags: ['Platform Analysis', 'Domo', 'OpenShift', 'Enterprise Platforms', 'Market Analysis'],
         icon: '📊',
         readTime: '9 min read'
-      },,
+      },
       {
         id: 23,
         title: 'AWS Cost Management',
