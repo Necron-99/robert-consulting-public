@@ -310,12 +310,20 @@ class BlogManager {
     const startDay = weekStart.getDate();
     const endMonth = weekEnd.toLocaleDateString('en-US', {month: 'short'});
     const endDay = weekEnd.getDate();
-    const year = weekStart.getFullYear();
+    const startYear = weekStart.getFullYear();
+    const endYear = weekEnd.getFullYear();
 
-    if (startMonth === endMonth) {
-      return `${startMonth} ${startDay}-${endDay}, ${year}`;
-    } else {
-      return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
+    // Handle same month
+    if (startMonth === endMonth && startYear === endYear) {
+      return `${startMonth} ${startDay}-${endDay}, ${startYear}`;
+    }
+    // Handle different months but same year
+    else if (startYear === endYear) {
+      return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${startYear}`;
+    }
+    // Handle year boundary (e.g., Dec 29 - Jan 2)
+    else {
+      return `${startMonth} ${startDay}, ${startYear} - ${endMonth} ${endDay}, ${endYear}`;
     }
   }
 
