@@ -43,14 +43,6 @@ EOT
       }
     ]
   })
-
-  tags = {
-    Name        = "Resource Catalog Dashboard"
-    Purpose     = "resource-tracking"
-    ManagedBy   = "Terraform"
-    Environment = "production"
-    Project     = "Robert Consulting"
-  }
 }
 
 # CloudWatch Alarm for untagged resources
