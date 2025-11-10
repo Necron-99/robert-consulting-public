@@ -384,8 +384,23 @@ function analyzePlan(planJsonPath) {
           console.log(`   ${'\x1b[32m'}Status: NEW - Should be CREATED${'\x1b[0m'}`);
           resourcesToCreate.push({ address, type: resourceType });
         } else {
-          console.log(`   ${'\x1b[36m'}Status: MANUAL CHECK REQUIRED${'\x1b[0m'}`);
-          resourcesToCheck.push({ address, type: resourceType, reason: 'Cannot auto-detect' });
+          // For Route53 records, provide import command even if we can't verify existence
+          if (resourceType === 'aws_route53_record' && result.importId) {
+            console.log(`   ${'\x1b[33m'}Status: LIKELY EXISTS - Should be IMPORTED${'\x1b[0m'}`);
+            console.log(`   ${'\x1b[32m'}→ Import: terraform import ${address} ${result.importId}${'\x1b[0m'}`);
+            if (result.note) {
+              console.log(`   ${'\x1b[36m'}   Note: ${result.note}${'\x1b[0m'}`);
+            }
+            resourcesToImport.push({
+              address,
+              type: resourceType,
+              importId: result.importId,
+              command: `terraform import ${address} ${result.importId}`
+            });
+          } else {
+            console.log(`   ${'\x1b[36m'}Status: MANUAL CHECK REQUIRED${'\x1b[0m'}`);
+            resourcesToCheck.push({ address, type: resourceType, reason: 'Cannot auto-detect' });
+          }
         }
       } else {
         console.log(`   ${'\x1b[36m'}Status: UNKNOWN TYPE - Manual review needed${'\x1b[0m'}`);
