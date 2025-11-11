@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2025-11-11T15:27:43.373Z",
+  "totalResources": 29,
+  "resources": [
+    "arn:aws:apigateway:us-east-1::/restapis/4a01s5j8f5",
+    "arn:aws:apigateway:us-east-1::/restapis/9gkgw38x42",
+    "arn:aws:apigateway:us-east-1::/restapis/qfyhy4sqi7",
+    "arn:aws:cloudfront::228480945348:distribution/E9UWTOXNT30YT",
+    "arn:aws:cloudfront::228480945348:distribution/E3T1Z34I8CU20F",
+    "arn:aws:cloudfront::228480945348:distribution/E23HB5TWK5BF44",
+    "arn:aws:cloudfront::228480945348:distribution/E36DBYPHUUKB3V",
+    "arn:aws:lambda:us-east-1:228480945348:function:rc-admin-auth-66ce475b",
+    "arn:aws:lambda:us-east-1:228480945348:function:contact-form-api",
+    "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-dashboard-api",
+    "arn:aws:lambda:us-east-1:228480945348:function:plex-analyzer",
+    "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-resource-cataloger",
+    "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-plex-analyzer",
+    "arn:aws:lambda:us-east-1:228480945348:function:dashboard-stats-refresher",
+    "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-terraform-stats-refresher",
+    "arn:aws:route53:::hostedzone/Z0232243368137F38UDI1",
+    "arn:aws:s3:::rc-admin-site-1aaef0",
+    "arn:aws:s3:::robert-consulting-cache",
+    "arn:aws:s3:::plex.robertconsulting.net",
+    "arn:aws:s3:::robert-consulting-staging-access-logs",
+    "arn:aws:s3:::robert-consulting-staging-website",
+    "arn:aws:s3:::robert-consulting-synthetics-results",
+    "arn:aws:s3:::robert-consulting-terraform-state",
+    "arn:aws:s3:::robert-consulting-terraform-test-1761410906",
+    "arn:aws:s3:::robert-consulting-website",
+    "arn:aws:wafv2:us-east-1:228480945348:global/webacl/rc-admin-enhanced-waf-66ce475b/b2acd8c4-cdc5-44e3-ab94-67c7fb4aef5c",
+    "arn:aws:wafv2:us-east-1:228480945348:regional/webacl/contact-form-waf/80b89e94-d5b4-4f92-a31d-1f5c0290c1db",
+    "arn:aws:wafv2:us-east-1:228480945348:global/webacl/rc-main-site-waf-1d8cb8/6cabc88d-f99c-4d08-8076-8881d6ed4436",
+    "arn:aws:wafv2:us-east-1:228480945348:global/webacl/staging-website-waf/86f98420-79a0-4cd3-a8a5-c69d94419694"
+  ],
+  "resourceDetails": [
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/4a01s5j8f5",
+      "terraformResource": "aws_api_gateway_rest_api.contact_form_api",
+      "type": "aws_api_gateway_rest_api",
+      "name": "contact_form_api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/9gkgw38x42",
+      "terraformResource": "aws_api_gateway_rest_api.dashboard_api",
+      "type": "aws_api_gateway_rest_api",
+      "name": "dashboard_api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/qfyhy4sqi7",
+      "terraformResource": "aws_api_gateway_rest_api.stats_refresher_api",
+      "type": "aws_api_gateway_rest_api",
+      "name": "stats_refresher_api"
+    },
+    {
+      "arn": "arn:aws:cloudfront::228480945348:distribution/E9UWTOXNT30YT",
+      "terraformResource": "aws_cloudfront_distribution.admin",
+      "type": "aws_cloudfront_distribution",
+      "name": "admin"
+    },
+    {
+      "arn": "arn:aws:cloudfront::228480945348:distribution/E3T1Z34I8CU20F",
+      "terraformResource": "aws_cloudfront_distribution.plex_distribution",
+      "type": "aws_cloudfront_distribution",
+      "name": "plex_distribution"
+    },
+    {
+      "arn": "arn:aws:cloudfront::228480945348:distribution/E23HB5TWK5BF44",
+      "terraformResource": "aws_cloudfront_distribution.staging_website",
+      "type": "aws_cloudfront_distribution",
+      "name": "staging_website"
+    },
+    {
+      "arn": "arn:aws:cloudfront::228480945348:distribution/E36DBYPHUUKB3V",
+      "terraformResource": "aws_cloudfront_distribution.website",
+      "type": "aws_cloudfront_distribution",
+      "name": "website"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:rc-admin-auth-66ce475b",
+      "terraformResource": "aws_lambda_function.admin_auth",
+      "type": "aws_lambda_function",
+      "name": "admin_auth"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:contact-form-api",
+      "terraformResource": "aws_lambda_function.contact_form",
+      "type": "aws_lambda_function",
+      "name": "contact_form"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-dashboard-api",
+      "terraformResource": "aws_lambda_function.dashboard_api",
+      "type": "aws_lambda_function",
+      "name": "dashboard_api"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:plex-analyzer",
+      "terraformResource": "aws_lambda_function.plex_analyzer",
+      "type": "aws_lambda_function",
+      "name": "plex_analyzer"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-resource-cataloger",
+      "terraformResource": "aws_lambda_function.resource_cataloger",
+      "type": "aws_lambda_function",
+      "name": "resource_cataloger"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-plex-analyzer",
+      "terraformResource": "aws_lambda_function.robert_consulting_plex_analyzer",
+      "type": "aws_lambda_function",
+      "name": "robert_consulting_plex_analyzer"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:dashboard-stats-refresher",
+      "terraformResource": "aws_lambda_function.stats_refresher",
+      "type": "aws_lambda_function",
+      "name": "stats_refresher"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:robert-consulting-terraform-stats-refresher",
+      "terraformResource": "aws_lambda_function.terraform_stats_refresher",
+      "type": "aws_lambda_function",
+      "name": "terraform_stats_refresher"
+    },
+    {
+      "arn": "arn:aws:route53:::hostedzone/Z0232243368137F38UDI1",
+      "terraformResource": "aws_route53_zone.main",
+      "type": "aws_route53_zone",
+      "name": "main"
+    },
+    {
+      "arn": "arn:aws:s3:::rc-admin-site-1aaef0",
+      "terraformResource": "aws_s3_bucket.admin",
+      "type": "aws_s3_bucket",
+      "name": "admin"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-cache",
+      "terraformResource": "aws_s3_bucket.cache",
+      "type": "aws_s3_bucket",
+      "name": "cache"
+    },
+    {
+      "arn": "arn:aws:s3:::plex.robertconsulting.net",
+      "terraformResource": "aws_s3_bucket.plex_domain",
+      "type": "aws_s3_bucket",
+      "name": "plex_domain"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-staging-access-logs",
+      "terraformResource": "aws_s3_bucket.staging_access_logs",
+      "type": "aws_s3_bucket",
+      "name": "staging_access_logs"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-staging-website",
+      "terraformResource": "aws_s3_bucket.staging_website_bucket",
+      "type": "aws_s3_bucket",
+      "name": "staging_website_bucket"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-synthetics-results",
+      "terraformResource": "aws_s3_bucket.synthetics_results",
+      "type": "aws_s3_bucket",
+      "name": "synthetics_results"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-terraform-state",
+      "terraformResource": "aws_s3_bucket.terraform_state",
+      "type": "aws_s3_bucket",
+      "name": "terraform_state"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-terraform-test-1761410906",
+      "terraformResource": "aws_s3_bucket.terraform_test",
+      "type": "aws_s3_bucket",
+      "name": "terraform_test"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-website",
+      "terraformResource": "aws_s3_bucket.website_bucket",
+      "type": "aws_s3_bucket",
+      "name": "website_bucket"
+    },
+    {
+      "arn": "arn:aws:wafv2:us-east-1:228480945348:global/webacl/rc-admin-enhanced-waf-66ce475b/b2acd8c4-cdc5-44e3-ab94-67c7fb4aef5c",
+      "terraformResource": "aws_wafv2_web_acl.admin_enhanced_protection",
+      "type": "aws_wafv2_web_acl",
+      "name": "admin_enhanced_protection"
+    },
+    {
+      "arn": "arn:aws:wafv2:us-east-1:228480945348:regional/webacl/contact-form-waf/80b89e94-d5b4-4f92-a31d-1f5c0290c1db",
+      "terraformResource": "aws_wafv2_web_acl.contact_form_waf",
+      "type": "aws_wafv2_web_acl",
+      "name": "contact_form_waf"
+    },
+    {
+      "arn": "arn:aws:wafv2:us-east-1:228480945348:global/webacl/rc-main-site-waf-1d8cb8/6cabc88d-f99c-4d08-8076-8881d6ed4436",
+      "terraformResource": "aws_wafv2_web_acl.main_site[0]",
+      "type": "aws_wafv2_web_acl",
+      "name": "main_site[0]"
+    },
+    {
+      "arn": "arn:aws:wafv2:us-east-1:228480945348:global/webacl/staging-website-waf/86f98420-79a0-4cd3-a8a5-c69d94419694",
+      "terraformResource": "aws_wafv2_web_acl.staging_waf",
+      "type": "aws_wafv2_web_acl",
+      "name": "staging_waf"
+    }
+  ]
+}

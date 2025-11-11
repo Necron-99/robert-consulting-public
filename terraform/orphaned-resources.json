@@ -1,0 +1,373 @@
+{
+  "generatedAt": "2025-11-11T15:33:39.778Z",
+  "summary": {
+    "totalDiscovered": 40,
+    "terraformManaged": 25,
+    "orphaned": 15,
+    "orphanedByType": {
+      "s3": 4,
+      "cloudfront": 4,
+      "lambda": 2,
+      "apigateway": 5
+    }
+  },
+  "orphanedResources": [
+    {
+      "arn": "arn:aws:s3:::plex-recommendations-c7c49ce4",
+      "type": "s3",
+      "tags": [
+        {
+          "Key": "Project",
+          "Value": "plex-recommendations"
+        },
+        {
+          "Key": "ManagedBy",
+          "Value": "Terraform"
+        },
+        {
+          "Key": "Environment",
+          "Value": "production"
+        },
+        {
+          "Key": "Name",
+          "Value": "Plex Recommendations Data"
+        }
+      ],
+      "discoveredVia": "tagging-api"
+    },
+    {
+      "arn": "arn:aws:s3:::baileylessons-admin-ce4315",
+      "type": "s3",
+      "tags": [
+        {
+          "Key": "Project",
+          "Value": "BaileyLessons"
+        },
+        {
+          "Key": "ManagedBy",
+          "Value": "Robert Consulting"
+        },
+        {
+          "Key": "Environment",
+          "Value": "production"
+        },
+        {
+          "Key": "Purpose",
+          "Value": "Admin UI"
+        },
+        {
+          "Key": "Client",
+          "Value": "Bailey Lessons"
+        },
+        {
+          "Key": "Name",
+          "Value": "BaileyLessonsAdmin"
+        }
+      ],
+      "discoveredVia": "tagging-api"
+    },
+    {
+      "arn": "arn:aws:s3:::robert-consulting-cloudfront-logs",
+      "type": "s3",
+      "name": "robert-consulting-cloudfront-logs",
+      "created": "2025-10-28T19:20:34.000Z",
+      "tags": [],
+      "discoveredVia": "s3-api"
+    },
+    {
+      "arn": "arn:aws:s3:::robertconsulting-costs",
+      "type": "s3",
+      "name": "robertconsulting-costs",
+      "created": "2025-11-07T13:39:42.000Z",
+      "tags": [],
+      "discoveredVia": "s3-api"
+    },
+    {
+      "arn": "arn:aws:cloudfront::E36DBYPHUUKB3V:distribution/E36DBYPHUUKB3V",
+      "type": "cloudfront",
+      "id": "E36DBYPHUUKB3V",
+      "domain": "dpm4biqgmoi9l.cloudfront.net",
+      "aliases": [
+        "robertconsulting.net",
+        "www.robertconsulting.net"
+      ],
+      "status": "Deployed",
+      "enabled": true,
+      "discoveredVia": "cloudfront-api"
+    },
+    {
+      "arn": "arn:aws:cloudfront::E23HB5TWK5BF44:distribution/E23HB5TWK5BF44",
+      "type": "cloudfront",
+      "id": "E23HB5TWK5BF44",
+      "domain": "d3guz3lq4sqlvl.cloudfront.net",
+      "aliases": [
+        "staging.robertconsulting.net"
+      ],
+      "status": "Deployed",
+      "enabled": true,
+      "discoveredVia": "cloudfront-api"
+    },
+    {
+      "arn": "arn:aws:cloudfront::E9UWTOXNT30YT:distribution/E9UWTOXNT30YT",
+      "type": "cloudfront",
+      "id": "E9UWTOXNT30YT",
+      "domain": "d2vytd4g8dnppc.cloudfront.net",
+      "aliases": [],
+      "status": "Deployed",
+      "enabled": true,
+      "discoveredVia": "cloudfront-api"
+    },
+    {
+      "arn": "arn:aws:cloudfront::E3T1Z34I8CU20F:distribution/E3T1Z34I8CU20F",
+      "type": "cloudfront",
+      "id": "E3T1Z34I8CU20F",
+      "domain": "d24h0ypf8fsiv7.cloudfront.net",
+      "aliases": [
+        "plex.robertconsulting.net"
+      ],
+      "status": "Deployed",
+      "enabled": true,
+      "discoveredVia": "cloudfront-api"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:cwsyn-robert-consulting-sec-49bb94e6-55a5-443e-a3f9-cc16c9f7b9fa",
+      "type": "lambda",
+      "name": "cwsyn-robert-consulting-sec-49bb94e6-55a5-443e-a3f9-cc16c9f7b9fa",
+      "runtime": "nodejs22.x",
+      "lastModified": "2025-11-10T14:15:22.000+0000",
+      "discoveredVia": "lambda-api"
+    },
+    {
+      "arn": "arn:aws:lambda:us-east-1:228480945348:function:cwsyn-robert-consulting-per-0f497302-10bf-4850-8e04-933584deb2ae",
+      "type": "lambda",
+      "name": "cwsyn-robert-consulting-per-0f497302-10bf-4850-8e04-933584deb2ae",
+      "runtime": "nodejs22.x",
+      "lastModified": "2025-11-10T14:16:18.000+0000",
+      "discoveredVia": "lambda-api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/07btjjtidh",
+      "type": "apigateway",
+      "id": "07btjjtidh",
+      "name": "robert-consulting-dashboard-api",
+      "created": "2025-10-16T18:07:50.000Z",
+      "discoveredVia": "apigateway-api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/1cggvrhcp5",
+      "type": "apigateway",
+      "id": "1cggvrhcp5",
+      "name": "dashboard-stats-refresher-api",
+      "created": "2025-10-16T18:08:03.000Z",
+      "discoveredVia": "apigateway-api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/lbfggdldp3",
+      "type": "apigateway",
+      "id": "lbfggdldp3",
+      "name": "robert-consulting-dashboard-api",
+      "created": "2025-10-15T20:07:41.000Z",
+      "discoveredVia": "apigateway-api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/yqtfft82k6",
+      "type": "apigateway",
+      "id": "yqtfft82k6",
+      "name": "dashboard-stats-refresher-api",
+      "created": "2025-10-15T17:44:51.000Z",
+      "discoveredVia": "apigateway-api"
+    },
+    {
+      "arn": "arn:aws:apigateway:us-east-1::/restapis/zwidu3ewd4",
+      "type": "apigateway",
+      "id": "zwidu3ewd4",
+      "name": "contact-form-api",
+      "created": "2025-10-16T18:07:49.000Z",
+      "discoveredVia": "apigateway-api"
+    }
+  ],
+  "orphanedByType": {
+    "s3": [
+      {
+        "arn": "arn:aws:s3:::plex-recommendations-c7c49ce4",
+        "type": "s3",
+        "tags": [
+          {
+            "Key": "Project",
+            "Value": "plex-recommendations"
+          },
+          {
+            "Key": "ManagedBy",
+            "Value": "Terraform"
+          },
+          {
+            "Key": "Environment",
+            "Value": "production"
+          },
+          {
+            "Key": "Name",
+            "Value": "Plex Recommendations Data"
+          }
+        ],
+        "discoveredVia": "tagging-api"
+      },
+      {
+        "arn": "arn:aws:s3:::baileylessons-admin-ce4315",
+        "type": "s3",
+        "tags": [
+          {
+            "Key": "Project",
+            "Value": "BaileyLessons"
+          },
+          {
+            "Key": "ManagedBy",
+            "Value": "Robert Consulting"
+          },
+          {
+            "Key": "Environment",
+            "Value": "production"
+          },
+          {
+            "Key": "Purpose",
+            "Value": "Admin UI"
+          },
+          {
+            "Key": "Client",
+            "Value": "Bailey Lessons"
+          },
+          {
+            "Key": "Name",
+            "Value": "BaileyLessonsAdmin"
+          }
+        ],
+        "discoveredVia": "tagging-api"
+      },
+      {
+        "arn": "arn:aws:s3:::robert-consulting-cloudfront-logs",
+        "type": "s3",
+        "name": "robert-consulting-cloudfront-logs",
+        "created": "2025-10-28T19:20:34.000Z",
+        "tags": [],
+        "discoveredVia": "s3-api"
+      },
+      {
+        "arn": "arn:aws:s3:::robertconsulting-costs",
+        "type": "s3",
+        "name": "robertconsulting-costs",
+        "created": "2025-11-07T13:39:42.000Z",
+        "tags": [],
+        "discoveredVia": "s3-api"
+      }
+    ],
+    "cloudfront": [
+      {
+        "arn": "arn:aws:cloudfront::E36DBYPHUUKB3V:distribution/E36DBYPHUUKB3V",
+        "type": "cloudfront",
+        "id": "E36DBYPHUUKB3V",
+        "domain": "dpm4biqgmoi9l.cloudfront.net",
+        "aliases": [
+          "robertconsulting.net",
+          "www.robertconsulting.net"
+        ],
+        "status": "Deployed",
+        "enabled": true,
+        "discoveredVia": "cloudfront-api"
+      },
+      {
+        "arn": "arn:aws:cloudfront::E23HB5TWK5BF44:distribution/E23HB5TWK5BF44",
+        "type": "cloudfront",
+        "id": "E23HB5TWK5BF44",
+        "domain": "d3guz3lq4sqlvl.cloudfront.net",
+        "aliases": [
+          "staging.robertconsulting.net"
+        ],
+        "status": "Deployed",
+        "enabled": true,
+        "discoveredVia": "cloudfront-api"
+      },
+      {
+        "arn": "arn:aws:cloudfront::E9UWTOXNT30YT:distribution/E9UWTOXNT30YT",
+        "type": "cloudfront",
+        "id": "E9UWTOXNT30YT",
+        "domain": "d2vytd4g8dnppc.cloudfront.net",
+        "aliases": [],
+        "status": "Deployed",
+        "enabled": true,
+        "discoveredVia": "cloudfront-api"
+      },
+      {
+        "arn": "arn:aws:cloudfront::E3T1Z34I8CU20F:distribution/E3T1Z34I8CU20F",
+        "type": "cloudfront",
+        "id": "E3T1Z34I8CU20F",
+        "domain": "d24h0ypf8fsiv7.cloudfront.net",
+        "aliases": [
+          "plex.robertconsulting.net"
+        ],
+        "status": "Deployed",
+        "enabled": true,
+        "discoveredVia": "cloudfront-api"
+      }
+    ],
+    "lambda": [
+      {
+        "arn": "arn:aws:lambda:us-east-1:228480945348:function:cwsyn-robert-consulting-sec-49bb94e6-55a5-443e-a3f9-cc16c9f7b9fa",
+        "type": "lambda",
+        "name": "cwsyn-robert-consulting-sec-49bb94e6-55a5-443e-a3f9-cc16c9f7b9fa",
+        "runtime": "nodejs22.x",
+        "lastModified": "2025-11-10T14:15:22.000+0000",
+        "discoveredVia": "lambda-api"
+      },
+      {
+        "arn": "arn:aws:lambda:us-east-1:228480945348:function:cwsyn-robert-consulting-per-0f497302-10bf-4850-8e04-933584deb2ae",
+        "type": "lambda",
+        "name": "cwsyn-robert-consulting-per-0f497302-10bf-4850-8e04-933584deb2ae",
+        "runtime": "nodejs22.x",
+        "lastModified": "2025-11-10T14:16:18.000+0000",
+        "discoveredVia": "lambda-api"
+      }
+    ],
+    "apigateway": [
+      {
+        "arn": "arn:aws:apigateway:us-east-1::/restapis/07btjjtidh",
+        "type": "apigateway",
+        "id": "07btjjtidh",
+        "name": "robert-consulting-dashboard-api",
+        "created": "2025-10-16T18:07:50.000Z",
+        "discoveredVia": "apigateway-api"
+      },
+      {
+        "arn": "arn:aws:apigateway:us-east-1::/restapis/1cggvrhcp5",
+        "type": "apigateway",
+        "id": "1cggvrhcp5",
+        "name": "dashboard-stats-refresher-api",
+        "created": "2025-10-16T18:08:03.000Z",
+        "discoveredVia": "apigateway-api"
+      },
+      {
+        "arn": "arn:aws:apigateway:us-east-1::/restapis/lbfggdldp3",
+        "type": "apigateway",
+        "id": "lbfggdldp3",
+        "name": "robert-consulting-dashboard-api",
+        "created": "2025-10-15T20:07:41.000Z",
+        "discoveredVia": "apigateway-api"
+      },
+      {
+        "arn": "arn:aws:apigateway:us-east-1::/restapis/yqtfft82k6",
+        "type": "apigateway",
+        "id": "yqtfft82k6",
+        "name": "dashboard-stats-refresher-api",
+        "created": "2025-10-15T17:44:51.000Z",
+        "discoveredVia": "apigateway-api"
+      },
+      {
+        "arn": "arn:aws:apigateway:us-east-1::/restapis/zwidu3ewd4",
+        "type": "apigateway",
+        "id": "zwidu3ewd4",
+        "name": "contact-form-api",
+        "created": "2025-10-16T18:07:49.000Z",
+        "discoveredVia": "apigateway-api"
+      }
+    ]
+  },
+  "managedResources": 25
+}

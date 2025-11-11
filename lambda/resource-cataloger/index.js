@@ -41,7 +41,14 @@ if (CATALOG_MODE === 'terraform-only') {
     const arnsPath = path.join(__dirname, TERRAFORM_ARNS_FILE);
     if (fs.existsSync(arnsPath)) {
       const arnsData = JSON.parse(fs.readFileSync(arnsPath, 'utf8'));
-      TERRAFORM_MANAGED_ARNS = new Set(arnsData.resources || []);
+      // Clean ARNs: remove any trailing quotes or whitespace
+      const cleanedARNs = (arnsData.resources || []).map(arn => {
+        if (typeof arn === 'string') {
+          return arn.replace(/^["']|["']$/g, '').trim();
+        }
+        return arn;
+      });
+      TERRAFORM_MANAGED_ARNS = new Set(cleanedARNs);
       console.log(`📋 Loaded ${TERRAFORM_MANAGED_ARNS.size} Terraform-managed resource ARNs`);
     } else {
       console.warn(`⚠️  Terraform ARN file not found: ${arnsPath}`);
@@ -436,12 +443,15 @@ async function discoverAndCatalogResources() {
  * Discover untagged resources (not found via Tagging API)
  */
 async function discoverUntaggedResources(results) {
-  // Only discover untagged resources if in 'all' mode
-  // In terraform-only mode, we only catalog what's in Terraform state
-  if (CATALOG_MODE === 'terraform-only') {
-    console.log('⏭️  Skipping untagged resource discovery (terraform-only mode)');
+  // In terraform-only mode, we still need to check untagged resources
+  // because the Tagging API only returns tagged resources
+  // But we'll filter to only Terraform-managed resources
+  if (CATALOG_MODE === 'terraform-only' && TERRAFORM_MANAGED_ARNS.size === 0) {
+    console.log('⏭️  Skipping untagged resource discovery (no Terraform ARNs loaded)');
     return;
   }
+  
+  console.log('🔍 Discovering untagged resources (filtered to Terraform-managed in terraform-only mode)...');
   
   try {
     // S3 buckets

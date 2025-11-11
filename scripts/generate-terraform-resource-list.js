@@ -62,16 +62,25 @@ const RESOURCE_TYPE_MAP = {
 
 function getTerraformState() {
   try {
+    console.log('📋 Getting Terraform state list...');
     const cwd = TERRAFORM_DIR;
+    console.log(`   Working directory: ${cwd}`);
+    const startTime = Date.now();
     const output = execSync('terraform state list', { 
       cwd, 
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
     });
+    const duration = Date.now() - startTime;
+    console.log(`   ✅ terraform state list completed in ${duration}ms`);
+    
     // Parse text output into array
-    return output.trim().split('\n').filter(line => line.trim().length > 0);
+    const resources = output.trim().split('\n').filter(line => line.trim().length > 0);
+    console.log(`✅ Found ${resources.length} resources in Terraform state`);
+    return resources;
   } catch (error) {
-    console.error('Error reading Terraform state:', error.message);
+    console.error('❌ Error reading Terraform state:', error.message);
     return [];
   }
 }
@@ -81,67 +90,68 @@ function getResourceARN(resourceType, resourceName) {
     const cwd = TERRAFORM_DIR;
     const resourceAddress = `${resourceType}.${resourceName}`;
     
-    // Try JSON format first (Terraform 1.0+)
-    let output;
-    try {
-      output = execSync(`terraform state show -json "${resourceAddress}"`, {
-        cwd,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
-    } catch (jsonError) {
-      // Fallback to text format and parse
-      output = execSync(`terraform state show "${resourceAddress}"`, {
-        cwd,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+    // Use text format directly (Terraform version doesn't support -json flag)
+    const startTime = Date.now();
+    const output = execSync(`terraform state show "${resourceAddress}"`, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+    });
+    const duration = Date.now() - startTime;
+    
+    if (duration > 3000) {
+      console.log(`      ⏱️  ${resourceAddress} took ${duration}ms`);
+    }
       
-      // Parse text output for ARN
-      const arnMatch = output.match(/arn:aws:[^\s]+/);
-      if (arnMatch) {
-        return arnMatch[0];
+    // Parse text output for ARN
+    // First try to find ARN directly in output
+    const arnMatch = output.match(/arn:aws:[^\s"']+/);
+    if (arnMatch) {
+      return arnMatch[0].replace(/["']/g, '').trim(); // Remove any quotes
+    }
+    
+    // Try to extract ID/bucket/name and construct ARN
+    const idMatch = output.match(/id\s+=\s+([^\s"']+)/);
+    const bucketMatch = output.match(/bucket\s+=\s+([^\s"']+)/);
+    const nameMatch = output.match(/name\s+=\s+([^\s"']+)/);
+    const arnLineMatch = output.match(/arn\s+=\s+([^\s"']+)/);
+    
+    // If ARN is directly in the output
+    if (arnLineMatch) {
+      return arnLineMatch[1].replace(/["']/g, '').trim();
+    }
+    
+    // Construct ARN based on resource type
+    if (bucketMatch && resourceType === 'aws_s3_bucket') {
+      const bucket = bucketMatch[1].replace(/["']/g, '').trim();
+      return `arn:aws:s3:::${bucket}`;
+    }
+    
+    if (idMatch) {
+      const id = idMatch[1].replace(/["']/g, '').trim();
+      
+      if (resourceType === 'aws_cloudfront_distribution') {
+        return `arn:aws:cloudfront::228480945348:distribution/${id}`;
       }
       
-      // Try to extract ID and construct ARN
-      const idMatch = output.match(/id\s+=\s+([^\s]+)/);
-      const bucketMatch = output.match(/bucket\s+=\s+([^\s]+)/);
-      const nameMatch = output.match(/name\s+=\s+([^\s]+)/);
-      
-      if (bucketMatch && resourceType === 'aws_s3_bucket') {
-        return `arn:aws:s3:::${bucketMatch[1]}`;
-      }
-      
-      if (idMatch) {
-        const id = idMatch[1];
-        if (resourceType === 'aws_cloudfront_distribution') {
-          return `arn:aws:cloudfront::228480945348:distribution/${id}`;
+      if (resourceType === 'aws_lambda_function') {
+        // Try to get function name
+        if (nameMatch) {
+          const funcName = nameMatch[1].replace(/["']/g, '').trim();
+          return `arn:aws:lambda:us-east-1:228480945348:function:${funcName}`;
         }
-        if (resourceType === 'aws_lambda_function' && nameMatch) {
-          // Lambda ARN format: arn:aws:lambda:region:account:function:name
-          return `arn:aws:lambda:us-east-1:228480945348:function:${nameMatch[1]}`;
-        }
+        // Fallback: use ID as function name
+        return `arn:aws:lambda:us-east-1:228480945348:function:${id}`;
       }
       
-      return null;
-    }
-    
-    // Parse JSON output
-    const state = JSON.parse(output);
-    
-    // First try to get ARN directly (most reliable)
-    if (state.values?.arn) {
-      return state.values.arn;
-    }
-    if (state.attributes?.arn) {
-      return state.attributes.arn;
-    }
-    
-    // Then try resource-specific mapper
-    const mapper = RESOURCE_TYPE_MAP[resourceType];
-    if (mapper) {
-      const arn = mapper(state);
-      if (arn) return arn;
+      if (resourceType === 'aws_api_gateway_rest_api') {
+        return `arn:aws:apigateway:us-east-1::/restapis/${id}`;
+      }
+      
+      if (resourceType === 'aws_route53_zone') {
+        return `arn:aws:route53:::hostedzone/${id}`;
+      }
     }
     
     return null;
@@ -164,38 +174,70 @@ function generateResourceList() {
   
   const resourceARNs = [];
   const errors = [];
+  let processed = 0;
+  let skipped = 0;
   
-  for (const resource of stateList) {
+  console.log('🔄 Processing resources to extract ARNs...');
+  
+  for (let i = 0; i < stateList.length; i++) {
+    const resource = stateList[i];
+    
+    // Log progress every 20 resources
+    if (i > 0 && i % 20 === 0) {
+      console.log(`   📊 Progress: ${i}/${stateList.length} (${processed} ARNs found, ${skipped} skipped)`);
+    }
+    
     if (!resource || typeof resource !== 'string') {
+      skipped++;
       continue;
     }
+    
     // Skip data sources and modules for now
     if (resource.startsWith('data.') || resource.includes('module.')) {
+      skipped++;
       continue;
     }
     
     // Parse resource type and name
     const match = resource.match(/^aws_(\w+)\.(.+)$/);
     if (!match) {
+      skipped++;
       continue;
     }
     
     const resourceType = `aws_${match[1]}`;
     const resourceName = match[2];
     
+    // Only process resources we can map to ARNs
+    if (!RESOURCE_TYPE_MAP[resourceType]) {
+      skipped++;
+      continue;
+    }
+    
     // Get ARN
-    const arn = getResourceARN(resourceType, resourceName);
-    if (arn) {
-      resourceARNs.push({
-        arn: arn,
-        terraformResource: resource,
-        type: resourceType,
-        name: resourceName
-      });
-    } else {
+    try {
+      const arn = getResourceARN(resourceType, resourceName);
+      
+      if (arn) {
+        resourceARNs.push({
+          arn: arn,
+          terraformResource: resource,
+          type: resourceType,
+          name: resourceName
+        });
+        processed++;
+      } else {
+        errors.push(resource);
+        skipped++;
+      }
+    } catch (error) {
+      console.error(`   ⚠️  Error processing ${resource}: ${error.message}`);
       errors.push(resource);
+      skipped++;
     }
   }
+  
+  console.log(`✅ Processing complete: ${processed} ARNs found, ${skipped} skipped, ${errors.length} errors`);
   
   console.log(`✅ Generated ${resourceARNs.length} resource ARNs`);
   if (errors.length > 0) {
@@ -203,10 +245,19 @@ function generateResourceList() {
   }
   
   // Write to file
+  // Clean ARNs: remove any quotes or extra whitespace
+  const cleanedARNs = resourceARNs.map(r => {
+    const arn = r.arn || r;
+    if (typeof arn === 'string') {
+      return arn.replace(/^["']|["']$/g, '').trim();
+    }
+    return arn;
+  });
+  
   const output = {
     generatedAt: new Date().toISOString(),
-    totalResources: resourceARNs.length,
-    resources: resourceARNs.map(r => r.arn),
+    totalResources: cleanedARNs.length,
+    resources: cleanedARNs,
     resourceDetails: resourceARNs
   };
   

@@ -31,6 +31,12 @@
   },
   "homepage": "https://github.com/Necron-99/robert-consulting-public#readme",
   "devDependencies": {
+    "@aws-sdk/client-api-gateway": "^3.928.0",
+    "@aws-sdk/client-cloudfront": "^3.928.0",
+    "@aws-sdk/client-lambda": "^3.928.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.928.0",
+    "@aws-sdk/client-s3": "^3.928.0",
+    "@aws-sdk/client-wafv2": "^3.928.0",
     "@eslint/js": "^9.38.0",
     "eslint": "^9.38.0",
     "eslint-plugin-no-secrets": "^2.2.1",

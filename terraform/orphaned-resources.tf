@@ -2,17 +2,8 @@
 # These resources exist in AWS but are not managed by Terraform
 
 # Plex Recommendations S3 Buckets
-resource "aws_s3_bucket" "plex_recommendations_data" {
-  bucket = "plex-recommendations-data-1e15cfbc"
-  
-  tags = {
-    Name        = "Plex Recommendations Data"
-    Project     = "plex-recommendations"
-    Environment = "production"
-    ManagedBy   = "Terraform"
-    Purpose     = "Plex data storage and analysis"
-  }
-}
+# Note: plex-recommendations-data-1e15cfbc bucket was deleted (empty, unused)
+# Lambda uses plex-recommendations-c7c49ce4 instead (managed in module)
 
 resource "aws_s3_bucket" "plex_domain" {
   bucket = "plex.robertconsulting.net"

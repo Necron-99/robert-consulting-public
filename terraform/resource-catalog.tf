@@ -162,6 +162,10 @@ resource "aws_iam_role_policy" "resource_cataloger_policy" {
         Effect = "Allow"
         Action = [
           # Resource Groups Tagging API - Discover all resources
+          # Note: Both service prefixes work, but tag: is the recommended short form
+          "tag:GetResources",
+          "tag:GetTagKeys",
+          "tag:GetTagValues",
           "resourcegroupstaggingapi:GetResources",
           "resourcegroupstaggingapi:GetTagKeys",
           "resourcegroupstaggingapi:GetTagValues"

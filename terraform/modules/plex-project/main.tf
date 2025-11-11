@@ -35,17 +35,8 @@ resource "aws_s3_bucket" "plex_data" {
   }
 }
 
-# S3 Bucket for Plex domain
-resource "aws_s3_bucket" "plex_domain" {
-  bucket = "plex.robertconsulting.net"
-  
-  tags = {
-    Name        = "Plex Domain"
-    Environment = var.environment
-    Project     = var.project_name
-    ManagedBy   = "Terraform"
-  }
-}
+# Note: plex.robertconsulting.net bucket is managed in orphaned-resources.tf
+# (aws_s3_bucket.plex_domain) because it's used by the CloudFront distribution there
 
 # S3 Bucket Configurations
 resource "aws_s3_bucket_versioning" "plex_data" {
@@ -75,65 +66,8 @@ resource "aws_s3_bucket_public_access_block" "plex_data" {
   restrict_public_buckets = true
 }
 
-# CloudFront Distribution for Plex project
-resource "aws_cloudfront_distribution" "plex_distribution" {
-  origin {
-    domain_name = aws_s3_bucket.plex_domain.bucket_regional_domain_name
-    origin_id   = "S3-${aws_s3_bucket.plex_domain.id}"
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.plex_oai.cloudfront_access_identity_path
-    }
-  }
-
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
-  comment             = "Plex Recommendations Project"
-
-  default_cache_behavior {
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${aws_s3_bucket.plex_domain.id}"
-    compress               = true
-    viewer_protocol_policy = "redirect-to-https"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 3600
-    max_ttl     = 86400
-  }
-
-  price_class = "PriceClass_100"
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  tags = {
-    Name        = "Plex Recommendations Distribution"
-    Environment = var.environment
-    Project     = var.project_name
-    ManagedBy   = "Terraform"
-  }
-}
-
-# CloudFront Origin Access Identity
-resource "aws_cloudfront_origin_access_identity" "plex_oai" {
-  comment = "Plex Recommendations OAI"
-}
+# Note: CloudFront distribution and OAI removed - using the one in orphaned-resources.tf (E3T1Z34I8CU20F)
+# which has the active alias plex.robertconsulting.net and uses OAI E3N1PJIQ3V9W9F
 
 # Lambda function for Plex analysis
 resource "aws_lambda_function" "plex_analyzer" {
@@ -221,20 +155,10 @@ output "plex_data_bucket_name" {
   value       = aws_s3_bucket.plex_data.bucket
 }
 
-output "plex_domain_bucket_name" {
-  description = "Name of the Plex domain S3 bucket"
-  value       = aws_s3_bucket.plex_domain.bucket
-}
+# plex_domain_bucket_name output removed - bucket is managed in orphaned-resources.tf
 
-output "plex_cloudfront_distribution_id" {
-  description = "CloudFront Distribution ID for Plex project"
-  value       = aws_cloudfront_distribution.plex_distribution.id
-}
-
-output "plex_cloudfront_domain_name" {
-  description = "CloudFront Distribution Domain Name for Plex project"
-  value       = aws_cloudfront_distribution.plex_distribution.domain_name
-}
+# CloudFront outputs removed - distribution is managed in orphaned-resources.tf
+# Active distribution ID: E3T1Z34I8CU20F (has alias plex.robertconsulting.net)
 
 output "plex_lambda_function_name" {
   description = "Lambda function name for Plex analysis"

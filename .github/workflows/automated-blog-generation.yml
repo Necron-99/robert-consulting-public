@@ -298,20 +298,17 @@ jobs:
           
           echo "✅ Successfully uploaded to S3: $BLOG_FILENAME"
           
-      - name: Invalidate CloudFront
-        if: steps.generate-content.outputs.blog-generated == 'true'
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/blog-posts/*"
-          echo "🔄 CloudFront cache invalidated"
-          
       - name: Update schedule status
         if: steps.generate-content.outputs.blog-generated == 'true'
         run: |
-          DATE=$(date +%Y-%m-%d)
+          # Use the actual blog post date, not today's date
+          BLOG_FILENAME="${{ steps.generate-content.outputs.blog-filename }}"
+          DATE_ONLY=$(echo "$BLOG_FILENAME" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' || date +%Y-%m-%d)
+          
           if [ -f "blog-schedule.json" ]; then
-            # Update status to "published" for today's entry (removes from coming soon)
-            jq --arg date "$DATE" '(.schedule[] | select(.date == $date) | .status) = "published"' blog-schedule.json > blog-schedule.json.tmp && mv blog-schedule.json.tmp blog-schedule.json
-            echo "✅ Updated schedule status to 'published' for $DATE"
+            # Update status to "published" for the blog post's date (removes from coming soon)
+            jq --arg date "$DATE_ONLY" '(.schedule[] | select(.date == $date) | .status) = "published"' blog-schedule.json > blog-schedule.json.tmp && mv blog-schedule.json.tmp blog-schedule.json
+            echo "✅ Updated schedule status to 'published' for $DATE_ONLY"
           fi
           
       - name: Update coming soon section
@@ -320,6 +317,38 @@ jobs:
           echo "🔄 Updating coming soon section to remove published post..."
           node scripts/generate-coming-soon.js
           echo "✅ Coming soon section updated"
+          
+      - name: Upload updated blog.html and blog.js to S3
+        if: steps.generate-content.outputs.blog-generated == 'true'
+        run: |
+          set -e
+          
+          echo "📤 Uploading updated blog.html and blog.js to S3..."
+          
+          # Upload blog.html
+          if [ -f "website/blog.html" ]; then
+            aws s3 cp website/blog.html s3://robert-consulting-website/blog.html
+            echo "✅ Uploaded blog.html to S3"
+          else
+            echo "⚠️ blog.html not found, skipping upload"
+          fi
+          
+          # Upload blog.js
+          if [ -f "website/js/blog.js" ]; then
+            aws s3 cp website/js/blog.js s3://robert-consulting-website/js/blog.js
+            echo "✅ Uploaded blog.js to S3"
+          else
+            echo "⚠️ blog.js not found, skipping upload"
+          fi
+          
+      - name: Invalidate CloudFront for blog files
+        if: steps.generate-content.outputs.blog-generated == 'true'
+        run: |
+          echo "🔄 Invalidating CloudFront cache for blog files..."
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/blog.html" "/js/blog.js" "/blog-posts/*"
+          echo "✅ CloudFront cache invalidated"
           
       - name: Commit and push changes
         if: steps.generate-content.outputs.blog-generated == 'true'
