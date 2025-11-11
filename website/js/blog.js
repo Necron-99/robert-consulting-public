@@ -252,7 +252,7 @@ class BlogManager {
         tags: ['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings'],
         icon: '💰',
         readTime: '12 min read'
-      },,
+      },
       {
         id: 24,
         title: 'CI/CD Pipeline Optimization',
