@@ -252,6 +252,17 @@ class BlogManager {
         tags: ['AWS Cost Optimization', 'Cost Management', 'AWS Billing', 'Cost Control', 'AWS Savings'],
         icon: '💰',
         readTime: '12 min read'
+      },,
+      {
+        id: 24,
+        title: 'CI/CD Pipeline Optimization',
+        excerpt: 'Strategies for optimizing CI/CD pipelines for speed, reliability, and cost efficiency',
+        content: 'blog-posts/tuesday-2025-11-11.html',
+        date: '2025-11-11', // Tuesday
+        category: 'general',
+        tags: ['Technology', 'Analysis'],
+        icon: '📝',
+        readTime: '8 min read'
       }
     ];
   }

@@ -10,7 +10,7 @@
       "focus": "Implementing rolling updates, blue-green, and canary deployments in Kubernetes",
       "keywords": "Kubernetes, deployment strategies, rolling updates, blue-green, canary",
       "category": "containers",
-      "icon": "\ud83d\udc33",
+      "icon": "🐳",
       "tags": [
         "Kubernetes",
         "Docker",
@@ -49,7 +49,7 @@
       "focus": "Practical strategies to keep AWS costs in check and avoid unexpected charges",
       "keywords": "AWS cost optimization, cost management, AWS billing, cost control, AWS savings, budget alerts, cost optimization strategies",
       "category": "aws",
-      "icon": "\ud83d\udcb0",
+      "icon": "💰",
       "tags": [
         "AWS Cost Optimization",
         "Cost Management",
@@ -67,12 +67,12 @@
     {
       "date": "2025-11-11",
       "day": "tuesday",
-      "status": "approved",
+      "status": "published",
       "topic": "CI/CD Pipeline Optimization",
       "focus": "Strategies for optimizing CI/CD pipelines for speed, reliability, and cost efficiency",
       "keywords": "CI/CD, pipeline optimization, DevOps automation, build performance, deployment speed",
       "category": "devops",
-      "icon": "\u2699\ufe0f",
+      "icon": "⚙️",
       "tags": [
         "DevOps",
         "Automation",
@@ -111,7 +111,7 @@
       "focus": "Implementing comprehensive vulnerability scanning, assessment, and remediation workflows",
       "keywords": "vulnerability management, security scanning, remediation, security automation",
       "category": "security",
-      "icon": "\ud83d\udd12",
+      "icon": "🔒",
       "tags": [
         "Security",
         "DevSecOps",
@@ -150,7 +150,7 @@
       "focus": "Best practices for managing Terraform state files, remote backends, and state locking",
       "keywords": "Terraform, state management, remote backend, state locking, infrastructure as code",
       "category": "infrastructure",
-      "icon": "\ud83c\udfd7\ufe0f",
+      "icon": "🏗️",
       "tags": [
         "Infrastructure as Code",
         "IaC",
@@ -189,7 +189,7 @@
       "focus": "Securing Kubernetes clusters, pods, and container workloads",
       "keywords": "Kubernetes security, pod security, cluster security, container security",
       "category": "containers",
-      "icon": "\ud83d\udc33",
+      "icon": "🐳",
       "tags": [
         "Kubernetes",
         "Docker",
@@ -228,7 +228,7 @@
       "focus": "Designing and implementing resilient multi-region architectures for high availability and disaster recovery",
       "keywords": "multi-region, high availability, disaster recovery, AWS architecture, resilience",
       "category": "aws",
-      "icon": "\u2601\ufe0f",
+      "icon": "☁️",
       "tags": [
         "AWS",
         "Cloud Infrastructure",
@@ -267,7 +267,7 @@
       "focus": "Strategies for optimizing CI/CD pipelines for speed, reliability, and cost efficiency",
       "keywords": "CI/CD, pipeline optimization, DevOps automation, build performance, deployment speed",
       "category": "devops",
-      "icon": "\u2699\ufe0f",
+      "icon": "⚙️",
       "tags": [
         "DevOps",
         "Automation",
@@ -306,7 +306,7 @@
       "focus": "Integrating Static and Dynamic Application Security Testing into CI/CD pipelines",
       "keywords": "SAST, DAST, security testing, application security, CI/CD security",
       "category": "security",
-      "icon": "\ud83d\udd12",
+      "icon": "🔒",
       "tags": [
         "Security",
         "DevSecOps",
@@ -345,7 +345,7 @@
       "focus": "Creating reusable Terraform modules for common infrastructure patterns",
       "keywords": "Terraform modules, infrastructure patterns, code reuse, IaC best practices",
       "category": "infrastructure",
-      "icon": "\ud83c\udfd7\ufe0f",
+      "icon": "🏗️",
       "tags": [
         "Infrastructure as Code",
         "IaC",
@@ -384,7 +384,7 @@
       "focus": "Common patterns for deploying and managing containerized applications at scale",
       "keywords": "container orchestration, Kubernetes patterns, deployment patterns, microservices",
       "category": "containers",
-      "icon": "\ud83d\udc33",
+      "icon": "🐳",
       "tags": [
         "Kubernetes",
         "Docker",
@@ -423,7 +423,7 @@
       "focus": "Designing and implementing resilient multi-region architectures for high availability and disaster recovery",
       "keywords": "multi-region, high availability, disaster recovery, AWS architecture, resilience",
       "category": "aws",
-      "icon": "\u2601\ufe0f",
+      "icon": "☁️",
       "tags": [
         "AWS",
         "Cloud Infrastructure",
@@ -462,7 +462,7 @@
       "focus": "Advanced GitHub Actions workflows, optimization techniques, and security best practices",
       "keywords": "GitHub Actions, CI/CD, automation, workflows, GitHub",
       "category": "devops",
-      "icon": "\u2699\ufe0f",
+      "icon": "⚙️",
       "tags": [
         "DevOps",
         "Automation",
@@ -501,7 +501,7 @@
       "focus": "Secure secrets management strategies using tools like AWS Secrets Manager, HashiCorp Vault, and GitHub Secrets",
       "keywords": "secrets management, security, AWS Secrets Manager, Vault, credential management",
       "category": "security",
-      "icon": "\ud83d\udd12",
+      "icon": "🔒",
       "tags": [
         "Security",
         "DevSecOps",
