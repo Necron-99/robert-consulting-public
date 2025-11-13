@@ -1,8 +1,20 @@
+## ⚠️ REPOSITORY ARCHIVED
+
+**This repository has been archived as of November 13, 2025.**
+
+This repository has been split into two separate repositories:
+- **Infrastructure**: [robert-consulting-infrastructure](https://github.com/Necron-99/robert-consulting-infrastructure)
+- **Content**: [robert-consulting-content](https://github.com/Necron-99/robert-consulting-content)
+
+This repository is now read-only. All active development has moved to the new repositories.
+
+---
+
 # Robert Consulting Infrastructure Framework
 
 This repository contains the complete infrastructure framework and website for Robert Consulting. This is the public repository showcasing our infrastructure-as-code approach, client management system, and comprehensive CI/CD pipelines.
 
-**Repository:** [robert-consulting-public](https://github.com/Necron-99/robert-consulting-public)
+**Repository:** [robert-consulting-public](https://github.com/Necron-99/robert-consulting-public) (ARCHIVED)
 
 ## 🎯 Overview
 
